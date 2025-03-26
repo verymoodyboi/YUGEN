@@ -1,0 +1,175 @@
+@import url("https://fonts.googleapis.com/css2?family=Freckle+Face&display=swap");
+
+body {
+  font-family: "Freckle Face", system-ui;
+  font-weight: 400;
+  font-style: normal;
+
+}
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; 
+  width: 100%;  
+  box-sizing: border-box; 
+  background-image: url('./YugenAssits/BG/HP_BG.png');
+  background-size:contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.HomePage
+{
+  background-size: cover;
+  background-position: to;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+.FilmCatalog
+{
+  background-image: url('./YugenAssits/BG/FilmsFrame.png');
+  background-size:contain;
+
+  background-position: cover;
+  background-repeat: no-repeat;
+  height: 610px;
+  width: 1100px;
+  position: absolute;
+  left:120px;
+  bottom:100px;
+
+
+
+}
+.GlassMenu
+{
+  background-image: url('./YugenAssits/BG/Glass_Menu.png');
+  background-size:contain;
+  width: 250px;
+  height: 500px;
+  
+  text-decoration-color: #000000;
+  background-position: cover;
+  background-repeat: no-repeat;
+  position: absolute;
+  right:110px;
+  top: 100px;
+
+
+
+
+}
+.SearchBar
+{
+  position: absolute;
+  top: 10px;
+  right: 720px;
+  width: 200px;
+
+}
+.icon 
+{
+  height: 40px;
+  width: 50px;
+  position: absolute;
+  top: 10px;
+  left: -40px;
+  background-image: url("./YugenAssits/Icons/SearchIcon.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.SittingsLink
+{
+  height: 30px;
+  width: 30px;
+  position: absolute;
+  top:15px;
+  right: 450px;
+}
+.HomeLink
+{
+  height: 30px;
+  width: 30px;
+  position: absolute;
+  top: 15px;
+  right: 490px;
+}
+.FilmBox
+{
+  position: absolute;
+  height: 200px;
+  width: 200px;
+
+
+
+  border: solid 4px whitesmoke;
+  border-radius: 10px;
+   background-image: 
+   
+   linear-gradient(rgba(53,91,86,255),rgb(255, 255, 255));
+
+    filter:blur(4px);
+    -o-filter:blur(4px);
+    -ms-filter:blur(4px);
+    -moz-filter:blur(4px);
+    -webkit-filter:blur(10px);
+    opacity: 75%;
+
+}
+.idk
+{
+  opacity: 100%;
+  filter:blur(0px);
+  -o-filter:blur(0px);
+  -ms-filter:blur(0px);
+  -moz-filter:blur(0px);
+  -webkit-filter:blur(0px);
+}
