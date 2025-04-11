@@ -1,22 +1,31 @@
 import "../App.css";
 import PFP from "../YugenAssits/temp/PFP_temp.png";
-
+import TN from "../YugenAssits/temp/ThumbNail_Temp.png";
+import R from "../YugenAssits/Icons/Rating.png";
+import Genre from "../YugenAssits/Icons/GenreLogopng.png";
 function FilmBox() {
   return (
     <div className="FilmBox">
-      <img
-        className="idk"
-        src={PFP}
-        alt=""
-        style={{
-          opacity: "100%",
-          position: "relative",
-          top: "10px",
-          right: "-70px",
-          height: "50px",
-          width: "50px",
-        }}
-      />
+      <div>
+        <img src={TN} className="FilmBox_TN" />
+      </div>
+      <div>
+        <p className="FilmBox_FilmName">Film Name </p>
+      </div>
+      <div
+        style={{ display: "flex", alignItems: "center", gap: "0px" }}
+        className="FilmBox_Rating"
+      >
+        <img src={R} />
+        <p style={{ margin: 0, whiteSpace: "nowrap" }}>9.9</p>
+      </div>
+      <div
+        style={{ display: "flex", alignItems: "center", gap: "14px" }}
+        className="FilmBox_Genre"
+      >
+        <img src={Genre} style={{ width: 30, height: 30 }} />
+        <p>Genre1, Genre2, Genre3 </p>
+      </div>
     </div>
   );
 }

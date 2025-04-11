@@ -89,6 +89,18 @@ html, body {
 
 
 }
+.ContainCata
+{
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 310px;
+  width: 850px;
+  position: relative;
+  top: 230px;
+  white-space: nowrap;
+  
+}
 .GlassMenu
 {
   background-image: url('./YugenAssits/BG/Glass_Menu.png');
@@ -126,50 +138,117 @@ html, body {
   background-size: contain;
   background-repeat: no-repeat;
 }
-.SittingsLink
+.IconLink
 {
   height: 30px;
   width: 30px;
   position: absolute;
-  top:15px;
-  right: 450px;
-}
-.HomeLink
-{
-  height: 30px;
-  width: 30px;
-  position: absolute;
-  top: 15px;
-  right: 490px;
 }
 .FilmBox
 {
-  position: absolute;
+   position: relative;
+   display: inline-block;
+   top: -20px;
+   background-image: url("./YugenAssits/BG/FilmFrame.png");
+   background-size: cover;
+   background-repeat: no-repeat;
+   background-position: center;
+   width: 280px;
+   height: 280px;
+}
+.FilmBox_PFP
+{
+  height: 50px;
+  width: 30px;
+  position: relative;
+  left: 100px;
+  top: 50px;
+  border-radius: 10px;
+}
+.FilmBox_TN
+{
+  position: relative;
   height: 200px;
   width: 200px;
-
-
-
-  border: solid 4px whitesmoke;
-  border-radius: 10px;
-   background-image: 
-   
-   linear-gradient(rgba(53,91,86,255),rgb(255, 255, 255));
-
-    filter:blur(4px);
-    -o-filter:blur(4px);
-    -ms-filter:blur(4px);
-    -moz-filter:blur(4px);
-    -webkit-filter:blur(10px);
-    opacity: 75%;
+  top: 20px;
 
 }
-.idk
+.FilmBox_Rating
 {
-  opacity: 100%;
-  filter:blur(0px);
-  -o-filter:blur(0px);
-  -ms-filter:blur(0px);
-  -moz-filter:blur(0px);
-  -webkit-filter:blur(0px);
+
+  position: relative;
+  top: -40px;
+  left: 30px;
+  height: fit-content;
+}
+.FilmBox_Genre
+{
+ height: fit-content;
+ width: fit-content;
+  position: relative;
+  top: -65px;
+  left: 40px;
+}
+.FilmBox_FilmName
+{
+  position: relative;
+  top: -10px;
+  left: -60px;
+}
+.CatagoryName
+{
+  font-size: 30px;
+  color: white;
+  position: relative;
+  margin: 0;
+  display: block;
+}
+.Catagory
+{
+  transform: translateZ(0);
+  border-radius: 10px;
+  position: relative;
+  height: 260px;
+  width: 850px;
+  top:0px;
+  left: 5px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  opacity:0.5;
+  
+}
+
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(rgba(151,91,106,255),rgba(48,5,10,255));
+  border-radius: 10px;
+  opacity: 0.5;
+  
+
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(rgba(46,62,38,255),rgba(96,170,167,255));
+  border-radius: 10px;
+  opacity: 0.5;
+
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: whitesmoke;
+  opacity: 0.5;
+}
+.NavBar
+{
+  position: absolute;
+  top: 10px;
+  left: 1000px;
 }
