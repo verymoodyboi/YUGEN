@@ -54,8 +54,8 @@ html, body {
   height: 100%; 
   width: 100%;  
   box-sizing: border-box; 
-  background-image: url('./YugenAssits/BG/HP_BG.png');
-  background-size:contain;
+  background-image: url('./YugenAssits/BG/HP_BG3.png');
+  background-size:cover;
   background-position: center;
   background-repeat: no-repeat;
   height: 100vh;
@@ -75,16 +75,17 @@ html, body {
 }
 .FilmCatalog
 {
-  background-image: url('./YugenAssits/BG/FilmsFrame.png');
+  background-image: url('./YugenAssits/BG/FilmsFrame2.png');
   background-size:contain;
 
   background-position: cover;
   background-repeat: no-repeat;
-  height: 610px;
-  width: 1100px;
+  height: 700px;
+  width: 1300px;
+
   position: absolute;
-  left:120px;
-  bottom:100px;
+  left:0px;
+  top:-15px;
 
 
 
@@ -94,10 +95,10 @@ html, body {
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 310px;
-  width: 850px;
+  height: 370px;
+  width: 1100px;
   position: relative;
-  top: 230px;
+  top: 250px;
   white-space: nowrap;
   
 }
@@ -112,7 +113,7 @@ html, body {
   background-position: cover;
   background-repeat: no-repeat;
   position: absolute;
-  right:110px;
+  right:0px;
   top: 100px;
 
 
@@ -122,7 +123,7 @@ html, body {
 .SearchBar
 {
   position: absolute;
-  top: 10px;
+  top: 5px;
   right: 720px;
   width: 200px;
 
@@ -153,8 +154,8 @@ html, body {
    background-size: cover;
    background-repeat: no-repeat;
    background-position: center;
-   width: 280px;
-   height: 280px;
+   width: 350px;
+   height: 330px;
 }
 .FilmBox_PFP
 {
@@ -168,9 +169,9 @@ html, body {
 .FilmBox_TN
 {
   position: relative;
-  height: 200px;
-  width: 200px;
-  top: 20px;
+  height: 250px;
+  width: 250px;
+  top: 10px;
 
 }
 .FilmBox_Rating
@@ -208,8 +209,8 @@ html, body {
   transform: translateZ(0);
   border-radius: 10px;
   position: relative;
-  height: 260px;
-  width: 850px;
+  height: 320px;
+  width: 1050px;
   top:0px;
   left: 5px;
   overflow-x: auto;
@@ -250,5 +251,5 @@ html, body {
 {
   position: absolute;
   top: 10px;
-  left: 1000px;
+  left: 950px;
 }
