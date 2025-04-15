@@ -1,20 +1,78 @@
 import "../App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify/unstyled";
+import "react-toastify/dist/ReactToastify.css";
 import Select from "react-dropdown-select";
 
 function UploadForm() {
   const [Inputs, SetInput] = useState({});
+  const [FErrors, SetErrors] = useState({});
+  const [isSubmit, setisSubmit] = useState(false);
 
   const handleUpload = (event) => {
     event.preventDefault();
+    SetErrors(validate(Inputs));
     console.log("Form submitted!");
     console.log(Inputs);
   };
+  useEffect(() => {
+    console.log(FErrors);
+    if (Object.keys(FErrors).length === 0 && isSubmit) {
+    }
+  }, [FErrors]);
+  const validate = (Inputs) => {
+    const errors = {};
+    if (!Inputs.Title) {
+      errors.Title = "Title is required.";
+      toast("Title is required.");
+    }
+    if (!Inputs.File) {
+      errors.File = "Upload film file.";
+      toast("Upload film File is required.");
+    } else {
+      const allowedTypes = ["jpeg"];
+      const allowedExtensions = ["mp4"];
+      const fileExtension = Inputs.File.name.split(".").pop().toLowerCase();
 
+      if (!allowedExtensions.includes(fileExtension)) {
+        errors.FileType = "Invalid film file type. Only mp4 is allowed.";
+        toast("Invalid film file type. Only mp4 is allowed.");
+      }
+    }
+    if (!Inputs.ThumbNail) {
+      errors.Thumbnail = "Upload thumbnail picture.";
+      toast("Upload thumbnail picture.");
+    } else {
+      const allowedExtensions = ["jpeg"];
+      const fileExtension = Inputs.ThumbNail.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+      if (!allowedExtensions.includes(fileExtension)) {
+        errors.ThumbnailType =
+          "Invalid Thumbnail file type. Only jpeg allowed.";
+        toast("Invalid Thumbnail file type. Only jpeg allowed.");
+      }
+    }
+    if (!Inputs.Description) {
+      errors.Description = "Description is required.";
+      toast("Description is required.");
+    }
+    if (!Inputs.Genres) {
+      errors.Genres = "Select at least 1 Genre";
+      toast("Select at least 1 Genre");
+    }
+    return errors;
+  };
   const handleChange = (event) => {
     const name = event.target.name;
-    const value = event.target.value;
+    let value;
+    if (event.target.type === "file") {
+      value = event.target.files[0];
+    } else {
+      value = event.target.value;
+    }
     SetInput((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
@@ -62,6 +120,18 @@ function UploadForm() {
         />
         <button type="submit">Upload</button>
       </form>
+      <ToastContainer
+        position="top-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 }
