@@ -68,7 +68,6 @@ html, body {
   background-size: cover;
   background-position: to;
 
-  display: flex;
   justify-content: center;
   align-items: center;
 
@@ -80,8 +79,8 @@ html, body {
 
   background-position: cover;
   background-repeat: no-repeat;
-  height: 700px;
-  width: 1300px;
+  height: 100%;
+  width: 85%;
 
   position: absolute;
   left:0px;
@@ -95,12 +94,12 @@ html, body {
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 370px;
-  width: 1100px;
-  position: relative;
-  top: 250px;
+  height: 50%;
+  width: 85%;
+  position: absolute;
+  top: 35%;
   white-space: nowrap;
-  
+
 }
 .GlassMenu
 {
@@ -108,7 +107,6 @@ html, body {
   background-size:contain;
   width: 250px;
   height: 500px;
-  
   text-decoration-color: #000000;
   background-position: cover;
   background-repeat: no-repeat;
@@ -154,8 +152,8 @@ html, body {
    background-size: cover;
    background-repeat: no-repeat;
    background-position: center;
-   width: 350px;
-   height: 330px;
+   width: 33%;
+   height: 105%;
 }
 .FilmBox_PFP
 {

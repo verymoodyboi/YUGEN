@@ -4,18 +4,34 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify/unstyled";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-dropdown-select";
-
 function UploadForm() {
   const [Inputs, SetInput] = useState({});
   const [FErrors, SetErrors] = useState({});
   const [isSubmit, setisSubmit] = useState(false);
 
-  const handleUpload = (event) => {
+  const handleUpload = async (event) => {
     event.preventDefault();
     SetErrors(validate(Inputs));
-    console.log("Form submitted!");
-    console.log(Inputs);
+    setisSubmit(true);
+
+    if (Object.keys(validate(Inputs)).length === 0) {
+      try {
+        await axios.post("http://localhost:3001/upload-film", {
+          Title: Inputs.Title,
+          Description: Inputs.Description,
+          Genres: Inputs.Genres,
+          FilmPath: Inputs.File?.name || "", // just using the file name as path
+          ThumbnailPath: Inputs.Thumbnail?.name || "",
+        });
+        toast("Film data uploaded successfully!");
+      } catch (error) {
+        console.error("Upload failed", error);
+        toast("Upload failed!" + error);
+        setisSubmit(false);
+      }
+    }
   };
+
   useEffect(() => {
     console.log(FErrors);
     if (Object.keys(FErrors).length === 0 && isSubmit) {
@@ -25,43 +41,48 @@ function UploadForm() {
     const errors = {};
     if (!Inputs.Title) {
       errors.Title = "Title is required.";
-      toast("Title is required.");
+      toast("Title is required!");
     }
     if (!Inputs.File) {
       errors.File = "Upload film file.";
-      toast("Upload film File is required.");
+      toast("Upload film File!");
     } else {
-      const allowedTypes = ["jpeg"];
       const allowedExtensions = ["mp4"];
       const fileExtension = Inputs.File.name.split(".").pop().toLowerCase();
 
       if (!allowedExtensions.includes(fileExtension)) {
         errors.FileType = "Invalid film file type. Only mp4 is allowed.";
-        toast("Invalid film file type. Only mp4 is allowed.");
+        toast(
+          "Invalid film file type. Only (" + allowedExtensions + ") is allowed!"
+        );
       }
     }
-    if (!Inputs.ThumbNail) {
+    if (!Inputs.Thumbnail) {
       errors.Thumbnail = "Upload thumbnail picture.";
-      toast("Upload thumbnail picture.");
+      toast("Upload thumbnail picture!");
     } else {
-      const allowedExtensions = ["jpeg"];
-      const fileExtension = Inputs.ThumbNail.name
+      const allowedExtensions2 = ["jpg"];
+      const fileExtension2 = Inputs.Thumbnail.name
         .split(".")
         .pop()
         .toLowerCase();
-      if (!allowedExtensions.includes(fileExtension)) {
+      if (!allowedExtensions2.includes(fileExtension2)) {
         errors.ThumbnailType =
           "Invalid Thumbnail file type. Only jpeg allowed.";
-        toast("Invalid Thumbnail file type. Only jpeg allowed.");
+        toast(
+          "Invalid Thumbnail file type, Only (" +
+            allowedExtensions2 +
+            ") allowed!"
+        );
       }
     }
     if (!Inputs.Description) {
       errors.Description = "Description is required.";
-      toast("Description is required.");
+      toast("Description is required!");
     }
     if (!Inputs.Genres) {
       errors.Genres = "Select at least 1 Genre";
-      toast("Select at least 1 Genre");
+      toast("Select at least 1 Genre!");
     }
     return errors;
   };
