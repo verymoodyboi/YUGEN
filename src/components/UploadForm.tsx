@@ -4,6 +4,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify/unstyled";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-dropdown-select";
+
 function UploadForm() {
   const [Inputs, SetInput] = useState({});
   const [FErrors, SetErrors] = useState({});
@@ -15,15 +16,19 @@ function UploadForm() {
     setisSubmit(true);
 
     if (Object.keys(validate(Inputs)).length === 0) {
+      const formData = new FormData();
+      formData.append("Title", Inputs.Title);
+      formData.append("Description", Inputs.Description);
+      formData.append("Genres", JSON.stringify(Inputs.Genres));
+      formData.append("File", Inputs.File);
+      formData.append("Thumbnail", Inputs.Thumbnail);
       try {
-        await axios.post("http://localhost:3001/upload-film", {
-          Title: Inputs.Title,
-          Description: Inputs.Description,
-          Genres: Inputs.Genres,
-          FilmPath: Inputs.File?.name || "", // just using the file name as path
-          ThumbnailPath: Inputs.Thumbnail?.name || "",
+        await axios.post("http://localhost:3001/upload-film", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
-        toast("Film data uploaded successfully!");
+        toast("Film uploaded successfully!");
       } catch (error) {
         console.error("Upload failed", error);
         toast("Upload failed!" + error);
