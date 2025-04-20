@@ -4,10 +4,13 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require('fs');
+const ffmpeg = require('fluent-ffmpeg');
+
 //init express app
 const app = express();
 app.use(cors());
 app.use(express.json());
+
 //create connection
 const con = sql.createConnection({
   host: 'localhost',
@@ -32,16 +35,18 @@ if (!fs.existsSync('uploads/thumbnails')) {
 }
 
 // check last id ()
-function getMaxID(callback) {
-  const IdQuery = 'SELECT MAX(film_id) AS max_id FROM films;';
-  con.query(IdQuery, (err, result) => {
-    if (err) {
-      console.log("MaxID not found");
-      callback(null);  
-    } else {
-      const MaxID = result[0].max_id || 0; // Get the max ID or 0 if tably empt
-      callback(MaxID + 1); 
-    }
+function getMaxID() {
+  return new Promise((resolve, reject) => {
+    const IdQuery = 'SELECT MAX(film_id) AS max_id FROM films;';
+    con.query(IdQuery, (err, result) => {
+      if (err) {
+        console.log("MaxID not found");
+        return resolve(null);
+      } else {
+        const MaxID = result[0].max_id || 0; // Get the max ID or 0 if table empty
+        resolve(MaxID + 1);
+      }
+    });
   });
 }
 
@@ -54,19 +59,18 @@ const storage = multer.diskStorage({
       cb(null, 'uploads/thumbnails/'); 
     }
   },
-  filename: function (req, file, cb) {
-    getMaxID(function (MaxID) {
-      if (MaxID === null) {
-        return cb(new Error("Failed to retrieve MaxID"));
-      }
-      const extension = path.extname(file.originalname); 
+  filename: async function (req, file, cb) {
+    const MaxID = await getMaxID();
+    if (MaxID === null) {
+      return cb(new Error("Failed to retrieve MaxID"));
+    }
+    const extension = path.extname(file.originalname); 
 
-      if (file.fieldname === 'File') {
-        cb(null, MaxID + extension); // Save video as 'film_id.mp4' for ex
-      } else if (file.fieldname === 'Thumbnail') {
-        cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'...
-      }
-    });
+    if (file.fieldname === 'File') {
+      cb(null, MaxID + extension); // Save video as 'film_id.mp4' for ex
+    } else if (file.fieldname === 'Thumbnail') {
+      cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'...
+    }
   }
 });
 
@@ -74,39 +78,58 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // req handle
-app.post('/upload-film', upload.fields([{ name: 'File' }, { name: 'Thumbnail' }]), (req, res) => {
+app.post('/upload-film', upload.fields([{ name: 'File' }, { name: 'Thumbnail' }]), async (req, res) => {
   console.log("Received POST request");
 
   const { Title, Description, Genres } = req.body;
   const FilmPath = req.files.File[0].path; // film path
   const ThumbnailPath = req.files.Thumbnail[0].path; // TN opath
-  console.log("Request body:", { Title, Description, Genres, FilmPath, ThumbnailPath });
+  const time=new Date();
+  const date = time.toISOString().split('T')[0];
 
-  // Check for missing inputs (ik it already did in the form but y not double check)
+
+  // Validate form values
   if (!Title || !Description || !Genres || !FilmPath || !ThumbnailPath) {
     console.log("Missing required fields.");
     return res.status(400).send("All fields including files are required.");
   }
 
-  const sqlQuery = `
-    INSERT INTO films (film_title, description, film_genre, film_path, thumbnail_path)
-    VALUES (?, ?, ?, ?, ?)
-  `;
+  try {
+    ffmpeg.ffprobe(FilmPath, (err, metadata) => {
+      if (err) {
+        console.error("Error reading video metadata:", err);
+        return res.status(500).send("Failed to read video duration.");
+      }
+      const videoDuration = metadata.format.duration.toFixed(1); // rounded to 1 decimal
+      console.log("Video Duration:", videoDuration);
+      console.log("Request body:", { Title, Description, Genres, FilmPath, ThumbnailPath, videoDuration });
 
-  con.query(sqlQuery, [
-    Title,
-    Description,
-    JSON.stringify(Genres), 
-    FilmPath,
-    ThumbnailPath
-  ], (err, result) => {
-    if (err) {
-      console.error("MySQL Query Error:", err);
-      return res.status(500).send("Database error: " + err.message);
-    }
-    console.log("Query successful. Inserted film:", result);
-    res.send("Film data saved successfully!");
-  });
+      const sqlQuery = `
+        INSERT INTO films (film_title, description, film_genre, film_path, thumbnail_path, film_duration, release_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      con.query(sqlQuery, [
+        Title,
+        Description,
+        JSON.stringify(Genres), 
+        FilmPath,
+        ThumbnailPath,
+        videoDuration,
+        date
+      ], (err, result) => {
+        if (err) {
+          console.error("MySQL Query Error:", err);
+          return res.status(500).send("Database error: " + err.message);
+        }
+        console.log("Query successful. Inserted film:", result);
+        res.send("Film data saved successfully!");
+      });
+    });
+  } catch (error) {
+    console.error("Unexpected server error:", error);
+    res.status(500).send("Unexpected server error.");
+  }
 });
 
 // run server
