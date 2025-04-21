@@ -43,7 +43,7 @@ function getMaxID() {
         console.log("MaxID not found");
         return resolve(null);
       } else {
-        const MaxID = result[0].max_id || 0; // Get the max ID or 0 if table empty
+        const MaxID = result[0].max_id || 0;
         resolve(MaxID + 1);
       }
     });
@@ -54,9 +54,9 @@ function getMaxID() {
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (file.fieldname === 'File') {
-      cb(null, 'uploads/films/'); 
+      cb(null, 'uploads/films/');
     } else if (file.fieldname === 'Thumbnail') {
-      cb(null, 'uploads/thumbnails/'); 
+      cb(null, 'uploads/thumbnails/');
     }
   },
   filename: async function (req, file, cb) {
@@ -64,12 +64,11 @@ const storage = multer.diskStorage({
     if (MaxID === null) {
       return cb(new Error("Failed to retrieve MaxID"));
     }
-    const extension = path.extname(file.originalname); 
-
+    const extension = path.extname(file.originalname);
     if (file.fieldname === 'File') {
-      cb(null, MaxID + extension); // Save video as 'film_id.mp4' for ex
+      cb(null, MaxID + extension); // Save video as 'film_id.mp4'
     } else if (file.fieldname === 'Thumbnail') {
-      cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'...
+      cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'
     }
   }
 });
@@ -82,13 +81,11 @@ app.post('/upload-film', upload.fields([{ name: 'File' }, { name: 'Thumbnail' }]
   console.log("Received POST request");
 
   const { Title, Description, Genres } = req.body;
-  const FilmPath = req.files.File[0].path; // film path
-  const ThumbnailPath = req.files.Thumbnail[0].path; // TN opath
-  const time=new Date();
+  const FilmPath = req.files.File[0].path;
+  const ThumbnailPath = req.files.Thumbnail[0].path;
+  const time = new Date();
   const date = time.toISOString().split('T')[0];
 
-
-  // Validate form values
   if (!Title || !Description || !Genres || !FilmPath || !ThumbnailPath) {
     console.log("Missing required fields.");
     return res.status(400).send("All fields including files are required.");
@@ -112,7 +109,7 @@ app.post('/upload-film', upload.fields([{ name: 'File' }, { name: 'Thumbnail' }]
       con.query(sqlQuery, [
         Title,
         Description,
-        JSON.stringify(Genres), 
+        JSON.stringify(Genres),
         FilmPath,
         ThumbnailPath,
         videoDuration,
@@ -122,15 +119,16 @@ app.post('/upload-film', upload.fields([{ name: 'File' }, { name: 'Thumbnail' }]
           console.error("MySQL Query Error:", err);
           return res.status(500).send("Database error: " + err.message);
         }
-        console.log("Query successful. Inserted film:", result);
-        res.send("Film data saved successfully!");
+        console.log("MySQL Insert Success:", result);
+        res.status(200).send("Film uploaded successfully!");
       });
     });
   } catch (error) {
-    console.error("Unexpected server error:", error);
-    res.status(500).send("Unexpected server error.");
+    console.log(error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
-// run server
-app.listen(3001, () => console.log("Server running on port 3001"));
+app.listen(3001, () => {
+  console.log("Server running on http://localhost:3001");
+});

@@ -251,3 +251,39 @@ html, body {
   top: 10px;
   left: 950px;
 }
+
+.filepond--credits {
+  display: none !important;
+}
+.film-form
+{
+  .Button
+  {
+    background: linear-gradient(rgb(255, 255,255, 0.2),rgb(255, 255, 255,0.2)) ;
+    border-radius: 25%;
+    border: #000000;    
+    font-size: x-large;
+    margin: 1rem;
+  }
+  .Form-Field
+{
+  margin-bottom: 0.5rem;
+
+}
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3)) ;
+  border-radius: 5%;
+  width: 35rem;
+  height: 40rem;
+  justify-content: center;
+  padding: 2rem;
+  overflow-y: auto;
+  
+}
+.filepond--panel-root {
+  background-color: transparent;
+}
+.my-dropdown-select .dropdown-selected-item {
+  background-color: #66bb6a !important;  /* Set background for selected item in input */
+  color: white !important;               /* Text color */
+}
+
