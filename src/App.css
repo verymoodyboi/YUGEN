@@ -1,32 +1,41 @@
 @import url("https://fonts.googleapis.com/css2?family=Freckle+Face&display=swap");
 
-body {
+body 
+{
   font-family: "Freckle Face", system-ui;
   font-weight: 400;
   font-style: normal;
 
 }
-#root {
+
+#root 
+{
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
 
-.logo {
+.logo 
+{
   height: 6em;
   padding: 1.5em;
   will-change: filter;
   transition: filter 300ms;
 }
-.logo:hover {
+
+.logo:hover 
+{
   filter: drop-shadow(0 0 2em #646cffaa);
 }
-.logo.react:hover {
+
+.logo.react:hover 
+{
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-@keyframes logo-spin {
+@keyframes logo-spin 
+{
   from {
     transform: rotate(0deg);
   }
@@ -35,17 +44,20 @@ body {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: no-preference) 
+{
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
 }
 
-.card {
+.card 
+{
   padding: 2em;
 }
 
-.read-the-docs {
+.read-the-docs
+{
   color: #888;
 }
 html, body {
@@ -55,95 +67,144 @@ html, body {
   width: 100%;  
   box-sizing: border-box; 
   background-image: url('./YugenAssits/BG/HP_BG.png');
-  background-size:contain;
+  background-size:cover;
   background-position: center;
   background-repeat: no-repeat;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
+
 .HomePage
 {
   background-size: cover;
-  background-position: to;
-
-  display: flex;
   justify-content: center;
   align-items: center;
-
 }
+
 .FilmCatalog
 {
   background-image: url('./YugenAssits/BG/FilmsFrame.png');
-  background-size:contain;
-
+  background-size: contain;
   background-position: cover;
   background-repeat: no-repeat;
-  height: 610px;
-  width: 1100px;
-  position: absolute;
-  left:120px;
-  bottom:100px;
-
-
-
+  position: fixed;
+  height: 100vh;
+  width: 91vw;
+  top: 2vh;
+  left: 0;
 }
-.ContainCata
+
+/* .ContainCata
 {
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 310px;
-  width: 850px;
-  position: relative;
-  top: 230px;
+  height: 370px;
+  width: 1100px;
+  position: absolute;
+  top: 250px;
   white-space: nowrap;
-  
-}
-.GlassMenu
+} */
+
+/* Side menu */
+ .GlassMenu
 {
-  background-image: url('./YugenAssits/BG/Glass_Menu.png');
-  background-size:contain;
-  width: 250px;
-  height: 500px;
-  
-  text-decoration-color: #000000;
-  background-position: cover;
-  background-repeat: no-repeat;
-  position: absolute;
-  right:110px;
-  top: 100px;
-
-
-
-
+  border-style: solid;
+  border-width: 3px;
+  border-radius: 100px 0 0 100px;
+  border-color: black;
+  overflow: hidden;
+  background: linear-gradient(to bottom, hsla(0, 0%, 100%, 0.5), hsla(0, 0%, 100%, 0));
+  backdrop-filter: blur(5px);
+  position: fixed;
+  height: 750px;
+  width: 380px;
+  right: 0;
+  top: 33vh;
+  /* text-decoration-color: #000000; */
 }
-.SearchBar
-{
-  position: absolute;
-  top: 10px;
-  right: 720px;
-  width: 200px;
 
-}
-.icon 
+.SearchContainer 
 {
-  height: 40px;
-  width: 50px;
-  position: absolute;
-  top: 10px;
-  left: -40px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 1vw;
+  width: 100%;
+  position: fixed;
+  top: 7vh;
+  left: 25vw;
+}
+
+.Searchicon 
+{
+  display: flex;
+  height: 2.5vw;
+  width: 2.5vw;
   background-image: url("./YugenAssits/Icons/SearchIcon.png");
   background-size: contain;
   background-repeat: no-repeat;
+  position: relative; 
 }
+
+.SearchBar 
+{
+  display: flex;
+  align-items: center;
+  gap: 0.5vw;
+}
+
+.SearchBar input 
+{
+  padding: 2%;
+  font-size: 1.5vw;
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+  border-radius: 0px 40px 0px 0px;
+  backdrop-filter: blur(5px);
+  background: linear-gradient(to right, hsla(0, 0%, 100%, 0.5), hsla(0, 0%, 100%, 0));
+  outline: none;
+  height: 4vh;
+  width: 40vw;
+  position: relative; 
+}
+
+@media (max-width: 1920px) 
+{
+  .GlassMenu 
+  {
+    width: 280px; 
+    height: 560px;
+  }
+
+  .Searchicon
+  {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 1366px) 
+{
+  .GlassMenu 
+  {
+    width: 195px; 
+    height: 395px; 
+  }
+}
+
+/*
 .IconLink
 {
   height: 30px;
   width: 30px;
   position: absolute;
 }
+
 .FilmBox
 {
    position: relative;
@@ -153,9 +214,10 @@ html, body {
    background-size: cover;
    background-repeat: no-repeat;
    background-position: center;
-   width: 280px;
-   height: 280px;
+   width: 350px;
+   height: 330px;
 }
+
 .FilmBox_PFP
 {
   height: 50px;
@@ -165,14 +227,16 @@ html, body {
   top: 50px;
   border-radius: 10px;
 }
+
 .FilmBox_TN
 {
   position: relative;
-  height: 200px;
-  width: 200px;
-  top: 20px;
+  height: 250px;
+  width: 250px;
+  top: 10px;
 
 }
+
 .FilmBox_Rating
 {
 
@@ -181,6 +245,7 @@ html, body {
   left: 30px;
   height: fit-content;
 }
+
 .FilmBox_Genre
 {
  height: fit-content;
@@ -189,12 +254,14 @@ html, body {
   top: -65px;
   left: 40px;
 }
+
 .FilmBox_FilmName
 {
   position: relative;
   top: -10px;
   left: -60px;
 }
+
 .CatagoryName
 {
   font-size: 30px;
@@ -203,19 +270,21 @@ html, body {
   margin: 0;
   display: block;
 }
+*/
+
 .Catagory
 {
   transform: translateZ(0);
   border-radius: 10px;
   position: relative;
-  height: 260px;
-  width: 850px;
+  height: 320px;
+  width: 1050px;
   top:0px;
   left: 5px;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
-}
+} 
 
 ::-webkit-scrollbar {
   width: 5px;
@@ -246,9 +315,10 @@ html, body {
   background: whitesmoke;
   opacity: 0.5;
 }
-.NavBar
+
+/* .NavBar
 {
   position: absolute;
   top: 10px;
-  left: 1000px;
-}
+  left: 950px;
+} */

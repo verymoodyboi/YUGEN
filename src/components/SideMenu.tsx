@@ -8,7 +8,8 @@ import WatchListLogo from "../YugenAssits/Icons/WatchListLogo.png";
 function GlassMenu() {
   return (
     <div className="GlassMenu">
-      <div>
+
+      {/* <div>
         <a
           id="GenreLink"
           href=""
@@ -104,8 +105,8 @@ function GlassMenu() {
           />
           WatchList
         </a>
-      </div>
-    </div>
+      </div> */}
+    </div>  
   );
 }
 export default GlassMenu;

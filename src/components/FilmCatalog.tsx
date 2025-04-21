@@ -4,6 +4,9 @@ function FilmCatalog() {
   return (
     <div className="FilmCatalog">
       <div className="ContainCata">
+        {/* }
+        <p className="CatagoryName">Testing:</p>
+        <Catagory></Catagory>
         <p className="CatagoryName">The Talk of The Town:</p>
         <Catagory></Catagory>
         <p className="CatagoryName">New in Town:</p>
@@ -17,7 +20,7 @@ function FilmCatalog() {
         <p className="CatagoryName">Thrilling:</p>
         <Catagory></Catagory>
         <p className="CatagoryName">Action Packed:</p>
-        <Catagory></Catagory>
+        <Catagory></Catagory> */}
       </div>
     </div>
   );
