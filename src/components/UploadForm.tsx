@@ -16,54 +16,57 @@ import { createTheme } from "@mui/material";
 //global theme
 const theme = createTheme({
   typography: {
-    fontFamily: '"Freckle Face", system-ui, sans-serif', // Set a custom font
+    fontFamily: '"Freckle Face", system-ui, sans-serif',
   },
   palette: {
     primary: {
-      main: "#388e3c", // Green shade for main color (mid-tone green)
-      light: "#66bb6a", // Light green shade
-      dark: "#1b5e20", // Dark green shade
-      contrastText: "#fff", // White text for better contrast
+      main: "#388e3c",
+      light: "#66bb6a",
+      dark: "#1b5e20",
+      contrastText: "#fff",
     },
     secondary: {
-      main: "#388e3c", // Green shade for main color (mid-tone green)
-      light: "#66bb6a", // Light green shade
-      dark: "#1b5e20", // Dark green shade
+      main: "#388e3c",
+      light: "#66bb6a",
+      dark: "#1b5e20",
     },
   },
 });
-//plugins
+
 registerPlugin(FilePondPluginFileValidateType);
 registerPlugin(FilePondPluginImagePreview);
-//main
+
 function UploadForm() {
   const [Inputs, SetInput] = useState({});
   const [FErrors, SetErrors] = useState({});
   const [isSubmit, setisSubmit] = useState(false);
-  const [FilmFile, setFilmFile] = useState<any[]>([]);
-  const [ThumbnailFile, setThumbnailFile] = useState<any[]>([]);
-  //handlers
+
+  // 🎯 REMOVED: FilmFile & ThumbnailFile state (unneeded!)
+  // const [FilmFile, setFilmFile] = useState<any[]>([]);
+  // const [ThumbnailFile, setThumbnailFile] = useState<any[]>([]);
+
   const handleUpload = async (event) => {
     event.preventDefault();
-
     setisSubmit(true);
     const errors = validate(Inputs);
+
     if (Object.keys(errors).length === 0) {
       const formData = new FormData();
-
       formData.append("Title", Inputs.Title);
       formData.append("Description", Inputs.Description);
       formData.append("Genres", JSON.stringify(Inputs.Genres));
-      if (FilmFile[0]) {
-        formData.append("File", Inputs.File); // ✅ Proper file append
+
+      // 🎯 FIX: Use Inputs.File / Inputs.Thumbnail directly
+      if (Inputs.File) {
+        formData.append("File", Inputs.File);
       } else {
         toast.warn("No film file selected!");
         setisSubmit(false);
         return;
       }
 
-      if (ThumbnailFile[0]) {
-        formData.append("Thumbnail", Inputs.Thumbnail); // ✅ Proper file append
+      if (Inputs.Thumbnail) {
+        formData.append("Thumbnail", Inputs.Thumbnail);
       } else {
         toast.warn("No thumbnail file selected!");
         setisSubmit(false);
@@ -72,9 +75,7 @@ function UploadForm() {
 
       try {
         await axios.post("http://localhost:3001/upload-film", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         });
         toast.done("Film uploaded successfully!");
       } catch (error) {
@@ -90,6 +91,7 @@ function UploadForm() {
     if (Object.keys(FErrors).length === 0 && isSubmit) {
     }
   }, [FErrors]);
+
   const validate = (Inputs) => {
     const errors = {};
     if (!Inputs.Title) {
@@ -114,17 +116,15 @@ function UploadForm() {
     }
     return errors;
   };
+
   const handleChange = (event) => {
     const name = event.target.name;
     let value;
     if (event.target.type === "file") {
       value = event.target.files[0];
-      if (name === "File") {
-        setFilmFile([value]); // <-- Correctly set state for film file
-      }
-      if (name === "Thumbnail") {
-        setThumbnailFile([value]); // <-- If you add a raw input for thumbnail
-      }
+      // 🎯 REMOVED: no need to set FilmFile/ThumbnailFile
+      // if (name === "File") setFilmFile([value]);
+      // if (name === "Thumbnail") setThumbnailFile([value]);
     } else {
       value = event.target.value;
     }
@@ -151,7 +151,7 @@ function UploadForm() {
     { id: "History", value: "History" },
     { id: "Educational", value: "Educational" },
   ];
-  //returned form
+
   return (
     <div className="film-form">
       <form onSubmit={handleUpload} className="film-for">
@@ -160,7 +160,7 @@ function UploadForm() {
           <FilePond
             name="File"
             allowMultiple={false}
-            acceptedFileTypes={["video/mp4", "video/mkv", "video/avi"]} // adjust to your formats
+            acceptedFileTypes={["video/mp4", "video/mkv", "video/avi"]}
             labelFileTypeNotAllowed="Only video files are allowed"
             onaddfile={(error, fileItem) => {
               if (error) {
@@ -198,11 +198,10 @@ function UploadForm() {
             onChange={handleChange}
             name="Title"
             sx={{
-              // Custom inline styles
-              minHeight: "80px", // Same initial height
-              height: "auto", // Allow it to grow vertically
-              fontSize: "16px", // Same font size for consistency
-              padding: "10px", // Optional: Add some padding for better spacing
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
               width: "100%",
             }}
           />
@@ -216,26 +215,19 @@ function UploadForm() {
             multiline
             maxRows={6}
             sx={{
-              // Custom inline styles
-              // Custom inline styles to match both fields
-              minHeight: "80px", // Same initial height
-              height: "auto", // Allow it to grow vertically
-              padding: "10px", // Optional: Add some padding for better spacing
-              width: "100%", // Ensures it stretches across available space
+              minHeight: "80px",
+              height: "auto",
+              padding: "10px",
+              width: "100%",
               color: "white",
               fontFamily: '"Freckle Face", system-ui, sans-serif',
               input: {
                 color: "#fff",
-                fontFamily: '"Freckle Face", system-ui, sans-serif', // Apply to the input text as well
+                fontFamily: '"Freckle Face", system-ui, sans-serif',
               },
             }}
           />
-          <label
-            htmlFor="genres"
-            style={{
-              margin: "1rem",
-            }}
-          >
+          <label htmlFor="genres" style={{ margin: "1rem" }}>
             genres
           </label>
           <Select
@@ -245,23 +237,23 @@ function UploadForm() {
             value={Inputs.Genres || []}
             onChange={handleSelect}
             label="Select Genres"
-            renderValue={(selected) => selected.join(", ")} // Show selected items as comma-separated
+            renderValue={(selected) => selected.join(", ")}
             sx={{
-              color: "#fff", // Text color for non-selected items
-              border: "1px solid #4caf50", // Green border initially
+              color: "#fff",
+              border: "1px solid #4caf50",
               "& .Mui-selected": {
-                backgroundColor: "#fff", // White background when selected
-                color: "#388e3c", // Text color when selected (dark green)
-                border: "1px solid #388e3c", // Green border for selected item
+                backgroundColor: "#fff",
+                color: "#388e3c",
+                border: "1px solid #388e3c",
               },
               "& .Mui-selected:hover": {
-                backgroundColor: "#fff", // Keep white background on hover when selected
-                border: "1px solid #388e3c", // Keep green border on hover
+                backgroundColor: "#fff",
+                border: "1px solid #388e3c",
               },
               "& .MuiMenuItem-root": {
                 "&:hover": {
-                  backgroundColor: "#388e3c", // Dark green background when hovering over a menu item
-                  color: "black", // White text on hover
+                  backgroundColor: "#388e3c",
+                  color: "black",
                 },
               },
             }}
@@ -279,7 +271,7 @@ function UploadForm() {
             type="submit"
             sx={{
               fontFamily: '"Freckle Face", system-ui, sans-serif',
-              color: "#fff", // White text for better contrast
+              color: "#fff",
               margin: "2rem",
             }}
           >
