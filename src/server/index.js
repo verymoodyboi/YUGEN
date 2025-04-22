@@ -5,6 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
+const { title } = require('process');
 
 //init express app
 const app = express();
@@ -43,20 +44,20 @@ function getMaxID() {
         console.log("MaxID not found");
         return resolve(null);
       } else {
-        const MaxID = result[0].max_id || 0;
+        const MaxID = result[0].max_id || 0; // Get the max ID or 0 if table empty
         resolve(MaxID + 1);
       }
     });
   });
 }
 
-// temp storage on local disk
+// temp storage on local disk (uses precomputed MaxID from req)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (file.fieldname === 'File') {
-      cb(null, 'uploads/films/');
+      cb(null, 'uploads/films/'); 
     } else if (file.fieldname === 'Thumbnail') {
-      cb(null, 'uploads/thumbnails/');
+      cb(null, 'uploads/thumbnails/'); 
     }
   },
   filename: async function (req, file, cb) {
@@ -64,71 +65,93 @@ const storage = multer.diskStorage({
     if (MaxID === null) {
       return cb(new Error("Failed to retrieve MaxID"));
     }
-    const extension = path.extname(file.originalname);
+    const extension = path.extname(file.originalname); 
+
     if (file.fieldname === 'File') {
-      cb(null, MaxID + extension); // Save video as 'film_id.mp4'
+      cb(null, MaxID + extension); // Save video as 'film_id.mp4' for ex
     } else if (file.fieldname === 'Thumbnail') {
-      cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'
+      cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'...
     }
   }
 });
 
-// multer exe upload
+// multer instance
 const upload = multer({ storage: storage });
 
-// req handle
-app.post('/upload-film', upload.fields([{ name: 'File' }, { name: 'Thumbnail' }]), async (req, res) => {
-  console.log("Received POST request");
-
-  const { Title, Description, Genres } = req.body;
-  const FilmPath = req.files.File[0].path;
-  const ThumbnailPath = req.files.Thumbnail[0].path;
-  const time = new Date();
-  const date = time.toISOString().split('T')[0];
-
-  if (!Title || !Description || !Genres || !FilmPath || !ThumbnailPath) {
-    console.log("Missing required fields.");
-    return res.status(400).send("All fields including files are required.");
-  }
-
+// route
+app.post('/upload-film', async (req, res, next) => {
   try {
-    ffmpeg.ffprobe(FilmPath, (err, metadata) => {
-      if (err) {
-        console.error("Error reading video metadata:", err);
-        return res.status(500).send("Failed to read video duration.");
+    const MaxID = await getMaxID();  // Precompute ID
+
+    if (MaxID === null) {
+      return res.status(500).send("Failed to retrieve new film ID.");
+    }
+
+    req.customFilmID = MaxID;  // Attach to request
+
+    upload.fields([{ name: 'File' }, { name: 'Thumbnail' }])(req, res, async (err) => {
+      if (err instanceof multer.MulterError) {
+        console.error("Multer error:", err);
+        return res.status(400).send("File upload error.");
+      } else if (err) {
+        console.error("Unexpected error during upload:", err);
+        return res.status(500).send("Unexpected server error during upload.");
       }
-      const videoDuration = metadata.format.duration.toFixed(1); // rounded to 1 decimal
-      console.log("Video Duration:", videoDuration);
-      console.log("Request body:", { Title, Description, Genres, FilmPath, ThumbnailPath, videoDuration });
+      console.log("req.body:", req.body);
+      console.log("req.files:", req.files);
 
-      const sqlQuery = `
-        INSERT INTO films (film_title, description, film_genre, film_path, thumbnail_path, film_duration, release_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `;
 
-      con.query(sqlQuery, [
-        Title,
-        Description,
-        JSON.stringify(Genres),
-        FilmPath,
-        ThumbnailPath,
-        videoDuration,
-        date
-      ], (err, result) => {
+      const { Title, Description, Genres } = req.body;
+      const FilmPath = req.files.File?.[0]?.path;
+      const ThumbnailPath = req.files.Thumbnail?.[0]?.path;
+      const time = new Date();
+      const date = time.toISOString().split('T')[0];
+
+      if (!Title || !Description || !Genres || !FilmPath || !ThumbnailPath) {
+        console.log("Missing required fields.");
+        console.log(Title,Description,Genres,FilmPath,ThumbnailPath)
+        return res.status(400).send("All fields including files are required.");
+      }
+
+      ffmpeg.ffprobe(FilmPath, (err, metadata) => {
         if (err) {
-          console.error("MySQL Query Error:", err);
-          return res.status(500).send("Database error: " + err.message);
+          console.error("Error reading video metadata:", err);
+          return res.status(500).send("Failed to read video duration.");
         }
-        console.log("MySQL Insert Success:", result);
-        res.status(200).send("Film uploaded successfully!");
+
+        const videoDuration = metadata.format.duration.toFixed(1);
+        console.log("Video Duration:", videoDuration);
+        console.log("Request body:", { Title, Description, Genres, FilmPath, ThumbnailPath, videoDuration });
+
+        const sqlQuery = `
+          INSERT INTO films (film_title, description, film_genre, film_path, thumbnail_path, film_duration, release_date)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        con.query(sqlQuery, [
+          Title,
+          Description,
+          JSON.stringify(Genres),
+          FilmPath,
+          ThumbnailPath,
+          videoDuration,
+          date
+        ], (err, result) => {
+          if (err) {
+            console.error("MySQL Query Error:", err);
+            return res.status(500).send("Database error: " + err.message);
+          }
+          console.log("Query successful. Inserted film:", result);
+          res.send("Film data saved successfully!");
+        });
       });
     });
+
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
+    console.error("Unexpected server error:", error);
+    res.status(500).send("Unexpected server error.");
   }
 });
 
-app.listen(3001, () => {
-  console.log("Server running on http://localhost:3001");
-});
+// run server
+app.listen(3001, () => console.log("Server running on port 3001"));

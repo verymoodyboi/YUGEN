@@ -32,11 +32,9 @@ const theme = createTheme({
     },
   },
 });
-
 //plugins
 registerPlugin(FilePondPluginFileValidateType);
 registerPlugin(FilePondPluginImagePreview);
-
 //main
 function UploadForm() {
   const [Inputs, SetInput] = useState({});
@@ -44,21 +42,33 @@ function UploadForm() {
   const [isSubmit, setisSubmit] = useState(false);
   const [FilmFile, setFilmFile] = useState<any[]>([]);
   const [ThumbnailFile, setThumbnailFile] = useState<any[]>([]);
-
   //handlers
   const handleUpload = async (event) => {
     event.preventDefault();
 
     setisSubmit(true);
-
-    // Validate inputs
-    if (Object.keys(validate(Inputs)).length === 0) {
+    const errors = validate(Inputs);
+    if (Object.keys(errors).length === 0) {
       const formData = new FormData();
-      if (FilmFile[0]) Inputs.File = FilmFile[0];
-      if (ThumbnailFile[0]) Inputs.Thumbnail = ThumbnailFile[0];
+
       formData.append("Title", Inputs.Title);
       formData.append("Description", Inputs.Description);
       formData.append("Genres", JSON.stringify(Inputs.Genres));
+      if (FilmFile[0]) {
+        formData.append("File", Inputs.File); // ✅ Proper file append
+      } else {
+        toast.warn("No film file selected!");
+        setisSubmit(false);
+        return;
+      }
+
+      if (ThumbnailFile[0]) {
+        formData.append("Thumbnail", Inputs.Thumbnail); // ✅ Proper file append
+      } else {
+        toast.warn("No thumbnail file selected!");
+        setisSubmit(false);
+        return;
+      }
 
       try {
         await axios.post("http://localhost:3001/upload-film", formData, {
@@ -69,7 +79,7 @@ function UploadForm() {
         toast.done("Film uploaded successfully!");
       } catch (error) {
         console.error("Upload failed", error);
-        toast.error("Upload failed! " + error.response?.data || error.message);
+        toast("Upload failed!" + error);
         setisSubmit(false);
       }
     }
@@ -80,7 +90,6 @@ function UploadForm() {
     if (Object.keys(FErrors).length === 0 && isSubmit) {
     }
   }, [FErrors]);
-
   const validate = (Inputs) => {
     const errors = {};
     if (!Inputs.Title) {
@@ -105,12 +114,17 @@ function UploadForm() {
     }
     return errors;
   };
-
   const handleChange = (event) => {
     const name = event.target.name;
     let value;
     if (event.target.type === "file") {
       value = event.target.files[0];
+      if (name === "File") {
+        setFilmFile([value]); // <-- Correctly set state for film file
+      }
+      if (name === "Thumbnail") {
+        setThumbnailFile([value]); // <-- If you add a raw input for thumbnail
+      }
     } else {
       value = event.target.value;
     }
@@ -137,36 +151,34 @@ function UploadForm() {
     { id: "History", value: "History" },
     { id: "Educational", value: "Educational" },
   ];
-
   //returned form
   return (
     <div className="film-form">
       <form onSubmit={handleUpload} className="film-for">
         <ThemeProvider theme={theme}>
-          <label>Film:</label>
+          <label htmlFor="File">Film:</label>
           <FilePond
             name="File"
             allowMultiple={false}
-            acceptedFileTypes={["video/mp4"]}
-            labelFileTypeNotAllowed="Only MP4 files are allowed"
+            acceptedFileTypes={["video/mp4", "video/mkv", "video/avi"]} // adjust to your formats
+            labelFileTypeNotAllowed="Only video files are allowed"
             onaddfile={(error, fileItem) => {
               if (error) {
-                toast.warn("Invalid file type! Only JPG images are allowed");
+                toast.warn("Invalid video file type!");
               } else {
                 SetInput((prevValues) => ({
                   ...prevValues,
-                  FilmFile: fileItem.file,
+                  File: fileItem.file,
                 }));
               }
             }}
           />
-          <label>Thumbnail:</label>
+
           <FilePond
             name="Thumbnail"
             allowMultiple={false}
             acceptedFileTypes={["image/jpeg"]}
             labelFileTypeNotAllowed="Only JPG images are allowed"
-            labelInvalidField="Only JPG images are allowed"
             onaddfile={(error, fileItem) => {
               if (error) {
                 toast.warn("Invalid file type! Only JPG images are allowed.");
@@ -178,6 +190,7 @@ function UploadForm() {
               }
             }}
           />
+
           <TextField
             className="Form-Field"
             label="Film Title"
@@ -185,10 +198,11 @@ function UploadForm() {
             onChange={handleChange}
             name="Title"
             sx={{
-              minHeight: "80px",
-              height: "auto",
-              fontSize: "16px",
-              padding: "10px",
+              // Custom inline styles
+              minHeight: "80px", // Same initial height
+              height: "auto", // Allow it to grow vertically
+              fontSize: "16px", // Same font size for consistency
+              padding: "10px", // Optional: Add some padding for better spacing
               width: "100%",
             }}
           />
@@ -202,18 +216,26 @@ function UploadForm() {
             multiline
             maxRows={6}
             sx={{
-              minHeight: "80px",
-              height: "auto",
-              padding: "10px",
-              width: "100%",
+              // Custom inline styles
+              // Custom inline styles to match both fields
+              minHeight: "80px", // Same initial height
+              height: "auto", // Allow it to grow vertically
+              padding: "10px", // Optional: Add some padding for better spacing
+              width: "100%", // Ensures it stretches across available space
               color: "white",
+              fontFamily: '"Freckle Face", system-ui, sans-serif',
               input: {
                 color: "#fff",
-                fontFamily: '"Freckle Face", system-ui, sans-serif',
+                fontFamily: '"Freckle Face", system-ui, sans-serif', // Apply to the input text as well
               },
             }}
           />
-          <label htmlFor="genres" style={{ margin: "1rem" }}>
+          <label
+            htmlFor="genres"
+            style={{
+              margin: "1rem",
+            }}
+          >
             genres
           </label>
           <Select
@@ -223,23 +245,23 @@ function UploadForm() {
             value={Inputs.Genres || []}
             onChange={handleSelect}
             label="Select Genres"
-            renderValue={(selected) => selected.join(", ")}
+            renderValue={(selected) => selected.join(", ")} // Show selected items as comma-separated
             sx={{
-              color: "#fff",
-              border: "1px solid #4caf50",
+              color: "#fff", // Text color for non-selected items
+              border: "1px solid #4caf50", // Green border initially
               "& .Mui-selected": {
-                backgroundColor: "#fff",
-                color: "#388e3c",
-                border: "1px solid #388e3c",
+                backgroundColor: "#fff", // White background when selected
+                color: "#388e3c", // Text color when selected (dark green)
+                border: "1px solid #388e3c", // Green border for selected item
               },
               "& .Mui-selected:hover": {
-                backgroundColor: "#fff",
-                border: "1px solid #388e3c",
+                backgroundColor: "#fff", // Keep white background on hover when selected
+                border: "1px solid #388e3c", // Keep green border on hover
               },
               "& .MuiMenuItem-root": {
                 "&:hover": {
-                  backgroundColor: "#388e3c",
-                  color: "black",
+                  backgroundColor: "#388e3c", // Dark green background when hovering over a menu item
+                  color: "black", // White text on hover
                 },
               },
             }}
@@ -257,11 +279,11 @@ function UploadForm() {
             type="submit"
             sx={{
               fontFamily: '"Freckle Face", system-ui, sans-serif',
-              color: "#fff",
+              color: "#fff", // White text for better contrast
               margin: "2rem",
             }}
           >
-            Upload
+            Uploud
           </Button>
         </ThemeProvider>
       </form>
