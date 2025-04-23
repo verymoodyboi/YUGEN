@@ -88,7 +88,7 @@ app.post('/upload-film', async (req, res, next) => {
     }
 
     req.customFilmID = MaxID;  // Attach to request
-
+    //checks for errors
     upload.fields([{ name: 'File' }, { name: 'Thumbnail' }])(req, res, async (err) => {
       if (err instanceof multer.MulterError) {
         console.error("Multer error:", err);
@@ -100,19 +100,19 @@ app.post('/upload-film', async (req, res, next) => {
       console.log("req.body:", req.body);
       console.log("req.files:", req.files);
 
-
+      // saves inputs in variables
       const { Title, Description, Genres } = req.body;
       const FilmPath = req.files.File?.[0]?.path;
       const ThumbnailPath = req.files.Thumbnail?.[0]?.path;
       const time = new Date();
       const date = time.toISOString().split('T')[0];
-
+      // checks for errors again
       if (!Title || !Description || !Genres || !FilmPath || !ThumbnailPath) {
         console.log("Missing required fields.");
         console.log(Title,Description,Genres,FilmPath,ThumbnailPath)
         return res.status(400).send("All fields including files are required.");
       }
-
+      //and again
       ffmpeg.ffprobe(FilmPath, (err, metadata) => {
         if (err) {
           console.error("Error reading video metadata:", err);
@@ -122,12 +122,12 @@ app.post('/upload-film', async (req, res, next) => {
         const videoDuration = metadata.format.duration.toFixed(1);
         console.log("Video Duration:", videoDuration);
         console.log("Request body:", { Title, Description, Genres, FilmPath, ThumbnailPath, videoDuration });
-
+        //the insert into database query
         const sqlQuery = `
           INSERT INTO films (film_title, description, film_genre, film_path, thumbnail_path, film_duration, release_date)
           VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
-
+        //exe query
         con.query(sqlQuery, [
           Title,
           Description,
