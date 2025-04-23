@@ -175,7 +175,7 @@ function UploadForm() {
             <FilePond /* film file input field (using FilePond API (woow dependancies)) */
               name="File"
               allowMultiple={false}
-              acceptedFileTypes={["video/mp4", "video/mkv", "video/avi"]}
+              acceptedFileTypes={["video/mp4"]}
               labelFileTypeNotAllowed="Only video files are allowed"
               onaddfile={(error, fileItem) => {
                 if (error) {

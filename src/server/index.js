@@ -1,11 +1,10 @@
-const cors = require('cors');
-const sql = require("mysql");
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const fs = require('fs');
-const ffmpeg = require('fluent-ffmpeg');
-const { title } = require('process');
+const cors = require('cors');// for cross origin resource sharing
+const sql = require("mysql");// to run sql database queries
+const express = require("express");// for routing uploads  
+const multer = require("multer");// handle file uploads (film-file/thumbnail-file)
+const path = require("path"); //  for file manipulation (naming files before daving to server)
+const fs = require('fs'); //"file system" I think, for creating (uploads/films) & (uploads/thumbnails) folders
+const ffmpeg = require('fluent-ffmpeg'); // sick library for handling video files (literaly crazy features) used it to get video duration
 
 //init express app
 const app = express();
@@ -27,7 +26,7 @@ con.connect(function (err) {
   }
 });
 
-// create films&thumbnail folders (probably not necessary but whatever)
+// create films&thumbnail folders if they dont exist on your machine
 if (!fs.existsSync('uploads/films')) {
   fs.mkdirSync('uploads/films', { recursive: true });
 }
@@ -37,7 +36,7 @@ if (!fs.existsSync('uploads/thumbnails')) {
 
 // check last id ()
 function getMaxID() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => { // sql queries are async. this line insures the insert query later in code dont execute until getMaxID() is done. 
     const IdQuery = 'SELECT MAX(film_id) AS max_id FROM films;';
     con.query(IdQuery, (err, result) => {
       if (err) {
@@ -61,58 +60,49 @@ const storage = multer.diskStorage({
     }
   },
   filename: async function (req, file, cb) {
-    const MaxID = await getMaxID();
+    const MaxID = await getMaxID(); // we await getMaxID()
     if (MaxID === null) {
       return cb(new Error("Failed to retrieve MaxID"));
     }
-    const extension = path.extname(file.originalname); 
 
     if (file.fieldname === 'File') {
-      cb(null, MaxID + extension); // Save video as 'film_id.mp4' for ex
+      cb(null, MaxID + '.mp4'); // Save video as 'film_id.mp4' for ex
     } else if (file.fieldname === 'Thumbnail') {
-      cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'...
+      cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'
     }
   }
 });
 
-// multer instance
+// multer instance uploads files to server (local disk for now)
 const upload = multer({ storage: storage });
 
-// route
+// it starts by preparing data to be sent to database
 app.post('/upload-film', async (req, res, next) => {
   try {
-    const MaxID = await getMaxID();  // Precompute ID
+    const MaxID = await getMaxID();  // prepare ID
 
     if (MaxID === null) {
       return res.status(500).send("Failed to retrieve new film ID.");
     }
 
-    req.customFilmID = MaxID;  // Attach to request
-    //checks for errors
+    req.customFilmID = MaxID;  // Attach ID to request
+   
     upload.fields([{ name: 'File' }, { name: 'Thumbnail' }])(req, res, async (err) => {
-      if (err instanceof multer.MulterError) {
-        console.error("Multer error:", err);
-        return res.status(400).send("File upload error.");
-      } else if (err) {
-        console.error("Unexpected error during upload:", err);
-        return res.status(500).send("Unexpected server error during upload.");
-      }
-      console.log("req.body:", req.body);
-      console.log("req.files:", req.files);
+   
 
       // saves inputs in variables
-      const { Title, Description, Genres } = req.body;
-      const FilmPath = req.files.File?.[0]?.path;
-      const ThumbnailPath = req.files.Thumbnail?.[0]?.path;
+      const { Title, Description, Genres } = req.body;// metadata
+      const FilmPath = req.files.File?.[0]?.path;//film path
+      const ThumbnailPath = req.files.Thumbnail?.[0]?.path; // thumbnailpath
       const time = new Date();
-      const date = time.toISOString().split('T')[0];
-      // checks for errors again
-      if (!Title || !Description || !Genres || !FilmPath || !ThumbnailPath) {
+      const date = time.toISOString().split('T')[0];//date
+      // checks for errors with variables so far
+      if (!Title || !Description || !Genres || !FilmPath || !ThumbnailPath||!date) {
         console.log("Missing required fields.");
         console.log(Title,Description,Genres,FilmPath,ThumbnailPath)
         return res.status(400).send("All fields including files are required.");
       }
-      //and again
+      //ffprobe gets video duration 
       ffmpeg.ffprobe(FilmPath, (err, metadata) => {
         if (err) {
           console.error("Error reading video metadata:", err);
