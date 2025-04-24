@@ -6,15 +6,15 @@ import { Link } from "react-router-dom";
 function NavBar() {
   return (
     <div className="NavBar">
-      {/* <Link to="/">
+      <Link to="/">
         <img src={HomeIcon} alt="Sittings" height={30} />
       </Link>
       <Link to="/">
         <img src={SettingsIcon} alt="Sittings" height={30} />
-      </Link>
+      </Link> 
       <Link to="/UploadFilmPage">
         <img src={UploadIcon} alt="Sittings" height={30} />
-      </Link> */}
+      </Link>
     </div>
   );
 }
