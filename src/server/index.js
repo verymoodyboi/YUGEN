@@ -1,17 +1,21 @@
+//**************** imports
+//general imports
 const cors = require('cors');// for cross origin resource sharing
 const sql = require("mysql");// to run sql database queries
 const express = require("express");// for routing uploads  
+//filmUpload imports
 const multer = require("multer");// handle file uploads (film-file/thumbnail-file)
 const path = require("path"); //  for file manipulation (naming files before daving to server)
-const fs = require('fs'); //"file system" I think, for creating (uploads/films) & (uploads/thumbnails) folders
+const fs = require('fs'); //stands for "file system" I think. for creating (uploads/films) & (uploads/thumbnails) folders
 const ffmpeg = require('fluent-ffmpeg'); // sick library for handling video files (literaly crazy features) used it to get video duration
+////////////////////////////imports done
 
-//init express app
+//**********************init express app
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-//create connection
+/////////////////////////init done
+//***********************create connection
 const con = sql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -25,7 +29,9 @@ con.connect(function (err) {
     console.log("Connected to MySQL database");
   }
 });
+///////////////////////////////connection done
 
+//**************************** http://localhost:3001/uploads 
 // create films&thumbnail folders if they dont exist on your machine
 if (!fs.existsSync('uploads/films')) {
   fs.mkdirSync('uploads/films', { recursive: true });
@@ -142,6 +148,6 @@ app.post('/upload-film', async (req, res, next) => {
     res.status(500).send("Unexpected server error.");
   }
 });
-
+//////////////////////////// http://localhost:3001/uploads done
 // run server
 app.listen(3001, () => console.log("Server running on port 3001"));

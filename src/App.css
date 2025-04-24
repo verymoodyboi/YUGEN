@@ -255,7 +255,7 @@ html, body {
 .filepond--credits {
   display: none !important;
 }
-.film-form
+.Form
 {
   .Button
   {
@@ -287,3 +287,18 @@ html, body {
   color: white !important;               /* Text color */
 }
 
+/* Make FilePond image preview circular */
+.filepond--image-preview-wrapper {
+  border-radius: 50% !important;
+  overflow: hidden;
+  width: 15rem !important;
+  height: 15rem !important;
+  margin-left:12rem !important ;
+  margin-right:12rem !important ;
+}
+
+.filepond--image-preview {
+  border-radius: 50% !important;
+  object-fit: cover;
+
+}

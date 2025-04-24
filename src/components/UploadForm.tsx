@@ -162,7 +162,7 @@ function UploadForm() {
   if (!isSubmit) {
     //this shows before submission
     return (
-      <div className="film-form">
+      <div className="Form">
         {" "}
         {/* the div containing the form */}
         <form onSubmit={handleSubmit} className="film-for">
@@ -171,7 +171,7 @@ function UploadForm() {
           <ThemeProvider theme={theme}>
             {" "}
             {/* a theme object declared earlier to make things the same theme (not that imortant) */}
-            <label htmlFor="File">Film:</label>
+            <label htmlFor="File">Upload a film:</label>
             <FilePond /* film file input field (using FilePond API (woow dependancies)) */
               name="File"
               allowMultiple={false}
@@ -189,6 +189,7 @@ function UploadForm() {
               }}
             />{" "}
             {/*closin*/}
+            <label htmlFor="ThumbNail">Upload a Thumbnail:</label>
             <FilePond /* anothe FilePond input for the thumbnail picture */
               name="Thumbnail"
               allowMultiple={false}
@@ -282,7 +283,7 @@ function UploadForm() {
             </Select>
             {/*closin*/}
             <br />
-            <Button /* dubitm button Also from "mui/material" */
+            <Button
               variant="contained"
               color="primary"
               type="submit"
