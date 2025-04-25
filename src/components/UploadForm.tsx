@@ -12,7 +12,7 @@ import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import TextField from "@mui/material/TextField";
 import { Button, colors, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material";
-
+import config from "./config";
 //global theme
 const theme = createTheme({
   typography: {
@@ -40,7 +40,7 @@ function UploadForm() {
   //useState for some variables
   const [Inputs, SetInput] = useState({});
   const [FErrors, SetErrors] = useState({});
-  const [isSubmit, setisSubmit] = useState(false);
+  const [isSubmit, setisSubmit] = useState(true);
 
   //
   const handleSubmit = async (event) => {
@@ -77,17 +77,17 @@ function UploadForm() {
         await axios.post("http://localhost:3001/upload-film", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        toast.done("Film uploaded successfully!");
+        setisSubmit(true);
       } catch (
         error // in case of errors while sending data
       ) {
         //
         console.error("Upload failed", error);
-        toast("Upload failed!" + error);
+        toast.warn("Upload failed!" + error);
         setisSubmit(false);
       } //
     }
-    setisSubmit(true); //sets submit flag to true
+    //sets submit flag to true
   };
 
   useEffect(() =>
@@ -314,9 +314,62 @@ function UploadForm() {
         {/*closin*/}
       </div>
     );
-  } //this shows after submission, Renad plz fix it :)
-  else {
-    return "submited";
+  } else {
+    // Countdown timer for redirecting to another URL after several seconds
+    let seconds = 10;
+    let foo: ReturnType<typeof setInterval>;
+
+    function redirect(): void {
+      window.location.replace("/");
+    }
+
+    const updateSecs = async () => {
+      const secondsElement = document.getElementById("seconds");
+      console.log("updateSecs called, seconds:", seconds); // Debug line
+
+      if (secondsElement) {
+        secondsElement.innerHTML = seconds.toString();
+      }
+      seconds--;
+      if (seconds < 0) {
+        clearInterval(foo);
+        redirect();
+      }
+    };
+    function countdownTimer(): void {
+      alert("Film uploaded successfully!");
+      foo = setInterval(updateSecs, 1000);
+    }
+
+    countdownTimer();
+    return (
+      <div className="film-submit">
+        <p className="film-submit-text">
+          Film submitted! We will review your film and get back to you within a
+          couple of days. For any inquiries please contact us at:
+        </p>
+        <p className="film-submit-text" id="email-hover">
+          {" "}
+          Yugen@placeholder.com
+        </p>
+        <p className="film-submit-text" id="redirect">
+          You should automatically be redirected in <span id="seconds">10</span>{" "}
+          seconds.
+        </p>
+        <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
+          position="top-left"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
+      </div>
+    );
   }
 }
 

@@ -30,15 +30,19 @@ con.connect(function (err) {
   }
 });
 ///////////////////////////////connection done
-
-//**************************** http://localhost:3001/uploads 
-// create films&thumbnail folders if they dont exist on your machine
-if (!fs.existsSync('uploads/films')) {
-  fs.mkdirSync('uploads/films', { recursive: true });
-}
-if (!fs.existsSync('uploads/thumbnails')) {
-  fs.mkdirSync('uploads/thumbnails', { recursive: true });
-}
+//**************************** http://localhost:3001/sign-up
+app.get('/users',async(req,res,)=>{
+  const usernameQuery='select username from users where username = {selectedUsername}';
+  con.query(usernameQuery,(err,res)=>{
+    if(err)
+    {
+      return err;
+    }
+    return res;
+  })
+})
+///////////////////////////// http://localhost:3001/sign-up done
+//**************************** http://localhost:3001/upload-film 
 
 // check last id ()
 function getMaxID() {
@@ -55,8 +59,9 @@ function getMaxID() {
     });
   });
 }
-
-// temp storage on local disk (uses precomputed MaxID from req)
+// loads the "/upload-form" path on localhost port 3001
+app.post('/upload-film', async (req, res, next) => {
+  // temp storage on local disk (uses precomputed MaxID from req)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (file.fieldname === 'File') {
@@ -81,9 +86,12 @@ const storage = multer.diskStorage({
 
 // multer instance uploads files to server (local disk for now)
 const upload = multer({ storage: storage });
-
-// it starts by preparing data to be sent to database
-app.post('/upload-film', async (req, res, next) => {
+  if (!fs.existsSync('uploads/films')) {
+    fs.mkdirSync('uploads/films', { recursive: true });
+  }
+  if (!fs.existsSync('uploads/thumbnails')) {
+    fs.mkdirSync('uploads/thumbnails', { recursive: true });
+  }
   try {
     const MaxID = await getMaxID();  // prepare ID
 
@@ -148,6 +156,6 @@ app.post('/upload-film', async (req, res, next) => {
     res.status(500).send("Unexpected server error.");
   }
 });
-//////////////////////////// http://localhost:3001/uploads done
+//////////////////////////// http://localhost:3001/upload-film done
 // run server
 app.listen(3001, () => console.log("Server running on port 3001"));

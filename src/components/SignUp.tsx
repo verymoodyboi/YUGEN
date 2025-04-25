@@ -15,123 +15,155 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button, colors, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material";
 import { error } from "console";
+import { Link } from "react-router-dom";
+
 registerPlugin(FilePondPluginFileValidateType);
 registerPlugin(FilePondPluginImagePreview);
 function SignUpForm() {
+  const test = (event) => {
+    toast.warn("test");
+  };
   const [Inputs, SetInputs] = useState({});
   const [startDate, setStartDate] = useState(new Date());
   //OnChange
   const HandleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
-    SetInputs((prevValues) => ({ ...prevValues, [name]: value }));
+    if (name == "username") {
+      const username = value;
+    } else {
+      SetInputs((prevValues) => ({ ...prevValues, [name]: value }));
+    }
   };
   const ValidateUserName = async (event) => {
     let result;
+    alert();
+
     try {
-      await axios.get("http:loaclhost:3001/getUser", result);
+      await axios.get("http:loaclhost:3001/users", result);
     } catch (result) {
       if (result) {
         toast.warn("User Name already in use!");
       } else {
+        toast.warn("User Name already in use!");
+
         const name = event.target.name;
         const value = event.target.value;
         SetInputs((prevValues) => ({ ...prevValues, [name]: value }));
       }
     }
+
     ////test
   };
   return (
     <div className="Form">
-      <label htmlFor="PFP">Upload a profile picture:</label>
-      <FilePond
-        name="PFP"
-        allowMultiple={false}
-        acceptedFileTypes={["image/jpeg", "image/png"]}
-        labelFileTypeNotAllowed="Onlu JPEG images are allowed!"
-        onaddfile={(error, fileItem) => {
-          if (error) {
-            toast.warn("PFP upload error");
-          } else {
-            SetInputs((prevValues) => ({
-              ...prevValues,
-              File: fileItem.file,
-            }));
-          }
-        }}
-      />
+      <form onSubmit={ValidateUserName}>
+        <p>
+          Already have an account? <Link to="/LoginPage">Login</Link>{" "}
+        </p>
+        <label htmlFor="PFP">Upload a profile picture:</label>
+        <FilePond
+          className={"PFP_Peview"}
+          name="PFP"
+          allowMultiple={false}
+          acceptedFileTypes={["image/jpeg", "image/png"]}
+          labelFileTypeNotAllowed="Onlu JPEG images are allowed!"
+          onaddfile={(error, fileItem) => {
+            if (error) {
+              toast.warn("PFP upload error");
+            } else {
+              SetInputs((prevValues) => ({
+                ...prevValues,
+                File: fileItem.file,
+              }));
+            }
+          }}
+        />
 
-      <TextField
-        name="FName"
-        label="First Name"
-        variant="outlined"
-        onChange={ValidateUserName}
-        sx={{
-          minHeight: "80px",
-          height: "auto",
-          fontSize: "16px",
-          padding: "10px",
-          width: "100%",
-        }}
+        <TextField
+          name="FName"
+          label="First Name"
+          variant="outlined"
+          onChange={HandleChange}
+          sx={{
+            minHeight: "80px",
+            height: "auto",
+            fontSize: "16px",
+            padding: "10px",
+            width: "100%",
+          }}
+        />
+        <TextField
+          name="LName"
+          label="Last Name"
+          variant="outlined"
+          onChange={HandleChange}
+          sx={{
+            minHeight: "80px",
+            height: "auto",
+            fontSize: "16px",
+            padding: "10px",
+            width: "100%",
+          }}
+        />
+        <TextField
+          name="UserName"
+          label="User Name"
+          variant="outlined"
+          onChange={HandleChange}
+          sx={{
+            minHeight: "80px",
+            height: "auto",
+            fontSize: "16px",
+            padding: "10px",
+            width: "100%",
+          }}
+        />
+        <TextField
+          name="Bio"
+          label="Bio"
+          variant="outlined"
+          multiline
+          maxRows={6}
+          onChange={HandleChange}
+          sx={{
+            minHeight: "80px",
+            height: "auto",
+            fontSize: "16px",
+            padding: "10px",
+            width: "100%",
+          }}
+        />
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+        />
+        <br />
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          sx={{
+            fontFamily: '"Freckle Face", system-ui, sans-serif',
+            color: "#fff",
+            margin: "2rem",
+          }}
+        >
+          Create Account
+        </Button>
+      </form>
+      <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
+        position="top-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
       />
-      <TextField
-        name="LName"
-        label="Last Name"
-        variant="outlined"
-        onChange={HandleChange}
-        sx={{
-          minHeight: "80px",
-          height: "auto",
-          fontSize: "16px",
-          padding: "10px",
-          width: "100%",
-        }}
-      />
-      <TextField
-        name="UserName"
-        label="User Name"
-        variant="outlined"
-        onChange={HandleChange}
-        sx={{
-          minHeight: "80px",
-          height: "auto",
-          fontSize: "16px",
-          padding: "10px",
-          width: "100%",
-        }}
-      />
-      <TextField
-        name="Bio"
-        label="Bio"
-        variant="outlined"
-        multiline
-        maxRows={6}
-        onChange={HandleChange}
-        sx={{
-          minHeight: "80px",
-          height: "auto",
-          fontSize: "16px",
-          padding: "10px",
-          width: "100%",
-        }}
-      />
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
-      />
-      <br />
-      <Button
-        variant="contained"
-        color="primary"
-        type="submit"
-        sx={{
-          fontFamily: '"Freckle Face", system-ui, sans-serif',
-          color: "#fff",
-          margin: "2rem",
-        }}
-      >
-        Create Account
-      </Button>
     </div>
   );
 }
