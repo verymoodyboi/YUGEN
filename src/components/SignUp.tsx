@@ -15,8 +15,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button, colors, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material";
 import { error } from "console";
-import { Link } from "react-router-dom";
-
+import { data, Link } from "react-router-dom";
+import { validateHeaderName } from "http";
+import { ChangeEvent } from "react";
 registerPlugin(FilePondPluginFileValidateType);
 registerPlugin(FilePondPluginImagePreview);
 function SignUpForm() {
@@ -24,40 +25,107 @@ function SignUpForm() {
     toast.warn("test");
   };
   const [Inputs, SetInputs] = useState({});
-  const [startDate, setStartDate] = useState(new Date());
-  //OnChange
-  const HandleChange = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    if (name == "username") {
-      const username = value;
+  const [fname, setfname] = useState();
+  const [lname, setlname] = useState();
+  const [username, setusername] = useState();
+  const [bio, setbio] = useState();
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [bday, setbday] = useState("");
+  const [pfpFile, setPfpFile] = useState<File | null>(null);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    let errors: any = {};
+    let empty = JSON.stringify(errors);
+    errors = await validateAll();
+    if (JSON.stringify(errors) == empty) {
+      toast("vaild user info");
     } else {
-      SetInputs((prevValues) => ({ ...prevValues, [name]: value }));
+      toast.warn("invalid user info:" + JSON.stringify(errors));
     }
   };
-  const ValidateUserName = async (event) => {
-    let result;
-    alert();
-
+  const validateAll = async () => {
+    const errors: any = {};
+    if (!fname) {
+      errors.fname = "First name is required";
+      toast.warn("First name is a required field.");
+    }
+    if (!lname) {
+      errors.lname = "Last name is required";
+      toast.warn("Last name is a required field.");
+    }
+    if (!username) {
+      errors.username = "Username is required";
+      toast.warn("Username is a required field.");
+    } else {
+      errors.username = await ValidateUserName();
+    }
+    if (!bio) {
+      errors.bio = "Bio is required";
+      toast.warn("Bio is a required field.");
+    }
+    if (!bday) {
+      errors.bday = "Birth date is required";
+      toast.warn("Birth date is a required field.");
+    } else {
+      //errors.bday=validateAge()
+      errors.bday = await validateAge();
+    }
+    if (!pfpFile) {
+      errors.pfpFile = "PFP date is required";
+      toast.warn("Please upload a profile picture.");
+    }
+    return errors;
+  };
+  const ValidateUserName = async () => {
     try {
-      await axios.get("http:loaclhost:3001/users", result);
-    } catch (result) {
-      if (result) {
-        toast.warn("User Name already in use!");
+      const response = await axios.get("http://localhost:3001/users", {
+        params: { username },
+      });
+      return;
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        if (err.status === 409) {
+          toast("Username already in use!");
+          return "username alredy in use";
+        } else {
+          toast("Server error: " + err.message);
+          return "server error";
+        }
       } else {
-        toast.warn("User Name already in use!");
-
-        const name = event.target.name;
-        const value = event.target.value;
-        SetInputs((prevValues) => ({ ...prevValues, [name]: value }));
+        toast("Unexpected error occurred.");
+        return "unexpected error";
       }
     }
+  };
 
-    ////test
+  const validateAge = async () => {
+    let year = bday.substring(0, 4);
+    let month = bday.substring(5, 7);
+    let day = bday.substring(8);
+    let ageInDays = 0;
+    ageInDays += Number(year) * 365;
+    ageInDays += Number(month) * 30;
+    ageInDays += Number(day);
+    let currDate = new Date().toISOString().split("T")[0];
+    let currYear = currDate.substring(0, 4);
+    let currMonth = currDate.substring(5, 7);
+    let currDay = currDate.substring(8);
+    let currDateInDays = 0;
+    currDateInDays += Number(currYear) * 365;
+    currDateInDays += Number(currMonth) * 30;
+    currDateInDays += Number(currDay);
+    ageInDays = currDateInDays - ageInDays;
+    if (ageInDays >= 4745) {
+      return;
+    } else {
+      toast.warn("Sorry, you must be 13 years old at least to register!");
+      return "Too young";
+    }
   };
   return (
     <div className="Form">
-      <form onSubmit={ValidateUserName}>
+      <form onSubmit={handleSubmit}>
         <p>
           Already have an account? <Link to="/LoginPage">Login</Link>{" "}
         </p>
@@ -70,12 +138,10 @@ function SignUpForm() {
           labelFileTypeNotAllowed="Onlu JPEG images are allowed!"
           onaddfile={(error, fileItem) => {
             if (error) {
-              toast.warn("PFP upload error");
+              toast.warn("Error uploading pfp!");
+              return;
             } else {
-              SetInputs((prevValues) => ({
-                ...prevValues,
-                File: fileItem.file,
-              }));
+              setPfpFile(fileItem.file);
             }
           }}
         />
@@ -84,7 +150,9 @@ function SignUpForm() {
           name="FName"
           label="First Name"
           variant="outlined"
-          onChange={HandleChange}
+          onChange={(event) => {
+            setfname(event?.target.value);
+          }}
           sx={{
             minHeight: "80px",
             height: "auto",
@@ -97,7 +165,9 @@ function SignUpForm() {
           name="LName"
           label="Last Name"
           variant="outlined"
-          onChange={HandleChange}
+          onChange={(event) => {
+            setlname(event?.target.value);
+          }}
           sx={{
             minHeight: "80px",
             height: "auto",
@@ -110,7 +180,9 @@ function SignUpForm() {
           name="UserName"
           label="User Name"
           variant="outlined"
-          onChange={HandleChange}
+          onChange={(event) => {
+            setusername(event?.target.value);
+          }}
           sx={{
             minHeight: "80px",
             height: "auto",
@@ -125,7 +197,9 @@ function SignUpForm() {
           variant="outlined"
           multiline
           maxRows={6}
-          onChange={HandleChange}
+          onChange={(event) => {
+            setbio(event?.target.value);
+          }}
           sx={{
             minHeight: "80px",
             height: "auto",
@@ -135,8 +209,13 @@ function SignUpForm() {
           }}
         />
         <DatePicker
+          name="BDay"
           selected={startDate}
-          onChange={(date) => setStartDate(date)}
+          onChange={(date) => {
+            setStartDate(date);
+            const datesplit = date.toISOString().split("T")[0];
+            setbday(datesplit);
+          }}
         />
         <br />
         <Button

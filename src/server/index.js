@@ -27,25 +27,33 @@ con.connect(function (err) {
     console.log(err);
   } else {
     console.log("Connected to MySQL database");
+    
   }
 });
 ///////////////////////////////connection done
 //**************************** http://localhost:3001/sign-up
-app.get('/users',async(req,res,)=>{
-  const usernameQuery='select username from users where username = {selectedUsername}';
-  con.query(usernameQuery,(err,res)=>{
-    if(err)
-    {
-      return err;
+app.get('/users', (req, res) => {
+  const selectedUsername = req.query.username;
+  const usernameQuery = 'SELECT username FROM users WHERE username = ?';
+  con.query(usernameQuery, [selectedUsername], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error");
     }
-    return res;
-  })
-})
+
+    if (result.length > 0) {
+      return res.status(409).send("Username already in use");
+    }
+
+    res.status(200).send("Username available");
+  });
+});
 ///////////////////////////// http://localhost:3001/sign-up done
 //**************************** http://localhost:3001/upload-film 
 
 // check last id ()
 function getMaxID() {
+
   return new Promise((resolve, reject) => { // sql queries are async. this line insures the insert query later in code dont execute until getMaxID() is done. 
     const IdQuery = 'SELECT MAX(film_id) AS max_id FROM films;';
     con.query(IdQuery, (err, result) => {
@@ -145,6 +153,7 @@ const upload = multer({ storage: storage });
             console.error("MySQL Query Error:", err);
             return res.status(500).send("Database error: " + err.message);
           }
+          console.log("calledd2")
           console.log("Query successful. Inserted film:", result);
           res.send("Film data saved successfully!");
         });

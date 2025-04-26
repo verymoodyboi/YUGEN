@@ -40,7 +40,7 @@ function UploadForm() {
   //useState for some variables
   const [Inputs, SetInput] = useState({});
   const [FErrors, SetErrors] = useState({});
-  const [isSubmit, setisSubmit] = useState(true);
+  const [isSubmit, setisSubmit] = useState(false);
 
   //
   const handleSubmit = async (event) => {
@@ -77,7 +77,7 @@ function UploadForm() {
         await axios.post("http://localhost:3001/upload-film", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        setisSubmit(true);
+        //setisSubmit(true);
       } catch (
         error // in case of errors while sending data
       ) {
@@ -337,7 +337,7 @@ function UploadForm() {
       }
     };
     function countdownTimer(): void {
-      alert("Film uploaded successfully!");
+      toast("Film uploaded successfully!");
       foo = setInterval(updateSecs, 1000);
     }
 
