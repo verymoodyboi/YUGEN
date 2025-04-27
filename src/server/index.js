@@ -31,7 +31,52 @@ con.connect(function (err) {
   }
 });
 ///////////////////////////////connection done
-//**************************** http://localhost:3001/sign-up
+//**************************** http://localhost:3001/Register
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+      cb(null, 'uploads/pfp/'); 
+  
+  },
+  filename: async function (req, file, cb) {
+    const MaxID = await getMaxuserID(); // we await getMaxID()    
+      cb(null, MaxID + '.jpg'); // Save thumbnail as 'film_id.jpg'
+    
+  }
+});
+const upload= multer({storage:storage});
+app.post('/Register', upload.fields([
+  { name: 'PFP', maxCount: 1 }
+]), async (req, res) => {
+  const userID=await getMaxuserID();
+  const pfpPath= userID+"jpg";
+  const { FName, LName, UserName, Bio, Email, Password, BirthDate } = req.body;
+  const pfpFile = req.files['PFP'] ? req.files['PFP'][0] : null;
+  const RegisterQuery=`
+  INSERT INTO users (username, f_name, l_name, age, is_artist, is_admin, bio,email,password_hash,pfp_path)
+  VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?)
+`;
+con.query(RegisterQuery,[UserName,FName,LName,BirthDate,0,0,Bio,Email,Password,pfpPath])
+
+  res.send('Registration received!');
+});
+
+function getMaxuserID() {
+
+  return new Promise((resolve, reject) => { // sql queries are async. this line insures the insert query later in code dont execute until getMaxID() is done. 
+    const IdQuery = 'SELECT MAX(user_id) AS max_id FROM users;';
+    con.query(IdQuery, (err, result) => {
+      if (err) {
+        console.log("MaxID not found");
+        return resolve(null);
+      } else {
+        const MaxID = result[0].max_id || 0; // Get the max ID or 0 if table empty
+        resolve(MaxID + 1);
+      }
+    });
+  });
+}
+//////////////////////////////
+//**************************** http://localhost:3001/users
 app.get('/users', (req, res) => {
   const selectedUsername = req.query.username;
   const usernameQuery = 'SELECT username FROM users WHERE username = ?';

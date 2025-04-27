@@ -18,6 +18,7 @@ import { error } from "console";
 import { data, Link } from "react-router-dom";
 import { validateHeaderName } from "http";
 import { ChangeEvent } from "react";
+import { json } from "stream/consumers";
 registerPlugin(FilePondPluginFileValidateType);
 registerPlugin(FilePondPluginImagePreview);
 function SignUpForm() {
@@ -25,7 +26,7 @@ function SignUpForm() {
     toast.warn("test");
   };
   const [Inputs, SetInputs] = useState({});
-  const [fname, setfname] = useState();
+  const [fname, setfname] = useState<string | Blob>();
   const [lname, setlname] = useState();
   const [username, setusername] = useState();
   const [bio, setbio] = useState();
@@ -43,9 +44,29 @@ function SignUpForm() {
     errors = await validateAll();
     if (JSON.stringify(errors) == empty) {
       toast("vaild user info");
+      SendToServer();
     } else {
       toast.warn("invalid user info:" + JSON.stringify(errors));
     }
+  };
+  const SendToServer = async () => {
+    try {
+      const formData = new FormData();
+      console.log("yah");
+      formData.append("FName", fname);
+      formData.append("LName", lname);
+      formData.append("UserName", username);
+      formData.append("Bio", bio);
+      formData.append("Email", email);
+      formData.append("Password", Password);
+      formData.append("BirthDate", bday);
+      formData.append("PFP", pfpFile);
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
+      axios.post("http://localhost:3001/Register", formData);
+    } catch (error: any) {}
   };
   const validateAll = async () => {
     const errors: any = {};

@@ -77,7 +77,6 @@ function UploadForm() {
         await axios.post("http://localhost:3001/upload-film", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        //setisSubmit(true);
       } catch (
         error // in case of errors while sending data
       ) {
@@ -85,7 +84,9 @@ function UploadForm() {
         console.error("Upload failed", error);
         toast.warn("Upload failed!" + error);
         setisSubmit(false);
+        return;
       } //
+      setisSubmit(true);
     }
     //sets submit flag to true
   };
