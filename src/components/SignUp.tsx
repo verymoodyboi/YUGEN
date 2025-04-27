@@ -32,6 +32,9 @@ function SignUpForm() {
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [bday, setbday] = useState("");
   const [pfpFile, setPfpFile] = useState<File | null>(null);
+  const [email, setEmail] = useState();
+  const [Password, setPassword] = useState<string>();
+  const [CPassword, setCPassword] = useState<string>();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -49,10 +52,22 @@ function SignUpForm() {
     if (!fname) {
       errors.fname = "First name is required";
       toast.warn("First name is a required field.");
+    } else {
+      const hasN = await containsN(fname);
+      if (hasN) {
+        errors.fname = "Name contains a number";
+        toast.warn("Please enter a valid first name");
+      }
     }
     if (!lname) {
       errors.lname = "Last name is required";
       toast.warn("Last name is a required field.");
+    } else {
+      const hasN = await containsN(lname);
+      if (hasN) {
+        errors.fname = "Name contains a number";
+        toast.warn("Please enter a valid last name");
+      }
     }
     if (!username) {
       errors.username = "Username is required";
@@ -72,10 +87,58 @@ function SignUpForm() {
       errors.bday = await validateAge();
     }
     if (!pfpFile) {
-      errors.pfpFile = "PFP date is required";
+      errors.pfpFile = "Please upload a profil picture.";
       toast.warn("Please upload a profile picture.");
     }
+    if (!email) {
+      errors.email = "Please enter your email.";
+      toast.warn("please enter you email.");
+    } else {
+      const validEmail = await validateEmail(email);
+      if (!validEmail) {
+        errors.email = "Please enter sa valid email";
+        toast.warn("Please enter a valid email");
+      }
+    }
+    if (!Password) {
+      errors.password = "Password missing";
+      toast.warn("Please enter a passwrod");
+    } else {
+      if (!CPassword) {
+        errors.password = "Password comfirmation missing";
+        toast.warn("Please comfirm your passwrod");
+      } else {
+        const validPass = await validatePassword(Password, CPassword);
+        if (!validPass) {
+          errors.password = "Password comfirmation issue";
+        }
+      }
+    }
     return errors;
+  };
+  const containsN = async (name: string) => {
+    return /\d/.test(name);
+  };
+  const validatePassword = async (Pass: string, cPass: string) => {
+    if (Pass.length >= 8) {
+      if (Pass == cPass) {
+        return true;
+      } else {
+        toast.warn("Please make sure passwords match");
+        return false;
+      }
+    } else {
+      toast.warn("Password must contain at least 8 characters");
+      return false;
+    }
+  };
+  const validateEmail = async (testEmail: string) => {
+    const isValidEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+    if (testEmail.match(isValidEmail)) {
+      return true;
+    } else {
+      return false;
+    }
   };
   const ValidateUserName = async () => {
     try {
@@ -194,6 +257,7 @@ function SignUpForm() {
         <TextField
           name="Bio"
           label="Bio"
+          placeholder="I love movies"
           variant="outlined"
           multiline
           maxRows={6}
@@ -208,6 +272,60 @@ function SignUpForm() {
             width: "100%",
           }}
         />
+        <TextField
+          name="Email"
+          label="Email"
+          variant="outlined"
+          placeholder="exampl@gmail.com"
+          onChange={(event) => {
+            setEmail(event?.target.value);
+          }}
+          sx={{
+            minHeight: "80px",
+            height: "auto",
+            fontSize: "16px",
+            padding: "10px",
+            width: "100%",
+          }}
+        />
+        <TextField
+          name="Password"
+          label="Password"
+          variant="outlined"
+          type="password"
+          placeholder="Password must contain at least 8 characters"
+          onChange={(event) => {
+            setPassword(event?.target.value);
+          }}
+          sx={{
+            minHeight: "80px",
+            height: "auto",
+            fontSize: "16px",
+            padding: "10px",
+            width: "100%",
+          }}
+        />
+        <TextField
+          name="CPassword"
+          label="Comfirm Password"
+          variant="outlined"
+          placeholder="Make sure Passwords Match"
+          type="password"
+          onChange={(event) => {
+            setCPassword(event?.target.value);
+          }}
+          sx={{
+            minHeight: "80px",
+            height: "auto",
+            fontSize: "16px",
+            padding: "10px",
+            width: "100%",
+          }}
+        />
+        <label htmlFor="BDay" style={{ paddingBottom: "0.5rem" }}>
+          Birth Date:
+        </label>
+        <br />
         <DatePicker
           name="BDay"
           selected={startDate}
