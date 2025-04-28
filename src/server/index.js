@@ -8,8 +8,8 @@ const multer = require("multer");// handle file uploads (film-file/thumbnail-fil
 const path = require("path"); //  for file manipulation (naming files before daving to server)
 const fs = require('fs'); //stands for "file system" I think. for creating (uploads/films) & (uploads/thumbnails) folders
 const ffmpeg = require('fluent-ffmpeg'); // sick library for handling video files (literaly crazy features) used it to get video duration
+const bcrypt = require('bcrypt')
 ////////////////////////////imports done
-
 //**********************init express app
 const app = express();
 app.use(cors());
@@ -50,12 +50,13 @@ app.post('/Register', upload.fields([
   const userID=await getMaxuserID();
   const pfpPath= userID+"jpg";
   const { FName, LName, UserName, Bio, Email, Password, BirthDate } = req.body;
+  const hashedPassword=await bcrypt.hash(Password,10);//encrypt password
   const pfpFile = req.files['PFP'] ? req.files['PFP'][0] : null;
   const RegisterQuery=`
   INSERT INTO users (username, f_name, l_name, age, is_artist, is_admin, bio,email,password_hash,pfp_path)
   VALUES (?, ?, ?, ?, ?, ?, ?,?,?,?)
 `;
-con.query(RegisterQuery,[UserName,FName,LName,BirthDate,0,0,Bio,Email,Password,pfpPath])
+con.query(RegisterQuery,[UserName,FName,LName,BirthDate,0,0,Bio,Email,hashedPassword,pfpPath])
 
   res.send('Registration received!');
 });
@@ -77,8 +78,29 @@ function getMaxuserID() {
 }
 //////////////////////////////
 //**************************** http://localhost:3001/users
+app.get('/email', async (req, res) => {
+  
+  const selectedEmail =  req.query.email;
+  console.log(selectedEmail);
+  const emailQuery = 'SELECT * FROM users WHERE email = ?';
+  con.query(emailQuery, [selectedEmail], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error");
+    }
+
+    if (result.length > 0) {
+      return res.status(409).send("email already in use");
+    }
+
+    res.status(200).send("email available");
+  });
+});
+///////////////////////////// http://localhost:3001/users done
+//**************************** http://localhost:3001/users
 app.get('/users', (req, res) => {
   const selectedUsername = req.query.username;
+  console.log(selectedUsername);
   const usernameQuery = 'SELECT username FROM users WHERE username = ?';
   con.query(usernameQuery, [selectedUsername], (err, result) => {
     if (err) {
@@ -93,7 +115,7 @@ app.get('/users', (req, res) => {
     res.status(200).send("Username available");
   });
 });
-///////////////////////////// http://localhost:3001/sign-up done
+///////////////////////////// http://localhost:3001/users done
 //**************************** http://localhost:3001/upload-film 
 
 // check last id ()

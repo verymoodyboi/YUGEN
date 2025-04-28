@@ -36,6 +36,7 @@ function SignUpForm() {
   const [email, setEmail] = useState();
   const [Password, setPassword] = useState<string>();
   const [CPassword, setCPassword] = useState<string>();
+  const [isRegister, setIsRegister] = useState<boolean>(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -44,6 +45,7 @@ function SignUpForm() {
     errors = await validateAll();
     if (JSON.stringify(errors) == empty) {
       toast("vaild user info");
+      setIsRegister(true);
       SendToServer();
     } else {
       toast.warn("invalid user info:" + JSON.stringify(errors));
@@ -66,7 +68,13 @@ function SignUpForm() {
       }
 
       axios.post("http://localhost:3001/Register", formData);
-    } catch (error: any) {}
+    } catch (error: any) {
+      if (error) {
+        toast("" + error);
+      } else {
+        setIsRegister(true);
+      }
+    }
   };
   const validateAll = async () => {
     const errors: any = {};
@@ -119,6 +127,8 @@ function SignUpForm() {
       if (!validEmail) {
         errors.email = "Please enter sa valid email";
         toast.warn("Please enter a valid email");
+      } else {
+        errors.email = await freeEmail();
       }
     }
     if (!Password) {
@@ -182,7 +192,27 @@ function SignUpForm() {
       }
     }
   };
-
+  const freeEmail = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/email", {
+        params: { email },
+      });
+      return;
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        if (err.status === 409) {
+          toast("Email already in use!");
+          return "Email alredy in use";
+        } else {
+          toast("Server error: " + err.message);
+          return "server error";
+        }
+      } else {
+        toast("Unexpected error occurred.");
+        return "unexpected error";
+      }
+    }
+  };
   const validateAge = async () => {
     let year = bday.substring(0, 4);
     let month = bday.substring(5, 7);
@@ -207,182 +237,239 @@ function SignUpForm() {
       return "Too young";
     }
   };
-  return (
-    <div className="Form">
-      <form onSubmit={handleSubmit}>
-        <p>
-          Already have an account? <Link to="/LoginPage">Login</Link>{" "}
-        </p>
-        <label htmlFor="PFP">Upload a profile picture:</label>
-        <FilePond
-          className={"PFP_Peview"}
-          name="PFP"
-          allowMultiple={false}
-          acceptedFileTypes={["image/jpeg", "image/png"]}
-          labelFileTypeNotAllowed="Onlu JPEG images are allowed!"
-          onaddfile={(error, fileItem) => {
-            if (error) {
-              toast.warn("Error uploading pfp!");
-              return;
-            } else {
-              setPfpFile(fileItem.file);
-            }
-          }}
-        />
+  if (!isRegister) {
+    return (
+      <div className="Form">
+        <form onSubmit={handleSubmit}>
+          <p>
+            Already have an account? <Link to="/LoginPage">Login</Link>{" "}
+          </p>
+          <label htmlFor="PFP">Upload a profile picture:</label>
+          <FilePond
+            className={"PFP_Peview"}
+            name="PFP"
+            allowMultiple={false}
+            acceptedFileTypes={["image/jpeg", "image/png"]}
+            labelFileTypeNotAllowed="Onlu JPEG images are allowed!"
+            onaddfile={(error, fileItem) => {
+              if (error) {
+                toast.warn("Error uploading pfp!");
+                return;
+              } else {
+                setPfpFile(fileItem.file);
+              }
+            }}
+          />
 
-        <TextField
-          name="FName"
-          label="First Name"
-          variant="outlined"
-          onChange={(event) => {
-            setfname(event?.target.value);
-          }}
-          sx={{
-            minHeight: "80px",
-            height: "auto",
-            fontSize: "16px",
-            padding: "10px",
-            width: "100%",
-          }}
+          <TextField
+            name="FName"
+            label="First Name"
+            variant="outlined"
+            onChange={(event) => {
+              setfname(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+          <TextField
+            name="LName"
+            label="Last Name"
+            variant="outlined"
+            onChange={(event) => {
+              setlname(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+          <TextField
+            name="UserName"
+            label="User Name"
+            variant="outlined"
+            onChange={(event) => {
+              setusername(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+          <TextField
+            name="Bio"
+            label="Bio"
+            placeholder="I love movies"
+            variant="outlined"
+            multiline
+            maxRows={6}
+            onChange={(event) => {
+              setbio(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+          <TextField
+            name="Email"
+            label="Email"
+            variant="outlined"
+            placeholder="exampl@gmail.com"
+            onChange={(event) => {
+              setEmail(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+          <TextField
+            name="Password"
+            label="Password"
+            variant="outlined"
+            type="password"
+            placeholder="Password must contain at least 8 characters"
+            onChange={(event) => {
+              setPassword(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+          <TextField
+            name="CPassword"
+            label="Comfirm Password"
+            variant="outlined"
+            placeholder="Make sure Passwords Match"
+            type="password"
+            onChange={(event) => {
+              setCPassword(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+          <label htmlFor="BDay" style={{ paddingBottom: "0.5rem" }}>
+            Birth Date:
+          </label>
+          <br />
+          <DatePicker
+            name="BDay"
+            selected={startDate}
+            onChange={(date) => {
+              setStartDate(date);
+              const datesplit = date.toISOString().split("T")[0];
+              setbday(datesplit);
+            }}
+          />
+          <br />
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            sx={{
+              fontFamily: '"Freckle Face", system-ui, sans-serif',
+              color: "#fff",
+              margin: "2rem",
+            }}
+          >
+            Create Account
+          </Button>
+        </form>
+        <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
+          position="top-left"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
         />
-        <TextField
-          name="LName"
-          label="Last Name"
-          variant="outlined"
-          onChange={(event) => {
-            setlname(event?.target.value);
-          }}
-          sx={{
-            minHeight: "80px",
-            height: "auto",
-            fontSize: "16px",
-            padding: "10px",
-            width: "100%",
-          }}
+      </div>
+    );
+  } else {
+    let seconds = 10;
+    let foo: ReturnType<typeof setInterval>;
+
+    function redirect(): void {
+      window.location.replace("/LoginPage");
+    }
+
+    const updateSecs = async () => {
+      const secondsElement = document.getElementById("seconds");
+      console.log("updateSecs called, seconds:", seconds); // Debug line
+
+      if (secondsElement) {
+        secondsElement.innerHTML = seconds.toString();
+      }
+      seconds--;
+      if (seconds < 0) {
+        clearInterval(foo);
+        redirect();
+      }
+    };
+    function countdownTimer(): void {
+      toast("Film uploaded successfully!");
+      foo = setInterval(updateSecs, 1000);
+    }
+
+    countdownTimer();
+    return (
+      <div className="film-submit">
+        <p className="film-submit-text">
+          Accont created, please log in to verify your account. For any
+          inquiries please contact us at:
+        </p>
+        <p className="film-submit-text" id="email-hover">
+          {" "}
+          Yugen@placeholder.com
+        </p>
+        <p className="film-submit-text" id="redirect">
+          You should automatically be redirected in <span id="seconds">10</span>{" "}
+          seconds.
+        </p>
+        <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
+          position="top-left"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
         />
-        <TextField
-          name="UserName"
-          label="User Name"
-          variant="outlined"
-          onChange={(event) => {
-            setusername(event?.target.value);
-          }}
-          sx={{
-            minHeight: "80px",
-            height: "auto",
-            fontSize: "16px",
-            padding: "10px",
-            width: "100%",
-          }}
-        />
-        <TextField
-          name="Bio"
-          label="Bio"
-          placeholder="I love movies"
-          variant="outlined"
-          multiline
-          maxRows={6}
-          onChange={(event) => {
-            setbio(event?.target.value);
-          }}
-          sx={{
-            minHeight: "80px",
-            height: "auto",
-            fontSize: "16px",
-            padding: "10px",
-            width: "100%",
-          }}
-        />
-        <TextField
-          name="Email"
-          label="Email"
-          variant="outlined"
-          placeholder="exampl@gmail.com"
-          onChange={(event) => {
-            setEmail(event?.target.value);
-          }}
-          sx={{
-            minHeight: "80px",
-            height: "auto",
-            fontSize: "16px",
-            padding: "10px",
-            width: "100%",
-          }}
-        />
-        <TextField
-          name="Password"
-          label="Password"
-          variant="outlined"
-          type="password"
-          placeholder="Password must contain at least 8 characters"
-          onChange={(event) => {
-            setPassword(event?.target.value);
-          }}
-          sx={{
-            minHeight: "80px",
-            height: "auto",
-            fontSize: "16px",
-            padding: "10px",
-            width: "100%",
-          }}
-        />
-        <TextField
-          name="CPassword"
-          label="Comfirm Password"
-          variant="outlined"
-          placeholder="Make sure Passwords Match"
-          type="password"
-          onChange={(event) => {
-            setCPassword(event?.target.value);
-          }}
-          sx={{
-            minHeight: "80px",
-            height: "auto",
-            fontSize: "16px",
-            padding: "10px",
-            width: "100%",
-          }}
-        />
-        <label htmlFor="BDay" style={{ paddingBottom: "0.5rem" }}>
-          Birth Date:
-        </label>
-        <br />
-        <DatePicker
-          name="BDay"
-          selected={startDate}
-          onChange={(date) => {
-            setStartDate(date);
-            const datesplit = date.toISOString().split("T")[0];
-            setbday(datesplit);
-          }}
-        />
-        <br />
-        <Button
-          variant="contained"
-          color="primary"
-          type="submit"
-          sx={{
-            fontFamily: '"Freckle Face", system-ui, sans-serif',
-            color: "#fff",
-            margin: "2rem",
-          }}
-        >
-          Create Account
-        </Button>
-      </form>
-      <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
-        position="top-left"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-    </div>
-  );
+      </div>
+    );
+  }
 }
 export default SignUpForm;
