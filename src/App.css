@@ -479,14 +479,6 @@ html, body {
   border-radius: 30px;
   justify-content: center;
   overflow-y: auto;
-  .Button
-  {
-    background: linear-gradient(rgb(255, 255,255, 0.2),rgb(255, 255, 255,0.2)) ;
-    border-radius: 25%;
-    border: #000000;    
-    font-size: x-large;
-    margin: 1rem;
-  }
 
   .Form-Field
   {
@@ -535,4 +527,68 @@ html, body {
   border-style: solid;
   border-width: 3px;
   border-color: black;
+}
+
+.ReportForm
+{
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3)) ;
+  border-radius: 30px;
+  position: fixed;
+  top: 30%;
+  left: 40%;
+  width: calc(20% + 4px);
+  height: calc(40% + 12px);
+  min-width: 480px;
+  min-height: 520px;
+  justify-content: center;
+  padding: 40px 40px 30px 40px;
+  overflow-y: auto; 
+  backdrop-filter: blur(5px);
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+}
+
+#ReportButton
+{
+  width: 150px;
+  height: 50px;
+  background-color: rgb(132, 39, 50);
+  border: #000000;    
+  font-size: 1rem;
+  margin: 1rem;
+}
+
+#ReportButton:hover
+{
+  background-color: rgb(167, 0, 0);
+  border: #000000;    
+  font-size: 1rem;
+  margin: 1rem;
+  box-shadow: 1px 1px 10px red;
+}
+
+#ReportLabel
+{
+  font-size: 2rem;
+  color: rgb(32,32,32);
+  text-align: center;
+  position: relative;
+}
+
+#TypeContainer
+{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 1rem;
+  position: relative;
+}
+
+#TypeLabel
+{
+  font-size: 1.5rem;
+  color: rgb(32,32,32);
+  text-align: center;
+  position: relative;
 }
