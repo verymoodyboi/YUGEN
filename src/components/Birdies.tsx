@@ -15,6 +15,7 @@ const Birdies: React.FC = () => {
     if (!window.VANTA?.BIRDS || !vantaRef.current) return;
 
     // Prevent multiple Vanta instances
+
     if (!vantaEffect) {
       const effect = window.VANTA.BIRDS({
         el: vantaRef.current,
@@ -28,11 +29,13 @@ const Birdies: React.FC = () => {
         backgroundColor: 0,
         color1: 0xffffff,
         color2: 0xffffff,
-        birdSize: 1.8,
-        separation: 41.0,
-        alignment: 26.0,
-        cohesion: 23.0,
-        quantity: 2.0,
+        birdSize: 0.5,
+        wingSpan: 10.0,
+        speedLimit: 2.0,
+        separation: 100,
+        alignment: 1.0,
+        cohesion: 1.0,
+        quantity: 3.0,
       });
       setVantaEffect(effect);
     }

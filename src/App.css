@@ -294,94 +294,37 @@ html, body {
   position: absolute;
   left: 0%;
   top: 0%;
-  opacity: 5%;
+  opacity: 25%;
 }
 .FilmInStream{
-  .Button
-  {
-    background: linear-gradient(rgb(255, 255,255, 0.2),rgb(255, 255, 255,0.2)) ;
-    border-radius: 25%;
-    border: #000000;    
-    font-size: x-large;
-    margin: 1rem;
-  }
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3)) ; 
+  backdrop-filter: blur(5px);
   border-radius: 5%;
   width: 50%;
   height: 90%;
-  justify-content: center;
+  justify-content: left;
   padding: 2rem;
   overflow-y: auto;
   overflow-x: hidden;
   position: absolute;
-  left:-1%;
+  left:1%;
   top: 5%;
   color: white;
-  .Film{
-    width: fit-content;
-    height: fit-content;
- border-radius: 5%;
- top: 20%;
- left: 10%;
- position: absolute;
-
-
-
-   }
-   .PFPStream{
-    border-radius: 50%;
-    height:10%;
-    width: 10%;
-    top:5%;
-    left:5%;
-    position: absolute;
-
-   }
-   .Rating{
-    height:10%;
-    width: 10%;
-    top:75%;
-    left:7%;
-    position: absolute;
-
-   }
-   .Genres{
-    height:7%;
-    width: 7%;
-    top:85%;
-    left:9%;
-    position: absolute;
-
-   }
-   .username{
-    position: absolute;
-    top:7%;
-    left:17%;
-
-   }
-   .V_Title
-   {
-    position: absolute;
-    top: 12%;
-    left: 45%;
-   }
-   .V_Rating{
-    height:fit-content;
-    width: fit-content;
-    top:78%;
-    left:17%;
-    position: absolute;
-
-   }
-   .V_Genres{
-    height:fit-content;
-    width: fit-content;
-    top:86%;
-    left:16%;
-    position: absolute;
-
-   }
+  display: flex;
+  flex-direction: column;
+  .FilmApendencies{
+    font-family: "Freckle Face", system-ui;
+    color: white;
+    min-width: 95%;
+    max-width: 95%;
+  }
 }
-
+.FilmInStream::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
 .ReportForm
 {
   background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3)) ;

@@ -12,6 +12,7 @@
   "dependencies": {
     "@mui/material": "^6.4.8",
     "@vidstack/react": "^1.12.13",
+    "antd": "^5.24.9",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "bootstrap": "^5.3.3",
