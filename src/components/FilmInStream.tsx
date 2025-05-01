@@ -60,7 +60,7 @@ const FilmInStream: React.FC = () => {
             <video
               src={videoPath}
               controls
-              style={{ borderRadius: "5%" }}
+              style={{ borderRadius: "5%", width: "100%" }}
             ></video>
           </Space>
           <Space style={{}}>
