@@ -286,6 +286,161 @@ html, body {
   background-color: #66bb6a !important;  /* Set background for selected item in input */
   color: white !important;               /* Text color */
 }
+.Vanta
+{
+  border-radius: 50%;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  opacity: 5%;
+}
+.FilmInStream{
+  .Button
+  {
+    background: linear-gradient(rgb(255, 255,255, 0.2),rgb(255, 255, 255,0.2)) ;
+    border-radius: 25%;
+    border: #000000;    
+    font-size: x-large;
+    margin: 1rem;
+  }
+  border-radius: 5%;
+  width: 50%;
+  height: 90%;
+  justify-content: center;
+  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: absolute;
+  left:-1%;
+  top: 5%;
+  color: white;
+  .Film{
+    width: fit-content;
+    height: fit-content;
+ border-radius: 5%;
+ top: 20%;
+ left: 10%;
+ position: absolute;
 
 
+
+   }
+   .PFPStream{
+    border-radius: 50%;
+    height:10%;
+    width: 10%;
+    top:5%;
+    left:5%;
+    position: absolute;
+
+   }
+   .Rating{
+    height:10%;
+    width: 10%;
+    top:75%;
+    left:7%;
+    position: absolute;
+
+   }
+   .Genres{
+    height:7%;
+    width: 7%;
+    top:85%;
+    left:9%;
+    position: absolute;
+
+   }
+   .username{
+    position: absolute;
+    top:7%;
+    left:17%;
+
+   }
+   .V_Title
+   {
+    position: absolute;
+    top: 12%;
+    left: 45%;
+   }
+   .V_Rating{
+    height:fit-content;
+    width: fit-content;
+    top:78%;
+    left:17%;
+    position: absolute;
+
+   }
+   .V_Genres{
+    height:fit-content;
+    width: fit-content;
+    top:86%;
+    left:16%;
+    position: absolute;
+
+   }
+}
+
+.ReportForm
+{
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3)) ;
+  border-radius: 30px;
+  position: absolute;
+  top:20%;
+  left: 16%;
+  width: fit-content;
+  height:fit-content;
+  justify-content: center;
+  padding: 40px 40px 30px 40px;
+  overflow-y: auto; 
+  backdrop-filter: blur(5px);
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+}
+
+#ReportButton
+{
+  width: 150px;
+  height: 50px;
+  background-color: rgb(132, 39, 50);
+  border: #000000;    
+  font-size: 1rem;
+  margin: 1rem;
+}
+
+#ReportButton:hover
+{
+  background-color: rgb(167, 0, 0);
+  border: #000000;    
+  font-size: 1rem;
+  margin: 1rem;
+  box-shadow: 1px 1px 10px red;
+}
+
+#ReportLabel
+{
+  font-size: 2rem;
+  color: rgb(32,32,32);
+  text-align: center;
+  position: relative;
+}
+
+#TypeContainer
+{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 1rem;
+  position: relative;
+}
+
+#TypeLabel
+{
+  font-size: 1.5rem;
+  color: rgb(32,32,32);
+  text-align: center;
+  position: relative;
+}
 

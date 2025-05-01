@@ -233,5 +233,29 @@ const upload = multer({ storage: storage });
   }
 });
 //////////////////////////// http://localhost:3001/upload-film done
+//**************************** http://localhost:3001/users
+const reporting = multer();
+app.post('/Report',reporting.none(), (req, res) => {
+  const email = req.body.email;
+  const report = req.body.report;
+  console.log(email,report);
+  const reportQuery =`
+          INSERT INTO tech_reports (email,report,ischecked)
+          VALUES (?, ?,?)
+        `;
+  con.query(reportQuery, [email,report,0], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error");
+    }
+
+    if (result.length > 0) {
+      return res.status(409).send("Username already in use");
+    }
+
+    res.status(200).send("Username available");
+  });
+});
+///////////////////////////// http://localhost:3001/users done
 // run server
 app.listen(3001, () => console.log("Server running on port 3001"));

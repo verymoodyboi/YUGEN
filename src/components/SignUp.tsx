@@ -420,7 +420,7 @@ function SignUpForm() {
     let foo: ReturnType<typeof setInterval>;
 
     function redirect(): void {
-      window.location.replace("/LoginPage");
+      window.location.replace("#/LoginPage");
     }
 
     const updateSecs = async () => {
