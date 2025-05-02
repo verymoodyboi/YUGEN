@@ -1,118 +1,197 @@
 import "../App.css";
 import { useState, useEffect } from "react";
 import { TextField, Button, Select, MenuItem } from "@mui/material";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from "axios";
 
 function ReportForm() {
-  const [inputs, setInputs] = useState({});
-  const [formErrors, setFormErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [report, setReport] = useState<string>("");
 
-  const handleChange = (event) => {
-    const { name, value, type, files } = event.target;
-    setInputs((prevValues) => ({
-      ...prevValues,
-      [name]: type === "file" ? files[0] : value,
-    }));
-  };
-
-  const handleSelect = (event) => {
-    const { value } = event.target;
-    setInputs((prevValues) => ({
-      ...prevValues,
-      Type: typeof value === "string" ? value.split(",") : value,
-    }));
-  };
-
-  const validate = (values) => {
+  const validate = async () => {
     const errors = {};
-    if (!values.Email) {
+    if (!email) {
       errors.Email = "Email is required.";
       toast.warn("Email is required!");
+    } else {
+      const validEmail = await validateEmail(email);
+      if (!validEmail) {
+        errors.Email = "Please enter a valid email";
+        toast.warn("Please enter a valid email");
+      }
     }
-    if (!values.Type || values.Type.length === 0) {
-      errors.Type = "Select a problem.";
-      toast.warn("Select a problem!");
+    if (!report) {
+      errors.report = "report is required.";
+      toast.warn("Please enter a report message!");
     }
     return errors;
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const errors = validate(inputs);
-    setFormErrors(errors);
-
-    if (Object.keys(errors).length === 0) {
-      const formData = new FormData();
-      formData.append("Email", inputs.Email);
-      formData.append("Type", JSON.stringify(inputs.Type || []));
-      formData.append("OpMssg", inputs.OpMssg || "");
-      setIsSubmit(true);
-      toast.success("Form submitted successfully!");
+  const validateEmail = async (testEmail: string) => {
+    const isValidEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+    if (testEmail.match(isValidEmail)) {
+      return true;
     } else {
-      setIsSubmit(false);
+      return false;
     }
   };
 
-  const options = [
-    { id: "Legal Issue", value: "Legal Issue" },
-    { id: "Other", value: "Other" },
-  ];
+  const SendToServer = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("report", report);
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      axios.post("http://localhost:3001/Report", formData);
+    } catch (error: any) {
+      if (error) {
+        toast("" + error);
+        return error;
+      } else {
+        toast("succes");
+        setIsSubmit(true);
+        return "";
+      }
+    }
+  };
 
-  return (
-    <form className="ReportForm" onSubmit={handleSubmit}>
-      <label id="ReportLabel">Report Film</label>
-      <TextField
-        name="Email"
-        label="Email"
-        variant="outlined"
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        name="OpMssg"
-        label="Details (Optional)"
-        variant="outlined"
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-        multiline
-        rows={4}
-      />
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const errors = await validate();
 
-      <div id="TypeContainer">
-        <label id="TypeLabel">Report Type:</label>
-        <Select
-          name="Type"
-          value={inputs.Type || []}
-          onChange={handleSelect}
-          renderValue={(selected) => selected.join(", ")}
-          fullWidth
-        >
-          {options.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.id}
-            </MenuItem>
-          ))}
-        </Select>
+    if (Object.keys(errors).length === 0) {
+      setIsSubmit(true);
+      await SendToServer();
+    }
+  };
+
+  if (!isSubmit) {
+    return (
+      <div className="ReportForm">
+        <form onSubmit={handleSubmit}>
+          <label id="ReportLabel">Technical issue report</label>
+          <TextField
+            name="Email"
+            label="Email"
+            variant="outlined"
+            placeholder="exampl@gmail.com"
+            onChange={(event) => {
+              setEmail(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+          <TextField
+            name="report"
+            label="Report Message"
+            variant="outlined"
+            placeholder="Please describe the issue in detail"
+            multiline
+            onChange={(event) => {
+              setReport(event?.target.value);
+            }}
+            sx={{
+              minHeight: "80px",
+              height: "auto",
+              fontSize: "16px",
+              padding: "10px",
+              width: "100%",
+            }}
+          />
+
+          <Button
+            id="ReportButton"
+            variant="contained"
+            color="primary"
+            type="submit"
+            sx={{
+              fontFamily: '"Freckle Face", system-ui, sans-serif',
+              color: "#fff",
+              margin: "2rem",
+            }}
+          >
+            Submit Report
+          </Button>
+        </form>
+        <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
+          position="top-left"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
       </div>
+    );
+  } else {
+    // Countdown timer for redirecting to another URL after several seconds
+    let seconds = 10;
+    let foo: ReturnType<typeof setInterval>;
 
-      <Button
-        id="ReportButton"
-        variant="contained"
-        color="primary"
-        type="submit"
-        sx={{
-          fontFamily: '"Freckle Face", system-ui, sans-serif',
-          color: "#fff",
-          margin: "2rem",
-        }}
-      >
-        Submit Report
-      </Button>
-    </form>
-  );
+    function redirect(): void {
+      window.location.replace("/");
+    }
+
+    const updateSecs = async () => {
+      const secondsElement = document.getElementById("seconds");
+      console.log("updateSecs called, seconds:", seconds); // Debug line
+
+      if (secondsElement) {
+        secondsElement.innerHTML = seconds.toString();
+      }
+      seconds--;
+      if (seconds < 0) {
+        clearInterval(foo);
+        redirect();
+      }
+    };
+    function countdownTimer(): void {
+      toast("Film uploaded successfully!");
+      foo = setInterval(updateSecs, 1000);
+    }
+
+    countdownTimer();
+    return (
+      <div className="film-submit">
+        <p className="film-submit-text">
+          We appreciate you feedback! Your report will be reviewed and you will
+          recieve a follow up email. In the mean time, enjoy your movies!
+        </p>
+        <p className="film-submit-text" id="email-hover">
+          {" "}
+          Yugen@placeholder.com
+        </p>
+        <p className="film-submit-text" id="redirect">
+          You should automatically be redirected in <span id="seconds">10</span>{" "}
+          seconds.
+        </p>
+        <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
+          position="top-left"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
+      </div>
+    );
+  }
 }
 export default ReportForm;

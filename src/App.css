@@ -329,6 +329,22 @@ html, body {
 
 .film-form
 {
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3)) ;
+  border-radius: 30px;
+  position: fixed;
+  top: 25%;
+  left: 40%;
+  width: calc(20% + 4px);
+  height: calc(30% + 12px);
+  min-width: 480px;
+  min-height: 400px;
+  justify-content: center;
+  padding: 20px 40px 30px 40px;
+  overflow-y: auto; 
+  backdrop-filter: blur(5px);
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
   .Button
   {
     background: linear-gradient(rgb(255, 255,255, 0.2),rgb(255, 255, 255,0.2)) ;
@@ -383,7 +399,7 @@ html, body {
   border-radius: 30px;
   border-color: black;
   overflow: hidden;
-  background: linear-gradient(to bottom, hsla(0, 0%, 100%, 0.5), hsla(0, 0%, 100%, 0));
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3));
   backdrop-filter: blur(5px);
   position: fixed;
   height: 25vh;
@@ -393,6 +409,7 @@ html, body {
   transform: translate(-50%, -50%);
   animation: fadeInUp 0.6s ease-out forwards;
   padding: 25px;
+  will-change: transform;
 }
 
 .film-submit-text
@@ -464,10 +481,10 @@ html, body {
 .SignupForm
 {
   position: fixed;
-  top: 25%;
+  top: 15%;
   left: 40%;
   width: 20%;
-  height: 55%;
+  height: 75%;
   min-width: 495px;
   min-height: 720px;
   backdrop-filter: blur(5px);
@@ -486,16 +503,20 @@ html, body {
   }
 }
 
-.filepond--panel-root {
+.filepond--panel-root 
+{
   background-color: transparent;
 }
-.my-dropdown-select .dropdown-selected-item {
+
+.my-dropdown-select .dropdown-selected-item 
+{
   background-color: #66bb6a !important;  /* Set background for selected item in input */
   color: white !important;               /* Text color */
 }
 
 /* Make FilePond image preview circular */
-.filepond--image-preview-wrapper {
+.filepond--image-preview-wrapper 
+{
   border-radius: 50% !important;
   overflow: hidden;
   width: 15rem !important;
@@ -504,7 +525,8 @@ html, body {
   margin-right:12rem !important ;
 }
 
-.filepond--image-preview {
+.filepond--image-preview 
+{
   border-radius: 50% !important;
   object-fit: cover;
 }
@@ -576,7 +598,8 @@ html, body {
   position: relative;
 }
 
-#TypeContainer
+/* Removed for now
+/* #TypeContainer
 {
   display: flex;
   flex-direction: row;
@@ -591,4 +614,105 @@ html, body {
   color: rgb(32,32,32);
   text-align: center;
   position: relative;
+} */
+
+.Vanta
+{
+  border-radius: 50%;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  opacity: 25%;
+}
+
+.FilmInStream
+{
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3)) ; 
+  backdrop-filter: blur(5px);
+  border-radius: 5%;
+  width: 50%;
+  height: 90%;
+  justify-content: left;
+  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: absolute;
+  left:1%;
+  top: 5%;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  .FilmApendencies
+  {
+    font-family: "Freckle Face", system-ui;
+    color: white;
+    min-width: 95%;
+    max-width: 95%;
+  }
+}
+
+.FilmInStream::-webkit-scrollbar 
+{
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+.ReviewForm
+{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3));
+  border-radius: 30px;
+  position: fixed;
+  height: 25vh;
+  width: 60vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: fadeInUp 0.6s ease-out forwards;
+  min-width: 490px;
+  min-height: 300px;
+  justify-content: center;
+  padding: 0px 40px 30px 40px;
+  overflow-y: auto; 
+  backdrop-filter: blur(5px);
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+  animation: fadeInUp 0.6s ease-out forwards;
+  will-change: transform;
+}
+
+#ReviewLabel
+{
+  font-size: 2.5rem;
+  color: rgb(32,32,32);
+  text-align: center;
+  position: relative;
+}
+
+#ReviewText
+{
+  font-size: 1.3rem;
+  color: rgb(64, 101, 98);
+  text-align: center;
+  position: relative;
+}
+
+#ReviewIcon 
+{
+  flex-shrink: 0;
+  width: 100px; 
+  height: 100px;
+  margin-bottom: 25px;
+  background-image: url("./YugenAssits/Icons/Reviewstar.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }

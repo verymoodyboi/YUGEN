@@ -12,7 +12,7 @@ import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import TextField from "@mui/material/TextField";
 import { Button, colors, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material";
-import { Redirect } from 'react-router-dom';
+import { Redirect } from "react-router-dom";
 
 //global theme
 const theme = createTheme({
@@ -315,45 +315,49 @@ function UploadForm() {
       </div>
     );
   } //this shows after submission, Renad plz fix it :) Got you bro - Renad ehe
-  else 
-  {
-
+  else {
     // Countdown timer for redirecting to another URL after several seconds
     let seconds: number = 10;
     let foo: ReturnType<typeof setInterval>;
-    
-    function redirect(): void 
-    {
+
+    function redirect(): void {
       window.location.reload();
     }
-    
-    function updateSecs(): void 
-    {
+
+    function updateSecs(): void {
       const secondsElement = document.getElementById("seconds");
-      if (secondsElement) 
-        {
+      if (secondsElement) {
         secondsElement.innerHTML = seconds.toString();
       }
       seconds--;
-      if (seconds < 0) 
-        {
+      if (seconds < 0) {
         clearInterval(foo);
         redirect();
       }
     }
-    
-    function countdownTimer(): void 
-    {
+
+    function countdownTimer(): void {
       foo = setInterval(updateSecs, 1000);
     }
-    
+
     countdownTimer();
-    
-    return <div className="film-submit">
-      <p className="film-submit-text">Film submitted! We will review your film and get back to you within a couple of days. For any inquiries please contact us at:</p> 
-      <p className="film-submit-text" id="email-hover"> Yugen@placeholder.com</p>
-      <p className="film-submit-text" id="redirect">You should automatically be redirected in <span id="seconds">10</span> seconds.</p>
-    </div>
+
+    return (
+      <div className="film-submit">
+        <p className="film-submit-text">
+          Film submitted! We will review your film and get back to you within a
+          couple of days. For any inquiries please contact us at:
+        </p>
+        <p className="film-submit-text" id="email-hover">
+          {" "}
+          Yugen@placeholder.com
+        </p>
+        <p className="film-submit-text" id="redirect">
+          You should automatically be redirected in <span id="seconds">10</span>{" "}
+          seconds.
+        </p>
+      </div>
+    );
   }
 }
 
