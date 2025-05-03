@@ -257,5 +257,29 @@ app.post('/Report',reporting.none(), (req, res) => {
   });
 });
 ///////////////////////////// http://localhost:3001/users done
+//**************************** http://localhost:3001/Review
+const Review = multer();
+app.post('/Review',reporting.none(), (req, res) => {
+  const Rating = req.body.rating;
+  const Comment = req.body.comment;
+  console.log(Rating,Comment);
+  const reportQuery =`
+          INSERT INTO review (comment,ReviewerID,ReviewedID,rating)
+          VALUES (?, ?,?,?)
+        `;
+  con.query(reportQuery, [Comment,0,0,Rating], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error");
+    }
+
+    if (result.length > 0) {
+      return res.status(409).send("Username already in use");
+    }
+
+    res.status(200).send("Username available");
+  });
+});
+///////////////////////////// http://localhost:3001/Review done
 // run server
 app.listen(3001, () => console.log("Server running on port 3001"));

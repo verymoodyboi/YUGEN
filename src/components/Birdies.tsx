@@ -27,15 +27,16 @@ const Birdies: React.FC = () => {
         scale: 1.0,
         scaleMobile: 1.0,
         backgroundColor: 0,
-        color1: 0xffffff,
-        color2: 0xffffff,
+        backgroundAlpha: 0.0,
+        color1: 0x0,
+        color2: 0xc2ff00,
         birdSize: 0.5,
         wingSpan: 10.0,
         speedLimit: 2.0,
         separation: 100,
         alignment: 1.0,
         cohesion: 1.0,
-        quantity: 3.0,
+        quantity: 2.0,
       });
       setVantaEffect(effect);
     }
