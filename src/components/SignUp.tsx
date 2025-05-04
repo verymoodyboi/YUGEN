@@ -1,26 +1,36 @@
 import "../App.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { TextField } from "@mui/material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
+import { Button } from "@mui/material";
 import { FilePond, registerPlugin } from "react-filepond";
-import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+//import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import { ToastContainer, toast } from "react-toastify/unstyled";
 import "react-toastify/dist/ReactToastify.css";
-import { Button, colors, ThemeProvider } from "@mui/material";
+import { colors, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material";
 import { error } from "console";
 import { data, Link } from "react-router-dom";
 import { validateHeaderName } from "http";
 import { ChangeEvent } from "react";
 import { json } from "stream/consumers";
+import Cropper from "react-easy-crop";
+import { Modal } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { UserOutlined, ExpandOutlined } from "@ant-design/icons";
+import { Button as AntButton, Avatar, Space } from "antd";
+import ErrorImg from "../YugenAssits/Icons/ErrorImg.png";
+import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+import { green } from "@mui/material/colors";
 registerPlugin(FilePondPluginFileValidateType);
-registerPlugin(FilePondPluginImagePreview);
+//registerPlugin(FilePondPluginImagePreview);
 function SignUpForm() {
   const test = (event) => {
     toast.warn("test");
@@ -37,7 +47,70 @@ function SignUpForm() {
   const [Password, setPassword] = useState<string>();
   const [CPassword, setCPassword] = useState<string>();
   const [isRegister, setIsRegister] = useState<boolean>(false);
+  const [crop, setCrop] = useState<Crop>();
+  const [pfpPath, setPFPPath] = useState("");
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
+  const imgRef = useRef(null);
+  const canvasRef = useRef(null);
 
+  //croppingPFP
+  const MinWidth = 150;
+  const aspectRatio = 1;
+  const onPFPload = (e: any) => {
+    const { w, h, naturalWidth, naturalHight } = e.currentTarget;
+    if (naturalWidth < MinWidth || naturalHight < MinWidth) {
+      toast.warn("image must at least be 150 X 150 pixels!");
+      setPFPPath(ErrorImg);
+    }
+    const crop = makeAspectCrop(
+      {
+        unit: "px",
+        width: MinWidth,
+      },
+      aspectRatio,
+      w,
+      h
+    );
+    setCrop(crop);
+  };
+  const setCroppedPFP = (img, canvas, crop) => {
+    const ctx = canvas.getContext("2d");
+    const pxRation = window.devicePixelRatio;
+    const scaleX = img.naturalWidth / img.width;
+    const scaleY = img.naturalHeight / img.height;
+    canvas.width = Math.floor(crop.width * scaleX * pxRation);
+    canvas.height = Math.floor(crop.height * scaleY * pxRation);
+    ctx.scale(pxRation, pxRation);
+    ctx.imageSmoothingQuality = "high";
+    ctx.save();
+    const cropX = crop.x * scaleX;
+    const cropY = crop.y * scaleY;
+    ctx.translate(-cropX, -cropY);
+    ctx.drawImage(
+      img,
+      0,
+      0,
+      img.naturalWidth,
+      img.naturalHeight,
+      0,
+      0,
+      img.naturalWidth,
+      img.naturalHeight
+    );
+    // Convert to blob and save as pfpFile
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const croppedFile = new File([blob], "cropped_pfp.png", {
+          type: "image/png",
+        });
+        setPfpFile(croppedFile); // ✅ Use this instead of original file
+        setCroppedFile(croppedFile);
+      }
+    }, "image/png");
+    ctx.restore();
+  };
+  //Crop done
   const handleSubmit = async (event) => {
     event.preventDefault();
     let errors: any = {};
@@ -118,6 +191,10 @@ function SignUpForm() {
     if (!pfpFile) {
       errors.pfpFile = "Please upload a profil picture.";
       toast.warn("Please upload a profile picture.");
+    }
+    if (!croppedFile) {
+      errors.pfpFile = "profile picture not cropped";
+      toast.warn("Please set Your profile image");
     }
     if (!email) {
       errors.email = "Please enter your email.";
@@ -237,6 +314,19 @@ function SignUpForm() {
       return "Too young";
     }
   };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   if (!isRegister) {
     return (
       <div className="Form">
@@ -251,16 +341,103 @@ function SignUpForm() {
             allowMultiple={false}
             acceptedFileTypes={["image/jpeg", "image/png"]}
             labelFileTypeNotAllowed="Onlu JPEG images are allowed!"
+            allowImagePreview={false}
+            onremovefile={() => {
+              setPFPPath("");
+              setCrop(null);
+            }}
             onaddfile={(error, fileItem) => {
               if (error) {
                 toast.warn("Error uploading pfp!");
                 return;
               } else {
+                const file = fileItem.file;
+                const pfpPath = URL.createObjectURL(file);
                 setPfpFile(fileItem.file);
+                setPFPPath(pfpPath);
               }
+              setPreview(pfpPath);
+              showModal();
             }}
           />
+          <Modal
+            title="Adjust your profile picture"
+            open={isModalOpen}
+            onOk={() => {
+              handleOk();
+              setCroppedPFP(imgRef.current, canvasRef.current, crop);
+            }}
+            onCancel={handleCancel}
+          >
+            {pfpPath && (
+              <ReactCrop
+                crop={crop}
+                circularCrop
+                keepSelection
+                aspect={1}
+                minWidth={MinWidth}
+                onChange={(pixelCrop, percentCrop) => {
+                  setCrop(pixelCrop);
+                }}
+              >
+                <img
+                  ref={imgRef}
+                  src={pfpPath}
+                  alt="PFP"
+                  onLoad={onPFPload}
+                  style={{
+                    borderRadius: "10%",
+                    borderColor: "black",
+                    borderWidth: "10px",
+                  }}
+                />
+              </ReactCrop>
+            )}
+          </Modal>
 
+          {!crop && !pfpPath && (
+            <Avatar size={128} icon={<UserOutlined />}></Avatar>
+          )}
+          {!crop && pfpPath && (
+            <>
+              <Avatar
+                style={{
+                  borderRadius: "50%",
+                  width: "150px",
+                  height: "150px",
+                }}
+                src={pfpPath}
+              ></Avatar>
+              <br />
+              <AntButton
+                onClick={showModal}
+                style={{ backgroundColor: "transparent", border: "0px" }}
+                icon={<ExpandOutlined />}
+              ></AntButton>
+            </>
+          )}
+          {crop && (
+            <>
+              <canvas
+                ref={canvasRef}
+                style={{
+                  borderRadius: "50%",
+                  objectFit: "contain",
+                  width: "150px",
+                  height: "150px",
+                }}
+              />
+              <br />
+              <AntButton
+                onClick={showModal}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "0px",
+                }}
+                icon={<ExpandOutlined />}
+              ></AntButton>
+            </>
+          )}
           <TextField
             name="FName"
             label="First Name"
@@ -388,6 +565,7 @@ function SignUpForm() {
             }}
           />
           <br />
+
           <Button
             variant="contained"
             color="primary"
