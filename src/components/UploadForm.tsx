@@ -208,7 +208,7 @@ function UploadForm() {
               }}
             />
             {/*closin*/}
-            <TextField /* TextField input for title using. imported from "mui/materials (looks better than default html text input)"*/
+            <TextField
               className="Form-Field"
               label="Film Title"
               variant="outlined"
@@ -223,7 +223,7 @@ function UploadForm() {
               }}
             />
             <br />
-            <TextField /* another textfield for describtion */
+            <TextField
               className="Form-Field"
               label="Film Description"
               variant="outlined"
@@ -248,7 +248,7 @@ function UploadForm() {
             <label htmlFor="genres" style={{ margin: "1rem" }}>
               genres
             </label>
-            <Select /* Select input also from "mui/material" */
+            <Select
               name="Genres"
               labelId="genres-label"
               multiple
@@ -300,7 +300,7 @@ function UploadForm() {
           </ThemeProvider>
           {/*closin*/}
         </form>
-        <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
+        <ToastContainer
           position="top-left"
           autoClose={5000}
           hideProgressBar={false}
@@ -316,7 +316,6 @@ function UploadForm() {
       </div>
     );
   } else {
-    // Countdown timer for redirecting to another URL after several seconds
     let seconds = 10;
     let foo: ReturnType<typeof setInterval>;
 

@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage.tsx";
 import WatchFilmPage from "./pages/WatchFilmPage.tsx";
 import ReportPage from "./pages/ReportPage.tsx";
 import ReviewPage from "./pages/ReviewPage.tsx";
+import UserProfilePage from "./pages/UserProfilePage.tsx";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
 function Yugen() {
@@ -19,7 +20,8 @@ function Yugen() {
           <Route path="/LoginPage" element={<LoginPage />} />
           <Route path="/Watch" element={<WatchFilmPage />} />
           <Route path="/Report" element={<ReportPage />} />
-          <Route path="/Review" element={<ReviewPage />} />
+          <Route path="/AddThought" element={<ReviewPage />} />
+          <Route path="/Profile" element={<UserProfilePage />} />
         </Routes>
       </Router>
     </div>

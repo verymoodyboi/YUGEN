@@ -32,21 +32,7 @@ const storage = multer.diskStorage({
     cb(null, `${userID}.jpg`);
   }
 });
-const getMaxUserID = async () => {
-  try {
-    const { data, error } = await supabase.rpc('get_next_user_id');
 
-    if (error) {
-      console.error('Error fetching next user ID:', error);
-      return null;
-    }
-
-    return data;
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    return null;
-  }
-};
 const upload = multer({ storage: storage });
 
 // Register Route
@@ -145,22 +131,8 @@ app.get('/users', async (req, res) => {
 
 //**************************** http://localhost:3001/upload-film 
 
-// check last id ()
-async function getMaxID() {
-  const { data, error } = await supabase
-    .from('films')
-    .select('Film_ID')
-    .order('Film_ID', { ascending: false })
-    .limit(1);
 
-  if (error) {
-    console.log("MaxID not found");
-    return null;
-  } else {
-    const MaxID = data[0]?.Film_ID || 0; // Get the max ID or 0 if table empty
-    return MaxID + 1;
-  }
-}
+
 
 // loads the "/upload-form" path on localhost port 3001
 app.post('/upload-film', async (req, res, next) => {
@@ -174,7 +146,7 @@ app.post('/upload-film', async (req, res, next) => {
       }
     },
     filename: async function (req, file, cb) {
-      const MaxID = await getMaxID(); // we await getMaxID()
+      const MaxID = await getMaxFilmID(); // we await getMaxFilmID()
       if (MaxID === null) {
         return cb(new Error("Failed to retrieve MaxID"));
       }
@@ -198,7 +170,7 @@ app.post('/upload-film', async (req, res, next) => {
   }
 
   try {
-    const MaxID = await getMaxID(); // prepare ID
+    const MaxID = await getMaxFilmID(); // prepare ID
     if (MaxID === null) {
       return res.status(500).send("Failed to retrieve new film ID.");
     }
@@ -297,14 +269,13 @@ app.post('/Report', reporting.none(), async (req, res) => {
 //**************************** http://localhost:3001/Report done
 
 //**************************** http://localhost:3001/Review
-app.post('/Review', reporting.none(), async (req, res) => {
+app.post('/addthought', reporting.none(), async (req, res) => {
   const Rating = req.body.rating;
   const Comment = req.body.comment;
-  console.log(Rating, Comment);
+h
 
-  // Supabase query to insert new review into 'review' table
   const { data, error } = await supabase
-    .from('review')
+    .from('thoughts')
     .insert([
       {
         comment: Comment,
@@ -319,9 +290,59 @@ app.post('/Review', reporting.none(), async (req, res) => {
     return res.status(500).send("Database error: " + error.message);
   }
 
-  res.status(200).send("Review submitted successfully!");
+  res.status(200).send("thought submitted successfully!");
 });
 //**************************** http://localhost:3001/Review done
+//supabase functions
+//get_next_user_id
+const getMaxUserID = async () => {
+  try {
+    const { data, error } = await supabase.rpc('get_next_user_id');
 
+    if (error) {
+      console.error('Error fetching next user ID:', error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    return null;
+  }
+};
+//get_next_film_id
+const getMaxFilmID= async() =>{
+  try {
+    const { data, error } = await supabase.rpc('get_next_film_id');
+
+    if (error) {
+      console.error('Error fetching next film ID:', error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    return null;
+  }
+}
+//get_avg_film_rating
+
+const getAVGRating= async (film_id)=> {
+  try {
+    const { data, error } = await supabase.rpc('get_film_average_rating',{film_id});
+
+    if (error) {
+      console.error('Error fetching avg film rating:', error);
+      return null;
+    }
+    console.log(data);
+    return data;
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    return null;
+  }
+}
+getAVGRating(1);
 // run server
 app.listen(3001, () => console.log("Server running on port 3001"));

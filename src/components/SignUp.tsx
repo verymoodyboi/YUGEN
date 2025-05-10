@@ -2,9 +2,8 @@ import "../App.css";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { TextField } from "@mui/material";
-import DatePicker from "react-datepicker";
+//import DatePicker as date from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 import { Button } from "@mui/material";
 import { FilePond, registerPlugin } from "react-filepond";
 //import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -13,34 +12,24 @@ import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import { ToastContainer, toast } from "react-toastify/unstyled";
 import "react-toastify/dist/ReactToastify.css";
-import { colors, ThemeProvider } from "@mui/material";
-import { createTheme } from "@mui/material";
-import { error } from "console";
-import { data, Link } from "react-router-dom";
-import { validateHeaderName } from "http";
-import { ChangeEvent } from "react";
-import { json } from "stream/consumers";
-import Cropper from "react-easy-crop";
+import { Link } from "react-router-dom";
 import { Modal } from "antd";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { UserOutlined, ExpandOutlined } from "@ant-design/icons";
 import { Button as AntButton, Avatar, Space } from "antd";
 import ErrorImg from "../YugenAssits/Icons/ErrorImg.png";
-import ReactCrop, { centerCrop, makeAspectCrop } from "react-image-crop";
+import ReactCrop, { makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { green } from "@mui/material/colors";
+import type { DatePickerProps } from "antd";
+import { DatePicker } from "antd";
 registerPlugin(FilePondPluginFileValidateType);
 //registerPlugin(FilePondPluginImagePreview);
 function SignUpForm() {
-  const test = (event) => {
-    toast.warn("test");
-  };
   const [Inputs, SetInputs] = useState({});
   const [fname, setfname] = useState<string | Blob>();
   const [lname, setlname] = useState();
   const [username, setusername] = useState();
   const [bio, setbio] = useState();
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [startDate, setStartDate] = useState<Date | null>(null);
   const [bday, setbday] = useState("");
   const [pfpFile, setPfpFile] = useState<File | null>(null);
   const [email, setEmail] = useState();
@@ -98,13 +87,13 @@ function SignUpForm() {
       img.naturalWidth,
       img.naturalHeight
     );
-    // Convert to blob and save as pfpFile
+
     canvas.toBlob((blob) => {
       if (blob) {
         const croppedFile = new File([blob], "cropped_pfp.png", {
           type: "image/png",
         });
-        setPfpFile(croppedFile); // ✅ Use this instead of original file
+        setPfpFile(croppedFile);
         setCroppedFile(croppedFile);
       }
     }, "image/png");
@@ -130,9 +119,9 @@ function SignUpForm() {
       console.log("yah");
       formData.append("FName", fname);
       formData.append("LName", lname);
-      formData.append("UserName", username);
+      formData.append("UserName", username.toLowerCase());
       formData.append("Bio", bio);
-      formData.append("Email", email);
+      formData.append("Email", email.toLowerCase());
       formData.append("Password", Password);
       formData.append("BirthDate", bday);
       formData.append("PFP", pfpFile);
@@ -145,7 +134,7 @@ function SignUpForm() {
       if (error) {
         toast("" + error);
       } else {
-        setIsRegister(true);
+        // setIsRegister(true);
       }
     }
   };
@@ -249,6 +238,7 @@ function SignUpForm() {
     }
   };
   const ValidateUserName = async () => {
+    const usernameTest = username.toLowerCase();
     try {
       const response = await axios.get("http://localhost:3001/users", {
         params: { username },
@@ -270,6 +260,7 @@ function SignUpForm() {
     }
   };
   const freeEmail = async () => {
+    const emailTest = email.toLowerCase();
     try {
       const response = await axios.get("http://localhost:3001/email", {
         params: { email },
@@ -325,7 +316,11 @@ function SignUpForm() {
   };
 
   const handleCancel = () => {
-    setIsModalOpen(false);
+    if (croppedFile) {
+      setIsModalOpen(false);
+    } else {
+      toast.warn("Please comfirm your profile picture!");
+    }
   };
   if (!isRegister) {
     return (
@@ -345,6 +340,7 @@ function SignUpForm() {
             onremovefile={() => {
               setPFPPath("");
               setCrop(null);
+              setCroppedFile(null);
             }}
             onaddfile={(error, fileItem) => {
               if (error) {
@@ -366,6 +362,7 @@ function SignUpForm() {
             onOk={() => {
               handleOk();
               setCroppedPFP(imgRef.current, canvasRef.current, crop);
+              setCroppedFile(null);
             }}
             onCancel={handleCancel}
           >
@@ -473,7 +470,8 @@ function SignUpForm() {
             label="User Name"
             variant="outlined"
             onChange={(event) => {
-              setusername(event?.target.value);
+              const lowercase = event?.target.value.toLowerCase();
+              setusername(lowercase);
             }}
             sx={{
               minHeight: "80px",
@@ -507,7 +505,8 @@ function SignUpForm() {
             variant="outlined"
             placeholder="exampl@gmail.com"
             onChange={(event) => {
-              setEmail(event?.target.value);
+              const lowercase2 = event?.target.value.toLowerCase();
+              setEmail(lowercase2);
             }}
             sx={{
               minHeight: "80px",
@@ -555,9 +554,10 @@ function SignUpForm() {
             Birth Date:
           </label>
           <br />
+
           <DatePicker
             name="BDay"
-            selected={startDate}
+            // selected={startDate}
             onChange={(date) => {
               setStartDate(date);
               const datesplit = date.toISOString().split("T")[0];

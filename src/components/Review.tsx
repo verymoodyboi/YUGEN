@@ -27,7 +27,7 @@ function ReviewForm() {
       formData.append("comment", comment);
 
       toast.success(`Rating: ${rating}, Comment: ${comment}`);
-      axios.post("http://localhost:3001/Review", formData);
+      axios.post("http://localhost:3001/addthought", formData);
     } catch (error: any) {
       if (error) {
         toast("" + error);
