@@ -7,6 +7,7 @@ import WatchFilmPage from "./pages/WatchFilmPage.tsx";
 import ReportPage from "./pages/ReportPage.tsx";
 import ReviewPage from "./pages/ReviewPage.tsx";
 import UserProfilePage from "./pages/UserProfilePage.tsx";
+import HomePageReformat from "./pages/HomePageReformat.tsx";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
 function Yugen() {
@@ -14,7 +15,7 @@ function Yugen() {
     <div>
       <Router>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<HomePageReformat />} />
           <Route path="/UploadFilmPage" element={<UploadFIlmPage />} />
           <Route path="/SignUpPage" element={<SignUpPage />} />
           <Route path="/LoginPage" element={<LoginPage />} />
