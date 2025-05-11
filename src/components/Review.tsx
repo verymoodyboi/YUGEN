@@ -94,7 +94,7 @@ function ReviewForm() {
       </ConfigProvider>
     );
   } else {
-    // Countdown timer for redirecting to another URL after several seconds
+    // Countdown timer for redirecting to another URL
     let seconds = 5;
     let foo: ReturnType<typeof setInterval>;
 

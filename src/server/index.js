@@ -249,7 +249,7 @@ app.post('/Report', reporting.none(), async (req, res) => {
   const report = req.body.report;
   console.log(email, report);
 
-  // Supabase query to insert new report into 'tech_reports' table
+  // Supabase new report into 'tech_reports'
   const { data, error } = await supabase
     .from('tech_reports')
     .insert([
@@ -272,7 +272,6 @@ app.post('/Report', reporting.none(), async (req, res) => {
 app.post('/addthought', reporting.none(), async (req, res) => {
   const Rating = req.body.rating;
   const Comment = req.body.comment;
-h
 
   const { data, error } = await supabase
     .from('thoughts')
@@ -281,7 +280,7 @@ h
         comment: Comment,
         reviewerid: 0, // Placeholder ID
         reviewedid: 0, // Placeholder ID
-        rating: Rating
+        rating: Rating,
       }
     ]);
 
@@ -343,6 +342,6 @@ const getAVGRating= async (film_id)=> {
     return null;
   }
 }
-getAVGRating(1);
+//getAVGRating(1);
 // run server
 app.listen(3001, () => console.log("Server running on port 3001"));
