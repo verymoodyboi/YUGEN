@@ -7,7 +7,7 @@ import WatchListLogo from "../YugenAssits/Icons/WatchListLogo.png";
 
 function GlassMenu() {
   return (
-    <div className="GlassMenu">
+    <div className="home-sidemenu">
 
       {/* <div>
         <a

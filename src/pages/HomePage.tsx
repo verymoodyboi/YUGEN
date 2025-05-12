@@ -1,5 +1,5 @@
 import "../App.css";
-import FilmCatalog from "../components/FilmCatalog.tsx";
+import FilmFrame from "../components/FilmFrame.tsx";
 import GlassMenu from "../components/SideMenu.tsx";
 import SearchBar from "../components/SearchBar.tsx";
 import NavBar from "../components/NavBar.tsx";
@@ -9,7 +9,7 @@ function HomePage() {
     <div>
       <Birdies />
       <div>
-        <FilmCatalog></FilmCatalog>
+        <FilmFrame></FilmFrame>
       </div>
       <div>
         <GlassMenu></GlassMenu>

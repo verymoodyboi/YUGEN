@@ -1,31 +1,24 @@
 import "../App.css";
-import PFP from "../YugenAssits/temp/PFP_temp.png";
-import TN from "../YugenAssits/temp/ThumbNail_Temp.png";
-import R from "../YugenAssits/Icons/Rating.png";
-import Genre from "../YugenAssits/Icons/GenreLogopng.png";
+
 function FilmBox() {
   return (
-    <div className="FilmBox">
-      <div>
-        <img src={TN} className="FilmBox_TN" />
+    <div className="filmbox">
+      <div id="filmbox-thumbnail"> {/* thumbnail of the film */}        
+        <div id="filmbox-duration"> {/* duration of the film */}
+          <p id="filmbox-duration-text">00:00:00</p>
+        </div>
       </div>
-      <div>
-        <p className="FilmBox_FilmName">Film Name </p>
+      <div className="filmbox-info-elements" id="filmbox-title-element"> {/* title of the film */}
+        <p className="filmbox-texts" id="filmbox-title-text">Film Title</p>
       </div>
-      <div
-        style={{ display: "flex", alignItems: "center", gap: "0px" }}
-        className="FilmBox_Rating"
-      >
-        <img src={R} />
-        <p style={{ margin: 0, whiteSpace: "nowrap" }}>9.9</p>
+      <div className="filmbox-info-elements" id="filmbox-upload-element"> {/* upload date of the film */}
+        <div id="filmbox-upload-icon"></div>
+        <p className="filmbox-texts">0 Days ago</p>
       </div>
-      <div
-        style={{ display: "flex", alignItems: "center", gap: "14px" }}
-        className="FilmBox_Genre"
-      >
-        <img src={Genre} style={{ width: 30, height: 30 }} />
-        <p>Genre1, Genre2, Genre3 </p>
-      </div>
+      <div className="filmbox-info-elements" id="filmbox-views-element"> {/* views of the film */}
+        <div id="filmbox-views-icon"></div>
+        <p className="filmbox-texts">1.999.999</p>
+        </div>
     </div>
   );
 }

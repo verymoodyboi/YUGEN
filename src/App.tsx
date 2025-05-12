@@ -6,7 +6,10 @@ import LoginPage from "./pages/LoginPage.tsx";
 import WatchFilmPage from "./pages/WatchFilmPage.tsx";
 import ReportPage from "./pages/ReportPage.tsx";
 import ReviewPage from "./pages/ReviewPage.tsx";
+import UserProfilePage from "./pages/UserProfilePage.tsx";
+// import FilmBox from "./components/FilmBox.tsx";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
+
 function Yugen() {
   return (
     <div>
@@ -19,8 +22,14 @@ function Yugen() {
           <Route path="/Watch" element={<WatchFilmPage />} />
           <Route path="/Report" element={<ReportPage />} />
           <Route path="/Review" element={<ReviewPage />} />
+          <Route path="/Profile" element={<UserProfilePage />} />
+
         </Routes>
       </Router>
+
+      {/* <div className="Testingcurrently">
+        <FilmBox />
+      </div> */}
     </div>
   );
 }
