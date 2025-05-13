@@ -1,5 +1,6 @@
 import "../App.css";
 import Catagory from "./catagory";
+import img from "../YugenAssits/BG/FilmsFrame2.png";
 function FilmCatalog() {
   return (
     <div className="FilmCatalog">

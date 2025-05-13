@@ -15,7 +15,7 @@ const headerStyle: React.CSSProperties = {
   paddingInline: 48,
   lineHeight: "64px",
   backgroundColor: "transparent",
-  // border: "black solid 2px",
+  border: "black solid 2px",
 };
 
 const contentStyle: React.CSSProperties = {
@@ -23,15 +23,17 @@ const contentStyle: React.CSSProperties = {
   minHeight: 120,
   lineHeight: "120px",
   color: "#fff",
-  // border: "black solid 2px",
+  border: "black solid 2px",
 };
 
 const siderStyle: React.CSSProperties = {
   textAlign: "center",
   lineHeight: "120px",
   color: "#fff",
+  //height: "70%",
+  //top: "28vh",
   backgroundColor: "transparent",
-  //border: "black solid 2px",
+  border: "black solid 2px",
   overflow: "hidden",
 };
 
@@ -39,7 +41,7 @@ const footerStyle: React.CSSProperties = {
   textAlign: "center",
   color: "#fff",
   backgroundColor: "transparent",
-  //border: "black solid 2px",
+  border: "black solid 2px",
 };
 
 const layoutStyle = {

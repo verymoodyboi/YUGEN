@@ -10,7 +10,7 @@ import { relative } from "path";
 function GlassMenu() {
   return (
     <Flex
-      gap={70}
+      gap={"10%"}
       justify="center"
       align="center"
       className="GlassMenu"

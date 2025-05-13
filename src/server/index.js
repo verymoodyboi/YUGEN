@@ -177,7 +177,7 @@ app.post('/upload-film', async (req, res, next) => {
 
     req.customFilmID = MaxID; // Attach ID to request
 
-    // Use upload.fields() to process files asynchronously
+ 
     upload.fields([{ name: 'File' }, { name: 'Thumbnail' }])(req, res, async (err) => {
       if (err) {
         return res.status(500).send("Error uploading files: " + err.message);
@@ -211,11 +211,11 @@ app.post('/upload-film', async (req, res, next) => {
           const { data, error } = await supabase
             .from('films')
             .insert([{
-              Film_Title: Title,
-              Description: Description,
-              Film_Genre: Genres,
-              Film_path: FilmPath,
-              Thumbnail_path: ThumbnailPath,
+              film_title: Title,
+              thesis: Description,
+              film_genre: Genres,
+              film_path: FilmPath,
+              thumbnail_path: ThumbnailPath,
               film_duration: videoDuration,
               release_date: date
             }]);
@@ -278,8 +278,8 @@ app.post('/addthought', reporting.none(), async (req, res) => {
     .insert([
       {
         comment: Comment,
-        reviewerid: 0, // Placeholder ID
-        reviewedid: 0, // Placeholder ID
+        reviewer_id: 0, // Placeholder ID
+        reviewed_id: 0, // Placeholder ID
         rating: Rating,
       }
     ]);
@@ -325,23 +325,50 @@ const getMaxFilmID= async() =>{
     return null;
   }
 }
-//get_avg_film_rating
 
-const getAVGRating= async (film_id)=> {
-  try {
-    const { data, error } = await supabase.rpc('get_film_average_rating',{film_id});
+//http://localhost:3001/film_data
 
-    if (error) {
-      console.error('Error fetching avg film rating:', error);
-      return null;
-    }
-    console.log(data);
-    return data;
-  } catch (err) {
-    console.error('Unexpected error:', err);
-    return null;
+
+
+app.get('/filmdata',async(req,res)=>{
+  try{
+    const {data,error}= await supabase
+      .from('films')
+      .select('film_title, film_path, poster_path, avg_rating,thesis,cast,crew')
+      .eq('film_id', 1);
+      console.log(data)
+      res.status(200).send(data);
   }
-}
-//getAVGRating(1);
+  catch(err)
+  {
+    if(err)
+    {
+      console.log("err");
+      return;
+    }
+  }
+
+})
+
+/////////////////
+app.get('/thought',async(req,res)=>{
+  try{
+    const {data,error}= await supabase
+      .from('thoughts')
+      .select('*')
+      console.log(data)
+      res.status(200).send(data);
+  }
+  catch(err)
+  {
+    if(err)
+    {
+      console.log("err");
+      return;
+    }
+  }
+
+})
+
 // run server
 app.listen(3001, () => console.log("Server running on port 3001"));
