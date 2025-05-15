@@ -2,11 +2,9 @@ import "../App.css";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { TextField } from "@mui/material";
-//import DatePicker as date from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "@mui/material";
 import { FilePond, registerPlugin } from "react-filepond";
-//import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
@@ -22,7 +20,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import type { DatePickerProps } from "antd";
 import { DatePicker } from "antd";
 registerPlugin(FilePondPluginFileValidateType);
-//registerPlugin(FilePondPluginImagePreview);
+
 function SignUpForm() {
   const [Inputs, SetInputs] = useState({});
   const [fname, setfname] = useState<string | Blob>();
@@ -43,7 +41,6 @@ function SignUpForm() {
   const imgRef = useRef(null);
   const canvasRef = useRef(null);
 
-  //croppingPFP
   const MinWidth = 150;
   const aspectRatio = 1;
   const onPFPload = (e: any) => {

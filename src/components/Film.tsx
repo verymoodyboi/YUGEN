@@ -141,6 +141,7 @@ function Films() {
       <button onClick={handleClick}>click</button>
       {click && filmData && uploaderData && (
         <div className="film-and-filmData">
+          <br></br>
           <Divider />
           <hr />
           <Box
@@ -301,8 +302,7 @@ function Films() {
                     fontFamily: '"Freckle Face", system-ui',
                   }}
                 >
-                  {filmData.thesis && <p>{filmData.thesis}</p>}
-                  {!filmData.thesis && <p>Thesis not available</p>}
+                  <p>{filmData.thesis}</p>
                 </Typography>
               </Box>
             </Card>
