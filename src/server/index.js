@@ -334,8 +334,28 @@ app.get('/filmdata',async(req,res)=>{
   try{
     const {data,error}= await supabase
       .from('films')
-      .select('film_title, film_path, poster_path, avg_rating,thesis,cast,crew')
-      .eq('film_id', 1);
+      .select('film_title, film_path, poster_path, avg_rating,thesis,cast,crew,film_genre,uploader_id')
+      .eq('film_id', req.query.filmID);
+      console.log(data)
+      res.status(200).send(data);
+  }
+  catch(err)
+  {
+    if(err)
+    {
+      console.log("err");
+      return;
+    }
+  }
+
+})
+/////////////////
+app.get('/getuploader',async(req,res)=>{
+  try{
+    const {data,error}= await supabase
+      .from('users')
+      .select('pfp_path,username')
+      .eq('user_id', req.query.id);
       console.log(data)
       res.status(200).send(data);
   }
