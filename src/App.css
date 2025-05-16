@@ -535,7 +535,7 @@ body {
   border-radius: 30px;
   position: fixed;
   top: 30%;
-  left: 40%;
+  left: 37%;
   width: calc(20% + 4px);
   height: calc(40% + 12px);
   min-width: 480px;
@@ -547,6 +547,7 @@ body {
   border-style: solid;
   border-width: 3px;
   border-color: black;
+  z-index: 1000;
 }
 
 #ReportButton {
@@ -601,32 +602,50 @@ body {
   opacity: 25%;
 }
 
-.FilmInStream {
+.filmpage-wrapper {
+  position: fixed;
+  top: 7%;
+  left: 12%;
+  width: 75%;
+  height: 90%;
   border-style: solid;
   border-width: 3px;
   border-color: black;
   background: linear-gradient(rgba(46, 62, 38, 0.3), rgba(96, 170, 167, 0.3));
   backdrop-filter: blur(5px);
-  border-radius: 5%;
-  width: 50%;
-  height: 90%;
+  border-radius: 3%;
   justify-content: left;
   padding: 2rem;
   overflow-y: auto;
   overflow-x: hidden;
-  position: absolute;
-  left: 1%;
-  top: 5%;
   color: white;
   display: flex;
   flex-direction: column;
+}
 
-  .FilmApendencies {
-    font-family: "Freckle Face", system-ui;
-    color: white;
-    min-width: 95%;
-    max-width: 95%;
-  }
+.filmpage-appendices {
+  position: relative;
+  left: 5%;
+  min-width: 90%;
+  max-width: 90%;
+  margin-top: 10%;
+}
+
+.filmpage-cover-and-filmname {
+  position: relative;
+}
+
+.filmpage-more-button {
+  position: relative;
+  right: 0;
+}
+
+.filmpage-genres-container {
+  position: relative;
+}
+
+.filmpage-review-container {
+  position: relative;
 }
 
 .FilmInStream::-webkit-scrollbar {
@@ -649,7 +668,7 @@ body {
   transform: translate(-50%, -50%);
   animation: fadeInUp 0.6s ease-out forwards;
   min-width: 490px;
-  min-height: 300px;
+  min-height: 365px;
   justify-content: center;
   padding: 0px 40px 30px 40px;
   overflow-y: auto;
@@ -670,7 +689,7 @@ body {
 
 #ReviewText {
   font-size: 1.3rem;
-  color: rgb(64, 101, 98);
+  color: rgb(129, 172, 169);
   text-align: center;
   position: relative;
 }
@@ -694,11 +713,6 @@ body {
   body {
     background-image: url('./YugenAssits/BG/HomepageBackground_RESCALED.png');
   }
-
-  .filmframe-wrapper {
-    width: 86vw;
-    height: auto;
-  }
 }
 
 @media (max-width: 1366px) {
@@ -718,51 +732,14 @@ body {
 }
 
 /* Mid-sized height: 921px–1275px */
-@media (min-height: 921px) and (max-height: 1275px) {
-  /* .filmframe-wrapper {
-    height: 92vh;
-    width: 91vw;
-    top: 2vh;
-    left: 0;
-  } */
+@media (min-height: 921) and (max-height: 1275px) {
+  .filmframe-wrapper {
+    width: 86vw;
+    height: auto;
+  }
 
   .home-sidemenu {
     height: 750px;
     width: 380px;
-  }
-}
-
-/* Standard HD width: 1367px–1920px */
-@media (min-width: 1367px) and (max-width: 1920px) {
-  /* .filmframe-wrapper {
-    height: 92vh;
-    width: 93vw;
-    top: 2vh;
-    left: 0;
-  } */
-
-  .home-sidemenu {
-    width: 280px;
-    height: 560px;
-  }
-
-  .Searchicon {
-    width: 50px;
-    height: 50px;
-  }
-}
-
-/* Short screens (height 700px or below) */
-@media (max-height: 610px) {
-  /* .filmframe-wrapper {
-    height: 96vh;
-    width: 100vw;
-    top: 2vh;
-    left: 0;
-  } */
-
-  .home-sidemenu {
-    right: 0;
-    top: 30vh;
   }
 }
