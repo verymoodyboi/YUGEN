@@ -7,9 +7,9 @@ import WatchFilmPage from "./pages/WatchFilmPage.tsx";
 import ReportPage from "./pages/ReportPage.tsx";
 import ReviewPage from "./pages/ReviewPage.tsx";
 import UserProfilePage from "./pages/UserProfilePage.tsx";
-// import Films from "./components/Film.tsx";
-
-// import FilmBox from "./components/FilmBox.tsx";
+// import HomePageReformat from "./pages/HomePageReformat.tsx";
+import Films from "./components/Film.tsx";
+// import SwipeableEdgeDrawer from "./components/testt.tsx";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
 function Yugen() {
@@ -17,22 +17,18 @@ function Yugen() {
     <div>
       <Router>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          {/* <Route path="/" element={<HomePageReformat />} /> */}
           <Route path="/UploadFilmPage" element={<UploadFIlmPage />} />
-          <Route path="/WatchFilmPage" element={<WatchFilmPage />} />
           <Route path="/SignUpPage" element={<SignUpPage />} />
           <Route path="/LoginPage" element={<LoginPage />} />
           <Route path="/Watch" element={<WatchFilmPage />} />
           <Route path="/Report" element={<ReportPage />} />
-          <Route path="/Review" element={<ReviewPage />} />
+          <Route path="/AddThought" element={<ReviewPage />} />
           <Route path="/Profile" element={<UserProfilePage />} />
-
+          <Route path="/film" element={<Films />} />
+          {/* <Route path="/test" element={<SwipeableEdgeDrawer />} /> */}
         </Routes>
       </Router>
-
-      {/* <div className="Testingcurrently">
-        <FilmBox />
-      </div> */}
     </div>
   );
 }

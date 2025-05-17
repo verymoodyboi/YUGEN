@@ -6,7 +6,7 @@ import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "react-toastify/dist/ReactToastify.css";
 import { Button, colors, ThemeProvider } from "@mui/material";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 function LoginForm() {
   const [Inputs, SetInputs] = useState({});
@@ -18,7 +18,9 @@ function LoginForm() {
   };
   return (
     <div className="LoginForm">
-    <p id="Loginlabel">Don't have an account? <Link to="/SignUpPage">Signup</Link> </p>
+      <p id="Loginlabel">
+        Don't have an account? <Link to="/SignUpPage">Signup</Link>{" "}
+      </p>
 
       <TextField
         name="UserName"
@@ -60,7 +62,9 @@ function LoginForm() {
         Login
       </Button>
 
-      <p>Forgot password? <Link to="/LoginPage">Reset password</Link></p>
+      <p>
+        Forgot password? <Link to="/LoginPage">Reset password</Link>
+      </p>
     </div>
   );
 }

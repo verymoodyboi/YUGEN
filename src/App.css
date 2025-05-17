@@ -534,8 +534,8 @@ body {
   background: linear-gradient(rgba(46, 62, 38, 0.3), rgba(96, 170, 167, 0.3));
   border-radius: 30px;
   position: fixed;
-  top: 30%;
-  left: 37%;
+  top: 50%;
+  left: 50%;
   width: calc(20% + 4px);
   height: calc(40% + 12px);
   min-width: 480px;
@@ -547,6 +547,9 @@ body {
   border-style: solid;
   border-width: 3px;
   border-color: black;
+  animation: fadeInUp 0.6s ease-out forwards;
+  transform: translate(-50%, -50%);
+  will-change: transform;
   z-index: 1000;
 }
 
@@ -656,33 +659,30 @@ body {
 .ReviewForm {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-start;
-  background: linear-gradient(rgba(46, 62, 38, 0.3), rgba(96, 170, 167, 0.3));
+  
+  background: linear-gradient(rgba(50, 54, 49, 0.8), rgba(96, 170, 167, 0.8));
   border-radius: 30px;
   position: fixed;
-  height: 25vh;
-  width: 60vh;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  animation: fadeInUp 0.6s ease-out forwards;
-  min-width: 490px;
-  min-height: 365px;
-  justify-content: center;
-  padding: 0px 40px 30px 40px;
+  width: calc(30% + 4px);
+  height: calc(10% + 12px);
+  min-width: 480px;
+  min-height: 400px;
+  padding: 40px 40px 30px 40px;
   overflow-y: auto;
-  backdrop-filter: blur(5px);
   border-style: solid;
   border-width: 3px;
   border-color: black;
   animation: fadeInUp 0.6s ease-out forwards;
-  will-change: transform;
+  z-index: 1000;
 }
 
 #ReviewLabel {
   font-size: 2.5rem;
-  color: rgb(32, 32, 32);
+  color: rgb(129, 172, 169);
   text-align: center;
   position: relative;
 }
@@ -742,4 +742,107 @@ body {
     height: 750px;
     width: 380px;
   }
+}
+
+.film-and-filmData {
+  /*layout*/
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: scroll;
+  padding: 0px 40px 30px 40px;
+  height: 90%;
+  width: 40%;
+  position: absolute;
+  left: 50%;
+
+  min-width: 490px;
+  min-height: 300px;
+  /*style*/
+
+  background: linear-gradient(rgba(46, 62, 38, 0.3), rgba(96, 170, 167, 0.3));
+  border-radius: 30px;
+
+
+  transform: translate(-50%, -50%);
+  animation: fadeInUp 0.6s ease-out forwards;
+
+  backdrop-filter: blur(5px);
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+  animation: fadeInUp 0.6s ease-out forwards;
+  will-change: transform;
+
+  .filmpage-cards {
+  width: 30%;
+  height: auto;
+  background-color: rgba(97, 155, 142, 0.2);
+  border: rgba(0, 0, 0, 0.5) 2px solid;
+  border-radius: 3%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+}
+
+.filmpage-cards:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 1;
+  }
+
+.film-card {
+  aspect-ratio: 2/4;
+  height: auto;
+  width: 33vh;
+  overflow-y: scroll;
+  border-radius: 5%;
+
+
+
+  backdrop-filter: blur(5px);
+
+  animation: fadeInUp 0.6s ease-out forwards;
+  will-change: transform;
+}
+
+.filmpage-reportfilm {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  
+  background: linear-gradient(rgba(50, 54, 49, 0.8), rgba(96, 170, 167, 0.8));
+  border-radius: 30px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: calc(20% + 4px);
+  height: calc(40% + 12px);
+  min-width: 480px;
+  min-height: 520px;
+  padding: 40px 40px 30px 40px;
+  overflow-y: auto;
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+  animation: fadeInUp 0.6s ease-out forwards;
+  z-index: 1000;
+}
+
+#filmpage-report-button {
+  width: 150px;
+  height: 50px;
+  background-color: #cc651f;
+  border: #000000;
+  font-size: 1rem;
+  margin: 1rem;
+}
+
+#filmpage-report-button:hover {
+  background-color: rgb(220, 112, 39);
+  border: #000000;
+  font-size: 1rem;
+  margin: 1rem;
+  box-shadow: 1px 1px 10px rgb(255, 162, 32);
 }

@@ -71,9 +71,21 @@ function ReportFilmForm() {
 
   if (!isSubmit) {
     return (
-      <div className="ReportForm">
+      <div className="filmpage-reportfilm">
         <form onSubmit={handleSubmit}>
-          <label id="ReportLabel">Report Film</label>
+          <label
+            id="filmpage-label"
+            style={{
+              color: "rgb(13, 16, 16)",
+              fontSize: "2.5rem",
+              textAlign: "center",
+              position: "relative",
+              left: "25%",
+            }}
+          >
+            Report Film
+          </label>
+
           <TextField
             name="Email"
             label="Email"
@@ -117,6 +129,8 @@ function ReportFilmForm() {
               fontFamily: '"Freckle Face", system-ui, sans-serif',
               color: "#fff",
               margin: "2rem",
+              position: "relative",
+              left: "25%",
             }}
           >
             Submit Report
