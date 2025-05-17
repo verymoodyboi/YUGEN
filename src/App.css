@@ -287,33 +287,6 @@ body {
   top: 10%;
 }
 
-::-webkit-scrollbar {
-  width: 5%;
-  height: 5%;
-  opacity: 0.5;
-}
-
-
-::-webkit-scrollbar-track {
-  background: linear-gradient(rgba(151, 91, 106, 255), rgba(48, 5, 10, 255));
-  border-radius: 10px;
-  opacity: 0.5;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(rgba(46, 62, 38, 255), rgba(96, 170, 167, 255));
-  border-radius: 10px;
-  opacity: 0.5;
-
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: whitesmoke;
-  opacity: 0.5;
-}
-
 .filepond--credits {
   display: none !important;
 }
@@ -421,35 +394,6 @@ body {
 #redirect {
   font-size: 1.5em;
   color: rgb(75, 75, 75);
-}
-
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-  opacity: 0.5;
-
-}
-
-::-webkit-scrollbar-track {
-  background: linear-gradient(rgba(151, 91, 106, 255), rgba(48, 5, 10, 255));
-  border-radius: 10px;
-  opacity: 0.5;
-
-
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(rgba(46, 62, 38, 255), rgba(96, 170, 167, 255));
-  border-radius: 10px;
-  opacity: 0.5;
-
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: whitesmoke;
-  opacity: 0.5;
 }
 
 .NavBar {
@@ -705,46 +649,7 @@ body {
   background-position: center;
 }
 
-/* Resolution scaling */
-/* Background image for all screens shorter than 1275px */
-@media (max-height: 1275px) {
-
-  html,
-  body {
-    background-image: url('./YugenAssits/BG/HomepageBackground_RESCALED.png');
-  }
-}
-
-@media (max-width: 1366px) {
-  /* .filmframe-wrapper {
-    height: 92vh;
-    width: 93vw;
-    top: 2vh;
-    left: 0;
-  } */
-
-  .home-sidemenu {
-    width: 195px;
-    height: 395px;
-    border-radius: 50px 0 0 50px;
-  }
-
-}
-
-/* Mid-sized height: 921px–1275px */
-@media (min-height: 921) and (max-height: 1275px) {
-  .filmframe-wrapper {
-    width: 86vw;
-    height: auto;
-  }
-
-  .home-sidemenu {
-    height: 750px;
-    width: 380px;
-  }
-}
-
-.film-and-filmData {
+.film-and-filmdata {
   /*layout*/
   display: flex;
   flex-direction: column;
@@ -753,17 +658,15 @@ body {
   overflow-y: scroll;
   padding: 0px 40px 30px 40px;
   height: 90%;
-  width: 40%;
+  width: 50%;
   position: absolute;
   left: 50%;
-
+  top: 50%;
   min-width: 490px;
   min-height: 300px;
+
   /*style*/
-
   background: linear-gradient(rgba(46, 62, 38, 0.3), rgba(96, 170, 167, 0.3));
-  border-radius: 30px;
-
 
   transform: translate(-50%, -50%);
   animation: fadeInUp 0.6s ease-out forwards;
@@ -772,24 +675,34 @@ body {
   border-style: solid;
   border-width: 3px;
   border-color: black;
+  border-radius: 30px 0px 0px 30px;
   animation: fadeInUp 0.6s ease-out forwards;
   will-change: transform;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.40);
 
-  .filmpage-cards {
+.filmpage-cards {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  position: relative;
   width: 30%;
-  height: auto;
+  aspect-ratio: 1 / 1; /* optional: keeps it square */
   background-color: rgba(97, 155, 142, 0.2);
-  border: rgba(0, 0, 0, 0.5) 2px solid;
+  /* border: rgba(0, 0, 0, 0.5) 2px solid; */
   border-radius: 3%;
+  overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
+  z-index: 0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.40);
+}
 }
 
 .filmpage-cards:hover {
   transform: scale(1.05);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  z-index: 1;
-  }
+  z-index: 10;
+  height: auto;
+  overflow: visible;
+}
 
 .film-card {
   aspect-ratio: 2/4;
@@ -797,11 +710,7 @@ body {
   width: 33vh;
   overflow-y: scroll;
   border-radius: 5%;
-
-
-
   backdrop-filter: blur(5px);
-
   animation: fadeInUp 0.6s ease-out forwards;
   will-change: transform;
 }
@@ -845,4 +754,245 @@ body {
   font-size: 1rem;
   margin: 1rem;
   box-shadow: 1px 1px 10px rgb(255, 162, 32);
+}
+
+/*the things head*/
+.thoughts-container {
+  width: 90%;
+}
+
+.thoughts-list-item {
+  border-style: solid;
+  border-color: #000000;
+}
+
+.thoughts-list .ant-list-item {
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px;
+  padding: 16px !important;
+  margin-bottom: 12px;
+  background: linear-gradient(rgba(46,62,38,0.1), rgba(96,170,167,0.1));
+  backdrop-filter: blur(2px);
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.25);
+}
+
+.thoughts-list .ant-list-item:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(rgba(46,62,38,0.15), rgba(96,170,167,0.15));
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.50);
+}
+
+.thoughts-list .ant-comment {
+  background: transparent;
+  color: #ffffff;
+}
+
+.thoughts-list .ant-comment-content-author-name {
+  color: #ffffff !important;
+  font-family: "Freckle Face", system-ui;
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.thoughts-list .ant-comment-content-reply-name {
+  color: #ffffff !important;
+  font-family: "Freckle Face", system-ui;
+  font-size: 1rem;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.thoughts-list .ant-comment-content-detail {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1.2rem;
+  font-family: "Freckle Face", system-ui;
+}
+
+.thoughts-list .ant-comment-content-author-time {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-style: italic;
+}
+
+.thoughts-list .ant-rate-star {
+  color: #ffd700 !important;
+}
+
+.reply-form {
+  margin-top: 16px;
+  margin-left: 44px;
+  padding: 16px;
+  background: linear-gradient(rgba(46,62,38,0.1), rgba(96,170,167,0.1));
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.replies-list {
+  margin-left: 44px;
+  background: transparent !important;
+}
+
+.replies-list .ant-list-item {
+  border: none !important;
+  border-left: 2px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0;
+  padding: 8px 16px !important;
+  margin: 4px 0;
+  background: transparent;
+}
+
+/* Style the MUI components within thoughts */
+.thoughts-container .MuiTextField-root {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.thoughts-container .MuiTextField-root .MuiOutlinedInput-root {
+  color: #ffffff;
+}
+
+.thoughts-container .MuiTextField-root .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.thoughts-container .MuiTextField-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.thoughts-container .MuiTextField-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #ffffff;
+}
+
+.thoughts-container .MuiInputLabel-root {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.thoughts-container .MuiButton-contained {
+  background: linear-gradient(45deg, #2c5d5a, #cc651f);
+  font-family: "Freckle Face", system-ui;
+  text-transform: none;
+  font-size: 1rem;
+}
+
+.thoughts-container .MuiButton-contained:hover {
+  background: linear-gradient(45deg, #cc651f, #2c5d5a);
+}
+
+.thoughts-container .MuiRating-root {
+  color: #ffd700;
+  font-size: 2rem;
+}
+
+.thoughts-container .MuiRating-icon {
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
+}
+
+.thoughts-container .MuiRating-iconFilled {
+  color: #ffd700;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.3));
+}
+
+.thoughts-container .MuiRating-iconEmpty {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* More subtle comment separation */
+.thoughts-list .ant-list-item {
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px;
+  padding: 16px !important;
+  margin-bottom: 12px;
+  background: linear-gradient(rgba(46,62,38,0.1), rgba(96,170,167,0.1));
+  backdrop-filter: blur(2px);
+  transition: all 0.2s ease;
+}
+
+.thoughts-list .ant-list-item:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(rgba(46,62,38,0.15), rgba(96,170,167,0.15));
+}
+
+.replies-list .ant-list-item {
+  border: none !important;
+  border-left: 2px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0;
+  padding: 8px 16px !important;
+  margin: 4px 0;
+  background: transparent;
+}
+
+/* Subtle divider between comments */
+.thoughts-list .ant-list-item + .ant-list-item {
+  margin-top: 16px;
+}
+/*the things tail*/
+
+
+::-webkit-scrollbar {
+  position: relative;
+  right: 50%;
+  width: 5px;
+  height: 5px;
+  opacity: 0.5;
+
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(rgba(151, 91, 106, 255), rgba(48, 5, 10, 255));
+  border-radius: 10px;
+  opacity: 0.5;
+
+
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(rgba(46, 62, 38, 255), rgba(96, 170, 167, 255));
+  border-radius: 10px;
+  opacity: 0.5;
+
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: whitesmoke;
+  opacity: 0.5;
+}
+
+/* Resolution scaling */
+/* Background image for all screens shorter than 1275px */
+@media (max-height: 1275px) {
+
+  html,
+  body {
+    background-image: url('./YugenAssits/BG/HomepageBackground_RESCALED.png');
+  }
+}
+
+@media (max-width: 1366px) {
+  /* .filmframe-wrapper {
+    height: 92vh;
+    width: 93vw;
+    top: 2vh;
+    left: 0;
+  } */
+
+  .home-sidemenu {
+    width: 195px;
+    height: 395px;
+    border-radius: 50px 0 0 50px;
+  }
+
+}
+
+/* Mid-sized height: 921px–1275px */
+@media (min-height: 921) and (max-height: 1275px) {
+  .filmframe-wrapper {
+    width: 86vw;
+    height: auto;
+  }
+
+  .home-sidemenu {
+    height: 750px;
+    width: 380px;
+  }
 }

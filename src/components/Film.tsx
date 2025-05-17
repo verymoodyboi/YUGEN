@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import ReactPlayer from "react-player";
 import axios from "axios";
 import ReportFilm from "./ReportFilm";
+import Thoughts from "./thoughts";
 
 import {
   Avatar,
@@ -37,8 +38,9 @@ function Films() {
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
   const [reportOpen, setReportOpen] = useState(false);
-  const filmCoverPath = filmData?.film_cover_path
-    ? `uploads/covers/${filmData.film_cover_path}`
+  const [userId, setUserId] = useState<number | null>(null);
+  const filmCoverPath = filmData?.poster_path
+    ? filmData.poster_path
     : "/temp/testing.png";
 
   const validate = () => {
@@ -230,7 +232,7 @@ function Films() {
       />
       <button onClick={handleClick}>click</button>
       {click && filmData && uploaderData && (
-        <div className="film-and-filmData">
+        <div className="film-and-filmdata">
           <br></br>
           <Divider />
           <hr />
@@ -303,16 +305,18 @@ function Films() {
           </Box>
 
           <Divider />
+
           <hr />
           <Box
             sx={{
               position: "relative",
               width: "100%",
-              maxWidth: 800,
-              height: 450,
+              maxWidth: 1200,
+              height: "55%",
               backgroundColor: "black",
               overflow: "hidden",
               borderRadius: 2,
+              flexShrink: 0,
             }}
           >
             <ReactPlayer
@@ -363,7 +367,11 @@ function Films() {
                       <img
                         src={filmCoverPath}
                         alt="Full Cover"
-                        style={{ maxWidth: "200px", borderRadius: "8px" }}
+                        style={{
+                          maxWidth: "200px",
+                          borderRadius: "8px",
+                          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.40)",
+                        }}
                       />
                     }
                     placement="right"
@@ -373,10 +381,11 @@ function Films() {
                       alt="Film Cover"
                       style={{
                         borderRadius: "8px",
-                        width: "110px",
-                        height: "150px",
+                        width: "125px",
+                        height: "175px",
                         cursor: "pointer",
                         flexShrink: 0,
+                        boxShadow: "2px 8px 5px rgba(0, 0, 0, 0.40)",
                       }}
                     />
                   </Tooltip>
@@ -415,6 +424,11 @@ function Films() {
                           fontFamily: '"Freckle Face", system-ui',
                           backgroundColor: genreColors[genre] || "gray",
                           color: "white",
+                          fontSize: "1rem",
+                          height: 24,
+                          padding: "0 6px",
+                          borderRadius: "12px",
+                          boxShadow: "0 8px 10px rgba(0, 0, 0, 0.40)",
                         }}
                       />
                     ))}
@@ -433,7 +447,6 @@ function Films() {
                               <Chip
                                 key={genre}
                                 label={genre}
-                                size="small"
                                 sx={{
                                   fontFamily: '"Freckle Face", system-ui',
                                   backgroundColor: genreColors[genre] || "gray",
@@ -553,6 +566,7 @@ function Films() {
                 </Stack>
                 <Typography
                   variant="body2"
+                  fontSize={20}
                   sx={{
                     color: "text.secondary",
                     fontFamily: '"Freckle Face", system-ui',
@@ -579,6 +593,7 @@ function Films() {
                 </Stack>
                 <Typography
                   variant="body2"
+                  fontSize={20}
                   sx={{
                     color: "text.secondary",
                     fontFamily: '"Freckle Face", system-ui',
@@ -606,6 +621,7 @@ function Films() {
                 </Stack>
                 <Typography
                   variant="body2"
+                  fontSize={20}
                   sx={{
                     color: "text.secondary",
                     fontFamily: '"Freckle Face", system-ui',
@@ -617,6 +633,11 @@ function Films() {
               </Box>
             </Card>
           </Box>
+
+          <Thoughts
+            filmId={1} // Replace with actual film ID from your data/props
+            userId={userId} // Pass the current user's ID
+          />
         </div>
       )}
       {click && !filmData && (

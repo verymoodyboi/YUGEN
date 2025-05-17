@@ -80,7 +80,7 @@ function ReportFilmForm() {
               fontSize: "2.5rem",
               textAlign: "center",
               position: "relative",
-              left: "25%",
+              left: "30%",
             }}
           >
             Report Film
@@ -130,7 +130,7 @@ function ReportFilmForm() {
               color: "#fff",
               margin: "2rem",
               position: "relative",
-              left: "25%",
+              left: "30%",
             }}
           >
             Submit Report

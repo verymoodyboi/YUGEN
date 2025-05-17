@@ -2,9 +2,12 @@ import "../App.css";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { TextField } from "@mui/material";
+//import DatePicker as date from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "@mui/material";
 import { FilePond, registerPlugin } from "react-filepond";
+import { FilePondFile } from 'filepond';
+//import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
 import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
@@ -15,37 +18,39 @@ import { Modal } from "antd";
 import { UserOutlined, ExpandOutlined } from "@ant-design/icons";
 import { Button as AntButton, Avatar, Space } from "antd";
 import ErrorImg from "../YugenAssits/Icons/ErrorImg.png";
-import ReactCrop, { makeAspectCrop } from "react-image-crop";
+import ReactCrop, { makeAspectCrop, Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import type { DatePickerProps } from "antd";
 import { DatePicker } from "antd";
+import type { Dayjs } from 'dayjs';
 registerPlugin(FilePondPluginFileValidateType);
-
+//registerPlugin(FilePondPluginImagePreview);
 function SignUpForm() {
-  const [Inputs, SetInputs] = useState({});
-  const [fname, setfname] = useState<string | Blob>();
-  const [lname, setlname] = useState();
-  const [username, setusername] = useState();
-  const [bio, setbio] = useState();
+  const [fname, setfname] = useState<string>("");
+  const [lname, setlname] = useState<string>("");
+  const [username, setusername] = useState<string>("");
+  const [bio, setbio] = useState<string>("");
   const [startDate, setStartDate] = useState<Date | null>(null);
-  const [bday, setbday] = useState("");
+  const [bday, setbday] = useState<string>("");
   const [pfpFile, setPfpFile] = useState<File | null>(null);
-  const [email, setEmail] = useState();
-  const [Password, setPassword] = useState<string>();
-  const [CPassword, setCPassword] = useState<string>();
+  const [email, setEmail] = useState<string>("");
+  const [Password, setPassword] = useState<string>("");
+  const [CPassword, setCPassword] = useState<string>("");
   const [isRegister, setIsRegister] = useState<boolean>(false);
   const [crop, setCrop] = useState<Crop>();
-  const [pfpPath, setPFPPath] = useState("");
+  const [pfpPath, setPFPPath] = useState<string>("");
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState("");
-  const imgRef = useRef(null);
-  const canvasRef = useRef(null);
+  const [preview, setPreview] = useState<string>("");
+  const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  //croppingPFP
   const MinWidth = 150;
   const aspectRatio = 1;
-  const onPFPload = (e: any) => {
-    const { w, h, naturalWidth, naturalHight } = e.currentTarget;
-    if (naturalWidth < MinWidth || naturalHight < MinWidth) {
+  const onPFPload = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    const { naturalWidth, naturalHeight } = img;
+    if (naturalWidth < MinWidth || naturalHeight < MinWidth) {
       toast.warn("image must at least be 150 X 150 pixels!");
       setPFPPath(ErrorImg);
     }
@@ -55,13 +60,17 @@ function SignUpForm() {
         width: MinWidth,
       },
       aspectRatio,
-      w,
-      h
+      img.width,
+      img.height
     );
     setCrop(crop);
   };
-  const setCroppedPFP = (img, canvas, crop) => {
+  const setCroppedPFP = (img: HTMLImageElement, canvas: HTMLCanvasElement, crop: Crop) => {
+    if (!img || !canvas || !crop) return;
+    
     const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
     const pxRation = window.devicePixelRatio;
     const scaleX = img.naturalWidth / img.width;
     const scaleY = img.naturalHeight / img.height;
@@ -97,23 +106,27 @@ function SignUpForm() {
     ctx.restore();
   };
   //Crop done
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let errors: any = {};
     let empty = JSON.stringify(errors);
     errors = await validateAll();
     if (JSON.stringify(errors) == empty) {
-      toast("vaild user info");
+      toast("valid user info");
       setIsRegister(true);
       SendToServer();
     } else {
       toast.warn("invalid user info:" + JSON.stringify(errors));
     }
   };
-  const SendToServer = async () => {
+    const SendToServer = async () => {
     try {
       const formData = new FormData();
-      console.log("yah");
+      
+      if (!fname || !lname || !username || !bio || !email || !Password || !bday || !pfpFile) {
+        throw new Error("Missing required fields");
+      }
+
       formData.append("FName", fname);
       formData.append("LName", lname);
       formData.append("UserName", username.toLowerCase());
@@ -122,17 +135,10 @@ function SignUpForm() {
       formData.append("Password", Password);
       formData.append("BirthDate", bday);
       formData.append("PFP", pfpFile);
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
 
-      axios.post("http://localhost:3001/Register", formData);
+      await axios.post("http://localhost:3303/Register", formData);
     } catch (error: any) {
-      if (error) {
-        toast("" + error);
-      } else {
-        // setIsRegister(true);
-      }
+      toast(error.message || "Registration failed");
     }
   };
   const validateAll = async () => {
@@ -237,7 +243,7 @@ function SignUpForm() {
   const ValidateUserName = async () => {
     const usernameTest = username.toLowerCase();
     try {
-      const response = await axios.get("http://localhost:3001/users", {
+      const response = await axios.get("http://localhost:3303/users", {
         params: { username },
       });
       return;
@@ -259,7 +265,7 @@ function SignUpForm() {
   const freeEmail = async () => {
     const emailTest = email.toLowerCase();
     try {
-      const response = await axios.get("http://localhost:3001/email", {
+      const response = await axios.get("http://localhost:3303/email", {
         params: { email },
       });
       return;
@@ -310,6 +316,10 @@ function SignUpForm() {
 
   const handleOk = () => {
     setIsModalOpen(false);
+    if (imgRef.current && canvasRef.current && crop) {
+      setCroppedPFP(imgRef.current, canvasRef.current, crop);
+      setCroppedFile(null);
+    }
   };
 
   const handleCancel = () => {
@@ -319,6 +329,34 @@ function SignUpForm() {
       toast.warn("Please comfirm your profile picture!");
     }
   };
+
+  const handleDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setStartDate(date.toDate());
+      setbday(date.format('YYYY-MM-DD'));
+    }
+  };
+
+  const onaddfile = (error: any, fileItem: FilePondFile) => {
+    if (error) {
+      toast.warn("Error uploading pfp!");
+      return;
+    }
+    
+    const file = fileItem.file as File;
+    const pfpPath = URL.createObjectURL(file);
+    setPfpFile(file);
+    setPFPPath(pfpPath);
+    setPreview(pfpPath);
+    showModal();
+  };
+
+  const onremovefile = () => {
+    setPFPPath("");
+    setCrop(undefined);
+    setCroppedFile(null);
+  };
+
   if (!isRegister) {
     return (
       <div className="Form">
@@ -332,35 +370,15 @@ function SignUpForm() {
             name="PFP"
             allowMultiple={false}
             acceptedFileTypes={["image/jpeg", "image/png"]}
-            labelFileTypeNotAllowed="Onlu JPEG images are allowed!"
+            labelFileTypeNotAllowed="Only JPEG images are allowed!"
             allowImagePreview={false}
-            onremovefile={() => {
-              setPFPPath("");
-              setCrop(null);
-              setCroppedFile(null);
-            }}
-            onaddfile={(error, fileItem) => {
-              if (error) {
-                toast.warn("Error uploading pfp!");
-                return;
-              } else {
-                const file = fileItem.file;
-                const pfpPath = URL.createObjectURL(file);
-                setPfpFile(fileItem.file);
-                setPFPPath(pfpPath);
-              }
-              setPreview(pfpPath);
-              showModal();
-            }}
+            onremovefile={onremovefile}
+            onaddfile={onaddfile}
           />
           <Modal
             title="Adjust your profile picture"
             open={isModalOpen}
-            onOk={() => {
-              handleOk();
-              setCroppedPFP(imgRef.current, canvasRef.current, crop);
-              setCroppedFile(null);
-            }}
+            onOk={handleOk}
             onCancel={handleCancel}
           >
             {pfpPath && (
@@ -554,12 +572,7 @@ function SignUpForm() {
 
           <DatePicker
             name="BDay"
-            // selected={startDate}
-            onChange={(date) => {
-              setStartDate(date);
-              const datesplit = date.toISOString().split("T")[0];
-              setbday(datesplit);
-            }}
+            onChange={handleDateChange}
           />
           <br />
 
