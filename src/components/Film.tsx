@@ -204,13 +204,13 @@ function Films() {
   };
 
   const genreColors: Record<string, string> = {
-    Adventure: "#4caf50",
-    Comedy: "#ff9800",
-    Drama: "#3f51b5",
-    Horror: "#f44336",
-    Romance: "#e91e63",
-    Animation: "rgb(42, 160, 21)",
-    Biography: "rgb(8, 69, 144)",
+    Adventure: "rgb(92, 38, 38)",
+    Comedy: "rgb(55, 117, 107)",
+    Drama: "rgb(92, 38, 38)",
+    Horror: "rgb(55, 117, 107)",
+    Romance: "rgb(92, 38, 38)",
+    Animation: "rgb(55, 117, 107)",
+    Biography: "rgb(92, 38, 38)",
   };
 
   const MAX_VISIBLE = 3;
@@ -520,8 +520,9 @@ function Films() {
                     <div
                       style={{
                         display: "flex",
-                        flexDirection: "column",
+                        flexDirection: "row",
                         alignItems: "center",
+                        gap: "15px",
                       }}
                     >
                       <Grid>
