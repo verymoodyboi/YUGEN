@@ -1,7 +1,12 @@
 import "../App.css";
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { TextField, Button, Rating as MuiRating } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Rating as MuiRating,
+  Typography,
+} from "@mui/material";
 import { Avatar, Space, List } from "antd";
 import { Comment } from "@ant-design/compatible";
 import { UserOutlined } from "@ant-design/icons";
@@ -9,6 +14,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./AuthContext";
 import { ClassNames } from "@emotion/react";
+import { relative } from "path";
 
 interface Thought {
   id: number;
@@ -147,7 +153,18 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId }) => {
 
   return (
     <div className="thoughts-container">
-      <h2>Thoughts</h2>
+      <Typography
+        sx={{
+          fontSize: "2.5rem",
+          fontFamily: '"Freckle Face", system-ui',
+          position: "relative",
+          right: "45%",
+          marginBottom: "2%",
+          color: "rgb(27, 35, 32)",
+        }}
+      >
+        Thoughts
+      </Typography>
 
       {/* New Thought Form */}
       {userId && (
@@ -156,6 +173,9 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId }) => {
             value={newRating}
             onChange={(_, value) => setNewRating(value)}
             size="large"
+            sx={{
+              color: "#faaf00",
+            }}
           />
           <TextField
             multiline
@@ -208,7 +228,15 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId }) => {
               }
               content={
                 <div>
-                  <MuiRating value={thought.rating} readOnly />
+                  <MuiRating
+                    value={thought.rating}
+                    readOnly
+                    sx={{
+                      "& .MuiRating-iconFilled": {
+                        color: "#faaf00",
+                      },
+                    }}
+                  />
                   {thought.comment && <p>{thought.comment}</p>}
                 </div>
               }
@@ -220,7 +248,13 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId }) => {
               className="replies-list"
               itemLayout="vertical"
               dataSource={thought.replies}
-              locale={{ emptyText: "No thoughts yet. Be the first to share!" }} // Customize the empty state
+              locale={{
+                emptyText: (
+                  <Typography sx={{ fontFamily: '"Freckle Face", system-ui' }}>
+                    No thoughts yet. Be the first to share!
+                  </Typography>
+                ),
+              }} // Customize the empty state
               renderItem={(reply) => (
                 <List.Item>
                   <Comment

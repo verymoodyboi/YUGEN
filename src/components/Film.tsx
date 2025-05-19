@@ -138,7 +138,7 @@ function Films() {
           }}
           sx={{
             "& .MuiRating-icon": {
-              fontSize: "40px", // Change this to whatever size you want
+              fontSize: "40px",
             },
           }}
         />
@@ -153,7 +153,7 @@ function Films() {
             height: "auto",
             fontSize: "16px",
             padding: "10px",
-            width: "100%",
+            width: "90%",
             marginTop: "16px",
             // backgroundColor: "rgba(97, 155, 142, 0.2)",
           }}
@@ -209,7 +209,7 @@ function Films() {
     Drama: "#3f51b5",
     Horror: "#f44336",
     Romance: "#e91e63",
-    Animation: "rgb(140, 75, 0)",
+    Animation: "rgb(42, 160, 21)",
     Biography: "rgb(8, 69, 144)",
   };
 
@@ -252,7 +252,7 @@ function Films() {
                 variant="h4"
                 sx={{
                   fontFamily: '"Freckle Face", system-ui',
-                  color: "black",
+                  color: "rgb(27, 35, 32)",
                 }}
               >
                 {uploaderData.username}
@@ -400,9 +400,9 @@ function Films() {
                     variant="h4"
                     sx={{
                       fontFamily: '"Freckle Face", system-ui',
-                      color: "black",
                       textAlign: "left",
                       flexShrink: 0,
+                      color: "rgb(27, 35, 32)",
                     }}
                   >
                     {filmData.film_title}
@@ -472,73 +472,81 @@ function Films() {
                       </Tooltip>
                     )}
                   </Stack>
+
+                  {rating != 0 && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: "15px",
+                      }}
+                    >
+                      <Grid>
+                        <IconButton
+                          sx={{
+                            backgroundColor: "goldenrod",
+                            borderRadius: "25%",
+                          }}
+                          aria-label="delete"
+                          onClick={toggleDrawer(true)}
+                        >
+                          <StarOutlineIcon fontSize="large" />
+
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              color: "",
+                              fontFamily: '"Freckle Face", system-ui',
+                            }}
+                          >
+                            {rating}
+                          </Typography>
+                        </IconButton>
+                      </Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: "rgb(255, 255, 255)",
+                          fontFamily: '"Freckle Face", system-ui',
+                        }}
+                      >
+                        {filmData.avg_rating && <p>{filmData.avg_rating}</p>}
+                        {!filmData.avg_rating && <p>Rating not available</p>}
+                      </Typography>
+                    </div>
+                  )}
+                  {rating == 0 && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Grid>
+                        <IconButton
+                          aria-label="delete"
+                          onClick={toggleDrawer(true)}
+                        >
+                          <StarOutlineIcon fontSize="large" />
+                        </IconButton>
+                      </Grid>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: "text.secondary",
+                          fontFamily: '"Freckle Face", system-ui',
+                        }}
+                      >
+                        {filmData.avg_rating && <p>{filmData.avg_rating}</p>}
+                        {!filmData.avg_rating && <p>Rating not available</p>}
+                      </Typography>
+                    </div>
+                  )}
                 </Stack>
               </Stack>
             </div>
-            {rating != 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Grid>
-                  <IconButton
-                    sx={{ backgroundColor: "goldenrod" }}
-                    aria-label="delete"
-                    onClick={toggleDrawer(true)}
-                  >
-                    <StarOutlineIcon fontSize="large" />
-
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: "",
-                        fontFamily: '"Freckle Face", system-ui',
-                      }}
-                    >
-                      {rating}
-                    </Typography>
-                  </IconButton>
-                </Grid>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "text.secondary",
-                    fontFamily: '"Freckle Face", system-ui',
-                  }}
-                >
-                  {filmData.avg_rating && <p>{filmData.avg_rating}</p>}
-                  {!filmData.avg_rating && <p>Rating not available</p>}
-                </Typography>
-              </div>
-            )}
-            {rating == 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Grid>
-                  <IconButton aria-label="delete" onClick={toggleDrawer(true)}>
-                    <StarOutlineIcon fontSize="large" />
-                  </IconButton>
-                </Grid>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "text.secondary",
-                    fontFamily: '"Freckle Face", system-ui',
-                  }}
-                >
-                  {filmData.avg_rating && <p>{filmData.avg_rating}</p>}
-                  {!filmData.avg_rating && <p>Rating not available</p>}
-                </Typography>
-              </div>
-            )}
           </Box>
 
           <Divider />
@@ -549,17 +557,36 @@ function Films() {
             sx={{ width: "99%", height: "fit-content" }}
           >
             {" "}
-            <Card variant="outlined" className="filmpage-cards">
+            <Card
+              variant="outlined"
+              className="filmpage-cards"
+              sx={{
+                backgroundColor: "rgba(97, 155, 142, 0.2)", // override white
+                borderRadius: "3%",
+                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.40)",
+                overflow: "hidden",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                width: "30%",
+                aspectRatio: "1 / 1",
+                margin: "10px",
+              }}
+            >
               <Box sx={{ p: 2 }}>
                 <Stack
                   direction="row"
-                  sx={{ justifyContent: "space-between", alignItems: "center" }}
+                  sx={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
                 >
                   <Typography
                     gutterBottom
                     variant="h5"
                     component="div"
-                    sx={{ fontFamily: '"Freckle Face", system-ui' }}
+                    sx={{
+                      fontFamily: '"Freckle Face", system-ui',
+                      color: "rgb(27, 35, 32)",
+                    }}
                   >
                     Thesis
                   </Typography>
@@ -568,7 +595,7 @@ function Films() {
                   variant="body2"
                   fontSize={20}
                   sx={{
-                    color: "text.secondary",
+                    color: "rgb(255, 255, 255)",
                     fontFamily: '"Freckle Face", system-ui',
                   }}
                 >
@@ -576,7 +603,20 @@ function Films() {
                 </Typography>
               </Box>
             </Card>
-            <Card variant="outlined" className="filmpage-cards">
+            <Card
+              variant="outlined"
+              className="filmpage-cards"
+              sx={{
+                backgroundColor: "rgba(97, 155, 142, 0.2)", // override white
+                borderRadius: "3%",
+                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.40)",
+                overflow: "hidden",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                width: "30%",
+                aspectRatio: "1 / 1",
+                margin: "10px",
+              }}
+            >
               <Box sx={{ p: 2 }}>
                 <Stack
                   direction="row"
@@ -586,7 +626,10 @@ function Films() {
                     gutterBottom
                     variant="h5"
                     component="div"
-                    sx={{ fontFamily: '"Freckle Face", system-ui' }}
+                    sx={{
+                      fontFamily: '"Freckle Face", system-ui',
+                      color: "rgb(27, 35, 32)",
+                    }}
                   >
                     Cast
                   </Typography>
@@ -595,7 +638,7 @@ function Films() {
                   variant="body2"
                   fontSize={20}
                   sx={{
-                    color: "text.secondary",
+                    color: "rgb(255, 255, 255)",
                     fontFamily: '"Freckle Face", system-ui',
                   }}
                 >
@@ -604,7 +647,20 @@ function Films() {
                 </Typography>
               </Box>
             </Card>
-            <Card variant="outlined" className="filmpage-cards">
+            <Card
+              variant="outlined"
+              className="filmpage-cards"
+              sx={{
+                backgroundColor: "rgba(97, 155, 142, 0.2)", // override white
+                borderRadius: "3%",
+                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.40)",
+                overflow: "hidden",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                width: "30%",
+                aspectRatio: "1 / 1",
+                margin: "10px",
+              }}
+            >
               <Box sx={{ p: 2 }}>
                 <Stack
                   direction="row"
@@ -614,7 +670,10 @@ function Films() {
                     gutterBottom
                     variant="h5"
                     component="div"
-                    sx={{ fontFamily: '"Freckle Face", system-ui' }}
+                    sx={{
+                      fontFamily: '"Freckle Face", system-ui',
+                      color: "rgb(27, 35, 32)",
+                    }}
                   >
                     Crew
                   </Typography>
@@ -623,7 +682,7 @@ function Films() {
                   variant="body2"
                   fontSize={20}
                   sx={{
-                    color: "text.secondary",
+                    color: "rgb(255, 255, 255)",
                     fontFamily: '"Freckle Face", system-ui',
                   }}
                 >
