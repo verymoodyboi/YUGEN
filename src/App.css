@@ -459,6 +459,42 @@ padding-top: 20;
               border-radius: 25%,
   }
 }
+/*  2-Lofin & Registet*/
+.Form
+{
+  .Button
+  {
+    background: linear-gradient(rgb(255, 255,255, 0.2),rgb(255, 255, 255,0.2)) ;
+    border-radius: 25%;
+    border: #000000;    
+    font-size: x-large;
+    margin: 1rem;
+  }
+  .Form-Field
+{
+  margin-bottom: 0.5rem;
+
+}
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3));
+  border-radius: 30px;
+  backdrop-filter: blur(5px);
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+  will-change: transform;
+  width: 35vw;
+  height: fit-content;
+  max-height: 90vh;
+  justify-content: center;
+  padding: 2rem;
+  overflow-y: auto;
+  
+}
+/*  3-Browse Films*/
 .film-card
 {
   aspect-ratio: 2/4;
@@ -474,3 +510,194 @@ padding-top: 20;
   animation: fadeInUp 0.6s ease-out forwards;
   will-change: transform;
 }
+.catagory2
+{
+  width: fit-content;
+  height: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+
+}
+.library
+{
+  width: 100%;
+  height: 50%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  border: #000000 2px solid;
+}
+/*temp*/
+.thoughts-container {
+  background: linear-gradient(rgba(46,62,38,0.3), rgba(96,170,167,0.3));
+  backdrop-filter: blur(5px);
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 24px;
+  margin: 20px 0;
+  color: #ffffff;
+  font-family: "Freckle Face", system-ui;
+  width: 90%;
+  height: fit-content;
+}
+
+.thoughts-container h2 {
+  color: #ffffff;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+
+.thoughts-list {
+  background: transparent !important;
+}
+/******************************the things head******************************/
+.thoughts-list .ant-list-item {
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px;
+  padding: 16px !important;
+  margin-bottom: 12px;
+  background: linear-gradient(rgba(46,62,38,0.1), rgba(96,170,167,0.1));
+  backdrop-filter: blur(2px);
+  transition: all 0.2s ease;
+}
+
+.thoughts-list .ant-list-item:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(rgba(46,62,38,0.15), rgba(96,170,167,0.15));
+}
+
+.thoughts-list .ant-comment {
+  background: transparent;
+  color: #ffffff;
+}
+
+.thoughts-list .ant-comment-content-author-name {
+  color: #ffffff !important;
+  font-family: "Freckle Face", system-ui;
+  font-size: 1.1rem;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.thoughts-list .ant-comment-content-detail {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.thoughts-list .ant-comment-content-author-time {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-style: italic;
+}
+
+.thoughts-list .ant-rate-star {
+  color: #ffd700 !important;
+}
+
+.reply-form {
+  margin-top: 16px;
+  margin-left: 44px;
+  padding: 16px;
+  background: linear-gradient(rgba(46,62,38,0.1), rgba(96,170,167,0.1));
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.replies-list {
+  margin-left: 44px;
+  background: transparent !important;
+}
+
+.replies-list .ant-list-item {
+  border: none !important;
+  border-left: 2px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0;
+  padding: 8px 16px !important;
+  margin: 4px 0;
+  background: transparent;
+}
+
+/* Style the MUI components within thoughts */
+.thoughts-container .MuiTextField-root {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.thoughts-container .MuiTextField-root .MuiOutlinedInput-root {
+  color: #ffffff;
+}
+
+.thoughts-container .MuiTextField-root .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.thoughts-container .MuiTextField-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.thoughts-container .MuiTextField-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #ffffff;
+}
+
+.thoughts-container .MuiInputLabel-root {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.thoughts-container .MuiButton-contained {
+  background: linear-gradient(45deg, #2c5d5a, #cc651f);
+  font-family: "Freckle Face", system-ui;
+  text-transform: none;
+  font-size: 1rem;
+}
+
+.thoughts-container .MuiButton-contained:hover {
+  background: linear-gradient(45deg, #cc651f, #2c5d5a);
+}
+
+.thoughts-container .MuiRating-root {
+  color: #ffd700;
+  font-size: 2rem;
+}
+
+.thoughts-container .MuiRating-icon {
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
+}
+
+.thoughts-container .MuiRating-iconFilled {
+  color: #ffd700;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.3));
+}
+
+.thoughts-container .MuiRating-iconEmpty {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+/* More subtle comment separation */
+.thoughts-list .ant-list-item {
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px;
+  padding: 16px !important;
+  margin-bottom: 12px;
+  background: linear-gradient(rgba(46,62,38,0.1), rgba(96,170,167,0.1));
+  backdrop-filter: blur(2px);
+  transition: all 0.2s ease;
+}
+
+.thoughts-list .ant-list-item:hover {
+  transform: translateY(-1px);
+  background: linear-gradient(rgba(46,62,38,0.15), rgba(96,170,167,0.15));
+}
+
+.replies-list .ant-list-item {
+  border: none !important;
+  border-left: 2px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0;
+  padding: 8px 16px !important;
+  margin: 4px 0;
+  background: transparent;
+}
+
+/* Subtle divider between comments */
+.thoughts-list .ant-list-item + .ant-list-item {
+  margin-top: 16px;
+}
+/******************************the things tail******************************/

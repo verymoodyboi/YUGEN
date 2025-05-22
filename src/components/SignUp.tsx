@@ -1,26 +1,24 @@
 import "../App.css";
+import "../App.tsx";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { TextField } from "@mui/material";
 import "react-datepicker/dist/react-datepicker.css";
-import { Button } from "@mui/material";
-import { FilePond, registerPlugin } from "react-filepond";
-import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
-import "filepond/dist/filepond.min.css";
-import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import { Button, IconButton } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { styled } from "@mui/material/styles";
+import PersonIcon from "@mui/icons-material/Person";
 import { ToastContainer, toast } from "react-toastify/unstyled";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
-import { Modal } from "antd";
-import { UserOutlined, ExpandOutlined } from "@ant-design/icons";
-import { Button as AntButton, Avatar, Space } from "antd";
+import { Avatar, Box } from "@mui/material";
 import ErrorImg from "../YugenAssits/Icons/ErrorImg.png";
 import ReactCrop, { makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import type { DatePickerProps } from "antd";
-import { DatePicker } from "antd";
-registerPlugin(FilePondPluginFileValidateType);
-
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Dialog from "@mui/material/Dialog";
 function SignUpForm() {
   const [Inputs, SetInputs] = useState({});
   const [fname, setfname] = useState<string | Blob>();
@@ -106,8 +104,6 @@ function SignUpForm() {
       toast("vaild user info");
       setIsRegister(true);
       SendToServer();
-    } else {
-      toast.warn("invalid user info:" + JSON.stringify(errors));
     }
   };
   const SendToServer = async () => {
@@ -312,104 +308,123 @@ function SignUpForm() {
     setIsModalOpen(false);
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
+    setCroppedPFP(imgRef.current, canvasRef.current, crop);
+
     if (croppedFile) {
       setIsModalOpen(false);
-    } else {
-      toast.warn("Please comfirm your profile picture!");
+    }
+  };
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      toast.warn("Only JPEG or PNG images are allowed!");
+      return;
+    }
+
+    const pfpPath = URL.createObjectURL(file);
+    setPfpFile(file);
+    setPFPPath(pfpPath);
+    setPreview(pfpPath);
+    showModal();
+  };
+
+  const handleRemoveFile = () => {
+    setPFPPath("");
+    setCrop(null);
+    setCroppedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
     }
   };
   if (!isRegister) {
     return (
-      <div className="Form">
+      <Box className="Form" sx={{ paddingTop: "80%" }}>
         <form onSubmit={handleSubmit}>
           <p>
             Already have an account? <Link to="/LoginPage">Login</Link>{" "}
           </p>
-          <label htmlFor="PFP">Upload a profile picture:</label>
-          <FilePond
-            className={"PFP_Peview"}
-            name="PFP"
-            allowMultiple={false}
-            acceptedFileTypes={["image/jpeg", "image/png"]}
-            labelFileTypeNotAllowed="Onlu JPEG images are allowed!"
-            allowImagePreview={false}
-            onremovefile={() => {
-              setPFPPath("");
-              setCrop(null);
-              setCroppedFile(null);
-            }}
-            onaddfile={(error, fileItem) => {
-              if (error) {
-                toast.warn("Error uploading pfp!");
-                return;
-              } else {
-                const file = fileItem.file;
-                const pfpPath = URL.createObjectURL(file);
-                setPfpFile(fileItem.file);
-                setPFPPath(pfpPath);
-              }
-              setPreview(pfpPath);
-              showModal();
-            }}
-          />
-          <Modal
+
+          <Button
+            component="label"
+            variant="contained"
+            startIcon={<CloudUploadIcon />}
+          >
+            Upload PFP
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg, image/png"
+              hidden
+              onChange={handleFileChange}
+            />
+          </Button>
+
+          <br />
+          <br />
+
+          <Dialog
             title="Adjust your profile picture"
             open={isModalOpen}
-            onOk={() => {
-              handleOk();
-              setCroppedPFP(imgRef.current, canvasRef.current, crop);
-              setCroppedFile(null);
-            }}
-            onCancel={handleCancel}
+            onClose={handleCancel}
           >
             {pfpPath && (
-              <ReactCrop
-                crop={crop}
-                circularCrop
-                keepSelection
-                aspect={1}
-                minWidth={MinWidth}
-                onChange={(pixelCrop, percentCrop) => {
-                  setCrop(pixelCrop);
-                }}
-              >
-                <img
-                  ref={imgRef}
-                  src={pfpPath}
-                  alt="PFP"
-                  onLoad={onPFPload}
-                  style={{
-                    borderRadius: "10%",
-                    borderColor: "black",
-                    borderWidth: "10px",
+              <div>
+                <ReactCrop
+                  crop={crop}
+                  circularCrop
+                  keepSelection
+                  aspect={1}
+                  minWidth={MinWidth}
+                  onChange={(pixelCrop, percentCrop) => {
+                    setCrop(pixelCrop);
                   }}
-                />
-              </ReactCrop>
+                >
+                  <img
+                    ref={imgRef}
+                    src={pfpPath}
+                    alt="PFP"
+                    onLoad={onPFPload}
+                    style={{
+                      borderRadius: "10%",
+                      borderColor: "black",
+                      borderWidth: "10px",
+                    }}
+                  />
+                </ReactCrop>
+                <Button
+                  style={{ justifySelf: "center" }}
+                  onClick={handleCancel}
+                >
+                  Comfirm
+                </Button>
+              </div>
             )}
-          </Modal>
+          </Dialog>
 
           {!crop && !pfpPath && (
-            <Avatar size={128} icon={<UserOutlined />}></Avatar>
-          )}
-          {!crop && pfpPath && (
-            <>
-              <Avatar
+            <Avatar
+              style={{
+                objectFit: "contain",
+                width: "150px",
+                height: "150px",
+                justifySelf: "center",
+              }}
+            >
+              <PersonIcon
                 style={{
-                  borderRadius: "50%",
-                  width: "150px",
-                  height: "150px",
+                  height: 130,
+                  width: 130,
                 }}
-                src={pfpPath}
-              ></Avatar>
-              <br />
-              <AntButton
-                onClick={showModal}
-                style={{ backgroundColor: "transparent", border: "0px" }}
-                icon={<ExpandOutlined />}
-              ></AntButton>
-            </>
+              />
+            </Avatar>
           )}
+
           {crop && (
             <>
               <canvas
@@ -422,14 +437,23 @@ function SignUpForm() {
                 }}
               />
               <br />
-              <AntButton
+              <Button
                 onClick={showModal}
                 style={{
                   backgroundColor: "transparent",
                   border: "0px",
                 }}
-                icon={<ExpandOutlined />}
-              ></AntButton>
+              >
+                Edit
+              </Button>
+              <Button
+                onClick={handleRemoveFile}
+                color="secondary"
+                variant="outlined"
+                sx={{ ml: 2 }}
+              >
+                Remove
+              </Button>
             </>
           )}
           <TextField
@@ -552,15 +576,20 @@ function SignUpForm() {
           </label>
           <br />
 
-          <DatePicker
-            name="BDay"
-            // selected={startDate}
-            onChange={(date) => {
-              setStartDate(date);
-              const datesplit = date.toISOString().split("T")[0];
-              setbday(datesplit);
-            }}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              name="BDay"
+              onChange={(date) => {
+                setStartDate(date);
+                if (date && date.isValid()) {
+                  const datesplit = date.toISOString().split("T")[0];
+                  setbday(datesplit);
+                } else {
+                  setbday("");
+                }
+              }}
+            />
+          </LocalizationProvider>
           <br />
 
           <Button
@@ -588,7 +617,7 @@ function SignUpForm() {
           pauseOnHover
           theme="dark"
         />
-      </div>
+      </Box>
     );
   } else {
     let seconds = 10;
@@ -618,10 +647,10 @@ function SignUpForm() {
 
     countdownTimer();
     return (
-      <div className="film-submit">
+      <div className="Form">
         <p className="film-submit-text">
-          Accont created, please log in to verify your account. For any
-          inquiries please contact us at:
+          Accont created, please <Link to="/LoginPage">Login</Link> to verify
+          your account. For any inquiries please contact us at:
         </p>
         <p className="film-submit-text" id="email-hover">
           {" "}
@@ -631,7 +660,7 @@ function SignUpForm() {
           You should automatically be redirected in <span id="seconds">10</span>{" "}
           seconds.
         </p>
-        <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
+        <ToastContainer
           position="top-left"
           autoClose={5000}
           hideProgressBar={false}

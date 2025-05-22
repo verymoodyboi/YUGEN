@@ -1,20 +1,18 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { styled } from "@mui/material/styles";
 import {
   Card,
   CardContent,
   CardMedia,
   Box,
-  Grid,
-  Avatar,
   IconButton,
-  IconButtonProps,
   Typography,
   Button,
-  ButtonProps,
-  Drawer,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Stack,
 } from "@mui/material";
 import temp from "../server/uploads/thumbnails/1.jpg";
@@ -22,105 +20,36 @@ import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import AddIcon from "@mui/icons-material/Add";
 
-function FilmCard() {
-  const [filmData, setFilmData] = useState<any | null>(null);
-  const [uploaderData, setUploaderData] = useState<any | null>(null);
-  const [filmID, setFilmID] = useState<any | null>(null);
-  const [click, setClick] = useState(false);
-  const [open, setOpen] = React.useState(false);
-  const [setthesis, thesis] = useState<any | string>("");
-  const [loading, setLoading] = React.useState(true);
+interface Film {
+  film_title: string;
+  film_genre?: string;
+  avg_rating?: number;
+  thesis: string;
+}
 
-  //////////
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    toggleDrawer(false);
-    event.preventDefault();
-  };
-  const DrawerList = (
-    <Box sx={{ width: 0, backgroundColor: "transparent" }} role="presentation">
-      <form className="ReviewForm" onSubmit={handleSubmit}>
-        <Box sx={{ p: 2 }}>
-          <Stack
-            direction="row"
-            sx={{ justifyContent: "space-between", alignItems: "center" }}
-          >
-            <Typography
-              gutterBottom
-              variant="h5"
-              component="div"
-              sx={{ fontFamily: '"Freckle Face", system-ui' }}
-            >
-              Thesis
-            </Typography>
-          </Stack>
-          <Typography
-            variant="body2"
-            sx={{
-              color: "text.secondary",
-              fontFamily: '"Freckle Face", system-ui',
-            }}
-          >
-            <p> {thesis}</p>
-          </Typography>
-        </Box>
-        <Button
-          type="submit"
-          style={{ background: "#cc651f", color: "white", marginTop: "20px" }}
-          onClick={async () => {
-            setOpen(false);
-          }}
-        >
-          Close
-        </Button>
-      </form>
-    </Box>
-  );
-  /////////
-  const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen);
-  };
-  const handleClick = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get("http://localhost:3001/filmdata", {
-        params: { filmID },
-      });
-      if (response.data && response.data.length > 0) {
+function FilmCard() {
+  const [filmData, setFilmData] = useState<Film | null>(null);
+  const [filmID] = useState<number>(1);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchFilmData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3001/filmdata", {
+          params: { filmID },
+        });
         setFilmData(response.data[0]);
-        try {
-          const id = filmData.uploader_id;
-          const response2 = await axios.get(
-            "http://localhost:3001/getuploader",
-            {
-              params: { id },
-            }
-          );
-          if (response2.data && response2.data.length > 0) {
-            setUploaderData(response2.data[0]);
-            setthesis(filmData.thesis);
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error("Error fetching film data:", error);
-        }
+      } catch (error) {
+        console.error("Error fetching film data:", error);
       }
-      setClick(true);
-    } catch (error) {
-      console.error("Error fetching film data:", error);
-    }
-  };
+    };
+
+    fetchFilmData();
+  }, [filmID]);
 
   return (
     <div>
-      <p>film ID:</p>
-      <input
-        type="text"
-        onChange={(e) => {
-          setFilmID(e.target.value);
-        }}
-      />
-      <button onClick={handleClick}>click</button>
-      {click && filmData && uploaderData && (
+      {filmData && (
         <Card
           className="film-card"
           sx={{
@@ -133,10 +62,8 @@ function FilmCard() {
           <CardMedia
             component="img"
             image={temp}
-            alt="Paella dish"
+            alt="Film thumbnail"
             style={{
-              borderTopLeftRadius: 0,
-              borderTopRightRadius: 0,
               borderRadius: "3%",
               aspectRatio: "2/3",
               width: "100%",
@@ -153,7 +80,6 @@ function FilmCard() {
                 backgroundColor: "rgba(255, 255, 255, 0.5)",
               },
             }}
-            aria-label="favorite"
           >
             <BookmarkAddIcon fontSize="large" />
           </IconButton>
@@ -163,14 +89,7 @@ function FilmCard() {
               justifyContent="space-between"
               sx={{ width: "90%", height: "fit-content" }}
             >
-              {" "}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                }}
-              >
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <Typography
                   variant="h6"
                   sx={{
@@ -187,8 +106,7 @@ function FilmCard() {
                     fontFamily: '"Freckle Face", system-ui',
                   }}
                 >
-                  {filmData.film_genre && <p>{filmData.film_genre}</p>}
-                  {!filmData.film_genre && <p>Genres not available</p>}
+                  {filmData.film_genre || "Genres not available"}
                 </Typography>
               </div>
               <div
@@ -206,8 +124,7 @@ function FilmCard() {
                     fontFamily: '"Freckle Face", system-ui',
                   }}
                 >
-                  {filmData.avg_rating && <p>{filmData.avg_rating}</p>}
-                  {!filmData.avg_rating && <p>Rating not available</p>}
+                  {filmData.avg_rating ?? "Rating not available"}
                 </Typography>
               </div>
             </Box>
@@ -219,16 +136,63 @@ function FilmCard() {
               backgroundColor: "rgba(255, 255, 255, 0.3)",
             }}
           >
-            <IconButton onClick={toggleDrawer(true)}>
+            <IconButton onClick={() => setOpen(true)}>
               <AddIcon />
             </IconButton>
           </Box>
-          <Drawer open={open} onClose={toggleDrawer(false)}>
-            {DrawerList}
-          </Drawer>
+
+          {/* Dialog (clean, no form) */}
+          <Dialog
+            open={open}
+            onClose={() => setOpen(false)}
+            PaperProps={{
+              sx: {
+                backgroundColor: "transparent",
+                boxShadow: "none", // optional: remove box shadow
+                overflow: "visible", // allows rounded corners/positioning to overflow
+              },
+            }}
+            BackdropProps={{
+              sx: {
+                backgroundColor: "rgba(0, 0, 0, 0.3)", // adjust overlay transparency
+              },
+            }}
+          >
+            <Box className="Form">
+              <Typography
+                variant="h4"
+                sx={{
+                  color: "text.secondary",
+                  fontFamily: '"Freckle Face", system-ui',
+                }}
+              >
+                Thesis
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  fontFamily: '"Freckle Face", system-ui',
+                }}
+              >
+                {filmData.thesis}
+              </Typography>
+              <Button
+                onClick={() => setOpen(false)}
+                style={{
+                  background: "#cc651f",
+                  color: "white",
+                  marginTop: "10px",
+                }}
+              >
+                Close
+              </Button>
+            </Box>
+          </Dialog>
         </Card>
       )}
     </div>
   );
 }
+
 export default FilmCard;

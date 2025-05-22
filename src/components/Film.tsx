@@ -15,15 +15,18 @@ import ReactPlayer from "react-player";
 import Avatar from "@mui/material/Avatar";
 import axios from "axios";
 import { TextField, Button } from "@mui/material";
+import Thoughts from "./thoughts";
 function Films() {
   const [filmData, setFilmData] = useState<any | null>(null);
   const [uploaderData, setUploaderData] = useState<any | null>(null);
   const [filmID, setFilmID] = useState<any | null>(null);
   const [click, setClick] = useState(false);
   const [open, setOpen] = React.useState(false);
+  const [open2, setOpen2] = React.useState(false);
   const [isSubmit, setIsSubmit] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
+  const [userId, setUserId] = useState<number | null>(null);
 
   const validate = () => {
     const errors = {};
@@ -55,8 +58,12 @@ function Films() {
       await SendToServer();
     }
   };
+
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
+  };
+  const toggleDrawer2 = (newOpen: boolean) => () => {
+    setOpen2(newOpen);
   };
   const handleClick = async () => {
     try {
@@ -129,8 +136,9 @@ function Films() {
       </form>
     </Box>
   );
+
   return (
-    <div>
+    <div style={{ backgroundColor: "reds" }}>
       <p>film ID:</p>
       <input
         type="text"
@@ -211,7 +219,9 @@ function Films() {
                 style={{
                   display: "flex",
                   flexDirection: "column",
+                  //flexDirection: "row",
                   alignItems: "center",
+                  gap: "15px",
                 }}
               >
                 <Grid>
@@ -254,7 +264,7 @@ function Films() {
                 }}
               >
                 <Grid>
-                  <IconButton aria-label="delete" onClick={toggleDrawer(true)}>
+                  <IconButton onClick={toggleDrawer(true)}>
                     <StarOutlineIcon fontSize="large" />
                   </IconButton>
                 </Grid>
@@ -361,6 +371,11 @@ function Films() {
               </Box>
             </Card>
           </Box>
+
+          <Thoughts
+            filmId={1} // Replace with actual film ID from your data/props
+            userId={userId} // Pass the current user's ID
+          />
         </div>
       )}
       {click && !filmData && (
