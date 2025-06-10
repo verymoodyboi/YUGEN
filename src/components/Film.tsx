@@ -178,7 +178,13 @@ function Films() {
           </Box>
           <Divider />
           <hr />
-          <ReactPlayer url={filmData.film_path} controls style={{}} />
+          <ReactPlayer
+            url={
+              "https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/films//test1.mp4"
+            }
+            controls
+            style={{}}
+          />
           <Divider />
           <hr />
           <Box

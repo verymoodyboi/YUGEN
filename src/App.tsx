@@ -9,8 +9,8 @@ import ReviewPage from "./pages/ReviewPage.tsx";
 import UserProfilePage from "./pages/UserProfilePage.tsx";
 import PageContainerBasic from "./pages/HomePageReformat.tsx";
 import Films from "./components/Film.tsx";
-import Thoughts from "./components/thoughts.tsx";
 import SwipeableEdgeDrawer from "./components/testt.tsx";
+import Landing from "./pages/Landing.tsx";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
 function Yugen() {
@@ -28,6 +28,7 @@ function Yugen() {
           <Route path="/Profile" element={<UserProfilePage />} />
           <Route path="/film" element={<Films />} />
           <Route path="/test" element={<SwipeableEdgeDrawer />} />
+          <Route path="/Landing" element={<Landing />} />
         </Routes>
       </Router>
     </div>

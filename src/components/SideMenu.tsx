@@ -1,57 +1,59 @@
 import "../App.css";
+import React from "react";
 import GenreLogo from "../YugenAssits/Icons/GenreLogopng.png";
 import HistoryLogo from "../YugenAssits/Icons/HistoryIcon.png";
 import FollowsLogo from "../YugenAssits/Icons/FollowsIcon.png";
 import PlaylistsLogo from "../YugenAssits/Icons/PlaylistIcon.png";
 import WatchListLogo from "../YugenAssits/Icons/WatchListLogo.png";
-import { Space, Flex, Button } from "antd";
+import { Box, Button, ButtonGroup, Typography, Divider } from "@mui/material";
 import EyeOutlined from "antd";
 import { relative } from "path";
-function GlassMenu() {
+
+function SideMenu() {
   return (
-    <Flex
-      gap={"10%"}
-      justify="center"
-      align="center"
-      className="GlassMenu"
-      vertical
+    <Box
+      className="sideMenu"
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      gap={2}
     >
-      <Button
-        type="text"
-        icon={<img src={GenreLogo} alt="" className="menu-icon" />}
-        className="button"
+      <Typography
+        variant="h5"
+        color="rgba(255,255,255,0.8)"
+        fontFamily={'"Freckle Face", system-ui'}
       >
-        Genres
+        {" "}
+        Your Library
+      </Typography>
+      <Button size="small" className="Button">
+        Watchlist
       </Button>
-      <Button
-        type="text"
-        icon={<img src={HistoryLogo} alt="" className="menu-icon" />}
-        className="button"
+      <Button className="Button"> Subscriptions</Button>
+      <Button className="Button">Watch history</Button>
+      <Typography
+        variant="h5"
+        color="rgba(255,255,255,0.8)"
+        fontFamily={'"Freckle Face", system-ui'}
       >
-        History
-      </Button>
-      <Button
-        type="text"
-        icon={<img src={FollowsLogo} alt="" className="menu-icon" />}
-        className="button"
+        {" "}
+        Community
+      </Typography>
+      <Button className="Button">Clubs</Button>
+      <Button className="Button">Challenges</Button>
+      <Typography
+        variant="h5"
+        color="rgba(255,255,255,0.8)"
+        fontFamily={'"Freckle Face", system-ui'}
       >
-        Follows
-      </Button>
-      <Button
-        type="text"
-        icon={<img src={PlaylistsLogo} alt="" className="menu-icon" />}
-        className="button"
-      >
-        Playlists
-      </Button>
-      <Button
-        type="text"
-        icon={<img src={WatchListLogo} alt="" className="menu-icon" />}
-        className="button"
-      >
-        WatchList
-      </Button>
-    </Flex>
+        {" "}
+        Explore
+      </Typography>
+      <Button className="Button">Genres</Button>
+      <Button className="Button">Film map</Button>
+      <Button className="Button">Roll a dice</Button>
+    </Box>
   );
 }
-export default GlassMenu;
+export default SideMenu;

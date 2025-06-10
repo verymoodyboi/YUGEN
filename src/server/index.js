@@ -20,6 +20,7 @@ const supabase = createClient('https://iqvsgbsnpqvbddmdixoz.supabase.co', 'eyJhb
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 /////////////////////////init done
 
 //**************************** http://localhost:3001/Register
@@ -39,7 +40,8 @@ const upload = multer({ storage: storage });
 app.post('/Register', upload.fields([{ name: 'PFP', maxCount: 1 }]), async (req, res) => {
   const { FName, LName, UserName, Bio, Email, Password, BirthDate } = req.body;
   const hashedPassword = await bcrypt.hash(Password, 10);
-
+  const time = new Date();
+  const date = time.toIfSOString().split('T')[0];
   try {
     // Insert the new user into Supabase
     const userIDD= await getMaxUserID();
@@ -56,7 +58,8 @@ app.post('/Register', upload.fields([{ name: 'PFP', maxCount: 1 }]), async (req,
           bio: Bio,
           email: Email,
           password_hash: hashedPassword,
-          pfp_path: `${userIDD}.jpg`, // Example profile picture path
+          pfp_path: `${userIDD}.jpg`,
+          join_date:date
         }
       ]);
 
@@ -206,7 +209,7 @@ app.post('/upload-film', async (req, res, next) => {
 
           const videoDuration = metadata.format.duration.toFixed(1);
           console.log("Video Duration:", videoDuration);
-
+       
           // Supabase query to insert new film into 'films' table
           const { data, error } = await supabase
             .from('films')
@@ -215,9 +218,10 @@ app.post('/upload-film', async (req, res, next) => {
               thesis: Description,
               film_genre: Genres,
               film_path: FilmPath,
-              thumbnail_path: ThumbnailPath,
+             poster_path : ThumbnailPath,
               film_duration: videoDuration,
-              release_date: date
+              release_date: date,
+              uploader_id: 1
             }]);
 
           if (error) {
@@ -330,6 +334,121 @@ const getMaxFilmID= async() =>{
 
 
 
+app.get('/filmssdata', async (req, res) => {
+  const offset = parseInt(req.query.offset || 0);
+  const limit = parseInt(req.query.limit || 5);
+  try {
+    const { data, error } = await supabase
+  .from('films')
+  .select('film_id, film_title, thesis, film_genre, avg_rating, poster_path')
+  .range(offset, offset + limit - 1);
+
+const normalized = data.map((film) => ({
+  ...film,
+  poster_path: film.poster_path?.replace(/\\/g, "/"),
+}));
+console.log(normalized)
+res.json(normalized);
+  } catch (err) {
+    console.error("Unexpected server error:", err);
+    res.status(500).send("Unexpected server error");
+  }
+});
+
+/////////////////
+app.get('/filmssdata_map', async (req, res) => {
+  const offset = parseInt(req.query.offset || 0);
+  const limit = parseInt(req.query.limit || 5);
+   const country = req.query.country;
+  try {
+    const { data, error } = await supabase
+  .from('films')
+  .select('film_id, film_title, thesis, film_genre, avg_rating, poster_path')
+  .eq('country', country)
+  .range(offset, offset + limit - 1);
+
+const normalized = data.map((film) => ({
+  ...film,
+  poster_path: film.poster_path?.replace(/\\/g, "/"),
+}));
+console.log(normalized)
+res.json(normalized);
+  } catch (err) {
+    console.error("Unexpected server error:", err);
+    res.status(500).send("Unexpected server error");
+  }
+});
+/////////////////
+app.get('/filmssdataprofile', async (req, res) => {
+  const offset = parseInt(req.query.offset || 0);
+  const limit = parseInt(req.query.limit || 5);
+
+  try {
+    const { data, error } = await supabase
+  .from('films')
+  .select('film_id, film_title, thesis, film_genre, avg_rating, poster_path')
+  .eq('uploader_id',1)
+  .range(offset, offset + limit - 1);
+
+const normalized = data.map((film) => ({
+  ...film,
+  poster_path: film.poster_path?.replace(/\\/g, "/"),
+}));
+console.log(normalized)
+res.json(normalized);
+  } catch (err) {
+    console.error("Unexpected server error:", err);
+    res.status(500).send("Unexpected server error");
+  }
+});
+/////////////////
+app.get('/thought',async(req,res)=>{
+  try{
+    const {data,error}= await supabase
+      .from('thoughts')
+      .select('*')
+      console.log(data)
+      res.status(200).send(data);
+  }
+  catch(err)
+  {
+    if(err)
+    {
+      console.log("err");
+      return;
+    }
+  }
+
+})
+////////////////
+app.get('/profile', async (req, res) => {
+  const user_id = req.query.userF_id;
+  console.log("called")
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('user_id', 1);
+  
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).send('Database error');
+    }
+
+    if (!data || data.length === 0) {
+      return res.status(404).send('User not found');
+    }
+    else{
+        console.log("data")
+    }
+    // Return the user data as JSON
+    res.json(data[0]);
+  } catch (err) {
+    console.error('Server error:', err);
+    res.status(500).send('Server error');
+  }
+});
+//////////////
 app.get('/filmdata',async(req,res)=>{
   try{
     const {data,error}= await supabase
@@ -369,26 +488,6 @@ app.get('/getuploader',async(req,res)=>{
   }
 
 })
-
-/////////////////
-app.get('/thought',async(req,res)=>{
-  try{
-    const {data,error}= await supabase
-      .from('thoughts')
-      .select('*')
-      console.log(data)
-      res.status(200).send(data);
-  }
-  catch(err)
-  {
-    if(err)
-    {
-      console.log("err");
-      return;
-    }
-  }
-
-})
-
+/////////////
 // run server
 app.listen(3001, () => console.log("Server running on port 3001"));

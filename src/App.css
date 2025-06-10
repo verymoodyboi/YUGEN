@@ -12,7 +12,12 @@ body {
   padding: 2rem;
   text-align: center;
 }
-
+.all-letters
+{
+  font-size: larger;
+  color: #ffffff;
+  font-family: "Roboto Flex", sans-serif;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -59,9 +64,9 @@ html, body {
 /*Header*/
 .NavBar
 {
-  position: relative;
-  top: 1%;
-  left: 0%;
+  position: absolute;
+  top: 3vh;
+  left: 5vh;
   height: fit-content;
   width: fit-content;
   background-color:transparent;
@@ -74,11 +79,17 @@ html, body {
   justify-content: flex-start;
   gap: 1vw;
   width: 50%;
-  position: relative;
+  position: absolute;
+  top: 2vh;
+  left: 25vw;
+    color:#3c1c24
+ 
+
 }
 
 .Searchicon 
 {
+  opacity: 0.7;
   display: flex;
   height: 2.5vw;
   width: 2.5vw;
@@ -93,22 +104,27 @@ html, body {
   display: flex;
   align-items: center;
   gap: 0.5vw;
+    color:#3c1c24
 }
-
+input::placeholder {
+  color:#3c1c24
+}
 .SearchBar input 
 {
+  color:rgb(60,28,36);
   padding: 2%;
   font-size: 1.5vw;
-  border-style: solid;
-  border-width: 3px;
-  border-color: black;
+  border:  rgb(60,28,36) solid 4px ;
+
   border-radius: 0px 40px 0px 0px;
+ background: linear-gradient(rgba(46,62,38,0.3), rgba(96,170,167,0.3));
   backdrop-filter: blur(5px);
-  background: linear-gradient(to right, hsla(0, 0%, 100%, 0.5), hsla(0, 0%, 100%, 0));
   outline: none;
   height: 4vh;
   width: 40vw;
   position: relative; 
+  box-shadow:
+            0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.10),
 }
 /*HomePage*/
 .HomePage
@@ -145,26 +161,51 @@ html, body {
 
 }
 
- .GlassMenu
+ .sideMenu
 {
-  border-style: solid;
-  border-width: 3px;
-  border-radius: 100px 0 0 100px;
-  border-color: black;
-  overflow: hidden;
-  background: linear-gradient(to bottom, hsla(0, 0%, 100%, 0.5), hsla(0, 0%, 100%, 0));
-  backdrop-filter: blur(5px);
-  position: relative;
-  height: 100%;
-  width: 100%;
-padding-top: 20;
-  .button{
 
+  border-radius: 30px 0 0 30px;
+  overflow: hidden;
+  background: linear-gradient(rgba(46,62,38,0.5),rgba(96,170,167,0.5)) ;
+  backdrop-filter: blur(0px);
+  position: absolute;
+  top:12vh;
+  right: 0;
+  height: 86vh;
+  overflow-y: auto;
+  width: 26vw;
+padding-top: 20;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+
+  .Button{
+    border-radius: 40%;
+     box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+
+background-color: transparent;
       font-family: "Freckle Face", system-ui;
   font-weight: 400;
   font-size: xx-large;
-  color: #000000;
+      color:#341c1c;
+      font-size: 2.5vh;
   }
+  .Button:hover
+  {
+      box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.35);
+  transform: translateY(-5px);
+  }
+}
+.sideMenu:hover
+{
+        box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
 }
 
 .filepond--credits {
@@ -204,12 +245,22 @@ padding-top: 20;
 .Vanta
 {
   border-radius: 50%;
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   position: absolute;
   left: 0%;
   top: 0%;
-  opacity: 25%;
+  opacity: 100%;
+}
+.Vanta2
+{
+  border-radius: 50%;
+  height: 100%;
+  width: 100vw;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  opacity: 100%;
 }
 .FilmInStream{
   border-style: solid;
@@ -399,7 +450,10 @@ padding-top: 20;
 
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(81, 81, 81);
+ background: linear-gradient(
+  rgba(188, 171, 177, 0.5), /* #bcabb1 with 80% opacity */
+  rgba(156, 213, 172, 0.5)  /* #9cd5ac with 80% opacity */
+);
   border-radius: 4px;
   border: 2px solid transparent; /* creates spacing if needed */
   background-clip: content-box;
@@ -503,12 +557,18 @@ padding-top: 20;
   overflow-y: scroll;
   border-radius: 5%;
 
-
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 4px 6px rgba(0, 0, 0, 0.1);
 
   backdrop-filter: blur(5px);
-
-  animation: fadeInUp 0.6s ease-out forwards;
-  will-change: transform;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+.film-card:hover
+{
+           box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.35);
+  transform: translateY(-5px);
 }
 .catagory2
 {
@@ -552,6 +612,7 @@ padding-top: 20;
 .thoughts-list {
   background: transparent !important;
 }
+
 /******************************the things head******************************/
 .thoughts-list .ant-list-item {
   border: 1px solid rgba(255, 255, 255, 0.05) !important;

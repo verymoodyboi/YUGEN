@@ -1,0 +1,11 @@
+.circular-gallery {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+  font-family: "Freckle Face", system-ui;
+}
+
+.circular-gallery:active {
+  cursor: grabbing;
+}
