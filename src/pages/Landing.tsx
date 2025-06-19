@@ -6,6 +6,9 @@ import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
 import UI from "../YugenAssits/Landing/Site interface (Profile).png";
 import UI2 from "../YugenAssits/Landing/Site interface mohy's.png";
+import docs from "../components/landingAnimation/docs 2.png";
+import ncp from "../components/landingAnimation/ncp.png";
+import Diversity1Icon from "@mui/icons-material/Diversity1";
 import BlurText from "../components/landingAnimation/BlurText";
 import GradientText from "../components/landingAnimation/GradiantText";
 import Birdies from "../components/landingAnimation/VantaBirds";
@@ -24,6 +27,10 @@ import Crosshair from "../components/landingAnimation/CrossHair";
 import Globe from "react-globe.gl";
 import VariableProximity from "../components/landingAnimation/strangeText";
 import DecryptedText from "../components/landingAnimation/DecryptedText";
+import SpotlightCard from "../components/landingAnimation/SpotLightCard";
+import ForumIcon from "@mui/icons-material/Forum";
+import FlyingPosters from "../components/landingAnimation/FlyingPosters";
+import ProfileCard from "../components/landingAnimation/CoolCard";
 import { PageContainer } from "@toolpad/core/PageContainer";
 import {
   Paper,
@@ -52,7 +59,8 @@ import india from "../YugenAssits/Landing/india.png";
 import belgium from "../YugenAssits/Landing/belgium.jpg";
 import { scaleSequentialSqrt } from "d3-scale";
 import { interpolateYlOrRd } from "d3-scale-chromatic";
-
+import Films from "../components/Film";
+import { redirect } from "react-router-dom";
 //////////
 const FilmCard = ({ film }: any) => {
   const [open, setOpen] = React.useState(false);
@@ -76,6 +84,7 @@ const FilmCard = ({ film }: any) => {
           aspectRatio: "2/3",
           width: "100%",
           justifySelf: "center",
+          objectFit: "cover",
         }}
       />
       <IconButton
@@ -96,6 +105,8 @@ const FilmCard = ({ film }: any) => {
                 justifySelf: "left",
                 color: "text.secondary",
                 fontFamily: '"Freckle Face", system-ui',
+                maxWidth: "90%",
+                overflow: "scroll",
               }}
               variant="h6"
             >
@@ -133,6 +144,7 @@ const FilmCard = ({ film }: any) => {
 
       <Dialog
         open={open}
+        fullScreen
         onClose={() => setOpen(false)}
         PaperProps={{
           sx: {
@@ -221,10 +233,19 @@ function Landing() {
   const [hoverD, setHoverD] = useState<CountryFeature | null>(null);
   const [clickD, setClickrD] = useState<CountryFeature | null>(null);
   const [open, setOpen] = React.useState(false);
-  //////////////
-  const { data, fetchNextPage, hasNextPage, isLoading, isError } =
+  const [open2, setOpen2] = React.useState(false);
+  const [films, setFilms] = useState<any[]>([]);
+
+  const [targetFilm, setTargetFilm] = React.useState(0);
+  const itemsFlying = [
+    "https://picsum.photos/500/500?grayscale",
+    "https://picsum.photos/600/600?grayscale",
+    "https://picsum.photos/400/400?grayscale",
+  ];
+  //////////////map section
+  const { data, fetchNextPage, hasNextPage, isLoading, isError, refetch } =
     useInfiniteQuery({
-      queryKey: ["films"],
+      queryKey: ["films", clickD?.properties.name],
       queryFn: async ({ pageParam = 0 }) => {
         const res = await axios.get("http://localhost:3001/filmssdata_map", {
           params: {
@@ -233,30 +254,37 @@ function Landing() {
             country: clickD?.properties.name,
           },
         });
-        //console.log(res.data);
         return res.data;
       },
+      enabled: false,
       initialPageParam: 0,
       getNextPageParam: (lastPage, pages) =>
         lastPage.length === 10 ? pages.length * 10 : undefined,
     });
-
-  const films = data?.pages.flat() ?? [];
-  //////////////
-
   const handleClickOpen = () => {
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+    setClickrD(null);
+  };
+  const handleClickOpen2 = () => {
+    setOpen2(true);
   };
 
-  const handleClickD = () => {
-    handleClickOpen();
+  const handleClose2 = () => {
+    setOpen2(false);
   };
-  {
-  }
+  const handleClickD = async () => {
+    const result = await refetch();
+    if (result.data) {
+      const films2 = result.data.pages.flat();
+      setFilms(films2);
+      handleClickOpen();
+    }
+  };
+
   useEffect(() => {
     fetch("/world.geojson")
       .then((res) => res.json())
@@ -357,7 +385,7 @@ function Landing() {
   const handleAnimationComplete = () => {
     setAnimeDone(true);
   };
-
+  ////////////// map setion don
   return (
     <Paper
       sx={{
@@ -377,6 +405,66 @@ function Landing() {
     >
       <Dialog
         fullScreen
+        open={open2}
+        onClose={handleClose2}
+        slots={{
+          transition: Transition,
+        }}
+        sx={{
+          "& .MuiDialog-container": {
+            backgroundColor: "transparent",
+            display: "flex", // Enable flexbox
+            justifyContent: "center", // Horizontal centering
+            alignItems: "center", // Vertical centering
+          },
+          "& .MuiPaper-root": {
+            backgroundColor: "transparent",
+            boxShadow:
+              "0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.10)",
+            display: "flex", // Needed to center contents inside Paper
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backgroundColor: "transparent !important",
+            opacity: 1,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: "80vw",
+            height: "80vh",
+            // backgroundColor: "red",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={handleClose2}
+            aria-label="close"
+            sx={{
+              zIndex: 10,
+              position: "absolute",
+              top: 16,
+              left: 16,
+              color: "white", // optional, in case it's invisible on background
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <Films id={targetFilm} />
+        </Box>
+      </Dialog>
+
+      <Dialog
+        fullScreen
         open={open}
         onClose={handleClose}
         slots={{
@@ -388,11 +476,6 @@ function Landing() {
             backgroundColor: "transparent", // container holding the dialog content
           },
           "& .MuiPaper-root": {
-            background:
-              "linear-gradient(rgba(46,62,38,0.3), rgba(96,170,167,0.3))",
-            borderRadius: "30px",
-            p: 2,
-
             boxShadow:
               "0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.10)",
 
@@ -411,17 +494,20 @@ function Landing() {
             borderRadius: "30px",
             p: 2,
             position: "absolute",
-
+            justifySelf: "center",
+            alignSelf: "center",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            backgroundColor: "transparent",
+            background:
+              "linear-gradient(rgba(46,62,38,0.3), rgba(96, 170, 116, 0.3))",
+            backdropFilter: "blur(5px)",
             boxShadow:
               "0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.10)",
-            left: "0vw",
-            top: "0vh",
-            width: "100vw",
-            height: "100vh",
+            top: "5vh",
+            width: "50vw",
+            height: "90vh",
+            border: "solid 4px #bcabb1",
           }}
         >
           <PageContainer
@@ -436,6 +522,13 @@ function Landing() {
               color="inherit"
               onClick={handleClose}
               aria-label="close"
+              sx={{
+                zIndex: 10,
+                position: "absolute",
+                top: 16,
+                left: 16,
+                color: "white", // optional, in case it's invisible on background
+              }}
             >
               <CloseIcon />
             </IconButton>
@@ -457,13 +550,13 @@ function Landing() {
                   justifySelf: "left",
                 }}
               >
-                Hot Right Now in {clickD?.properties.name}
+                Top Films from {clickD?.properties.name}
               </Typography>
 
               {isLoading ? (
                 <CircularProgress />
               ) : isError ? (
-                <Typography color="error">Failed to load films</Typography>
+                <Typography color="error">Faid to load films</Typography>
               ) : (
                 <InfiniteScroll
                   dataLength={films.length}
@@ -487,49 +580,9 @@ function Landing() {
                           verticalAlign: "top",
                           marginRight: 2,
                         }}
-                      >
-                        <FilmCard film={film} />
-                      </Box>
-                    ))}
-                  </Box>
-                </InfiniteScroll>
-              )}
-
-              <Typography
-                variant="h4"
-                sx={{
-                  color: "#341c1c",
-                  fontFamily: '"Freckle Face", system-ui',
-                }}
-              >
-                Latest from {clickD?.properties.name}
-              </Typography>
-              {isLoading ? (
-                <CircularProgress />
-              ) : isError ? (
-                <Typography color="error">Failed to load films</Typography>
-              ) : (
-                <InfiniteScroll
-                  dataLength={films.length}
-                  next={fetchNextPage}
-                  hasMore={!!hasNextPage}
-                  loader={<CircularProgress />}
-                >
-                  <Box
-                    sx={{
-                      overflowX: "auto",
-                      whiteSpace: "nowrap",
-                      display: "block",
-                      width: "100%",
-                    }}
-                  >
-                    {films.map((film: any, index: number) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          display: "inline-block",
-                          verticalAlign: "top",
-                          marginRight: 2,
+                        onClick={async () => {
+                          setTargetFilm(film.film_id);
+                          setOpen2(true);
                         }}
                       >
                         <FilmCard film={film} />
@@ -570,7 +623,7 @@ function Landing() {
       <Box
         sx={{
           position: "absolute",
-          top: "420vh",
+          top: "520vh",
           left: 0,
           width: "100%",
           height: "110vh",
@@ -617,7 +670,7 @@ function Landing() {
         sx={{
           position: "absolute",
 
-          top: "295vh",
+          top: "395vh",
           left: 0,
           width: "100vw",
           height: "140vh",
@@ -926,7 +979,7 @@ function Landing() {
           width: "100vw",
           height: "100vh",
           position: "absolute",
-          top: "190vh",
+          top: "200vh",
           display: "flex",
           flexDirection: "row",
           alignItems: "center", // Center horizontally
@@ -935,138 +988,271 @@ function Landing() {
           padding: "2rem",
         }}
       >
-        <Box
-          style={{
-            marginTop: "0vh",
-            Height: "90vh",
-            width: "50vw",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center", // Center horizontally
-            justifyContent: "center", // Center vertically
-            zIndex: 2,
+        <Stepper
+          initialStep={1}
+          onStepChange={(step) => {
+            console.log(step);
           }}
+          onFinalStepCompleted={() => console.log("All steps completed!")}
+          backButtonText="Previous"
+          nextButtonText="Next"
         >
-          <Stepper
-            initialStep={1}
-            onStepChange={(step) => {
-              console.log(step);
-            }}
-            onFinalStepCompleted={() => console.log("All steps completed!")}
-            backButtonText="Previous"
-            nextButtonText="Next"
-          >
-            <Step>
-              <h2>Short-Film Fund Raiser</h2>
-              <p>Produce Your Favourite Short-Films</p>
-            </Step>
-            <Step>
-              <h2>Step 1</h2>
-              <div
-                style={{
-                  height: "215px",
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  overflow: "hidden",
-                  borderRadius: "15px",
-                  backgroundColor: "#f0f0f0", // fallback bg
-                }}
-              >
-                <img
-                  style={{
-                    height: "fit-content",
-                    width: "100%",
-                    objectFit: "contain",
-                    borderRadius: "15px",
-                    marginTop: "0",
-                  }}
-                  src={UI2}
-                />
-              </div>
-              <p>
-                You find a filmmaker you like, and you want to see more work
-                from them.
-              </p>
-            </Step>
-            <Step>
-              <h2>Step 2</h2>
-              <div
-                style={{
-                  height: "215px",
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  overflow: "hidden",
-                  borderRadius: "15px",
-                  backgroundColor: "#f0f0f0", // fallback bg
-                }}
-              >
-                <img
-                  src={UI}
-                  alt="Step"
-                  style={{
-                    maxHeight: "100%",
-                    maxWidth: "100%",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
-              <p>
-                You visit their profile, and whats that! they have launched a
-                fund-raiser for their next project!
-              </p>
-            </Step>
-            <Step>
-              <h2>Step 3</h2>
-              <h3>Choose and amount to donate:</h3>
-              <p>(Every penny counts!)</p>
-              <PrettoSlider
-                valueLabelDisplay="auto"
-                aria-label="pretto slider"
-                defaultValue={20}
+          <Step>
+            <h2 style={{ opacity: "0.5" }}>Short-Film Fund Raiser</h2>
+            <p>
+              {" "}
+              <DecryptedText
+                text="Let your audience fund your next project. And help many other artists by paticipating in their fund-raisers!"
+                speed={100}
+                maxIterations={20}
+                characters="$    "
+                className="revealed"
+                parentClassName="all-letters"
+                encryptedClassName="encrypted"
               />
-            </Step>
-            <Step>
-              <h2>Final Step</h2>
+            </p>
+          </Step>
+          <Step>
+            <h2 style={{ opacity: "0.5" }}>Step 1</h2>
+            <div
+              style={{
+                height: "215px",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+                borderRadius: "15px",
+                backgroundColor: "#f0f0f0", // fallback bg
+              }}
+            >
+              <img
+                style={{
+                  height: "fit-content",
+                  width: "100%",
+                  objectFit: "contain",
+                  borderRadius: "15px",
+                  marginTop: "0",
+                }}
+                src={UI2}
+              />
+            </div>
+            <p style={{ opacity: "0.7", fontSize: "20px", color: "#000000" }}>
+              You find a filmmaker you like, and you want to see more work from
+              them.
+            </p>
+          </Step>
+          <Step>
+            <h2 style={{ opacity: "0.5" }}>Step 2</h2>
+            <div
+              style={{
+                height: "215px",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+                borderRadius: "15px",
+                backgroundColor: "#f0f0f0", // fallback bg
+              }}
+            >
+              <img
+                src={UI}
+                alt="Step"
+                style={{
+                  maxHeight: "100%",
+                  maxWidth: "100%",
+                  objectFit: "contain",
+                }}
+              />
+            </div>
+            <p style={{ opacity: "0.7", fontSize: "20px", color: "#000000" }}>
+              You visit their profile, and whats that! they have launched a
+              fund-raiser for their next project!
+            </p>
+          </Step>
+          <Step>
+            <h2 style={{ opacity: "0.5" }}>Step 3</h2>
+            <h3 style={{ opacity: "0.7", color: "#000000" }}>
+              Choose and amount to donate:
+            </h3>
+            <p style={{ opacity: "0.7", fontSize: "20px", color: "#000000" }}>
+              (Every penny counts!)
+            </p>
+            <PrettoSlider
+              valueLabelDisplay="auto"
+              aria-label="pretto slider"
+              defaultValue={20}
+            />
+          </Step>
+          <Step>
+            <h2 style={{ opacity: "0.5" }}>Final Step</h2>
 
-              <p>
-                Have your name in the contrubters list when the film comes out!
-              </p>
-            </Step>
-          </Stepper>
+            <p style={{ opacity: "0.7", fontSize: "20px", color: "#000000" }}>
+              You can enjoy the film you helped bring to life, and have your
+              name on the contributers list!
+            </p>
+          </Step>
+        </Stepper>
+      </Box>
+      <Box
+        style={{
+          marginTop: 5,
+          width: "100vw",
+          height: "100vh",
+          position: "absolute",
+          top: "300vh",
+          display: "flex",
+          flexDirection: "row",
+          paddingLeft: "2rem",
+          paddingRight: "2rem",
+          gap: "2rem", // Optional spacing between the two sections
+        }}
+      >
+        {/* Left side: SpotlightCard */}
+        <Box style={{ flex: 1, display: "flex", marginTop: 150 }}>
+          <SpotlightCard
+            className="custom-spotlight-card"
+            spotlightColor="rgba(201,186,206,255)"
+            style={{ width: "100%" }} // Ensures it fills the left side
+          >
+            <Box
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                paddingTop: "3rem",
+              }}
+            >
+              <ForumIcon
+                sx={{
+                  color: "#bcabb1",
+                  fontSize: "50px",
+                  opacity: 1,
+                }}
+              />
+              <Typography
+                variant="h6"
+                style={{
+                  marginTop: 20,
+                  color: "#bcabb1",
+                  fontWeight: "bolder",
+                  opacity: 1,
+                }}
+              >
+                Discuss Your Favourite Films.
+              </Typography>
+              <Typography
+                variant="body1"
+                align="left"
+                style={{
+                  marginTop: 20,
+                  color: "#bcabb1",
+                  fontWeight: "bolder",
+                  opacity: 0.7,
+                }}
+              >
+                Explore film clubs with different niches and interests. Discuss
+                your favourite films with others.
+              </Typography>
+            </Box>
+          </SpotlightCard>
         </Box>
         <Box
           style={{
-            Height: "90vh",
-            width: "50vw",
+            flex: 1,
+            height: "100%",
             display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            justifyContent: "left",
-            zIndex: 2,
+            alignItems: "center",
+            justifyContent: "center",
+            // backgroundColor: "red",
           }}
         >
-          <DecryptedText
-            text="Let your audience fund your next project. And help many other artists by paticipating in their fund-raisers!"
-            speed={100}
-            maxIterations={20}
-            characters="$    "
-            className="revealed"
-            parentClassName="all-letters"
-            encryptedClassName="encrypted"
+          <ProfileCard
+            name="Documentries"
+            title="Based on a Real Story..."
+            handle="Docs"
+            status="123,3837 members"
+            contactText="Join"
+            iconUrl={docs}
+            avatarUrl={docs}
+            showUserInfo={true}
+            enableTilt={true}
+            behindGradient={
+              "radial-gradient(farthest-side circle at var(--pointer-x) var(--pointer-y), rgba(188, 171, 177, var(--card-opacity)) 4%, rgba(188, 171, 177, calc(var(--card-opacity) * 0.75)) 10%, rgba(188, 171, 177, calc(var(--card-opacity) * 0.5)) 50%, rgba(188, 171, 177, 0) 100%), radial-gradient(35% 52% at 55% 20%, #9cd5ac 0%, #bcabb100 100%), radial-gradient(100% 100% at 50% 50%, #9cd5ac 1%, #bcabb100 76%), conic-gradient(from 124deg at 50% 50%, #bcabb1 0%, #9cd5ac 40%, #9cd5ac 60%, #bcabb1 100%)"
+            }
+            showBehindGradient={true}
+            innerGradient={
+              "radial-gradient(farthest-side circle at var(--pointer-x) var(--pointer-y), rgba(188, 171, 177, var(--card-opacity)) 5%, rgba(188, 171, 177, calc(var(--card-opacity) * 0.3)) 30%, rgba(28, 28, 28, 0) 100%), radial-gradient(40% 60% at 60% 20%, #bcabb1 0%, rgba(188, 171, 177, 0) 100%), radial-gradient(100% 100% at 50% 50%, #bcabb1 1%, rgba(188, 171, 177, 0) 76%), conic-gradient(from 124deg at 50% 50%, #1a1a1a 0%, #bcabb1 40%, #bcabb1 60%, #1a1a1a 100%)"
+            }
+            onContactClick={() => window.location.replace("/#/club")}
           />
         </Box>
+        <Box style={{ flex: 1, display: "flex", marginTop: 150 }}>
+          <SpotlightCard
+            className="custom-spotlight-card"
+            spotlightColor="rgba(201,186,206,255)"
+            style={{ width: "100%" }} // Ensures it fills the left side
+          >
+            <Box
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                justifyContent: "flex-start",
+                paddingTop: "3rem",
+              }}
+            >
+              <Diversity1Icon
+                sx={{
+                  color: "#bcabb1",
+                  fontSize: "50px",
+                  opacity: 1,
+                }}
+              />
+              <Typography
+                variant="h6"
+                style={{
+                  marginTop: 20,
+                  color: "#bcabb1",
+                  fontWeight: "bolder",
+                  opacity: 1,
+                }}
+              >
+                Find like-minded film lovers.
+              </Typography>
+              <Typography
+                variant="body1"
+                align="left"
+                style={{
+                  marginTop: 20,
+                  color: "#bcabb1",
+                  fontWeight: "bolder",
+                  opacity: 0.7,
+                }}
+              >
+                Meet people from around the world with similar film tastes and
+                intrests.
+              </Typography>
+            </Box>
+          </SpotlightCard>
+        </Box>
       </Box>
+
+      {/* Right side: Flying Posters */}
+
       <Box
         style={{
           marginTop: 5,
           width: "100vw",
           height: "130vh",
           position: "absolute",
-          top: "300vh",
+          top: "400vh",
           //background: "red",
           padding: "2rem",
           WebkitMaskImage: `
@@ -1109,7 +1295,7 @@ function Landing() {
           alignItems: "center", // center vertically
           justifyContent: "center", // center horizontally
           flexDirection: "column",
-          top: "415vh",
+          top: "515vh",
           padding: "2rem",
           WebkitMaskImage: `
       linear-gradient(to bottom, black 0%, black 85%, transparent 100%),

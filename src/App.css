@@ -14,10 +14,11 @@ body {
 }
 .all-letters
 {
-  font-size: larger;
-  color: #ffffff;
-  font-family: "Roboto Flex", sans-serif;
+  font-size: 20px;
+  color: #000000;
+  opacity:0.7;
 }
+
 .logo {
   height: 6em;
   padding: 1.5em;

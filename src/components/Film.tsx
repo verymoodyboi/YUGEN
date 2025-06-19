@@ -1,190 +1,83 @@
 import "../App.css";
-import Alert from "@mui/material/Alert";
 import Card from "@mui/material/Card";
-import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import Divider from "@mui/material/Divider";
-import Rating from "@mui/material/Rating";
 import React, { useState } from "react";
 import ReactPlayer from "react-player";
 import Avatar from "@mui/material/Avatar";
 import axios from "axios";
-import { TextField, Button } from "@mui/material";
+import ReviewForm from "./Review";
+import CloseIcon from "@mui/icons-material/Close";
+import { TextField, Button, Dialog } from "@mui/material";
 import Thoughts from "./thoughts";
-function Films() {
+interface targetFilm {
+  id: number;
+}
+const Films: React.FC<targetFilm> = ({ id }) => {
   const [filmData, setFilmData] = useState<any | null>(null);
   const [uploaderData, setUploaderData] = useState<any | null>(null);
-  const [filmID, setFilmID] = useState<any | null>(null);
+  const [filmID, setFilmID] = useState<any | null>(id);
   const [click, setClick] = useState(false);
   const [open, setOpen] = React.useState(false);
-  const [open2, setOpen2] = React.useState(false);
-  const [isSubmit, setIsSubmit] = useState(false);
-  const [comment, setComment] = useState<string>("");
+
   const [rating, setRating] = useState<number>(0);
   const [userId, setUserId] = useState<number | null>(null);
-
-  const validate = () => {
-    const errors = {};
-    if (!rating) {
-      errors.rating = "no rating";
-    }
-    return errors;
-  };
-  const SendToServer = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("rating", rating.toString());
-      formData.append("comment", comment);
-      axios.post("http://localhost:3001/addthought", formData);
-    } catch (error: any) {
-      if (error) {
-        return error;
-      } else {
-        return "";
-      }
-    }
-    setIsSubmit(true);
-  };
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    toggleDrawer(false);
-    event.preventDefault();
-    const errors = await validate();
-    if (Object.keys(errors).length === 0) {
-      await SendToServer();
-    }
-  };
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
-  const toggleDrawer2 = (newOpen: boolean) => () => {
-    setOpen2(newOpen);
-  };
+
   const handleClick = async () => {
     try {
       const response = await axios.get("http://localhost:3001/filmdata", {
         params: { filmID },
       });
+
       if (response.data && response.data.length > 0) {
-        setFilmData(response.data[0]);
+        const film = response.data[0];
+        setFilmData(film); // Update film data for UI
+
         try {
-          const id = filmData.uploader_id;
           const response2 = await axios.get(
             "http://localhost:3001/getuploader",
             {
-              params: { id },
+              params: { id: film.uploader_id },
             }
           );
+          setUploaderData(response2.data[0]);
+          //alert(JSON.stringify(response2.data[0]));
           if (response2.data && response2.data.length > 0) {
             setUploaderData(response2.data[0]);
           }
         } catch (error) {
-          console.error("Error fetching film data:", error);
+          console.error("Error fetching uploader data:", error);
         }
       }
+
       setClick(true);
     } catch (error) {
       console.error("Error fetching film data:", error);
     }
   };
-  const DrawerList = (
-    <Box sx={{ width: 0, backgroundColor: "transparent" }} role="presentation">
-      <form className="ReviewForm" onSubmit={handleSubmit}>
-        <label id="ReviewLabel">Review</label>
-        <p id="ReviewText">
-          How many stars does this film deserve? Let the creator know!
-        </p>
-        <Rating
-          max={10}
-          precision={0.5}
-          defaultValue={rating}
-          onChange={(event, newValue) => {
-            setRating(newValue);
-          }}
-        />
-        <TextField
-          name="Comment"
-          label="Comment (Optional)"
-          variant="outlined"
-          multiline
-          maxRows={20}
-          sx={{
-            minHeight: "80px",
-            height: "auto",
-            fontSize: "16px",
-            padding: "10px",
-            width: "100%",
-            marginTop: "16px",
-          }}
-          value={comment}
-          onChange={(event) => setComment(event.target.value)}
-        />
-        <Button
-          type="submit"
-          style={{ background: "#cc651f", color: "white", marginTop: "20px" }}
-          onClick={async () => {
-            setOpen(false);
-          }}
-        >
-          Submit
-        </Button>
-      </form>
-    </Box>
-  );
+  if (!click) {
+    handleClick();
+  }
 
   return (
     <div style={{ backgroundColor: "reds" }}>
-      <p>film ID:</p>
-      <input
-        type="text"
-        onChange={(e) => {
-          setFilmID(e.target.value);
-        }}
-      />
-      <button onClick={handleClick}>click</button>
-      {click && filmData && uploaderData && (
+      {filmData && (
         <div className="film-and-filmData">
           <br></br>
           <Divider />
           <hr />
-          <Box
-            display="flex"
-            gap={2}
-            justifySelf={"left"}
-            alignSelf={"self-start"}
-            alignContent={"flex-start"}
-            justifyContent="space-between"
-            sx={{ width: "fit-content", height: "fit-content" }}
-          >
-            <Avatar
-              alt="Remy Sharp"
-              src={"uploads/pfp" + "/" + uploaderData.pfp_path}
-              sx={{ width: 70, height: 70 }}
-            />
-            <Typography
-              variant="h4"
-              sx={{
-                fontFamily: '"Freckle Face", system-ui',
-                color: "black",
-              }}
-            >
-              {uploaderData.username}
-            </Typography>
-          </Box>
+
           <Divider />
           <hr />
-          <ReactPlayer
-            url={
-              "https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/films//test1.mp4"
-            }
-            controls
-            style={{}}
-          />
+          <ReactPlayer url={filmData.film_path} controls />
           <Divider />
           <hr />
           <Box
@@ -228,9 +121,16 @@ function Films() {
                   //flexDirection: "row",
                   alignItems: "center",
                   gap: "15px",
+                  backgroundColor: "red",
                 }}
               >
-                <Grid>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    backgroundColor: "red",
+                  }}
+                >
                   <IconButton
                     sx={{ backgroundColor: "goldenrod" }}
                     aria-label="delete"
@@ -248,7 +148,7 @@ function Films() {
                       {rating}
                     </Typography>
                   </IconButton>
-                </Grid>
+                </Box>
                 <Typography
                   variant="h6"
                   sx={{
@@ -265,15 +165,14 @@ function Films() {
               <div
                 style={{
                   display: "flex",
-                  flexDirection: "column",
+                  flexDirection: "row",
+                  justifyItems: "center",
                   alignItems: "center",
                 }}
               >
-                <Grid>
-                  <IconButton onClick={toggleDrawer(true)}>
-                    <StarOutlineIcon fontSize="large" />
-                  </IconButton>
-                </Grid>
+                <IconButton onClick={toggleDrawer(true)}>
+                  <StarOutlineIcon fontSize="large" />
+                </IconButton>
                 <Typography
                   variant="h6"
                   sx={{
@@ -282,7 +181,6 @@ function Films() {
                   }}
                 >
                   {filmData.avg_rating && <p>{filmData.avg_rating}</p>}
-                  {!filmData.avg_rating && <p>Rating not available</p>}
                 </Typography>
               </div>
             )}
@@ -384,16 +282,69 @@ function Films() {
           />
         </div>
       )}
-      {click && !filmData && (
-        <div>
-          <Alert severity="error">Film not found!</Alert>
-        </div>
-      )}
-      <Drawer open={open} onClose={toggleDrawer(false)}>
-        {DrawerList}
-      </Drawer>
+      <Dialog
+        fullScreen
+        open={open}
+        onClose={() => toggleDrawer(false)}
+        slots={
+          {
+            //    transition: Transition,
+          }
+        }
+        sx={{
+          "& .MuiDialog-container": {
+            backgroundColor: "transparent",
+            display: "flex", // Enable flexbox
+            justifyContent: "center", // Horizontal centering
+            alignItems: "center", // Vertical centering
+          },
+          "& .MuiPaper-root": {
+            backgroundColor: "transparent",
+            boxShadow:
+              "0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.10)",
+            display: "flex", // Needed to center contents inside Paper
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backgroundColor: "transparent !important",
+            opacity: 1,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: "80vw",
+            height: "80vh",
+            // backgroundColor: "red",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={toggleDrawer(false)}
+            aria-label="close"
+            sx={{
+              zIndex: 10,
+              position: "absolute",
+              top: 16,
+              left: 16,
+              color: "white", // optional, in case it's invisible on background
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <ReviewForm id={filmID} />
+        </Box>
+      </Dialog>
     </div>
   );
-}
+};
 
 export default Films;

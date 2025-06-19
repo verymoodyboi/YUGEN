@@ -99,7 +99,11 @@ const FilmCard = ({ film }: any) => {
         </Box>
       </CardContent>
       <Box textAlign="center" sx={{ backgroundColor: "#341c1c" }}>
-        <IconButton onClick={() => setOpen(true)}>
+        <IconButton
+          onClick={async () => {
+            setOpen(true);
+          }}
+        >
           <AddIcon />
         </IconButton>
       </Box>

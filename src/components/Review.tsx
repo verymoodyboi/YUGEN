@@ -5,8 +5,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ConfigProvider, Rate } from "antd";
 import axios from "axios";
-
-function ReviewForm() {
+import { Box } from "@mui/material";
+interface targetFilm {
+  id: number;
+}
+const ReviewForm: React.FC<targetFilm> = ({ id }) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
@@ -25,6 +28,7 @@ function ReviewForm() {
       const formData = new FormData();
       formData.append("rating", rating.toString());
       formData.append("comment", comment);
+      formData.append("id", id.toString());
 
       toast.success(`Rating: ${rating}, Comment: ${comment}`);
       axios.post("http://localhost:3001/addthought", formData);
@@ -147,6 +151,6 @@ function ReviewForm() {
       </div>
     );
   }
-}
+};
 
 export default ReviewForm;

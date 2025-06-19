@@ -11,6 +11,7 @@ import PageContainerBasic from "./pages/HomePageReformat.tsx";
 import Films from "./components/Film.tsx";
 import SwipeableEdgeDrawer from "./components/testt.tsx";
 import Landing from "./pages/Landing.tsx";
+import TempCLubPage from "./pages/TempClubPage.tsx";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
 function Yugen() {
@@ -18,7 +19,7 @@ function Yugen() {
     <div>
       <Router>
         <Routes>
-          <Route path="/" element={<PageContainerBasic />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/UploadFilmPage" element={<UploadFIlmPage />} />
           <Route path="/SignUpPage" element={<SignUpPage />} />
           <Route path="/LoginPage" element={<LoginPage />} />
@@ -29,6 +30,7 @@ function Yugen() {
           <Route path="/film" element={<Films />} />
           <Route path="/test" element={<SwipeableEdgeDrawer />} />
           <Route path="/Landing" element={<Landing />} />
+          <Route path="/Club" element={<TempCLubPage />} />
         </Routes>
       </Router>
     </div>

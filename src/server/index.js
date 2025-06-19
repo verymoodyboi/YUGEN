@@ -10,6 +10,7 @@ const ffmpeg = require('fluent-ffmpeg'); // sick library for handling video file
 const bcrypt = require('bcrypt')
 // Supabase Client import
 const { createClient } = require('@supabase/supabase-js');
+const { number } = require('framer-motion');
 
 // Initialize Supabase client
 
@@ -276,6 +277,8 @@ app.post('/Report', reporting.none(), async (req, res) => {
 app.post('/addthought', reporting.none(), async (req, res) => {
   const Rating = req.body.rating;
   const Comment = req.body.comment;
+    const id =Number(req.body.id);
+console.log(id);
 
   const { data, error } = await supabase
     .from('thoughts')
@@ -283,7 +286,7 @@ app.post('/addthought', reporting.none(), async (req, res) => {
       {
         comment: Comment,
         reviewer_id: 0, // Placeholder ID
-        reviewed_id: 0, // Placeholder ID
+        reviewed_id: id, // Placeholder ID
         rating: Rating,
       }
     ]);
@@ -357,9 +360,11 @@ res.json(normalized);
 
 /////////////////
 app.get('/filmssdata_map', async (req, res) => {
+
   const offset = parseInt(req.query.offset || 0);
   const limit = parseInt(req.query.limit || 5);
    const country = req.query.country;
+   console.log(country)
   try {
     const { data, error } = await supabase
   .from('films')
@@ -455,7 +460,7 @@ app.get('/filmdata',async(req,res)=>{
       .from('films')
       .select('film_title, film_path, poster_path, avg_rating,thesis,cast,crew,film_genre,uploader_id')
       .eq('film_id', req.query.filmID);
-      console.log(data)
+      console.log("yes: " + JSON.stringify(data));
       res.status(200).send(data);
   }
   catch(err)
@@ -475,7 +480,7 @@ app.get('/getuploader',async(req,res)=>{
       .from('users')
       .select('pfp_path,username')
       .eq('user_id', req.query.id);
-      console.log(data)
+      console.log("yes: " + JSON.stringify(data))
       res.status(200).send(data);
   }
   catch(err)
