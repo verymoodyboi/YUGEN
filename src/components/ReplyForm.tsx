@@ -5,40 +5,39 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ConfigProvider, Rate } from "antd";
 import axios from "axios";
-import { Box, Dialog, IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import ReplyForm from "./ReplyForm";
-interface targetFilm {
-  id: number;
+import { Box } from "@mui/material";
+interface targetReply {
+  //film_id: number;
+  comment_id: number;
+  commentor: string;
   onSubmitSuccess?: () => void;
 }
-const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
+const ReplyForm: React.FC<targetReply> = ({
+  comment_id,
+  commentor,
+  onSubmitSuccess,
+}) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
-  const [open, setOpen] = useState<boolean>(false);
-  const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen);
-  };
+
   const validate = () => {
     const errors = {};
-    if (!rating) {
-      errors.rating = "no rating";
-      toast.warn(
-        "Come on, at least appretiate the effort! Please select at least one star."
-      );
+    if (!comment) {
+      errors.comment = "no comment";
+      toast.warn("add comment");
     }
     return errors;
   };
   const SendToServer = async () => {
     try {
       const formData = new FormData();
-      formData.append("rating", rating.toString());
+      //formData.append("rating", rating.toString());
       formData.append("comment", comment);
-      formData.append("id", id.toString());
-      toast.success(`Rating: ${rating}, Comment: ${comment}`);
-      axios.post("http://localhost:3001/addthought", formData);
-      axios.post("http://localhost:3001/addthoughtv1", formData);
+      formData.append("comment_id", comment_id.toString());
+      // formData.append("user_id", film_id.toString());
+      //axios.post("http://localhost:3001/addthought", formData);
+      axios.post("http://localhost:3001/replies", formData);
     } catch (error: any) {
       if (error) {
         toast("" + error);
@@ -75,14 +74,11 @@ const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
         }}
       >
         <form className="ReviewForm" onSubmit={handleSubmit}>
-          <label id="ReviewLabel">Review</label>
-          <p id="ReviewText">
-            How many stars does this film deserve? Let the creator know!
-          </p>
-          <Rate count={10} value={rating} onChange={setRating} />
+          <p id="ReviewText">Reply to {commentor}</p>
+
           <TextField
             name="Comment"
-            label="Comment (Optional)"
+            label="reply"
             variant="outlined"
             multiline
             maxRows={20}
@@ -94,8 +90,11 @@ const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
               width: "100%",
               marginTop: "16px",
             }}
-            value={comment}
-            onChange={(event) => setComment(event.target.value)}
+            // value={comment}
+            defaultValue={"@" + commentor}
+            onChange={(event) => {
+              setComment(event.target.value);
+            }}
           />
           <Button
             type="submit"
@@ -109,5 +108,4 @@ const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
     );
   }
 };
-
-export default ReviewForm;
+export default ReplyForm;

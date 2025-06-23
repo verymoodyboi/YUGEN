@@ -1,10 +1,19 @@
 import "../App.css";
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { TextField, Button, Rating as MuiRating } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Rating as MuiRating,
+  Dialog,
+  IconButton,
+  Box,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import ReplyForm from "./ReplyForm";
 import { Avatar, List } from "antd";
 import { Comment } from "@ant-design/compatible";
-import {UserOutlined  } from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./AuthContext";
@@ -37,20 +46,49 @@ interface ThoughtReply {
 interface ThoughtsProps {
   filmId: number;
   userId: number | null; // null if user is not logged in
+  refreshKey?: number;
 }
 
-const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId }) => {
+const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [newRating, setNewRating] = useState<number | null>(null);
   const [newComment, setNewComment] = useState("");
   const [replyText, setReplyText] = useState<{ [key: number]: string }>({});
+  const [open, setOpen] = useState<boolean>(false);
+  const [replyToID, setReplyToID] = useState<number>(0);
+  const [replyToUsername, setReplyToUsername] = useState<string>("");
+  const [replyDisplayCount, setReplyDisplayCount] = useState<{
+    [key: number]: number;
+  }>({});
+
+  const [repliesVisible, setRepliesVisible] = useState<{
+    [key: number]: boolean;
+  }>({});
+  const toggleReplies = (thoughtId: number) => {
+    setRepliesVisible((prev) => {
+      const isVisible = !prev[thoughtId];
+      if (isVisible && !replyDisplayCount[thoughtId]) {
+        setReplyDisplayCount((countPrev) => ({
+          ...countPrev,
+          [thoughtId]: 2,
+        }));
+      }
+      return {
+        ...prev,
+        [thoughtId]: isVisible,
+      };
+    });
+  };
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
+  };
   const [showReplyInput, setShowReplyInput] = useState<{
     [key: number]: boolean;
   }>({});
 
   useEffect(() => {
     fetchThoughts();
-  }, [filmId]);
+  }, [filmId, refreshKey]);
 
   const fetchThoughts = async () => {
     try {
@@ -186,6 +224,11 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId }) => {
         renderItem={(thought) => (
           <List.Item>
             <Comment
+              onClick={async () => {
+                setReplyToID(thought.id);
+                setReplyToUsername(thought.user.username);
+                setOpen(true);
+              }}
               author={thought.user.username}
               avatar={
                 <Avatar
@@ -195,35 +238,154 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId }) => {
               }
               content={
                 <div>
-                  <MuiRating value={thought.rating} readOnly />
+                  <MuiRating value={thought.rating} readOnly max={10} />
                   {thought.comment && <p>{thought.comment}</p>}
                 </div>
               }
               datetime={new Date(thought.created_at).toLocaleDateString()}
             />
-
+            <Dialog
+              fullScreen
+              open={open}
+              onClose={() => setOpen(false)}
+              slots={
+                {
+                  //    transition: Transition,
+                }
+              }
+              sx={{
+                "& .MuiDialog-container": {
+                  backgroundColor: "transparent",
+                  display: "flex", // Enable flexbox
+                  justifyContent: "center", // Horizontal centering
+                  alignItems: "center", // Vertical centering
+                },
+                "& .MuiPaper-root": {
+                  backgroundColor: "transparent",
+                  boxShadow:
+                    "0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.10)",
+                  display: "flex", // Needed to center contents inside Paper
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+              }}
+              BackdropProps={{
+                sx: {
+                  backgroundColor: "transparent !important",
+                  opacity: 1,
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  width: "80vw",
+                  height: "80vh",
+                  // backgroundColor: "red",
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  onClick={() => {
+                    setOpen(false);
+                  }}
+                  aria-label="close"
+                  sx={{
+                    zIndex: 10,
+                    position: "absolute",
+                    top: 16,
+                    left: 16,
+                    color: "white", // optional, in case it's invisible on background
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <ReplyForm
+                  comment_id={replyToID}
+                  commentor={replyToUsername}
+                  onSubmitSuccess={() => {
+                    setOpen(false);
+                    fetchThoughts();
+                  }}
+                />
+              </Box>
+            </Dialog>
             {/* Replies */}
-            <List
-              className="replies-list"
-              itemLayout="vertical"
-              dataSource={thought.replies}
-              locale={{ emptyText: "No thoughts yet. Be the first to share!" }} // Customize the empty state
-              renderItem={(reply) => (
-                <List.Item>
-                  <Comment
-                    author={reply.user.username}
-                    avatar={
-                      <Avatar
-                        src={`/uploads/pfp/${reply.user.pfp_path}`}
-                        icon={<UserOutlined />}
+            <Button
+              size="small"
+              onClick={() => toggleReplies(thought.id)}
+              sx={{
+                mt: 1,
+                mb: 1,
+                fontFamily: '"Freckle Face", system-ui',
+                color: "white",
+              }}
+            >
+              {repliesVisible[thought.id]
+                ? "Hide Replies"
+                : `Show Replies (${thought.replies.length})`}
+            </Button>
+
+            {repliesVisible[thought.id] && (
+              <>
+                <List
+                  className="replies-list"
+                  itemLayout="vertical"
+                  dataSource={thought.replies.slice(
+                    0,
+                    replyDisplayCount[thought.id] || 2
+                  )}
+                  locale={{
+                    emptyText: "No replies yet. Be the first to share!",
+                  }}
+                  renderItem={(reply) => (
+                    <List.Item>
+                      <Comment
+                        author={reply.user.username}
+                        avatar={
+                          <Avatar
+                            src={`/uploads/pfp/${reply.user.pfp_path}`}
+                            icon={<UserOutlined />}
+                          />
+                        }
+                        onClick={async () => {
+                          setReplyToID(thought.id);
+                          setReplyToUsername(reply.user.username);
+                          setOpen(true);
+                        }}
+                        content={reply.comment}
+                        datetime={new Date(
+                          reply.created_at
+                        ).toLocaleDateString()}
                       />
+                    </List.Item>
+                  )}
+                />
+                {thought.replies.length >
+                  (replyDisplayCount[thought.id] || 2) && (
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      setReplyDisplayCount((prev) => ({
+                        ...prev,
+                        [thought.id]: (prev[thought.id] || 2) + 10,
+                      }))
                     }
-                    content={reply.comment}
-                    datetime={new Date(reply.created_at).toLocaleDateString()}
-                  />
-                </List.Item>
-              )}
-            />
+                    sx={{
+                      mb: 1,
+                      fontFamily: '"Freckle Face", system-ui',
+                      color: "white",
+                    }}
+                  >
+                    Show More Replies
+                  </Button>
+                )}
+              </>
+            )}
           </List.Item>
         )}
       />

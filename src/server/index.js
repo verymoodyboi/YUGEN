@@ -298,6 +298,53 @@ console.log(id);
 
   res.status(200).send("thought submitted successfully!");
 });
+app.post('/addthoughtv1', reporting.none(), async (req, res) => {
+  const Rating = req.body.rating;
+  const Comment = req.body.comment;
+    const id =Number(req.body.id);
+console.log(id);
+
+  const { data, error } = await supabase
+    .from('thoughtsv1')
+    .insert([
+      {
+        comment: Comment,
+        user_id: 2, 
+       film_id: id, 
+        rating: Rating,
+      }
+    ]);
+
+  if (error) {
+    console.error(error);
+    return res.status(500).send("Database error: " + error.message);
+  }
+
+  res.status(200).send("thought submitted successfully!");
+});
+app.post('/replies', reporting.none(), async (req, res) => {
+    //const Rating = req.body.rating;
+    const Comment = req.body.comment;
+    const comment_id =Number(req.body.comment_id);
+    //console.log("called");
+  const { data, error } = await supabase
+    .from('thought_replies')
+    .insert([
+      {
+        comment: Comment,
+        user_id:1,
+       thought_id: comment_id, // Placeholder ID
+      
+      }
+    ]);
+
+  if (error) {
+    console.error(error);
+    return res.status(500).send("Database error: " + error.message);
+  }
+
+  res.status(200).send("thought submitted successfully!");
+});
 //**************************** http://localhost:3001/Review done
 //supabase functions
 //get_next_user_id

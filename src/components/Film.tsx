@@ -23,7 +23,7 @@ const Films: React.FC<targetFilm> = ({ id }) => {
   const [filmID, setFilmID] = useState<any | null>(id);
   const [click, setClick] = useState(false);
   const [open, setOpen] = React.useState(false);
-
+  const [refreshKey, setRefreshKey] = useState<number>(0);
   const [rating, setRating] = useState<number>(0);
   const [userId, setUserId] = useState<number | null>(null);
 
@@ -275,10 +275,10 @@ const Films: React.FC<targetFilm> = ({ id }) => {
               </Box>
             </Card>
           </Box>
-
           <Thoughts
-            filmId={1} // Replace with actual film ID from your data/props
-            userId={userId} // Pass the current user's ID
+            filmId={id} // Replace with actual film ID from your data/props
+            userId={userId}
+            key={`${filmID}-${refreshKey}`}
           />
         </div>
       )}
@@ -340,7 +340,14 @@ const Films: React.FC<targetFilm> = ({ id }) => {
           >
             <CloseIcon />
           </IconButton>
-          <ReviewForm id={filmID} />
+          <ReviewForm
+            id={filmID}
+            onSubmitSuccess={() => {
+              setOpen(false);
+              setRefreshKey((prev) => prev + 1);
+              console.log(refreshKey);
+            }}
+          />
         </Box>
       </Dialog>
     </div>
