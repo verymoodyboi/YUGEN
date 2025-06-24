@@ -593,7 +593,7 @@ background-color: transparent;
   background: linear-gradient(rgba(46,62,38,0.3), rgba(96,170,167,0.3));
   backdrop-filter: blur(5px);
   border-radius: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  border: 5px solid #341c1c;
   padding: 24px;
   margin: 20px 0;
   color: #ffffff;
@@ -725,7 +725,7 @@ background-color: transparent;
 }
 
 .thoughts-container .MuiRating-iconFilled {
-  color: #ffd700;
+  color: #cc651f;
   filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.3));
 }
 
@@ -735,7 +735,7 @@ background-color: transparent;
 
 /* More subtle comment separation */
 .thoughts-list .ant-list-item {
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: 10px solid rgba(0, 0, 0, 0.05) !important;
   border-radius: 8px;
   padding: 16px !important;
   margin-bottom: 12px;

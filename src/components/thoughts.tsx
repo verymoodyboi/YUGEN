@@ -57,6 +57,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [replyToID, setReplyToID] = useState<number>(0);
   const [replyToUsername, setReplyToUsername] = useState<string>("");
+  const [localRefreshKey, setLocalRefreshKey] = useState(0);
   const [replyDisplayCount, setReplyDisplayCount] = useState<{
     [key: number]: number;
   }>({});
@@ -88,7 +89,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
 
   useEffect(() => {
     fetchThoughts();
-  }, [filmId, refreshKey]);
+  }, [filmId, refreshKey, localRefreshKey]);
 
   const fetchThoughts = async () => {
     try {
@@ -309,7 +310,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
                   commentor={replyToUsername}
                   onSubmitSuccess={() => {
                     setOpen(false);
-                    fetchThoughts();
+                    setLocalRefreshKey((prev) => prev + 1); // internal refresh
                   }}
                 />
               </Box>

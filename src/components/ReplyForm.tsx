@@ -20,6 +20,7 @@ const ReplyForm: React.FC<targetReply> = ({
   const [isSubmit, setIsSubmit] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const validate = () => {
     const errors = {};

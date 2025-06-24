@@ -8,11 +8,13 @@ import Birdies from "../Birdies";
 import Thoughts from "../thoughts";
 import SideMenu from "../SideMenu";
 import ava from "./docs 3.jpg";
+import ava2 from "./protfolio.jpg";
+import post from "./fund.jpg";
+import Club from "../Club";
 import {
   Paper,
   Box,
   Typography,
-  Stack,
   CircularProgress,
   Card,
   CardContent,
@@ -23,17 +25,18 @@ import {
   Tabs,
   Tab,
   Avatar,
+  CardHeader,
 } from "@mui/material";
-import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
+import AddCommentIcon from "@mui/icons-material/AddComment";
 import PublicOutlinedIcon from "@mui/icons-material/PublicOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { PageContainer, PageHeader } from "@toolpad/core/PageContainer";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
-import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
-import AddIcon from "@mui/icons-material/Add";
-import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import Dock from "./Dock";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import AddToQueueIcon from "@mui/icons-material/AddToQueue";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -63,144 +66,208 @@ function a11yProps(index: number) {
 }
 const FilmCard = ({ film }: any) => {
   const [open, setOpen] = React.useState(false);
+  const items = [
+    {
+      icon: <ArrowUpwardIcon size={18} />,
+      label: "Home",
+      onClick: () => alert("Home!"),
+    },
+    {
+      icon: <ArrowDownwardIcon size={18} />,
+      label: "Archive",
+      onClick: () => alert("Archive!"),
+    },
+    {
+      icon: <AddCommentIcon size={18} />,
+      label: "Archive",
+      onClick: () => alert("Archive!"),
+    },
+  ];
 
   return (
     <Card
       sx={{
         display: "flex",
-        flexDirection: "row",
+        flexDirection: "column",
         borderRadius: "5%",
         background: "linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3))",
-        width: "25vw",
-        overflow: "hidden",
+        width: "60vw",
+
         boxShadow:
           "0 1px 3px rgba(0, 0, 0, 0.12), 0 4px 6px rgba(0, 0, 0, 0.1)",
         backdropFilter: "blur(5px)",
         transition: "box-shadow 0.2s ease, transform 0.1s ease",
       }}
     >
-      <CardMedia
-        component="img"
-        image={`http://localhost:3001/${film.poster_path?.replace(/\\/g, "/")}`}
-        alt="Film thumbnail"
-        style={{
-          width: "33%",
-          height: "auto",
-          aspectRatio: "2/3",
-          objectFit: "cover",
-          borderRadius: "5% 0 0 5%",
-        }}
-      />
-      <IconButton
+      <Box
         sx={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          backgroundColor: "transparent",
+          display: "flex",
+          alignItems: "center",
+          padding: 2,
+          borderBottom: "2px solid grey",
+          gap: 2,
         }}
       >
-        <BookmarkAddIcon fontSize="large" />
-      </IconButton>
-      <Box sx={{ flex: 1, padding: 2, position: "relative" }}>
-        <CardContent>
-          <Box display="flex" justifyContent="space-between">
-            <Box>
-              <Typography
-                sx={{
-                  justifySelf: "left",
-                  color: "text.secondary",
-                  fontFamily: '"Freckle Face", system-ui',
-                }}
-                variant="h4"
-              >
-                {film.film_title}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "text.secondary",
-                  fontFamily: '"Freckle Face", system-ui',
-                }}
-              >
-                {film.film_genre || "No genre"}
-              </Typography>
-            </Box>
-            <Box textAlign="center">
-              <StarOutlineIcon />
-              <Typography
-                sx={{
-                  color: "text.secondary",
-                  fontFamily: '"Freckle Face", system-ui',
-                }}
-                variant="body2"
-              >
-                {film.avg_rating ?? "N/A"}
-              </Typography>
-            </Box>
-          </Box>
-        </CardContent>
-
-        <IconButton onClick={() => setOpen(true)}>
-          <AddIcon sx={{ color: "#3c1c24" }} />
-        </IconButton>
-      </Box>
-
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        PaperProps={{
-          sx: {
-            backgroundColor: "transparent",
-            boxShadow: "none",
-          },
-        }}
-        BackdropProps={{
-          sx: {
-            backgroundColor: "transparent",
-          },
-        }}
-      >
-        <Box
-          p={2}
-          className="Form"
+        <Avatar
           sx={{
-            background:
-              "linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.3))",
-            borderRadius: 2,
-            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
-            backdropFilter: "blur(10px)",
+            bgcolor: "gray",
+            width: 100,
+            height: 100,
+            aspectRatio: "1 / 1",
           }}
-        >
+          alt="Remy Sharp"
+          src={ava2}
+        />
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
           <Typography
+            variant="h4"
             sx={{
-              color: "text.secondary",
+              color: "whitesmoke",
               fontFamily: '"Freckle Face", system-ui',
             }}
-            variant="h6"
           >
-            Thesis
-          </Typography>
-          <Typography
-            sx={{
-              color: "text.secondary",
-              fontFamily: '"Freckle Face", system-ui',
-            }}
-            variant="body2"
-          >
-            {film.thesis}
+            Verymoodyboi
           </Typography>
           <Button
-            onClick={() => setOpen(false)}
-            sx={{
-              fontFamily: '"Freckle Face", system-ui',
-              mt: 2,
-              color: "black",
-            }}
+            variant="contained"
+            startIcon={<AddToQueueIcon />}
+            sx={{ mt: 1, width: "fit-content", backgroundColor: "transparent" }}
           >
-            Close
+            <Typography
+              variant="body1"
+              sx={{
+                color: "whitesmoke",
+                fontFamily: '"Freckle Face", system-ui',
+              }}
+            >
+              Follow
+            </Typography>
           </Button>
         </Box>
-      </Dialog>
+      </Box>
+      <CardContent>
+        <Box display="flex" justifyContent="space-between">
+          <Box>
+            <Typography
+              sx={{
+                justifySelf: "left",
+                color: "#341c1c",
+                fontFamily: '"Freckle Face", system-ui',
+              }}
+              variant="h5"
+            >
+              Why are documentries important?
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "whitesmoke",
+                fontFamily: '"Freckle Face", system-ui',
+
+                whiteSpace: "normal", // allow normal wrapping
+                wordBreak: "break-word", // handle long words
+                width: "100%", // ensure it fills the container
+              }}
+            >
+              {`There are many ways that documentaries demonstrate their
+              importance and purpose in the present day, but influential BBC
+              producer and documentarian Parminder Vir said it best:
+              “Documentary films tell important, often unknown stories and bring
+              awareness to a wider audience, and are some of the best resources
+              for information, inspiration and entertainment. They have also
+              become core elements and prompters of social issue campaigns.”
+              Documentaries give the average person access to crucial
+              information about global, social and political issues they might
+              not otherwise be exposed to. For individuals, it’s important to
+              constantly challenge your own perspective and to find inspiration
+              to make the world around you a better place for everyone. At a
+              more micro-level, documentaries and documentary-style video
+              content is a valid and growing way to debut brands and products in
+              a way that feels genuine. A company could find value in explaining
+              their unique process with branded storytelling or introduce their
+              Founder in a single-character documentary style. How to Make an
+              Impact with Your Documentary A documentary is only as effective as
+              the creator’s passion for the story they’re telling. Let’s break
+              this down into 3 steps: 1. Identify your audience Be as specific
+              as possible. Think about who the message is targeted for, where
+              they live, what their background is, where they are watching your
+              documentary (online, broadcast, live stream). And then get even
+              more granular; what are their jobs, what education do they have,
+              how receptive are they to this new idea or new way of thinking?
+              The more specific you can get, the easier crafting your message
+              will be. 2. Determine the message Documentaries more often than
+              not have a call to action at the end. Determine what you want your
+              audience to do after viewing your film. These actions could
+              include donating to a charity, volunteering time for a cause,
+              changing their habits, or considering your products/services. Can
+              you change what someone believes, as well as what someone does
+              with your message? 3. Invest in production Even “found footage”
+              documentaries have production crews behind them. That’s not to say
+              that you have to shell out the money for a Hollywood-scale
+              production, but it’s important to prioritize how you’ll produce
+              your film. If you decide to work with a production company, it’s
+              important to understand that they will not only execute the
+              production of your film, but consult on the best way to spend your
+              secured budget. Purposeful Storytelling through Documentary-style
+              Marketing Once you’ve determined all of the above, the next step
+              is to bring it all to life. If you’re ready to tell your story,
+              your brand’s story or bring your product into the world—we’d be
+              honored to help make that happen. Check out our New Project Form
+              to get in touch with a member of our talented team of
+              storytellers.`}
+            </Typography>
+          </Box>
+        </Box>
+      </CardContent>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CardMedia
+          component="img"
+          image={post}
+          alt="Film thumbnail"
+          style={{
+            width: "80%",
+            height: "auto",
+            aspectRatio: "16/9",
+            objectFit: "Cover",
+            borderRadius: "5% ",
+            border: "5px solid #341c1c",
+          }}
+        />
+      </div>
+
+      <Box
+        sx={{
+          position: "relative",
+          height: "15vh",
+          //backgroundColor: "red",
+        }}
+      >
+        <Dock
+          items={items}
+          panelHeight={68}
+          baseItemSize={50}
+          magnification={70}
+        />
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flex: 1,
+          padding: 2,
+          position: "relative",
+          // backgroundColor: "red",
+        }}
+      >
+        <Thoughts filmId={1} />
+      </Box>
     </Card>
   );
 };
@@ -282,7 +349,7 @@ export default function TempClub() {
             sx={{
               bgcolor: "gray",
               width: 100,
-              height: "auto",
+              height: 100,
               aspectRatio: "1/1",
             }}
             alt="Remy Sharp"
@@ -298,14 +365,14 @@ export default function TempClub() {
             gap={2}
           >
             <Typography
-              variant="h4"
+              variant="h5"
               fontFamily={'"Freckle Face", system-ui'}
               color="#3c1c24"
             >
               Documentries
             </Typography>
             <Typography
-              variant="body1"
+              variant="body2"
               justy={"left"}
               fontFamily={'"Freckle Face", system-ui'}
               color="white"
@@ -313,7 +380,7 @@ export default function TempClub() {
               Based on a Real Story...
             </Typography>
             <Typography
-              variant="body1"
+              variant="body2"
               fontFamily={'"Freckle Face", system-ui'}
               color="white"
             >
@@ -386,19 +453,21 @@ export default function TempClub() {
                   <Box
                     sx={{
                       display: "flex",
-                      overflowX: "auto",
-                      whiteSpace: "nowrap",
+                      flexDirection: "column", // stack children vertically
+                      overflowY: "auto", // enable vertical scroll
+                      height: "400px", // set a fixed height for scrolling to take effect
                       width: "100%",
-                      alignItems: "flex-start",
+                      gap: 10,
                     }}
                   >
                     {films.map((film: any, index: number) => (
                       <Box
                         key={index}
                         sx={{
-                          display: "inline-block",
-                          verticalAlign: "top",
-                          marginRight: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-start",
+                          gap: 1,
                         }}
                       >
                         <FilmCard film={film} />
@@ -407,17 +476,6 @@ export default function TempClub() {
                   </Box>
                 </InfiniteScroll>
               )}
-
-              <Typography
-                variant="h5"
-                sx={{
-                  color: "#341c1c",
-                  fontFamily: '"Freckle Face", system-ui',
-                }}
-              >
-                Hot Discussions
-              </Typography>
-              <Thoughts filmId={1} />
             </Box>
           </PageContainer>
         </CustomTabPanel>
