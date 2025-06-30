@@ -3,28 +3,55 @@ import { useState, useEffect } from "react";
 import { TextField } from "@mui/material";
 import { Button, colors, ThemeProvider } from "@mui/material";
 import { Link } from "react-router-dom";
+import supabase from "../server/config.ts";
+import { useNavigate } from "react-router-dom";
 import "../App.tsx";
 
 function LoginForm() {
   const [Inputs, SetInputs] = useState({});
-  //OnChange
-  const HandleChange = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    SetInputs((prevValues) => ({ ...prevValues, [name]: value }));
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setMessage("");
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      if (error) {
+        console.error("Supabase login error:", error);
+        setMessage(error.message);
+        setEmail("");
+        setPassword("");
+        return;
+      }
+      return;
+    }
+
+    if (data) {
+      navigate("/home");
+      return null;
+    }
   };
+
   return (
     <div className="Form">
-      <form>
+      <form onSubmit={handleSubmit}>
         <p>
           Don't have an account? <Link to="/SignUpPage">Signup</Link>
         </p>
 
         <TextField
-          name="UserName"
+          name="email"
           label="Username"
           variant="outlined"
-          onChange={HandleChange}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           sx={{
             minHeight: "80px",
             height: "auto",
@@ -34,10 +61,12 @@ function LoginForm() {
           }}
         />
         <TextField
-          name="Pword"
+          name="password"
           label="Password"
           variant="outlined"
-          onChange={HandleChange}
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           sx={{
             minHeight: "80px",
             height: "auto",

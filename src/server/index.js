@@ -14,12 +14,22 @@ const { number } = require('framer-motion');
 
 // Initialize Supabase client
 
-const supabase = createClient('https://iqvsgbsnpqvbddmdixoz.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxdnNnYnNucHF2YmRkbWRpeG96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYyODIwMDAsImV4cCI6MjA2MTg1ODAwMH0.gXi9u1QIXf9gJkNvCGZror9pkJu-U0nPeerZN7F-Gzw');
+const supabase = createClient('https://iqvsgbsnpqvbddmdixoz.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxdnNnYnNucHF2YmRkbWRpeG96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYyODIwMDAsImV4cCI6MjA2MTg1ODAwMH0.gXi9u1QIXf9gJkNvCGZror9pkJu-U0nPeerZN7F-Gzw',{
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
 
 ////////////////////////////imports done
 //**********************init express app
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:5173", // or whatever your frontend origin is
+  credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
 /////////////////////////init done
@@ -42,8 +52,13 @@ app.post('/Register', upload.fields([{ name: 'PFP', maxCount: 1 }]), async (req,
   const { FName, LName, UserName, Bio, Email, Password, BirthDate } = req.body;
   const hashedPassword = await bcrypt.hash(Password, 10);
   const time = new Date();
-  const date = time.toIfSOString().split('T')[0];
+  const date = time.toISOString().split('T')[0];
   try {
+       const {dataSupa, errorSupa}= await supabase.auth.signUp({
+        email: Email,
+        password: Password,
+        
+      });
     // Insert the new user into Supabase
     const userIDD= await getMaxUserID();
     const { data, error } = await supabase
@@ -63,7 +78,11 @@ app.post('/Register', upload.fields([{ name: 'PFP', maxCount: 1 }]), async (req,
           join_date:date
         }
       ]);
-
+   
+      if(dataSupa)
+      {
+        console.log(dataSupa);
+      }
     if (error) {
       console.error('Error inserting user:', error);
       res.status(500).send('Error inserting user');
@@ -251,17 +270,21 @@ app.post('/upload-film', async (req, res, next) => {
 const reporting = multer();
 app.post('/Report', reporting.none(), async (req, res) => {
   const email = req.body.email;
+  const reportType = req.body.reportType;
   const report = req.body.report;
+   const film_id =Number(req.body.film_id)
   console.log(email, report);
 
-  // Supabase new report into 'tech_reports'
+  // Supabase new report into 'film_reports'
   const { data, error } = await supabase
-    .from('tech_reports')
+    .from('film_reports')
     .insert([
       {
         email: email,
+        report_type:reportType,
         report: report,
-        ischecked: false
+        ischecked: false,
+        film_id: film_id
       }
     ]);
 
@@ -302,6 +325,7 @@ app.post('/addthoughtv1', reporting.none(), async (req, res) => {
   const Rating = req.body.rating;
   const Comment = req.body.comment;
     const id =Number(req.body.id);
+    const thinker_id= Number(req.body.user_id);
 console.log(id);
 
   const { data, error } = await supabase
@@ -309,7 +333,7 @@ console.log(id);
     .insert([
       {
         comment: Comment,
-        user_id: 2, 
+        user_id: thinker_id, 
        film_id: id, 
         rating: Rating,
       }
@@ -326,13 +350,15 @@ app.post('/replies', reporting.none(), async (req, res) => {
     //const Rating = req.body.rating;
     const Comment = req.body.comment;
     const comment_id =Number(req.body.comment_id);
+        const replier_id =Number(req.body.user_id);
+
     //console.log("called");
   const { data, error } = await supabase
     .from('thought_replies')
     .insert([
       {
         comment: Comment,
-        user_id:1,
+        user_id:replier_id,
        thought_id: comment_id, // Placeholder ID
       
       }

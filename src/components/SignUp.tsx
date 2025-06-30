@@ -19,6 +19,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Dialog from "@mui/material/Dialog";
+// supabase client import
+import supabase from "../server/config.ts";
 function SignUpForm() {
   const [Inputs, SetInputs] = useState({});
   const [fname, setfname] = useState<string | Blob>();
@@ -102,7 +104,7 @@ function SignUpForm() {
     errors = await validateAll();
     if (JSON.stringify(errors) == empty) {
       toast("vaild user info");
-      setIsRegister(true);
+      //setIsRegister(true);
       SendToServer();
     }
   };

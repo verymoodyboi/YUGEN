@@ -2,11 +2,14 @@ import * as React from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 import SearchBar from "../components/SearchBar";
 import NavBar from "../components/NavBar";
 import Birdies from "../components/Birdies";
 import SideMenu from "../components/SideMenu";
+import { Avatar } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import supabase from "../server/config";
+import x from "../server/uploads/pfp/6.jpg";
 import {
   Paper,
   Box,
@@ -40,7 +43,7 @@ const FilmCard = ({ film }: any) => {
     >
       <CardMedia
         component="img"
-        image={film.poster_path}
+        image={`http://localhost:3001/${film.poster_path?.replace(/\\/g, "/")}`}
         alt="Film thumbnail"
         style={{
           borderTopLeftRadius: 0,
@@ -167,8 +170,10 @@ const FilmCard = ({ film }: any) => {
     </Card>
   );
 };
-
-export default function HomePageReformat() {
+interface userProbs {
+  user: any;
+}
+const HomePage: React.FC<userProbs> = ({ user }) => {
   const { data, fetchNextPage, hasNextPage, isLoading, isError } =
     useInfiniteQuery({
       queryKey: ["films"],
@@ -185,12 +190,52 @@ export default function HomePageReformat() {
     });
 
   const films = data?.pages.flat() ?? [];
-
+  const navigate = useNavigate();
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    navigate("/login");
+  };
   return (
     <div style={{ height: "100vh", width: "100vh" }}>
       <Birdies></Birdies>
-      <NavBar></NavBar>
-      <SearchBar></SearchBar>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center", // center everything vertically
+          width: "100vw",
+          height: "10vh", // you probably don't need 30vh for a nav
+
+          gap: 2,
+          position: "absolute",
+          left: 0,
+          top: 0,
+          px: 2,
+        }}
+      >
+        {user && <div></div>}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <Avatar
+            src={`http://localhost:3001/uploads/pfp/${user?.pfp_path}`}
+            sx={{ width: 60, height: 60 }}
+          />
+          <Typography variant="h6" fontFamily={'"Freckle Face", system-ui'}>
+            {(user && user.username) || "guest"}
+          </Typography>
+        </Box>
+
+        <NavBar />
+
+        <SearchBar />
+      </Box>
 
       <Paper
         sx={{
@@ -318,4 +363,5 @@ export default function HomePageReformat() {
       <SideMenu></SideMenu>
     </div>
   );
-}
+};
+export default HomePage;

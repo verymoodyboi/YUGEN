@@ -1,18 +1,57 @@
 import "../App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import supabase from "../server/config";
 import { TextField, Button } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ConfigProvider, Rate } from "antd";
 import axios from "axios";
-import { Box, Dialog, IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import ReplyForm from "./ReplyForm";
+
 interface targetFilm {
   id: number;
+
   onSubmitSuccess?: () => void;
 }
 const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
+  //auth
+  const [userInfo, setUserInfo] = useState<any>(null);
+
+  const loadProfile = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("username, pfp_path,user_id")
+        .eq("email", user.email)
+        .single();
+      if (!error) {
+        setUserInfo(data);
+        console.log("User data loaded:", data);
+      } else {
+        console.error("Error loading user profile:", error);
+      }
+    } else {
+      setUserInfo(null); // Clear info if no user
+    }
+  };
+
+  useEffect(() => {
+    loadProfile(); // Initial load
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state change:", event);
+        loadProfile(); // Refresh profile on login/logout
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+  //auth//
   const [isSubmit, setIsSubmit] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
@@ -36,7 +75,7 @@ const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
       formData.append("rating", rating.toString());
       formData.append("comment", comment);
       formData.append("id", id.toString());
-      toast.success(`Rating: ${rating}, Comment: ${comment}`);
+      formData.append("user_id", userInfo.user_id.toString());
       axios.post("http://localhost:3001/addthought", formData);
       axios.post("http://localhost:3001/addthoughtv1", formData);
     } catch (error: any) {

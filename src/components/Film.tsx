@@ -8,21 +8,25 @@ import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import Divider from "@mui/material/Divider";
 import React, { useState } from "react";
 import ReactPlayer from "react-player";
-import Avatar from "@mui/material/Avatar";
 import axios from "axios";
 import ReviewForm from "./Review";
 import CloseIcon from "@mui/icons-material/Close";
-import { TextField, Button, Dialog } from "@mui/material";
+import { Dialog } from "@mui/material";
 import Thoughts from "./thoughts";
-interface targetFilm {
+import Wrapper from "../pages/Wrapper";
+import FlagIcon from "@mui/icons-material/Flag";
+import ReportForm from "./Report";
+interface probs {
   id: number;
+  UID: number;
 }
-const Films: React.FC<targetFilm> = ({ id }) => {
+const Films: React.FC<probs> = ({ id, UID }) => {
   const [filmData, setFilmData] = useState<any | null>(null);
   const [uploaderData, setUploaderData] = useState<any | null>(null);
   const [filmID, setFilmID] = useState<any | null>(id);
   const [click, setClick] = useState(false);
   const [open, setOpen] = React.useState(false);
+  const [openReport, setOpenReport] = React.useState(false);
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [rating, setRating] = useState<number>(0);
   const [userId, setUserId] = useState<number | null>(null);
@@ -30,7 +34,9 @@ const Films: React.FC<targetFilm> = ({ id }) => {
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
-
+  const toggleDrawerReport = (newOpen: boolean) => () => {
+    setOpenReport(newOpen);
+  };
   const handleClick = async () => {
     try {
       const response = await axios.get("http://localhost:3001/filmdata", {
@@ -170,18 +176,23 @@ const Films: React.FC<targetFilm> = ({ id }) => {
                   alignItems: "center",
                 }}
               >
-                <IconButton onClick={toggleDrawer(true)}>
-                  <StarOutlineIcon fontSize="large" />
-                </IconButton>
                 <Typography
                   variant="h6"
                   sx={{
+                    marginTop: 2,
                     color: "text.secondary",
                     fontFamily: '"Freckle Face", system-ui',
                   }}
                 >
                   {filmData.avg_rating && <p>{filmData.avg_rating}</p>}
                 </Typography>
+                <IconButton onClick={toggleDrawer(true)}>
+                  <StarOutlineIcon fontSize="large" />
+                </IconButton>
+
+                <IconButton sx={{}} onClick={toggleDrawerReport(true)}>
+                  <FlagIcon fontSize="large" />
+                </IconButton>
               </div>
             )}
           </Box>
@@ -340,14 +351,84 @@ const Films: React.FC<targetFilm> = ({ id }) => {
           >
             <CloseIcon />
           </IconButton>
-          <ReviewForm
-            id={filmID}
-            onSubmitSuccess={() => {
-              setOpen(false);
-              setRefreshKey((prev) => prev + 1);
-              console.log(refreshKey);
+          <Wrapper>
+            <ReviewForm
+              id={filmID}
+              onSubmitSuccess={() => {
+                setOpen(false);
+                setRefreshKey((prev) => prev + 1);
+                console.log(refreshKey);
+              }}
+            />
+          </Wrapper>
+        </Box>
+      </Dialog>
+      <Dialog
+        fullScreen
+        open={openReport}
+        onClose={() => toggleDrawerReport(false)}
+        slots={
+          {
+            //    transition: Transition,
+          }
+        }
+        sx={{
+          "& .MuiDialog-container": {
+            backgroundColor: "transparent",
+            display: "flex", // Enable flexbox
+            justifyContent: "center", // Horizontal centering
+            alignItems: "center", // Vertical centering
+          },
+          "& .MuiPaper-root": {
+            backgroundColor: "transparent",
+            boxShadow:
+              "0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 6px rgba(0, 0, 0, 0.10)",
+            display: "flex", // Needed to center contents inside Paper
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backgroundColor: "transparent !important",
+            opacity: 1,
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: "80vw",
+            height: "80vh",
+            // backgroundColor: "red",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={toggleDrawerReport(false)}
+            aria-label="close"
+            sx={{
+              zIndex: 10,
+              position: "absolute",
+              top: 16,
+              left: 16,
+              color: "white", // optional, in case it's invisible on background
             }}
-          />
+          >
+            <CloseIcon />
+          </IconButton>
+          <Wrapper>
+            <ReportForm
+              film_id={id}
+              onSubmitSuccess={() => {
+                setOpenReport(false);
+              }}
+            />
+          </Wrapper>
         </Box>
       </Dialog>
     </div>

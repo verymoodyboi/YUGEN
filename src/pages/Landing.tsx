@@ -31,6 +31,7 @@ import SpotlightCard from "../components/landingAnimation/SpotLightCard";
 import ForumIcon from "@mui/icons-material/Forum";
 import FlyingPosters from "../components/landingAnimation/FlyingPosters";
 import ProfileCard from "../components/landingAnimation/CoolCard";
+import supabase from "../server/config";
 import { PageContainer } from "@toolpad/core/PageContainer";
 import {
   Paper,
@@ -61,6 +62,7 @@ import { scaleSequentialSqrt } from "d3-scale";
 import { interpolateYlOrRd } from "d3-scale-chromatic";
 import Films from "../components/Film";
 import { redirect } from "react-router-dom";
+import { userInfo } from "os";
 //////////
 const FilmCard = ({ film }: any) => {
   const [open, setOpen] = React.useState(false);
@@ -229,6 +231,45 @@ interface CountriesData {
 }
 
 function Landing() {
+  //user auth
+  const [userInfo, setUserInfo] = useState<any>(null);
+
+  const loadProfile = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("username, pfp_path,user_id")
+        .eq("email", user.email)
+        .single();
+      if (!error) {
+        setUserInfo(data);
+        console.log("User data loaded:", data);
+      } else {
+        console.error("Error loading user profile:", error);
+      }
+    } else {
+      setUserInfo(null); // Clear info if no user
+    }
+  };
+
+  useEffect(() => {
+    loadProfile(); // Initial load
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state change:", event);
+        loadProfile(); // Refresh profile on login/logout
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+  //user auth//
   const [countries, setCountries] = useState<CountriesData>({ features: [] });
   const [hoverD, setHoverD] = useState<CountryFeature | null>(null);
   const [clickD, setClickrD] = useState<CountryFeature | null>(null);
@@ -462,7 +503,6 @@ function Landing() {
           <Films id={targetFilm} />
         </Box>
       </Dialog>
-
       <Dialog
         fullScreen
         open={open}

@@ -1,6 +1,6 @@
 import "../App.css";
 import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
+import supabase from "../server/config";
 import {
   TextField,
   Button,
@@ -16,7 +16,12 @@ import { Comment } from "@ant-design/compatible";
 import { UserOutlined } from "@ant-design/icons";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useAuth } from "./AuthContext";
+import { userInfo } from "os";
 interface Thought {
   id: number;
   film_id: number;
@@ -50,6 +55,46 @@ interface ThoughtsProps {
 }
 
 const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
+  //auth
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [email, setEmail] = useState<any>("");
+  const loadProfile = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("username, pfp_path,user_id")
+        .eq("email", user.email)
+        .single();
+      setEmail(user.email);
+      if (!error) {
+        setUserInfo(data);
+        console.log("User data loaded:", data);
+      } else {
+        console.error("Error loading user profile:", error);
+      }
+    } else {
+      setUserInfo(null); // Clear info if no user
+    }
+  };
+
+  useEffect(() => {
+    loadProfile(); // Initial load
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state change:", event);
+        loadProfile(); // Refresh profile on login/logout
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+  //auth//
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [newRating, setNewRating] = useState<number | null>(null);
   const [newComment, setNewComment] = useState("");
@@ -181,7 +226,38 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
       toast.error("Failed to post reply");
     }
   };
+  const handleDeleteThought = async (thoughtId: number) => {
+    try {
+      const { error } = await supabase
+        .from("thoughtsv1")
+        .delete()
+        .eq("id", thoughtId);
 
+      if (error) throw error;
+
+      toast.success("Comment deleted");
+      fetchThoughts();
+    } catch (error) {
+      console.error("Delete failed", error);
+      toast.error("Failed to delete comment");
+    }
+  };
+  const handleDeleteReply = async (replyID: number) => {
+    try {
+      const { error } = await supabase
+        .from("thought_replies")
+        .delete()
+        .eq("id", replyID);
+
+      if (error) throw error;
+
+      toast.success("Comment deleted");
+      fetchThoughts();
+    } catch (error) {
+      console.error("Delete failed", error);
+      toast.error("Failed to delete comment");
+    }
+  };
   return (
     <div className="thoughts-container">
       <h2>Thoughts</h2>
@@ -225,16 +301,11 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
         renderItem={(thought) => (
           <List.Item>
             <Comment
-              onClick={async () => {
-                setReplyToID(thought.id);
-                setReplyToUsername(thought.user.username);
-                setOpen(true);
-              }}
               author={thought.user.username}
               avatar={
                 <Avatar
-                  src={`/uploads/pfp/${thought.user.pfp_path}`}
-                  icon={<UserOutlined />}
+                  src={`http://localhost:3001/uploads/pfp/${thought.user.pfp_path}`}
+                  icon={!thought.user.pfp_path && <UserOutlined />}
                 />
               }
               content={
@@ -244,6 +315,33 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
                 </div>
               }
               datetime={new Date(thought.created_at).toLocaleDateString()}
+              actions={[
+                <span key="upvote" onClick={() => {}}>
+                  <ThumbUpOffAltIcon style={{ marginRight: 4 }} /> Upvote
+                </span>,
+                <span key="downvote" onClick={() => {}}>
+                  <ThumbDownOffAltIcon style={{ marginRight: 4 }} /> Downvote
+                </span>,
+                <span
+                  key="reply"
+                  onClick={async () => {
+                    setReplyToID(thought.id);
+                    setReplyToUsername(thought.user.username);
+                    setOpen(true);
+                  }}
+                >
+                  <ChatBubbleOutlineIcon style={{ marginRight: 4 }} /> Reply
+                </span>,
+                userInfo?.user_id === thought.user_id && (
+                  <IconButton
+                    key="delete"
+                    size="small"
+                    onClick={() => handleDeleteThought(thought.id)}
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                ),
+              ]}
             />
             <Dialog
               fullScreen
@@ -309,8 +407,9 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
                   comment_id={replyToID}
                   commentor={replyToUsername}
                   onSubmitSuccess={() => {
+                    setLocalRefreshKey((prev) => prev + 1);
                     setOpen(false);
-                    setLocalRefreshKey((prev) => prev + 1); // internal refresh
+                    // internal refresh
                   }}
                 />
               </Box>
@@ -349,19 +448,44 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
                         author={reply.user.username}
                         avatar={
                           <Avatar
-                            src={`/uploads/pfp/${reply.user.pfp_path}`}
+                            src={`http://localhost:3001/uploads/pfp/${reply.user.pfp_path}`}
                             icon={<UserOutlined />}
                           />
                         }
-                        onClick={async () => {
-                          setReplyToID(thought.id);
-                          setReplyToUsername(reply.user.username);
-                          setOpen(true);
-                        }}
                         content={reply.comment}
                         datetime={new Date(
                           reply.created_at
                         ).toLocaleDateString()}
+                        actions={[
+                          <span key="upvote" onClick={() => {}}>
+                            <ThumbUpOffAltIcon style={{ marginRight: 4 }} />{" "}
+                            Upvote
+                          </span>,
+                          <span key="downvote" onClick={() => {}}>
+                            <ThumbDownOffAltIcon style={{ marginRight: 4 }} />{" "}
+                            Downvote
+                          </span>,
+                          <span
+                            key="reply"
+                            onClick={async () => {
+                              setReplyToID(thought.id);
+                              setReplyToUsername(reply.user.username);
+                              setOpen(true);
+                            }}
+                          >
+                            <ChatBubbleOutlineIcon style={{ marginRight: 4 }} />{" "}
+                            Reply
+                          </span>,
+                          userInfo?.user_id === reply.user_id && (
+                            <IconButton
+                              key="delete"
+                              size="small"
+                              onClick={() => handleDeleteReply(reply.id)}
+                            >
+                              <DeleteOutlineIcon fontSize="small" />
+                            </IconButton>
+                          ),
+                        ]}
                       />
                     </List.Item>
                   )}

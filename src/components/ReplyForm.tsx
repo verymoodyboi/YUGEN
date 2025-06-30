@@ -1,112 +1,156 @@
 import "../App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextField, Button } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ConfigProvider, Rate } from "antd";
+import { ConfigProvider } from "antd";
+import supabase from "../server/config";
 import axios from "axios";
-import { Box } from "@mui/material";
-interface targetReply {
-  //film_id: number;
+
+interface TargetReplyProps {
   comment_id: number;
   commentor: string;
   onSubmitSuccess?: () => void;
 }
-const ReplyForm: React.FC<targetReply> = ({
+
+const ReplyForm: React.FC<TargetReplyProps> = ({
   comment_id,
   commentor,
   onSubmitSuccess,
 }) => {
+  const [userInfo, setUserInfo] = useState<any>(null);
   const [isSubmit, setIsSubmit] = useState(false);
-  const [comment, setComment] = useState<string>("");
-  const [rating, setRating] = useState<number>(0);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [comment, setComment] = useState("@" + commentor);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadProfile = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("username, pfp_path, user_id")
+        .eq("email", session.user.email)
+        .single();
+
+      if (!error) {
+        setUserInfo(data);
+      } else {
+        console.error("Error loading profile:", error);
+      }
+    } else {
+      setUserInfo(null);
+    }
+  };
+
+  useEffect(() => {
+    loadProfile();
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      loadProfile();
+    });
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   const validate = () => {
-    const errors = {};
-    if (!comment) {
-      errors.comment = "no comment";
-      toast.warn("add comment");
+    const errors: { comment?: string } = {};
+    if (!comment.trim()) {
+      errors.comment = "No comment";
+      toast.warn("Please add a comment.");
     }
     return errors;
   };
+
   const SendToServer = async () => {
+    if (!userInfo) {
+      toast.error("You must be logged in to submit a reply.");
+      return;
+    }
+
+    setIsLoading(true);
     try {
       const formData = new FormData();
-      //formData.append("rating", rating.toString());
       formData.append("comment", comment);
       formData.append("comment_id", comment_id.toString());
-      // formData.append("user_id", film_id.toString());
-      //axios.post("http://localhost:3001/addthought", formData);
-      axios.post("http://localhost:3001/replies", formData);
-    } catch (error: any) {
-      if (error) {
-        toast("" + error);
-        return error;
-      } else {
-        toast("succes");
+      formData.append("user_id", userInfo.user_id.toString());
 
-        return "";
-      }
+      await axios.post("http://localhost:3001/replies", formData);
+
+      toast.success("Reply submitted!");
+      setIsSubmit(true);
+      if (onSubmitSuccess) onSubmitSuccess();
+    } catch (error: any) {
+      toast.error("Error: " + (error?.message || "Something went wrong"));
+    } finally {
+      setIsLoading(false);
     }
-    setIsSubmit(true);
   };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const errors = await validate();
+    const errors = validate();
     if (Object.keys(errors).length === 0) {
       await SendToServer();
-      if (onSubmitSuccess) {
-        onSubmitSuccess();
-      }
     }
   };
-  if (isSubmit == false) {
-    return (
-      <ConfigProvider
-        theme={{
-          components: {
-            Rate: {
-              starSize: 35,
-              starBg: "#2c5d5a",
-              starColor: "#cc651f",
-            },
-          },
-        }}
-      >
-        <form className="ReviewForm" onSubmit={handleSubmit}>
-          <p id="ReviewText">Reply to {commentor}</p>
 
-          <TextField
-            name="Comment"
-            label="reply"
-            variant="outlined"
-            multiline
-            maxRows={20}
-            sx={{
-              minHeight: "80px",
-              height: "auto",
-              fontSize: "16px",
-              padding: "10px",
-              width: "100%",
-              marginTop: "16px",
-            }}
-            // value={comment}
-            defaultValue={"@" + commentor}
-            onChange={(event) => {
-              setComment(event.target.value);
-            }}
-          />
-          <Button
-            type="submit"
-            style={{ background: "#cc651f", color: "white", marginTop: "20px" }}
-          >
-            Submit
-          </Button>
-        </form>
-        <ToastContainer />
-      </ConfigProvider>
+  if (isSubmit) {
+    return (
+      <p style={{ color: "#2c5d5a", fontWeight: "bold" }}>Reply submitted!</p>
     );
   }
+
+  return (
+    <ConfigProvider
+      theme={{
+        components: {
+          Rate: {
+            starSize: 35,
+            starBg: "#2c5d5a",
+            starColor: "#cc651f",
+          },
+        },
+      }}
+    >
+      <form className="ReviewForm" onSubmit={handleSubmit}>
+        <p id="ReviewText">Reply to {commentor}</p>
+
+        <TextField
+          name="Comment"
+          label="Reply"
+          variant="outlined"
+          multiline
+          maxRows={20}
+          value={comment}
+          onChange={(event) => setComment(event.target.value)}
+          sx={{
+            minHeight: "80px",
+            height: "auto",
+            fontSize: "16px",
+            padding: "10px",
+            width: "100%",
+            marginTop: "16px",
+          }}
+        />
+
+        <Button
+          type="submit"
+          disabled={isLoading}
+          style={{
+            background: isLoading ? "#aaa" : "#cc651f",
+            color: "white",
+            marginTop: "20px",
+          }}
+        >
+          {isLoading ? "Submitting..." : "Submit"}
+        </Button>
+      </form>
+      <ToastContainer />
+    </ConfigProvider>
+  );
 };
+
 export default ReplyForm;
