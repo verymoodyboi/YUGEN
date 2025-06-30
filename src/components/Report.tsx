@@ -16,48 +16,13 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 interface probs {
   film_id: number;
   onSubmitSuccess?: () => void;
+  userInfo: any;
 }
-const ReportForm: React.FC<probs> = ({ film_id, onSubmitSuccess }) => {
-  //auth
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [email, setEmail] = useState<any>("");
-  const loadProfile = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("username, pfp_path,user_id")
-        .eq("email", user.email)
-        .single();
-      setEmail(user.email);
-      if (!error) {
-        setUserInfo(data);
-        console.log("User data loaded:", data);
-      } else {
-        console.error("Error loading user profile:", error);
-      }
-    } else {
-      setUserInfo(null); // Clear info if no user
-    }
-  };
-
-  useEffect(() => {
-    loadProfile(); // Initial load
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("Auth state change:", event);
-        loadProfile(); // Refresh profile on login/logout
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-  //auth//
+const ReportForm: React.FC<probs> = ({
+  film_id,
+  onSubmitSuccess,
+  userInfo,
+}) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [reportType, setReportType] = useState<string>("");
   const [report, setReport] = useState<string>("");
@@ -75,7 +40,7 @@ const ReportForm: React.FC<probs> = ({ film_id, onSubmitSuccess }) => {
   const SendToServer = async () => {
     try {
       const formData = new FormData();
-      formData.append("email", email);
+      formData.append("email", userInfo.email);
       formData.append("report", report);
       formData.append("reportType", reportType);
 

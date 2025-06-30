@@ -20,8 +20,7 @@ import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { useAuth } from "./AuthContext";
-import { userInfo } from "os";
+
 interface Thought {
   id: number;
   film_id: number;
@@ -52,53 +51,18 @@ interface ThoughtsProps {
   filmId: number;
   userId: number | null; // null if user is not logged in
   refreshKey?: number;
+  userInfo: any;
 }
 
-const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
-  //auth
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [email, setEmail] = useState<any>("");
-  const loadProfile = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("username, pfp_path,user_id")
-        .eq("email", user.email)
-        .single();
-      setEmail(user.email);
-      if (!error) {
-        setUserInfo(data);
-        console.log("User data loaded:", data);
-      } else {
-        console.error("Error loading user profile:", error);
-      }
-    } else {
-      setUserInfo(null); // Clear info if no user
-    }
-  };
-
-  useEffect(() => {
-    loadProfile(); // Initial load
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("Auth state change:", event);
-        loadProfile(); // Refresh profile on login/logout
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-  //auth//
+const Thoughts: React.FC<ThoughtsProps> = ({
+  filmId,
+  userId,
+  refreshKey,
+  userInfo,
+}) => {
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [newRating, setNewRating] = useState<number | null>(null);
   const [newComment, setNewComment] = useState("");
-  const [replyText, setReplyText] = useState<{ [key: number]: string }>({});
   const [open, setOpen] = useState<boolean>(false);
   const [replyToID, setReplyToID] = useState<number>(0);
   const [replyToUsername, setReplyToUsername] = useState<string>("");
@@ -125,12 +89,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
       };
     });
   };
-  const toggleDrawer = (newOpen: boolean) => () => {
-    setOpen(newOpen);
-  };
-  const [showReplyInput, setShowReplyInput] = useState<{
-    [key: number]: boolean;
-  }>({});
 
   useEffect(() => {
     fetchThoughts();
@@ -194,38 +152,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
     }
   };
 
-  const handleSubmitReply = async (thoughtId: number) => {
-    if (!userId) {
-      toast.warn("Please log in to reply");
-      return;
-    }
-
-    const reply = replyText[thoughtId]?.trim();
-    if (!reply) {
-      toast.warn("Please enter a reply");
-      return;
-    }
-
-    try {
-      const { error } = await supabase.from("thought_replies").insert([
-        {
-          thought_id: thoughtId,
-          user_id: userId,
-          comment: reply,
-        },
-      ]);
-
-      if (error) throw error;
-
-      setReplyText({ ...replyText, [thoughtId]: "" });
-      setShowReplyInput({ ...showReplyInput, [thoughtId]: false });
-      fetchThoughts();
-      toast.success("Reply posted successfully!");
-    } catch (error) {
-      console.error("Error submitting reply:", error);
-      toast.error("Failed to post reply");
-    }
-  };
   const handleDeleteThought = async (thoughtId: number) => {
     try {
       const { error } = await supabase
@@ -409,8 +335,8 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, userId, refreshKey }) => {
                   onSubmitSuccess={() => {
                     setLocalRefreshKey((prev) => prev + 1);
                     setOpen(false);
-                    // internal refresh
                   }}
+                  userInfo={userInfo}
                 />
               </Box>
             </Dialog>

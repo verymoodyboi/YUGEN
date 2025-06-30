@@ -18,9 +18,9 @@ import FlagIcon from "@mui/icons-material/Flag";
 import ReportForm from "./Report";
 interface probs {
   id: number;
-  UID: number;
+  userInfo: any;
 }
-const Films: React.FC<probs> = ({ id, UID }) => {
+const Films: React.FC<probs> = ({ id, userInfo }) => {
   const [filmData, setFilmData] = useState<any | null>(null);
   const [uploaderData, setUploaderData] = useState<any | null>(null);
   const [filmID, setFilmID] = useState<any | null>(id);
@@ -290,6 +290,7 @@ const Films: React.FC<probs> = ({ id, UID }) => {
             filmId={id} // Replace with actual film ID from your data/props
             userId={userId}
             key={`${filmID}-${refreshKey}`}
+            userInfo={userInfo}
           />
         </div>
       )}
@@ -359,6 +360,7 @@ const Films: React.FC<probs> = ({ id, UID }) => {
                 setRefreshKey((prev) => prev + 1);
                 console.log(refreshKey);
               }}
+              userInfo={userInfo}
             />
           </Wrapper>
         </Box>
@@ -427,6 +429,7 @@ const Films: React.FC<probs> = ({ id, UID }) => {
               onSubmitSuccess={() => {
                 setOpenReport(false);
               }}
+              userInfo={userInfo}
             />
           </Wrapper>
         </Box>

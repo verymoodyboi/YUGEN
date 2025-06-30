@@ -9,49 +9,14 @@ import axios from "axios";
 
 interface targetFilm {
   id: number;
-
+  userInfo?: any;
   onSubmitSuccess?: () => void;
 }
-const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
-  //auth
-  const [userInfo, setUserInfo] = useState<any>(null);
-
-  const loadProfile = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("username, pfp_path,user_id")
-        .eq("email", user.email)
-        .single();
-      if (!error) {
-        setUserInfo(data);
-        console.log("User data loaded:", data);
-      } else {
-        console.error("Error loading user profile:", error);
-      }
-    } else {
-      setUserInfo(null); // Clear info if no user
-    }
-  };
-
-  useEffect(() => {
-    loadProfile(); // Initial load
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("Auth state change:", event);
-        loadProfile(); // Refresh profile on login/logout
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-  //auth//
+const ReviewForm: React.FC<targetFilm> = ({
+  id,
+  userInfo,
+  onSubmitSuccess,
+}) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
@@ -92,6 +57,7 @@ const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
   };
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    console.log("User data loaded:", userInfo);
     const errors = await validate();
     if (Object.keys(errors).length === 0) {
       await SendToServer();

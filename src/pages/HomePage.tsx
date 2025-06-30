@@ -284,19 +284,27 @@ const HomePage: React.FC<userProbs> = ({ user }) => {
             ) : isError ? (
               <Typography color="error">Failed to load films</Typography>
             ) : (
-              <InfiniteScroll
-                dataLength={films.length}
-                next={fetchNextPage}
-                hasMore={!!hasNextPage}
-                loader={<CircularProgress />}
+              <Box
+                id="horizontalScrollDiv"
+                onWheel={(e) => {
+                  e.currentTarget.scrollLeft += e.deltaY;
+                }}
+                sx={{
+                  overflowX: "auto",
+                  whiteSpace: "nowrap",
+                  display: "block",
+                  width: "100%",
+                  paddingBottom: 2,
+                }}
               >
-                <Box
-                  sx={{
-                    overflowX: "auto",
-                    whiteSpace: "nowrap",
-                    display: "block",
-                    width: "100%",
-                  }}
+                <InfiniteScroll
+                  dataLength={films.length}
+                  next={fetchNextPage}
+                  hasMore={!!hasNextPage}
+                  loader={<CircularProgress />}
+                  scrollableTarget="horizontalScrollDiv"
+                  scrollThreshold={0.8}
+                  horizontal={true}
                 >
                   {films.map((film: any, index: number) => (
                     <Box
@@ -310,8 +318,8 @@ const HomePage: React.FC<userProbs> = ({ user }) => {
                       <FilmCard film={film} />
                     </Box>
                   ))}
-                </Box>
-              </InfiniteScroll>
+                </InfiniteScroll>
+              </Box>
             )}
 
             <Typography

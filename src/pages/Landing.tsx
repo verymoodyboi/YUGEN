@@ -229,47 +229,10 @@ interface CountryFeature {
 interface CountriesData {
   features: CountryFeature[];
 }
-
-function Landing() {
-  //user auth
-  const [userInfo, setUserInfo] = useState<any>(null);
-
-  const loadProfile = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from("users")
-        .select("username, pfp_path,user_id")
-        .eq("email", user.email)
-        .single();
-      if (!error) {
-        setUserInfo(data);
-        console.log("User data loaded:", data);
-      } else {
-        console.error("Error loading user profile:", error);
-      }
-    } else {
-      setUserInfo(null); // Clear info if no user
-    }
-  };
-
-  useEffect(() => {
-    loadProfile(); // Initial load
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("Auth state change:", event);
-        loadProfile(); // Refresh profile on login/logout
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
-  //user auth//
+interface userProbs {
+  userInfo: any;
+}
+const Landing: React.FC<userProbs> = ({ userInfo }) => {
   const [countries, setCountries] = useState<CountriesData>({ features: [] });
   const [hoverD, setHoverD] = useState<CountryFeature | null>(null);
   const [clickD, setClickrD] = useState<CountryFeature | null>(null);
@@ -500,7 +463,7 @@ function Landing() {
           >
             <CloseIcon />
           </IconButton>
-          <Films id={targetFilm} />
+          <Films id={targetFilm} userInfo={userInfo} />
         </Box>
       </Dialog>
       <Dialog
@@ -1406,6 +1369,6 @@ function Landing() {
       </Box>
     </Paper>
   );
-}
+};
 
 export default Landing;

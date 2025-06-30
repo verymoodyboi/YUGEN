@@ -19,20 +19,17 @@ import supabase from "./server/config.ts";
 
 function Yugen() {
   const [userInfo, setUserInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(true); // New state
 
   const loadProfile = async () => {
     const {
-      data: { session },
-    } = await supabase.auth.getSession(); // Use getSession instead of getUser
-
-    if (session?.user) {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
       const { data, error } = await supabase
         .from("users")
-        .select("username, pfp_path, user_id")
-        .eq("email", session.user.email)
+        .select("username, pfp_path,user_id, email")
+        .eq("email", user.email)
         .single();
-
       if (!error) {
         setUserInfo(data);
         console.log("User data loaded:", data);
@@ -40,30 +37,30 @@ function Yugen() {
         console.error("Error loading user profile:", error);
       }
     } else {
-      setUserInfo(null);
+      setUserInfo(null); // Clear info if no user
     }
-    setLoading(false); // Finish loading
   };
 
   useEffect(() => {
-    loadProfile();
+    loadProfile(); // Initial load
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
-      loadProfile(); // Reload on sign-in/sign-out
-    });
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state change:", event);
+        loadProfile(); // Refresh profile on login/logout
+      }
+    );
 
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, []);
 
-  if (loading) return <p>Loading session...</p>; // Optional: splash or spinner
-
   return (
     <div>
       <Router>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<Landing userInfo={userInfo} />} />
           <Route path="/UploadFilmPage" element={<UploadFIlmPage />} />
           <Route path="/SignUpPage" element={<SignUpPage />} />
           <Route path="/LoginPage" element={<LoginPage />} />
