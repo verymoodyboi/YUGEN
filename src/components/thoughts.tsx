@@ -18,9 +18,19 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import Badge, { badgeClasses } from "@mui/material/Badge";
+import { styled } from "@mui/material/styles";
 
+const CartBadge = styled(Badge)`
+  & .${badgeClasses.badge} {
+    top: -12px;
+    right: -6px;
+  }
+`;
 interface Thought {
   id: number;
   film_id: number;
@@ -67,6 +77,15 @@ const Thoughts: React.FC<ThoughtsProps> = ({
   const [replyToID, setReplyToID] = useState<number>(0);
   const [replyToUsername, setReplyToUsername] = useState<string>("");
   const [localRefreshKey, setLocalRefreshKey] = useState(0);
+  const [upvote, setUpvote] = useState<{ [key: number]: boolean }>({});
+  const [downvote, setDownvote] = useState<{ [key: number]: boolean }>({});
+  const [upvoteReplies, setUpvoteReplies] = useState<{
+    [key: number]: boolean;
+  }>({});
+  const [downvoteReplies, setDownvoteReplies] = useState<{
+    [key: number]: boolean;
+  }>({});
+
   const [replyDisplayCount, setReplyDisplayCount] = useState<{
     [key: number]: number;
   }>({});
@@ -109,7 +128,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({
         `
         )
         .eq("film_id", filmId)
-        .order("created_at", { ascending: false });
+        .order("upvotes", { ascending: false });
 
       if (error) throw error;
       setThoughts(data || []);
@@ -168,6 +187,100 @@ const Thoughts: React.FC<ThoughtsProps> = ({
       toast.error("Failed to delete comment");
     }
   };
+  const handleUpVote = async (thoughtId: number) => {
+    const isUpvoted = upvote[thoughtId];
+
+    if (!isUpvoted) {
+      try {
+        await supabase.rpc("increment_upvotes", { row_id: thoughtId });
+        setUpvote((prev) => ({ ...prev, [thoughtId]: true }));
+        if (downvote[thoughtId]) {
+          await supabase.rpc("remove_downvotes", { row_id: thoughtId });
+          setDownvote((prev) => ({ ...prev, [thoughtId]: false }));
+        }
+      } catch (error) {
+        console.error("Upvote error", error);
+      }
+    } else {
+      try {
+        await supabase.rpc("remove_upvotes", { row_id: thoughtId });
+        setUpvote((prev) => ({ ...prev, [thoughtId]: false }));
+      } catch (error) {
+        console.error("Remove upvote error", error);
+      }
+    }
+  };
+
+  const handleDownVote = async (thoughtId: number) => {
+    const isDownvoted = downvote[thoughtId];
+
+    if (!isDownvoted) {
+      try {
+        await supabase.rpc("increment_downvotes", { row_id: thoughtId });
+        setDownvote((prev) => ({ ...prev, [thoughtId]: true }));
+        if (upvote[thoughtId]) {
+          await supabase.rpc("remove_upvotes", { row_id: thoughtId });
+          setUpvote((prev) => ({ ...prev, [thoughtId]: false }));
+        }
+      } catch (error) {
+        console.error("Downvote error", error);
+      }
+    } else {
+      try {
+        await supabase.rpc("remove_downvotes", { row_id: thoughtId });
+        setDownvote((prev) => ({ ...prev, [thoughtId]: false }));
+      } catch (error) {
+        console.error("Remove downvote error", error);
+      }
+    }
+  };
+  const handleUpVoteReply = async (replyId: number) => {
+    const isUpvoted = upvoteReplies[replyId];
+
+    if (!isUpvoted) {
+      try {
+        await supabase.rpc("increment_upvotes_reply", { row_id: replyId });
+        setUpvoteReplies((prev) => ({ ...prev, [replyId]: true }));
+        if (downvoteReplies[replyId]) {
+          await supabase.rpc("remove_downvotes_reply", { row_id: replyId });
+          setDownvoteReplies((prev) => ({ ...prev, [replyId]: false }));
+        }
+      } catch (error) {
+        console.error("Reply upvote error", error);
+      }
+    } else {
+      try {
+        await supabase.rpc("remove_upvotes_reply", { row_id: replyId });
+        setUpvoteReplies((prev) => ({ ...prev, [replyId]: false }));
+      } catch (error) {
+        console.error("Remove reply upvote error", error);
+      }
+    }
+  };
+  const handleDownVoteReply = async (replyId: number) => {
+    const isDownvoted = downvoteReplies[replyId];
+
+    if (!isDownvoted) {
+      try {
+        await supabase.rpc("increment_downvotes_reply", { row_id: replyId });
+        setDownvoteReplies((prev) => ({ ...prev, [replyId]: true }));
+        if (upvoteReplies[replyId]) {
+          await supabase.rpc("remove_upvotes_reply", { row_id: replyId });
+          setUpvoteReplies((prev) => ({ ...prev, [replyId]: false }));
+        }
+      } catch (error) {
+        console.error("Reply downvote error", error);
+      }
+    } else {
+      try {
+        await supabase.rpc("remove_downvotes_reply", { row_id: replyId });
+        setDownvoteReplies((prev) => ({ ...prev, [replyId]: false }));
+      } catch (error) {
+        console.error("Remove reply downvote error", error);
+      }
+    }
+  };
+
   const handleDeleteReply = async (replyID: number) => {
     try {
       const { error } = await supabase
@@ -184,6 +297,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({
       toast.error("Failed to delete comment");
     }
   };
+
   return (
     <div className="thoughts-container">
       <h2>Thoughts</h2>
@@ -242,11 +356,48 @@ const Thoughts: React.FC<ThoughtsProps> = ({
               }
               datetime={new Date(thought.created_at).toLocaleDateString()}
               actions={[
-                <span key="upvote" onClick={() => {}}>
-                  <ThumbUpOffAltIcon style={{ marginRight: 4 }} /> Upvote
+                <span key="upvote" onClick={() => handleUpVote(thought.id)}>
+                  {upvote[thought.id] ? (
+                    <IconButton>
+                      <ThumbUpIcon style={{ marginRight: 4 }} />{" "}
+                      <CartBadge
+                        badgeContent={thought.upvotes + 1}
+                        color="primary"
+                        overlap="circular"
+                      />
+                    </IconButton>
+                  ) : (
+                    <IconButton>
+                      <ThumbUpOffAltIcon style={{ marginRight: 4 }} />
+                      <CartBadge
+                        badgeContent={thought.upvotes}
+                        color="primary"
+                        overlap="circular"
+                      />
+                    </IconButton>
+                  )}
                 </span>,
-                <span key="downvote" onClick={() => {}}>
-                  <ThumbDownOffAltIcon style={{ marginRight: 4 }} /> Downvote
+
+                <span key="downvote" onClick={() => handleDownVote(thought.id)}>
+                  {downvote[thought.id] ? (
+                    <IconButton>
+                      <ThumbDownAltIcon style={{ marginRight: 4 }} />{" "}
+                      <CartBadge
+                        badgeContent={thought.downvotes + 1}
+                        color="primary"
+                        overlap="circular"
+                      />
+                    </IconButton>
+                  ) : (
+                    <IconButton>
+                      <ThumbDownOffAltIcon style={{ marginRight: 4 }} />{" "}
+                      <CartBadge
+                        badgeContent={thought.downvotes}
+                        color="primary"
+                        overlap="circular"
+                      />
+                    </IconButton>
+                  )}
                 </span>,
                 <span
                   key="reply"
@@ -383,12 +534,26 @@ const Thoughts: React.FC<ThoughtsProps> = ({
                           reply.created_at
                         ).toLocaleDateString()}
                         actions={[
-                          <span key="upvote" onClick={() => {}}>
-                            <ThumbUpOffAltIcon style={{ marginRight: 4 }} />{" "}
-                            Upvote
+                          <span
+                            key="upvote"
+                            onClick={() => handleUpVoteReply(reply.id)}
+                          >
+                            {upvoteReplies[reply.id] ? (
+                              <ThumbUpIcon style={{ marginRight: 4 }} />
+                            ) : (
+                              <ThumbUpOffAltIcon style={{ marginRight: 4 }} />
+                            )}
                           </span>,
-                          <span key="downvote" onClick={() => {}}>
-                            <ThumbDownOffAltIcon style={{ marginRight: 4 }} />{" "}
+
+                          <span
+                            key="downvote"
+                            onClick={() => handleDownVoteReply(reply.id)}
+                          >
+                            {downvoteReplies[reply.id] ? (
+                              <ThumbDownAltIcon style={{ marginRight: 4 }} />
+                            ) : (
+                              <ThumbDownOffAltIcon style={{ marginRight: 4 }} />
+                            )}
                             Downvote
                           </span>,
                           <span

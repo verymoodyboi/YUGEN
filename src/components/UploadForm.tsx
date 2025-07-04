@@ -14,6 +14,9 @@ import { Button, colors, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material";
 import config from "./config";
 import { createClient } from "@supabase/supabase-js";
+import countries from "./countries.json";
+// Alternatively: if dynamic import isn't possible, you could load via fetch or embed the list
+
 const supabase = createClient(
   "https://iqvsgbsnpqvbddmdixoz.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxdnNnYnNucHF2YmRkbWRpeG96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYyODIwMDAsImV4cCI6MjA2MTg1ODAwMH0.gXi9u1QIXf9gJkNvCGZror9pkJu-U0nPeerZN7F-Gzw"
@@ -47,6 +50,7 @@ function UploadForm() {
   const [Inputs, SetInput] = useState({});
   const [FErrors, SetErrors] = useState({});
   const [isSubmit, setisSubmit] = useState(false);
+  const [region, setRegion] = useState(false);
 
   //
   const handleSubmit = async (event) => {
@@ -60,12 +64,17 @@ function UploadForm() {
       const formData = new FormData(); // creates form data object to store inputs
       //adds inputs to formData
       const genres1 = JSON.stringify(Inputs.Genres);
+      const region = JSON.stringify(Inputs.Region);
+
       const genres2 = genres1.replace('["', "");
       const genres3 = genres2.replace('"]', "");
-
+      const region2 = region.replace('"', "");
+      const region3 = region2.replace('"', "");
       formData.append("Title", Inputs.Title);
       formData.append("Description", Inputs.Description);
       formData.append("Genres", genres3);
+      formData.append("Region", region3);
+
       //
 
       if (Inputs.File) {
@@ -84,6 +93,7 @@ function UploadForm() {
         return;
       }
       try {
+        alert(JSON.stringify(formData));
         //sends formData to nodejs server (src/server/index.js)
         await axios.post("http://localhost:3001/upload-film", formData, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -97,7 +107,7 @@ function UploadForm() {
         setisSubmit(false);
         return;
       } //
-      // setisSubmit(true);
+      setisSubmit(true);
       toast("yes");
     }
     //sets submit flag to true
@@ -151,9 +161,8 @@ function UploadForm() {
   }; //
 
   const handleSelect = (event) => {
-    //also sets inputs but for select input fields
-    const { value } = event.target;
-    SetInput((prevValues) => ({ ...prevValues, Genres: value }));
+    const { name, value } = event.target;
+    SetInput((prevValues) => ({ ...prevValues, [name]: value }));
   }; //
   // genre options
   const options = [
@@ -172,8 +181,9 @@ function UploadForm() {
     { id: "Educational", value: "Educational" },
   ]; //
   // all previous were funtions that handle events, the following is the actual content that shows on the page
+
+  //this shows before submission
   if (!isSubmit) {
-    //this shows before submission
     return (
       <div className="Form">
         {" "}
@@ -263,11 +273,9 @@ function UploadForm() {
             </label>
             <Select
               name="Genres"
-              labelId="genres-label"
               multiple
               value={Inputs.Genres || []}
               onChange={handleSelect}
-              label="Select Genres"
               renderValue={(selected) => selected.join(", ")}
               sx={{
                 color: "#fff",
@@ -296,6 +304,39 @@ function UploadForm() {
               ))}
             </Select>
             {/*closin*/}
+            <label htmlFor="genres" style={{ margin: "1rem" }}>
+              Region
+            </label>
+            <Select
+              name="Region"
+              value={Inputs.Region}
+              onChange={handleSelect}
+              sx={{
+                color: "#fff",
+                border: "1px solid #4caf50",
+                "& .Mui-selected": {
+                  backgroundColor: "#fff",
+                  color: "#388e3c",
+                  border: "1px solid #388e3c",
+                },
+                "& .Mui-selected:hover": {
+                  backgroundColor: "#fff",
+                  border: "1px solid #388e3c",
+                },
+                "& .MuiMenuItem-root": {
+                  "&:hover": {
+                    backgroundColor: "#388e3c",
+                    color: "black",
+                  },
+                },
+              }}
+            >
+              {countries.map((country) => (
+                <MenuItem key={country.code} value={country.name}>
+                  {country.name}
+                </MenuItem>
+              ))}
+            </Select>
             <br />
             <Button
               variant="contained"
@@ -329,60 +370,7 @@ function UploadForm() {
       </div>
     );
   } else {
-    let seconds = 10;
-    let foo: ReturnType<typeof setInterval>;
-
-    function redirect(): void {
-      window.location.replace("/");
-    }
-
-    const updateSecs = async () => {
-      const secondsElement = document.getElementById("seconds");
-      console.log("updateSecs called, seconds:", seconds); // Debug line
-
-      if (secondsElement) {
-        secondsElement.innerHTML = seconds.toString();
-      }
-      seconds--;
-      if (seconds < 0) {
-        clearInterval(foo);
-        redirect();
-      }
-    };
-    function countdownTimer(): void {
-      toast("Film uploaded successfully!");
-      foo = setInterval(updateSecs, 1000);
-    }
-
-    countdownTimer();
-    return (
-      <div className="film-submit">
-        <p className="film-submit-text">
-          Film submitted! We will review your film and get back to you within a
-          couple of days. For any inquiries please contact us at:
-        </p>
-        <p className="film-submit-text" id="email-hover">
-          {" "}
-          Yugen@placeholder.com
-        </p>
-        <p className="film-submit-text" id="redirect">
-          You should automatically be redirected in <span id="seconds">10</span>{" "}
-          seconds.
-        </p>
-        <ToastContainer /*this styles the "toast alerts (alerts that show up on the side when there is an error)*/
-          position="top-left"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-        />
-      </div>
-    );
+    return <div>done</div>;
   }
 }
 

@@ -207,7 +207,7 @@ app.post('/upload-film', async (req, res, next) => {
       }
 
       // saves inputs in variables
-      const { Title, Description, Genres } = req.body; // metadata
+      const { Title, Description, Genres,Region } = req.body; // metadata
       const FilmPath = req.files.File?.[0]?.path; // film path
       const ThumbnailPath = req.files.Thumbnail?.[0]?.path; // thumbnail path
       const time = new Date();
@@ -241,7 +241,7 @@ app.post('/upload-film', async (req, res, next) => {
              poster_path : ThumbnailPath,
               film_duration: videoDuration,
               release_date: date,
-              uploader_id: 1
+              uploader_id: 1,country:Region
             }]);
 
           if (error) {
