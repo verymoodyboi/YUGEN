@@ -2,7 +2,8 @@ import * as React from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import InfiniteScroll from "react-infinite-scroll-component";
-import EditFilm from "../L2/EditFilm";
+import PlayListCard from "../L2/PlaylistCard";
+import FilmCard from "../L2/FilmCard";
 import SearchBar from "../L2/SearchBar";
 import NavBar from "../L2/NavBar";
 import Birdies from "../L2/Birdies";
@@ -13,18 +14,15 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import SchoolIcon from "@mui/icons-material/School";
-import HistoryEduIcon from "@mui/icons-material/HistoryEdu";
+import AccHub from "../L2/AccountHub";
 import { useRef } from "react";
 import supabase from "../server/config";
+
 import {
   Paper,
   Box,
   Typography,
   CircularProgress,
-  Card,
-  CardContent,
-  CardMedia,
-  IconButton,
   Dialog,
   Button,
   Tabs,
@@ -37,8 +35,7 @@ import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { PageContainer } from "@toolpad/core/PageContainer";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
-import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
+
 import { useAuth } from "../contexts/AuthContext";
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -67,249 +64,7 @@ function a11yProps(index: number) {
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
-const FilmCard = ({ film }: any) => {
-  const [openThesis, setOpenThesis] = React.useState(false);
-  const [openEdit, setOpenEdit] = React.useState(false);
-  const [openDetails, setOpenDetails] = React.useState(false);
-  const [openRating, setOpenRating] = React.useState(false);
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (
-      target.closest("button") === null &&
-      target.closest(".MuiDialog-root") === null
-    ) {
-      setOpenDetails(true);
-    }
-  };
-
-  return (
-    <Card
-      className="film-card"
-      sx={{
-        borderRadius: "5%",
-        width: 240,
-        background: "linear-gradient(rgba(46,62,38,0.3),rgba(96,170,167,0.3))",
-        position: "relative",
-        cursor: "pointer",
-      }}
-      onClick={handleCardClick}
-    >
-      {/* Poster */}
-      <CardMedia
-        component="img"
-        image={
-          supabase.storage.from("posters").getPublicUrl(film.poster_path).data
-            .publicUrl
-        }
-        alt="Film thumbnail"
-        style={{
-          borderRadius: "3%",
-          aspectRatio: "2/3",
-          width: "100%",
-        }}
-      />
-
-      {/* Bookmark Icon */}
-      <IconButton
-        sx={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          backgroundColor: "transparent",
-        }}
-      >
-        <BookmarkAddIcon fontSize="large" />
-      </IconButton>
-
-      {/* Floating Top-Right Icon */}
-      <IconButton
-        sx={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          backgroundColor: "rgba(255, 255, 255, 0.3)",
-        }}
-        onClick={(e) => {
-          e.stopPropagation(); // prevent card click
-          setOpenEdit(true);
-        }}
-      >
-        <DriveFileRenameOutlineIcon />
-      </IconButton>
-
-      {/* Card Content */}
-      <CardContent>
-        <Box display="flex" justifyContent="space-between">
-          <Box>
-            <Typography
-              sx={{
-                color: "text.secondary",
-                fontFamily: '"Freckle Face", system-ui',
-              }}
-              variant="h6"
-            >
-              {film.film_title}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: "text.secondary",
-                fontFamily: '"Freckle Face", system-ui',
-              }}
-            >
-              {film.film_genre || "No genre"}
-            </Typography>
-          </Box>
-          <Box textAlign="center">
-            <IconButton
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering card click
-                setOpenRating(true);
-              }}
-            >
-              <StarOutlineIcon />
-            </IconButton>
-            <Typography
-              sx={{
-                color: "text.secondary",
-                fontFamily: '"Freckle Face", system-ui',
-              }}
-              variant="body2"
-            >
-              {film.avg_rating ?? "N/A"}
-            </Typography>
-          </Box>
-        </Box>
-      </CardContent>
-      {/* Rating Dialog*/}
-
-      <Dialog open={openRating} onClose={() => setOpenRating(false)}>
-        <Box p={2} bgcolor="white" borderRadius={2}>
-          <Typography
-            sx={{ fontFamily: '"Freckle Face", system-ui' }}
-            variant="h6"
-          >
-            Film Rating
-          </Typography>
-          <Typography>Average Rating: {film.avg_rating ?? "N/A"}</Typography>
-          <Button onClick={() => setOpenRating(false)} sx={{ mt: 2 }}>
-            Close
-          </Button>
-        </Box>
-      </Dialog>
-
-      {/* Bottom Icon Button (Thesis) */}
-      <Box
-        textAlign="center"
-        justifyContent={"center"}
-        sx={{ backgroundColor: "#341c1c" }}
-      >
-        <IconButton
-          onClick={(e) => {
-            e.stopPropagation(); // prevent card click
-            setOpenThesis(true);
-          }}
-        >
-          <HistoryEduIcon />
-        </IconButton>
-      </Box>
-
-      {/* Dialog: Thesis */}
-      <Dialog
-        open={openThesis}
-        onClose={() => setOpenThesis(false)}
-        PaperProps={{
-          sx: {
-            backgroundColor: "transparent",
-            boxShadow: "none",
-          },
-        }}
-        BackdropProps={{
-          sx: {
-            backgroundColor: "transparent",
-          },
-        }}
-      >
-        <Box
-          p={2}
-          sx={{
-            background:
-              "linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.3))",
-            borderRadius: 2,
-            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.2)",
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          <Typography
-            sx={{
-              color: "text.secondary",
-              fontFamily: '"Freckle Face", system-ui',
-            }}
-            variant="h6"
-          >
-            Thesis
-          </Typography>
-          <Typography
-            sx={{
-              color: "text.secondary",
-              fontFamily: '"Freckle Face", system-ui',
-            }}
-            variant="body2"
-          >
-            {film.thesis}
-          </Typography>
-          <Button
-            onClick={() => setOpenThesis(false)}
-            sx={{
-              fontFamily: '"Freckle Face", system-ui',
-              mt: 2,
-              color: "black",
-            }}
-          >
-            Close
-          </Button>
-        </Box>
-      </Dialog>
-
-      {/* Dialog: Floating Icon (EditNoteIcon) */}
-      <Dialog
-        fullScreen
-        open={openEdit}
-        onClose={() => setOpenEdit(false)}
-        sx={{
-          "& .MuiDialog-container": {
-            backgroundColor: "transparent",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          },
-          "& .MuiPaper-root": {
-            backgroundColor: "transparent",
-            boxShadow: "none",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          },
-        }}
-        BackdropProps={{
-          sx: {
-            backgroundColor: "rgba(255, 255, 255, 0.5)",
-          },
-        }}
-      >
-        <EditFilm
-          filmInfo={film}
-          onDone={() => {
-            setOpenEdit(false);
-          }}
-        />
-      </Dialog>
-
-      {/* Dialog: Card Click */}
-    </Card>
-  );
-};
+import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 
 const UserProfile: React.FC = () => {
   const { userInfo: user } = useAuth();
@@ -318,6 +73,7 @@ const UserProfile: React.FC = () => {
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
+  //fetch movies
   const { data, fetchNextPage, hasNextPage, isLoading, isError } =
     useInfiniteQuery({
       queryKey: ["films"],
@@ -347,15 +103,61 @@ const UserProfile: React.FC = () => {
       });
     }
   };
-  const publicUrl = supabase.storage.from("pfps").getPublicUrl(user.pfp_path)
-    .data.publicUrl;
+  ///fetch my playlists
+  const { userInfo } = useAuth();
+  const [loading, setLoading] = React.useState(true);
+  const [myPlaylists, setMyPlaylist] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    const fetchMyPlaylists = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("playlists")
+        .select(
+          `
+    playlist_uuid,
+    playlist_name,
+    is_public,
+    film_count,
+    creator:users!inner (
+      username,
+      pfp_path
+    ),
+    playlist_films:playlists_films (
+      film_index,
+      films (
+        film_uuid,
+        film_title,
+        poster_path,
+        release_date,
+        film_duration,
+        avg_rating
+      )
+    )
+  `
+        )
+        .eq("user_id", userInfo.auth_id);
+
+      if (error) {
+        console.error("Error fetching playlists:", error);
+      } else {
+        setMyPlaylist(data);
+        console.log("playlists:", data);
+      }
+      setLoading(false);
+    };
+
+    if (userInfo?.auth_id) {
+      fetchMyPlaylists();
+    }
+  }, [userInfo?.auth_id]);
 
   return (
     <div style={{ height: "100vh", width: "100vh" }}>
       <Birdies></Birdies>
       <NavBar></NavBar>
       <SearchBar></SearchBar>
-
+      <AccHub />
       <Paper
         sx={{
           background:
@@ -363,9 +165,9 @@ const UserProfile: React.FC = () => {
           borderRadius: "30px",
           p: 2,
           position: "absolute",
-          left: "2vw",
+          left: { xs: "2vw", sm: "1vw", md: "2vw" },
           top: "12vh",
-          width: "70vw",
+          width: { xs: "98vw", sm: "98vw", md: "70vw" },
           height: "86vh",
           overflow: "hidden",
           display: "flex",
@@ -625,17 +427,19 @@ const UserProfile: React.FC = () => {
                     scrollThreshold={0.8}
                     horizontal={true}
                   >
-                    {films.map((film: any, index: number) => (
+                    {films.map((film) => (
                       <Box
-                        key={index}
+                        key={film.film_uuid}
                         sx={{
                           display: "inline-block",
+                          mr: 2,
                           verticalAlign: "top",
-                          marginRight: 2,
-                        }}
-                        onClick={async () => {
-                          // setTargetFilm(film.film_id);
-                          //setOpen2(true);
+                          width: {
+                            xs: "100%",
+                            sm: "50%",
+                            md: "25%",
+                          },
+                          height: "100%",
                         }}
                       >
                         <FilmCard film={film} />
@@ -644,6 +448,38 @@ const UserProfile: React.FC = () => {
                   </InfiniteScroll>
                 </Box>
               )}
+              <Typography
+                variant="h4"
+                sx={{
+                  color: "#341c1c",
+                  fontFamily: '"Freckle Face", system-ui',
+                  justifySelf: "left",
+                }}
+              >
+                playslists by {(user && user.username) || "Loading..."}
+              </Typography>
+
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                {" "}
+                {myPlaylists.map((playlist: any, index: number) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "inline-block",
+                      mr: 2,
+                      verticalAlign: "top",
+                      width: {
+                        xs: "100%",
+                        sm: "50%",
+                        md: "25%",
+                      },
+                      height: "100%",
+                    }}
+                  >
+                    <PlayListCard playlist={playlist} />
+                  </Box>
+                ))}
+              </Box>
             </Box>
           </PageContainer>
         </CustomTabPanel>

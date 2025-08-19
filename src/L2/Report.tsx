@@ -1,5 +1,6 @@
 import "../App.css";
 import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import {
   TextField,
   Button,
@@ -14,15 +15,11 @@ import axios from "axios";
 import supabase from "../server/config";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 interface probs {
-  film_id: number;
+  film_id: any;
   onSubmitSuccess?: () => void;
-  userInfo: any;
 }
-const ReportForm: React.FC<probs> = ({
-  film_id,
-  onSubmitSuccess,
-  userInfo,
-}) => {
+const ReportForm: React.FC<probs> = ({ film_id, onSubmitSuccess }) => {
+  const { userInfo } = useAuth();
   const [isSubmit, setIsSubmit] = useState(false);
   const [reportType, setReportType] = useState<string>("");
   const [report, setReport] = useState<string>("");
@@ -43,8 +40,7 @@ const ReportForm: React.FC<probs> = ({
       formData.append("email", userInfo.email);
       formData.append("report", report);
       formData.append("reportType", reportType);
-
-      formData.append("film_id", film_id.toString());
+      formData.append("film_id", film_id);
 
       for (const [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);

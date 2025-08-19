@@ -50,7 +50,6 @@ import GradientText from "../SmallComponents/GradiantText";
 import { useNavigate } from "react-router-dom";
 import ButtonBase from "@mui/material/ButtonBase";
 import SchoolIcon from "@mui/icons-material/School";
-import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";

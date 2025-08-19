@@ -4,10 +4,9 @@ import { TextField, Button } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ConfigProvider, Rate } from "antd";
-import supabase from "../server/config";
+import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 interface targetReply {
-  userInfo: any;
   comment_id: number;
   commentor: string;
   onSubmitSuccess?: () => void;
@@ -16,8 +15,8 @@ const ReplyForm: React.FC<targetReply> = ({
   comment_id,
   commentor,
   onSubmitSuccess,
-  userInfo,
 }) => {
+  const { userInfo } = useAuth();
   const [isSubmit, setIsSubmit] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
@@ -36,7 +35,7 @@ const ReplyForm: React.FC<targetReply> = ({
       const formData = new FormData();
       formData.append("comment", comment);
       formData.append("comment_id", comment_id.toString());
-      formData.append("user_id", userInfo.user_id.toString());
+      formData.append("user_id", userInfo.auth_id.toString());
 
       axios.post("http://localhost:3001/replies", formData);
     } catch (error: any) {

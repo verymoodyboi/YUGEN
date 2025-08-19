@@ -136,7 +136,7 @@ right:2vw;
   gap: 1vw;
   width: 50%;
   position: absolute;
-  top: 2vh;
+  top: 1vh;
   left: 25vw;
     color:#3c1c24
  
@@ -157,10 +157,12 @@ right:2vw;
 
 .SearchBar 
 {
+    width: 100%;
   display: flex;
   align-items: center;
   gap: 0.5vw;
-    color:#3c1c24
+    color:#3c1c24;
+    
 }
 input::placeholder {
   color:#3c1c24
@@ -171,7 +173,6 @@ input::placeholder {
   padding: 2%;
   font-size: 1.5vw;
   border:  rgb(60,28,36) solid 4px ;
-
   border-radius: 0px 40px 0px 0px;
  background: linear-gradient(rgba(46,62,38,0.3), rgba(96,170,167,0.3));
   backdrop-filter: blur(5px);
@@ -601,8 +602,8 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* fixed and enhanced shadow */
 .film-card
 {
   aspect-ratio: 2/4;
-  height: auto;
-  width: 33vh;
+  height: 100%;
+  width: 100%;
   overflow-y: scroll;
   border-radius: 5%;
 
@@ -614,6 +615,25 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* fixed and enhanced shadow */
   transition: box-shadow 0.2s ease, transform 0.1s ease;
 }
 .film-card:hover
+{
+           box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.35);
+  transform: translateY(-5px);
+}
+.playlist-card
+{
+  aspect-ratio: 3/3;
+  height: auto;
+  overflow-y: scroll;
+  border-radius: 5%;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.12),
+    0 4px 6px rgba(0, 0, 0, 0.1);
+
+  backdrop-filter: blur(5px);
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+.playlist-card:hover
 {
            box-shadow:
     0 6px 12px rgba(0, 0, 0, 0.35);
@@ -637,16 +657,20 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* fixed and enhanced shadow */
   border: #000000 2px solid;
 }
 /*temp*/
+/* ===========================
+   Thoughts Container
+=========================== */
 .thoughts-container {
   background: linear-gradient(rgba(46,62,38,0.3), rgba(96,170,167,0.3));
   backdrop-filter: blur(5px);
   border-radius: 8px;
   border: 5px solid #341c1c;
   padding: 24px;
-  margin: 20px 0;
+  margin: 20px auto;
   color: #ffffff;
   font-family: "Freckle Face", system-ui;
   width: 90%;
+  max-width: 900px;
   height: fit-content;
 }
 
@@ -657,14 +681,15 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* fixed and enhanced shadow */
   text-align: left;
 }
 
-
+/* ===========================
+   Thoughts List
+=========================== */
 .thoughts-list {
   background: transparent !important;
 }
 
-/******************************the things head******************************/
 .thoughts-list .ant-list-item {
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 8px;
   padding: 16px !important;
   margin-bottom: 12px;
@@ -676,6 +701,11 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* fixed and enhanced shadow */
 .thoughts-list .ant-list-item:hover {
   transform: translateY(-1px);
   background: linear-gradient(rgba(46,62,38,0.15), rgba(96,170,167,0.15));
+}
+
+/* subtle divider between comments */
+.thoughts-list .ant-list-item + .ant-list-item {
+  margin-top: 16px;
 }
 
 .thoughts-list .ant-comment {
@@ -703,6 +733,9 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* fixed and enhanced shadow */
   color: #ffd700 !important;
 }
 
+/* ===========================
+   Replies
+=========================== */
 .reply-form {
   margin-top: 16px;
   margin-left: 44px;
@@ -726,7 +759,9 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* fixed and enhanced shadow */
   background: transparent;
 }
 
-/* Style the MUI components within thoughts */
+/* ===========================
+   MUI Components
+=========================== */
 .thoughts-container .MuiTextField-root {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
@@ -781,33 +816,58 @@ box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); /* fixed and enhanced shadow */
   color: rgba(255, 255, 255, 0.2);
 }
 
-/* More subtle comment separation */
-.thoughts-list .ant-list-item {
-  border: 10px solid rgba(0, 0, 0, 0.05) !important;
-  border-radius: 8px;
-  padding: 16px !important;
-  margin-bottom: 12px;
-  background: linear-gradient(rgba(46,62,38,0.1), rgba(96,170,167,0.1));
-  backdrop-filter: blur(2px);
-  transition: all 0.2s ease;
+/* ===========================
+   Responsive Fixes
+=========================== */
+@media (max-width: 768px) {
+  .thoughts-container {
+    padding: 16px;
+    width: 95%;
+  }
+
+  .thoughts-container h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .reply-form,
+  .replies-list {
+    margin-left: 20px;
+    padding: 12px;
+  }
+
+  .thoughts-container .MuiRating-root {
+    font-size: 1.5rem;
+  }
+
+  .thoughts-container .MuiButton-contained {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
 }
 
-.thoughts-list .ant-list-item:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(rgba(46,62,38,0.15), rgba(96,170,167,0.15));
-}
+@media (max-width: 480px) {
+  .thoughts-container {
+    padding: 12px;
+    border-width: 3px;
+  }
 
-.replies-list .ant-list-item {
-  border: none !important;
-  border-left: 2px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 0;
-  padding: 8px 16px !important;
-  margin: 4px 0;
-  background: transparent;
-}
+  .thoughts-container h2 {
+    font-size: 1rem;
+  }
 
-/* Subtle divider between comments */
-.thoughts-list .ant-list-item + .ant-list-item {
-  margin-top: 16px;
+  .reply-form,
+  .replies-list {
+    margin-left: 10px;
+    padding: 8px;
+  }
+
+  .thoughts-container .MuiRating-root {
+    font-size: 1.2rem;
+  }
+
+  .thoughts-container .MuiButton-contained {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
 }
-/******************************the things tail******************************/

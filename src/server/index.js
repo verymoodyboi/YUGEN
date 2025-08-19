@@ -14,6 +14,7 @@ const bcrypt = require('bcrypt')
 const { createClient } = require('@supabase/supabase-js');
 const { number } = require('framer-motion');
 const { Links } = require('react-router-dom');
+const { rejects } = require('assert');
 
 // Initialize Supabase 
 
@@ -61,7 +62,7 @@ app.post('/Register', upload.single('PFP'), async (req, res) => {
     const file = req.file;
 
   if (file) {
-    console.log('File size (bytes):', file.buffer.length); // Should show size > 0
+  //  console.log('File size (bytes):', file.buffer.length); // Should show size > 0
 
     const { error: uploadError } = await supabase.storage
       .from('pfps')
@@ -138,7 +139,6 @@ app.post('/RegisterGoogle', upload.single('PFP'), async (req, res) => {
       }
     }
 
-    // Insert user into 'users' table with auth_id as PK
     const { error: dbError } = await supabase
       .from('users')
       .insert([{
@@ -241,7 +241,7 @@ app.post('/editprofile', upload.single('PFP'), async (req, res) => {
 
   try {
     if (file) {
-      console.log("Uploading file:", file.originalname, file.size, file.mimetype);
+ //     console.log("Uploading file:", file.originalname, file.size, file.mimetype);
 
      await supabase.storage
   .from('pfps')
@@ -332,7 +332,7 @@ app.get('/users', async (req, res) => {
     if (data.length > 0) {
    
       const trimmedUsername = data[0].username.trim();
-      console.log(trimmedUsername);
+     // console.log(trimmedUsername);
 
 return res.status(409).json(trimmedUsername);
     }
@@ -351,7 +351,41 @@ return res.status(409).json(trimmedUsername);
 
 
 //**************************** http://localhost:3001/upload-film 
+const { PassThrough } = require('stream');
+const streamifier = require('streamifier');
+const transcodeVideoToBuffer = (inputBuffer, resolution) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    const inputStream = streamifier.createReadStream(inputBuffer);
 
+    const proc = ffmpeg(inputStream)
+      .inputFormat("mp4")
+      .videoCodec("libx264")
+      .audioCodec("aac")
+      .size(`${resolution}x?`)
+      .format("mp4")
+      .outputOptions("-movflags", "frag_keyframe+empty_moov")
+      .on("start", (cmd) => {
+     //   console.log(" FFmpeg started with command:", cmd);
+      })
+      .on("stderr", (stderrLine) => {
+        console.log("📺 FFmpeg stderr:", stderrLine);
+      })
+      .on("error", (err, stdout, stderr) => {
+       // console.error(" Transcoding error:", err.message);
+        //console.error("FFmpeg stdout:", stdout);
+       // console.error("FFmpeg stderr:", stderr);
+        reject(err);
+      })
+      .on("end", () => {
+      //  console.log(" Transcoding finished");
+        resolve(Buffer.concat(chunks));
+      })
+      .pipe();
+
+    proc.on("data", (chunk) => chunks.push(chunk));
+  });
+};
 
 
 
@@ -367,7 +401,7 @@ app.post('/upload-film', upload.fields([{ name: 'Film' }, { name: 'Poster' }]), 
     }
 
     const releaseDate = new Date().toISOString().split('T')[0];
-console.log(Uploader)
+//console.log(Uploader)
     const { data: insertData, error: insertError } = await supabase
       .from('films')
       .insert([{
@@ -390,20 +424,53 @@ console.log(Uploader)
     const uuid = film.film_uuid;
     const filmFileName = `${uuid}.mp4`;
     const posterFileName = `${uuid}.jpg`;
+   // console.log(" Film mimetype:", filmFile.mimetype);
+//console.log(" Film original name:", filmFile.originalname);
+//console.log(" Buffer length:", filmFile.buffer.length);
+    //transcode video
+const transcodedBuffer480 = await transcodeVideoToBuffer(filmFile.buffer, "480");
 
     // Upload Film
-    const { error: filmUploadError } = await supabase.storage
-      .from('films')
-      .upload(filmFileName, filmFile.buffer, {
+    const { error: filmUploadError480 } = await supabase.storage
+      .from('films.480p')
+      .upload(filmFileName, transcodedBuffer480, {
         contentType: filmFile.mimetype,
         upsert: true,
       });
 
-    if (filmUploadError) {
-      console.error('Film upload failed:', filmUploadError.message);
+    if (filmUploadError480) {
+      console.error('Film upload failed:', filmUploadError480.message);
       return res.status(500).send('Failed to upload film file');
     }
+    //transcode video
+const transcodedBuffer720 = await transcodeVideoToBuffer(filmFile.buffer, "720");
 
+    // Upload Film
+    const { error: filmUploadError720 } = await supabase.storage
+      .from('films.720p')
+      .upload(filmFileName, transcodedBuffer720, {
+        contentType: filmFile.mimetype,
+        upsert: true,
+      });
+
+    if (filmUploadError720) {
+      console.error('Film upload failed:', filmUploadError720.message);
+      return res.status(500).send('Failed to upload film file');
+    }    //transcode video
+const transcodedBuffer1080 = await transcodeVideoToBuffer(filmFile.buffer, "1080");
+
+    // Upload Film
+    const { error: filmUploadError1080 } = await supabase.storage
+      .from('films.1080p')
+      .upload(filmFileName, transcodedBuffer1080, {
+        contentType: filmFile.mimetype,
+        upsert: true,
+      });
+
+    if (filmUploadError1080) {
+      console.error('Film upload failed:', filmUploadError1080.message);
+      return res.status(500).send('Failed to upload film file');
+    }
     // Upload Poster
     const { error: posterUploadError } = await supabase.storage
       .from('posters')
@@ -416,8 +483,7 @@ console.log(Uploader)
       console.error('Poster upload failed:', posterUploadError.message);
       return res.status(500).send('Failed to upload poster');
     }
-const streamifier = require('streamifier');
-const ffmpeg = require('fluent-ffmpeg');
+
 
 const filmBuffer = req.files.Film[0].buffer;
 const filmStream = streamifier.createReadStream(filmBuffer);
@@ -483,7 +549,7 @@ app.post("/editfilm", upload.single("Poster"), async (req, res) => {
   try {
     // If a new poster is uploaded
     if (file) {
-      console.log("Uploading new poster:", file.originalname, file.size);
+      //console.log("Uploading new poster:", file.originalname, file.size);
 
       // Optional: Remove old file if needed
       await supabase.storage
@@ -522,6 +588,7 @@ app.post("/editfilm", upload.single("Poster"), async (req, res) => {
       return res.status(500).send("Failed to update film info");
     }
 
+
     res.send("Film updated successfully!");
   } catch (err) {
     console.error("Unexpected server error:", err);
@@ -550,14 +617,15 @@ app.post("/deletefilm", async (req, res) => {
   res.json({ success: true });
 });
 
+
 //**************************** http://localhost:3001/Report
 const reporting = multer();
 app.post('/Report', reporting.none(), async (req, res) => {
   const email = req.body.email;
   const reportType = req.body.reportType;
   const report = req.body.report;
-   const film_id =Number(req.body.film_id)
-  console.log(email, report);
+   const film_id =req.body.film_id
+//  console.log(email, report,film_id);
 
   // Supabase new report into 'film_reports'
   const { data, error } = await supabase
@@ -581,44 +649,21 @@ app.post('/Report', reporting.none(), async (req, res) => {
 //**************************** http://localhost:3001/Report done
 
 //**************************** http://localhost:3001/Review
-app.post('/addthought', reporting.none(), async (req, res) => {
-  const Rating = req.body.rating;
-  const Comment = req.body.comment;
-    const id =Number(req.body.id);
-console.log(id);
 
-  const { data, error } = await supabase
-    .from('thoughts')
-    .insert([
-      {
-        comment: Comment,
-        reviewer_id: 0, // Placeholder ID
-        reviewed_id: id, // Placeholder ID
-        rating: Rating,
-      }
-    ]);
-
-  if (error) {
-    console.error(error);
-    return res.status(500).send("Database error: " + error.message);
-  }
-
-  res.status(200).send("thought submitted successfully!");
-});
 app.post('/addthoughtv1', reporting.none(), async (req, res) => {
   const Rating = req.body.rating;
   const Comment = req.body.comment;
     const id =Number(req.body.id);
     const thinker_id= Number(req.body.user_id);
-console.log(id);
+//console.log(id);
 
   const { data, error } = await supabase
     .from('thoughtsv1')
     .insert([
       {
         comment: Comment,
-        user_id: thinker_id, 
-       film_id: id, 
+        auth_id: thinker_id, 
+       film_uuid: id, 
         rating: Rating,
       }
     ]);
@@ -634,7 +679,7 @@ app.post('/replies', reporting.none(), async (req, res) => {
     //const Rating = req.body.rating;
     const Comment = req.body.comment;
     const comment_id =Number(req.body.comment_id);
-        const replier_id =Number(req.body.user_id);
+        const replier_id =req.body.user_id;
 
     //console.log("called");
   const { data, error } = await supabase
@@ -642,7 +687,7 @@ app.post('/replies', reporting.none(), async (req, res) => {
     .insert([
       {
         comment: Comment,
-        user_id:replier_id,
+        auth_id:replier_id,
        thought_id: comment_id, // Placeholder ID
       
       }
@@ -658,20 +703,113 @@ app.post('/replies', reporting.none(), async (req, res) => {
 //**************************** http://localhost:3001/Review done
 
 
-app.get('/filmssdata', async (req, res) => {
+
+//**************************** http://localhost:3001/searcQuery
+app.get('/searchQuery', async (req, res) => {
   const offset = parseInt(req.query.offset || 0);
   const limit = parseInt(req.query.limit || 5);
+  const searchInput = req.query.query;
   try {
     const { data, error } = await supabase
   .from('films')
-  .select('film_id, film_title, thesis, film_genre, avg_rating, poster_path')
+  .select('*')
+  .ilike("film_title", `${searchInput}%`)
+          .order("avg_rating", { ascending: false })
   .range(offset, offset + limit - 1);
 
 const normalized = data.map((film) => ({
   ...film,
   poster_path: film.poster_path?.replace(/\\/g, "/"),
 }));
-console.log(normalized)
+//console.log(normalized)
+res.json(normalized);
+  } catch (err) {
+    console.error("Unexpected server error:", err);
+    res.status(500).send("Unexpected server error");
+  }
+});
+//////////////
+//**************************** http://localhost:3001/searcQueryAccounts
+app.get('/searchQueryAccounts', async (req, res) => {
+  const offset = parseInt(req.query.offset || 0);
+  const limit = parseInt(req.query.limit || 5);
+  const searchInput = req.query.query;
+  try {
+    const { data, error } = await supabase
+  .from('users')
+  .select('*')
+  .ilike("username", `${searchInput}%`)
+          .order("sub_count", { ascending: false })
+  .range(offset, offset + limit - 1);
+
+const normalized = data.map((user) => ({
+  ...user,
+  pfp_path: user.pfp_path?.replace(/\\/g, "/"),
+}));
+//console.log(normalized)
+res.json(normalized);
+  } catch (err) {
+    console.error("Unexpected server error:", err);
+    res.status(500).send("Unexpected server error");
+  }
+});
+//**************************** http://localhost:3001/searcQueryPlaylists
+app.get('/searchQueryPlaylists', async (req, res) => {
+ // console.log("helooo");
+  const offset = parseInt(req.query.offset || 0);
+  const limit = parseInt(req.query.limit || 5);
+  const searchInput = req.query.query;
+  try {
+    const { data, error } = await supabase
+  .from('playlists')
+  .select(  `
+    playlist_uuid,
+    playlist_name,
+    is_public,
+    film_count,
+    creator:users!inner (
+      username,
+      pfp_path
+    ),
+    playlist_films:playlists_films (
+      film_index,
+      films (
+        film_uuid,
+        film_title,
+        poster_path,
+        release_date,
+        film_duration,
+        avg_rating
+      )
+    )
+  `)
+  .ilike("playlist_name", `${searchInput}%`).eq("is_public",true)
+        //  .order("sub_count", { ascending: false })
+  .range(offset, offset + limit - 1);
+
+
+//console.log(data)
+res.json(data);
+  } catch (err) {
+    console.error("Unexpected server error:", err);
+    res.status(500).send("Unexpected server error");
+  }
+});
+//////////////
+app.get('/filmssdata', async (req, res) => {
+  const offset = parseInt(req.query.offset || 0);
+  const limit = parseInt(req.query.limit || 5);
+  try {
+    const { data, error } = await supabase
+  .from('films')
+  .select('*')
+  .range(offset, offset + limit - 1);
+
+const normalized = data.map((film) => ({
+  ...film,
+  poster_path: film.poster_path?.replace(/\\/g, "/"),
+}));
+//console.log(normalized)
 res.json(normalized);
   } catch (err) {
     console.error("Unexpected server error:", err);
@@ -685,7 +823,7 @@ app.get('/filmssdata_map', async (req, res) => {
   const offset = parseInt(req.query.offset || 0);
   const limit = parseInt(req.query.limit || 5);
    const country = req.query.country;
-   console.log(country)
+   //console.log(country)
   try {
     const { data, error } = await supabase
   .from('films')
@@ -697,7 +835,7 @@ const normalized = data.map((film) => ({
   ...film,
   poster_path: film.poster_path?.replace(/\\/g, "/"),
 }));
-console.log(normalized)
+//console.log(normalized)
 res.json(normalized);
   } catch (err) {
     console.error("Unexpected server error:", err);
@@ -712,7 +850,7 @@ app.get('/latestfrom-profile', async (req, res) => {
   try {
     const { data, error } = await supabase
   .from('films')
-  .select('film_uuid, film_title, thesis, film_genre, avg_rating, poster_path, country, crew,cast,film_path')
+  .select('*')
  .eq('uploader_id', req.query.uploaderID)
     .order('release_date', { ascending: false })
   .range(offset, offset + limit - 1);
@@ -721,7 +859,7 @@ const normalized = data.map((film) => ({
   ...film,
   poster_path: film.poster_path?.replace(/\\/g, "/"),
 }));
-console.log(normalized)
+//console.log(normalized)
 res.json(normalized);
   } catch (err) {
     console.error("Unexpected server error:", err);
@@ -734,14 +872,14 @@ app.get('/thought',async(req,res)=>{
     const {data,error}= await supabase
       .from('thoughts')
       .select('*')
-      console.log(data)
+    //  console.log(data)
       res.status(200).send(data);
   }
   catch(err)
   {
     if(err)
     {
-      console.log("err");
+     // console.log("err");
       return;
     }
   }
@@ -767,7 +905,7 @@ app.get('/profile', async (req, res) => {
       return res.status(404).send('User not found');
     }
     else{
-        console.log("data")
+       // console.log("data")
     }
     // Return the user data as JSON
     res.json(data[0]);
@@ -784,14 +922,14 @@ app.get('/getuploader',async(req,res)=>{
       .from('users')
       .select('pfp_path,username')
       .eq('user_id', req.query.id);
-      console.log("yes: " + JSON.stringify(data))
+      //console.log("yes: " + JSON.stringify(data))
       res.status(200).send(data);
   }
   catch(err)
   {
     if(err)
     {
-      console.log("err");
+      //console.log("err");
       return;
     }
   }

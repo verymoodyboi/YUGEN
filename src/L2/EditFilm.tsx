@@ -18,6 +18,8 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Autocomplete,
+  CircularProgress,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
@@ -100,6 +102,50 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     }
     setOpenDelete(false);
   };
+  //mentions
+  const [crewPFP, setCrewPFP] = useState<any>("");
+  const [actorPFP, setActorPFP] = useState<any>("");
+
+  const [users, setUsers] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState<any>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      const fetchUsers = async () => {
+        if (!searchInput.trim()) {
+          setSearchResults([]);
+          return;
+        }
+
+        setLoadingUsers(true);
+
+        const { data, error } = await supabase
+          .from("users")
+          .select("username, pfp_path")
+          .ilike("username", `${searchInput}%`)
+          .limit(10);
+
+        if (error) {
+          console.error("User fetch error:", error);
+          setSearchResults([]);
+        } else {
+          const formatted = data.map((user) => ({
+            username: user.username,
+            pfp: user.pfp_path,
+          }));
+          setSearchResults(formatted);
+        }
+
+        setLoadingUsers(false);
+      };
+
+      fetchUsers();
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchInput]);
 
   //crop poster
   const MinWidth = 200;
@@ -244,7 +290,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       toast.warn("Role already added.");
       return;
     }
-    setCrewList((prev) => [...prev, { role: crewRole, name: crewName }]);
+    setCrewList((prev) => [
+      ...prev,
+      { role: crewRole, name: crewName, pfp: crewPFP },
+    ]);
     setCrewName("");
     setCrewRole("");
   };
@@ -254,7 +303,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       toast.warn("Please enter a character and an actor.");
       return;
     }
-    setCast((prev) => [...prev, { character, actor }]);
+    setCast((prev) => [...prev, { character, actor, pfp: actorPFP }]);
     setCharacter("");
     setActor("");
   };
@@ -549,12 +598,74 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                             ))}
                         </Select>
                       </FormControl>
-                      <TextField
-                        label="Name"
-                        value={crewName}
-                        onChange={(e) => setCrewName(e.target.value)}
+                      <Autocomplete
                         fullWidth
+                        options={searchResults}
+                        getOptionLabel={(option) => option.username}
+                        filterOptions={(x) => x}
+                        loading={loadingUsers}
+                        onInputChange={(e, value) => setSearchInput(value)}
+                        onChange={(event, selectedUser) => {
+                          if (selectedUser) {
+                            setCrewName(selectedUser.username);
+                            setCrewPFP(selectedUser.pfp);
+                          } else {
+                            setCrewName("");
+                            setCrewPFP("");
+                          }
+                        }}
+                        renderOption={(props, option) => (
+                          <Box
+                            component="li"
+                            {...props}
+                            display="flex"
+                            alignItems="center"
+                          >
+                            <Avatar
+                              src={
+                                supabase.storage
+                                  .from("pfps")
+                                  .getPublicUrl(option.pfp).data.publicUrl
+                              }
+                              alt={option.username}
+                              sx={{ width: 24, height: 24, mr: 1 }}
+                            />
+                            @{option.username}
+                          </Box>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select User"
+                            placeholder="Start typing a username..."
+                            InputProps={{
+                              ...params.InputProps,
+                              endAdornment: (
+                                <>
+                                  {loadingUsers ? (
+                                    <CircularProgress size={16} />
+                                  ) : null}
+                                  {params.InputProps.endAdornment}
+                                </>
+                              ),
+                            }}
+                          />
+                        )}
+                        value={
+                          crewName
+                            ? searchResults.find(
+                                (u) => u.username === crewName
+                              ) || {
+                                username: crewName,
+                                pfp: crewPFP,
+                              }
+                            : null
+                        }
+                        isOptionEqualToValue={(option, value) =>
+                          option.username === value.username
+                        }
                       />
+
                       <Button
                         variant="contained"
                         onClick={() => {
@@ -570,7 +681,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                           }
                           setCrewList((prev) => [
                             ...prev,
-                            { role: crewRole, name: crewName },
+                            { role: crewRole, name: crewName, pfp: crewPFP },
                           ]);
                           setCrewName("");
                           setCrewRole("");
@@ -579,7 +690,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                         Add
                       </Button>
                     </Box>
-
                     <Box>
                       {crewList.map((member, idx) => (
                         <Box
@@ -594,8 +704,30 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                             borderRadius: "8px",
                           }}
                         >
-                          <strong>{member.role}</strong>:{" "}
-                          <span>{member.name}</span>
+                          <strong>{member.role}</strong>:
+                          <Box
+                            key={idx}
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                            sx={{
+                              background: "#f5f5f5",
+                              p: 1,
+                              mb: 1,
+                              borderRadius: "8px",
+                            }}
+                          >
+                            <Avatar
+                              src={
+                                supabase.storage
+                                  .from("pfps")
+                                  .getPublicUrl(member.pfp).data.publicUrl
+                              }
+                              alt={member.name}
+                              sx={{ width: 24, height: 24, mr: 1 }}
+                            />{" "}
+                            <span>{member.name}</span>
+                          </Box>
                           <Button
                             size="small"
                             color="error"
@@ -609,10 +741,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                           </Button>
                         </Box>
                       ))}
-                    </Box>
+                    </Box>{" "}
                   </Box>
 
-                  {/* Cast */}
+                  {/* Cast info */}
                   <Divider sx={{ my: 2 }}>Cast</Divider>
                   <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                     <TextField
@@ -621,11 +753,70 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                       onChange={(e) => setCharacter(e.target.value)}
                       fullWidth
                     />
-                    <TextField
-                      label="Actor"
-                      value={actor}
-                      onChange={(e) => setActor(e.target.value)}
+                    <Autocomplete
                       fullWidth
+                      options={searchResults}
+                      getOptionLabel={(option) => option.username}
+                      filterOptions={(x) => x}
+                      loading={loadingUsers}
+                      onInputChange={(e, value) => setSearchInput(value)}
+                      onChange={(event, selectedUser) => {
+                        if (selectedUser) {
+                          setActor(selectedUser.username);
+                          setActorPFP(selectedUser.pfp);
+                        } else {
+                          setActor("");
+                          setActorPFP("");
+                        }
+                      }}
+                      renderOption={(props, option) => (
+                        <Box
+                          component="li"
+                          {...props}
+                          display="flex"
+                          alignItems="center"
+                        >
+                          <Avatar
+                            src={
+                              supabase.storage
+                                .from("pfps")
+                                .getPublicUrl(option.pfp).data.publicUrl
+                            }
+                            alt={option.username}
+                            sx={{ width: 24, height: 24, mr: 1 }}
+                          />
+                          @{option.username}
+                        </Box>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select User"
+                          placeholder="Start typing a username..."
+                          InputProps={{
+                            ...params.InputProps,
+                            endAdornment: (
+                              <>
+                                {loadingUsers ? (
+                                  <CircularProgress size={16} />
+                                ) : null}
+                                {params.InputProps.endAdornment}
+                              </>
+                            ),
+                          }}
+                        />
+                      )}
+                      value={
+                        crewName
+                          ? searchResults.find((u) => u.username === actor) || {
+                              username: actor,
+                              pfp: actorPFP,
+                            }
+                          : null
+                      }
+                      isOptionEqualToValue={(option, value) =>
+                        option.username === value.username
+                      }
                     />
                     <Button variant="contained" onClick={handleAddCast}>
                       Add
@@ -635,19 +826,40 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                     {cast.map((member, idx) => (
                       <Box
                         key={idx}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
                         sx={{
                           background: "#f5f5f5",
                           p: 1,
                           mb: 1,
                           borderRadius: "8px",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
                         }}
                       >
-                        <Typography>
-                          <strong>{member.character}</strong>: {member.actor}
-                        </Typography>
+                        <strong>{member.character}</strong>:{" "}
+                        <Box
+                          key={idx}
+                          display="flex"
+                          justifyContent="center"
+                          alignItems="center"
+                          sx={{
+                            background: "#f5f5f5",
+                            p: 1,
+                            mb: 1,
+                            borderRadius: "8px",
+                          }}
+                        >
+                          <Avatar
+                            src={
+                              supabase.storage
+                                .from("pfps")
+                                .getPublicUrl(member.pfp).data.publicUrl
+                            }
+                            alt={member.actor}
+                            sx={{ width: 24, height: 24, mr: 1 }}
+                          />{" "}
+                          <span>{member.actor}</span>
+                        </Box>
                         <Button
                           size="small"
                           color="error"

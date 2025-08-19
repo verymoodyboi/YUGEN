@@ -1,5 +1,6 @@
 import "../App.css";
 import { useState, useEffect, useRef } from "react";
+import supabase from "../server/config";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,6 +23,9 @@ import {
   DialogTitle,
   Avatar,
   Typography,
+  CircularProgress,
+  Autocomplete,
+  Popper,
 } from "@mui/material";
 import DoneOutlineIcon from "@mui/icons-material/DoneOutline";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -61,12 +65,58 @@ const UploadForm: React.FC = () => {
   const [genres, setGenres] = useState<any>([]);
   const [activeStep, setActiveStep] = useState(0);
   const [crewName, setCrewName] = useState<any>("");
+  const [crewPFP, setCrewPFP] = useState<any>("");
   const [crewRole, setCrewRole] = useState<any>("");
   const [crewList, setCrewList] = useState<any[]>([]);
   const [actor, setActor] = useState<any>("");
+  const [actorPFP, setActorPFP] = useState<any>("");
   const [character, setCharacter] = useState<any>("");
   const [cast, setCast] = useState<any[]>([]);
   const [isSubmit, setisSubmit] = useState(false);
+
+  //mentions
+
+  const [users, setUsers] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState<any>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      const fetchUsers = async () => {
+        if (!searchInput.trim()) {
+          setSearchResults([]);
+          return;
+        }
+
+        setLoadingUsers(true);
+
+        const { data, error } = await supabase
+          .from("users")
+          .select("username, pfp_path") // ❌ no auth_id
+          .ilike("username", `${searchInput}%`)
+          .limit(10);
+
+        if (error) {
+          console.error("User fetch error:", error);
+          setSearchResults([]);
+        } else {
+          const formatted = data.map((user) => ({
+            username: user.username,
+            pfp: user.pfp_path,
+          }));
+          setSearchResults(formatted);
+        }
+
+        setLoadingUsers(false);
+      };
+
+      fetchUsers();
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchInput]);
+
   //crop poster
   const MinWidth = 200;
   const MinHeight = 300;
@@ -78,6 +128,7 @@ const UploadForm: React.FC = () => {
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const onPFPload = (e) => {
     const { naturalWidth, naturalHeight } = e.currentTarget;
     if (naturalWidth < MinWidth || naturalHeight < MinHeight) {
@@ -167,7 +218,7 @@ const UploadForm: React.FC = () => {
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
   const handleSubmit = async () => {
-    alert("yes");
+    setisSubmit(true);
     const formData = new FormData();
 
     formData.append("Uploader", user.auth_id);
@@ -189,7 +240,6 @@ const UploadForm: React.FC = () => {
       toast("Upload complete!");
     } catch (error) {
       toast.error("Upload failed!" + error);
-      setisSubmit(false);
     }
   };
 
@@ -232,6 +282,20 @@ const UploadForm: React.FC = () => {
         <Typography variant="h5">
           Go back to <a href="/">home page</a> to continue exploring? or go to
           your<a href="Profile">profile</a> to watch your film!
+        </Typography>
+      </Box>
+    );
+  }
+  if (isSubmit) {
+    return (
+      <Box
+        className="centered-box-v-blurred"
+        sx={{ display: "flex", flexDirection: "column", gap: 4 }}
+      >
+        <CircularProgress sx={{ fontSize: 100 }}></CircularProgress>
+        <Typography variant="h4">Your film is being uploaded...</Typography>
+        <Typography variant="h5">
+          Please do not leave this page, this might take a few minutes.
         </Typography>
       </Box>
     );
@@ -506,12 +570,74 @@ const UploadForm: React.FC = () => {
                         ))}
                     </Select>
                   </FormControl>
-                  <TextField
-                    label="Name"
-                    value={crewName}
-                    onChange={(e) => setCrewName(e.target.value)}
+                  <Autocomplete
                     fullWidth
+                    options={searchResults}
+                    getOptionLabel={(option) => option.username}
+                    filterOptions={(x) => x}
+                    loading={loadingUsers}
+                    onInputChange={(e, value) => setSearchInput(value)}
+                    onChange={(event, selectedUser) => {
+                      if (selectedUser) {
+                        setCrewName(selectedUser.username);
+                        setCrewPFP(selectedUser.pfp);
+                      } else {
+                        setCrewName("");
+                        setCrewPFP("");
+                      }
+                    }}
+                    renderOption={(props, option) => (
+                      <Box
+                        component="li"
+                        {...props}
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <Avatar
+                          src={
+                            supabase.storage
+                              .from("pfps")
+                              .getPublicUrl(option.pfp).data.publicUrl
+                          }
+                          alt={option.username}
+                          sx={{ width: 24, height: 24, mr: 1 }}
+                        />
+                        @{option.username}
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select User"
+                        placeholder="Start typing a username..."
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loadingUsers ? (
+                                <CircularProgress size={16} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                    value={
+                      crewName
+                        ? searchResults.find(
+                            (u) => u.username === crewName
+                          ) || {
+                            username: crewName,
+                            pfp: crewPFP,
+                          }
+                        : null
+                    }
+                    isOptionEqualToValue={(option, value) =>
+                      option.username === value.username
+                    }
                   />
+
                   <Button
                     variant="contained"
                     onClick={() => {
@@ -525,10 +651,11 @@ const UploadForm: React.FC = () => {
                       }
                       setCrewList((prev) => [
                         ...prev,
-                        { role: crewRole, name: crewName },
+                        { role: crewRole, name: crewName, pfp: crewPFP },
                       ]);
                       setCrewName("");
                       setCrewRole("");
+                      setCrewPFP("");
                     }}
                   >
                     Add
@@ -550,7 +677,30 @@ const UploadForm: React.FC = () => {
                         borderRadius: "8px",
                       }}
                     >
-                      <strong>{member.role}</strong>: <span>{member.name}</span>
+                      <strong>{member.role}</strong>:
+                      <Box
+                        key={idx}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        sx={{
+                          background: "#f5f5f5",
+                          p: 1,
+                          mb: 1,
+                          borderRadius: "8px",
+                        }}
+                      >
+                        <Avatar
+                          src={
+                            supabase.storage
+                              .from("pfps")
+                              .getPublicUrl(member.pfp).data.publicUrl
+                          }
+                          alt={member.name}
+                          sx={{ width: 24, height: 24, mr: 1 }}
+                        />{" "}
+                        <span>{member.name}</span>
+                      </Box>
                       <Button
                         size="small"
                         color="error"
@@ -585,11 +735,70 @@ const UploadForm: React.FC = () => {
                     onChange={(e) => setCharacter(e.target.value)}
                     fullWidth
                   />
-                  <TextField
-                    label="Actor"
-                    value={actor}
-                    onChange={(e) => setActor(e.target.value)}
+                  <Autocomplete
                     fullWidth
+                    options={searchResults}
+                    getOptionLabel={(option) => option.username}
+                    filterOptions={(x) => x}
+                    loading={loadingUsers}
+                    onInputChange={(e, value) => setSearchInput(value)}
+                    onChange={(event, selectedUser) => {
+                      if (selectedUser) {
+                        setActor(selectedUser.username);
+                        setActorPFP(selectedUser.pfp);
+                      } else {
+                        setActor("");
+                        setActorPFP("");
+                      }
+                    }}
+                    renderOption={(props, option) => (
+                      <Box
+                        component="li"
+                        {...props}
+                        display="flex"
+                        alignItems="center"
+                      >
+                        <Avatar
+                          src={
+                            supabase.storage
+                              .from("pfps")
+                              .getPublicUrl(option.pfp).data.publicUrl
+                          }
+                          alt={option.username}
+                          sx={{ width: 24, height: 24, mr: 1 }}
+                        />
+                        @{option.username}
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select User"
+                        placeholder="Start typing a username..."
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <>
+                              {loadingUsers ? (
+                                <CircularProgress size={16} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                    value={
+                      crewName
+                        ? searchResults.find((u) => u.username === actor) || {
+                            username: actor,
+                            pfp: actorPFP,
+                          }
+                        : null
+                    }
+                    isOptionEqualToValue={(option, value) =>
+                      option.username === value.username
+                    }
                   />
                   <Button
                     variant="contained"
@@ -603,7 +812,7 @@ const UploadForm: React.FC = () => {
 
                       setCast((prev) => [
                         ...prev,
-                        { character: character, actor: actor },
+                        { character: character, actor: actor, pfp: actorPFP },
                       ]);
                       setCharacter("");
                       setActor("");
@@ -628,7 +837,29 @@ const UploadForm: React.FC = () => {
                       }}
                     >
                       <strong>{member.character}</strong>:{" "}
-                      <span>{member.actor}</span>
+                      <Box
+                        key={idx}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                        sx={{
+                          background: "#f5f5f5",
+                          p: 1,
+                          mb: 1,
+                          borderRadius: "8px",
+                        }}
+                      >
+                        <Avatar
+                          src={
+                            supabase.storage
+                              .from("pfps")
+                              .getPublicUrl(member.pfp).data.publicUrl
+                          }
+                          alt={member.actor}
+                          sx={{ width: 24, height: 24, mr: 1 }}
+                        />{" "}
+                        <span>{member.actor}</span>
+                      </Box>
                       <Button
                         size="small"
                         color="error"

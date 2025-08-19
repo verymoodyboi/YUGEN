@@ -1,4 +1,5 @@
 import "../App.css";
+import { useAuth } from "../contexts/AuthContext";
 import { useState, useEffect } from "react";
 import supabase from "../server/config";
 import { TextField, Button } from "@mui/material";
@@ -6,17 +7,14 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ConfigProvider, Rate } from "antd";
 import axios from "axios";
+import { use } from "video.js/dist/types/tech/middleware";
 
 interface targetFilm {
   id: number;
-  userInfo?: any;
   onSubmitSuccess?: () => void;
 }
-const ReviewForm: React.FC<targetFilm> = ({
-  id,
-  userInfo,
-  onSubmitSuccess,
-}) => {
+const ReviewForm: React.FC<targetFilm> = ({ id, onSubmitSuccess }) => {
+  const { userInfo } = useAuth();
   const [isSubmit, setIsSubmit] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number>(0);
@@ -40,8 +38,8 @@ const ReviewForm: React.FC<targetFilm> = ({
       formData.append("rating", rating.toString());
       formData.append("comment", comment);
       formData.append("id", id.toString());
-      formData.append("user_id", userInfo.user_id.toString());
-      axios.post("http://localhost:3001/addthought", formData);
+      formData.append("user_id", userInfo.auth_id.toString());
+      // axios.post("http://localhost:3001/addthought", formData);
       axios.post("http://localhost:3001/addthoughtv1", formData);
     } catch (error: any) {
       if (error) {

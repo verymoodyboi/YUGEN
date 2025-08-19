@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } = await supabase.auth.getUser();
     setUser(user);
     const displayName = user?.user_metadata?.display_name;
-    console.log("Display Name:", displayName);
+    // console.log("Display Name:", displayName);
     if (user) {
       const { data, error } = await supabase
         .from("users")
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .single();
       if (!error) {
         setUserInfo(data);
-        console.log("User data loaded:", data);
+        // console.log("User data loaded:", data);
       } else {
         console.error("Error loading user profile:", error);
       }

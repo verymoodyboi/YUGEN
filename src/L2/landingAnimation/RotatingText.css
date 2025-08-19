@@ -1,0 +1,57 @@
+.text-rotate {
+  display: flex;
+  flex-wrap: wrap;
+  white-space: nowrap;
+  position: relative;
+    transition: width 0.5s ease, height 0.5s ease;
+
+  
+}
+
+.text-rotate-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+    
+
+ 
+}
+
+.text-rotate-word {
+  display: inline-block;
+  font-size: 50px;
+  color: aliceblue;
+background: linear-gradient(
+  rgba(188, 171, 177, 0.5), /* #bcabb1 with 80% opacity */
+  rgba(156, 213, 172, 0.5)  /* #9cd5ac with 80% opacity */
+);
+backdrop-filter: blur(5px);
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.5s ease, height 0.5s ease;
+
+}
+
+.text-rotate-lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-rotate-element {
+  display: inline-block;
+}
+
+.text-rotate-space {
+  white-space: pre;
+}
+.text-rotate-inner {
+  display: inline-block;
+  transition: all 0.5s ease;
+}

@@ -1,4 +1,5 @@
 import "../App.css";
+import { useAuth } from "../contexts/AuthContext";
 import React, { useEffect, useState } from "react";
 import supabase from "../server/config";
 import {
@@ -59,17 +60,12 @@ interface ThoughtReply {
 
 interface ThoughtsProps {
   filmId: number;
-  userId: number | null; // null if user is not logged in
   refreshKey?: number;
-  userInfo: any;
 }
 
-const Thoughts: React.FC<ThoughtsProps> = ({
-  filmId,
-  userId,
-  refreshKey,
-  userInfo,
-}) => {
+const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
+  const { userInfo } = useAuth();
+
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [newRating, setNewRating] = useState<number | null>(null);
   const [newComment, setNewComment] = useState("");
@@ -123,13 +119,43 @@ const Thoughts: React.FC<ThoughtsProps> = ({
           user:users(username, pfp_path),
           replies:thought_replies(
             *,
-            user:users(username, pfp_path)
-          )
+            user:users(username, pfp_path),
+                  reply_votes(vote_type, user_id)
+
+          ),
+            thought_votes(vote_type, user_id)
         `
         )
-        .eq("film_id", filmId)
+        .eq("film_uuid", filmId)
         .order("upvotes", { ascending: false });
+      const upvotes: { [key: number]: boolean } = {};
+      const downvotes: { [key: number]: boolean } = {};
 
+      for (const thought of data) {
+        const voteRecord = thought.thought_votes?.find(
+          (v: any) => v.user_id === userInfo.auth_id
+        );
+        if (voteRecord?.vote_type === "up") upvotes[thought.id] = true;
+        if (voteRecord?.vote_type === "down") downvotes[thought.id] = true;
+        const upvoteMap: { [key: number]: boolean } = {};
+        const downvoteMap: { [key: number]: boolean } = {};
+
+        data.forEach((thought: any) => {
+          thought.replies?.forEach((reply: any) => {
+            const vote = reply.reply_votes?.find(
+              (v: any) => v.user_id === userInfo.auth_id
+            );
+            if (vote?.vote_type === "up") upvoteMap[reply.id] = true;
+            if (vote?.vote_type === "down") downvoteMap[reply.id] = true;
+          });
+        });
+
+        setUpvoteReplies(upvoteMap);
+        setDownvoteReplies(downvoteMap);
+      }
+
+      setUpvote(upvotes);
+      setDownvote(downvotes);
       if (error) throw error;
       setThoughts(data || []);
     } catch (error) {
@@ -139,7 +165,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({
   };
 
   const handleSubmitThought = async () => {
-    if (!userId) {
+    if (!userInfo) {
       toast.warn("Please log in to share your thoughts");
       return;
     }
@@ -150,10 +176,10 @@ const Thoughts: React.FC<ThoughtsProps> = ({
     }
 
     try {
-      const { error } = await supabase.from("thoughts").insert([
+      const { error } = await supabase.from("thoughtsv1").insert([
         {
-          film_id: filmId,
-          user_id: userId,
+          film_uuid: filmId,
+          auth_id: userInfo.auth_id,
           rating: newRating,
           comment: newComment.trim() || null,
         },
@@ -209,6 +235,42 @@ const Thoughts: React.FC<ThoughtsProps> = ({
         console.error("Remove upvote error", error);
       }
     }
+    //votes table
+    const { data: existingVote } = await supabase
+      .from("thought_votes")
+      .select("vote_type")
+      .eq("thought_id", thoughtId)
+      .eq("user_id", userInfo.auth_id)
+      .single();
+
+    if (existingVote?.vote_type === "up") {
+      // Remove upvote
+      await supabase
+        .from("thought_votes")
+        .delete()
+        .eq("thought_id", thoughtId)
+        .eq("user_id", userInfo.auth_id);
+    } else {
+      // Insert or update to upvote
+      if (existingVote?.vote_type === "down") {
+        await supabase
+          .from("thought_votes")
+          .update({
+            thought_id: thoughtId,
+            user_id: userInfo.auth_id,
+            vote_type: "up",
+          })
+          .eq("thought_id", thoughtId)
+          .eq("user_id", userInfo.auth_id);
+      } else {
+        await supabase.from("thought_votes").insert({
+          thought_id: thoughtId,
+          user_id: userInfo.auth_id,
+          vote_type: "up",
+        });
+      }
+    }
+    fetchThoughts();
   };
 
   const handleDownVote = async (thoughtId: number) => {
@@ -233,6 +295,43 @@ const Thoughts: React.FC<ThoughtsProps> = ({
         console.error("Remove downvote error", error);
       }
     }
+    // votes table
+    const { data: existingVote } = await supabase
+      .from("thought_votes")
+      .select("vote_type")
+      .eq("thought_id", thoughtId)
+      .eq("user_id", userInfo.auth_id)
+      .single();
+
+    if (existingVote?.vote_type === "down") {
+      // User already downvoted → remove downvote
+      await supabase
+        .from("thought_votes")
+        .delete()
+        .eq("thought_id", thoughtId)
+        .eq("user_id", userInfo.auth_id);
+    } else {
+      // If previously upvoted → remove upvote
+      if (existingVote?.vote_type === "up") {
+        // Insert or update to downvote
+        await supabase
+          .from("thought_votes")
+          .update({
+            thought_id: thoughtId,
+            user_id: userInfo.auth_id,
+            vote_type: "down",
+          })
+          .eq("thought_id", thoughtId)
+          .eq("user_id", userInfo.auth_id);
+      } else {
+        await supabase.from("thought_votes").insert({
+          thought_id: thoughtId,
+          user_id: userInfo.auth_id,
+          vote_type: "down",
+        });
+      }
+    }
+    fetchThoughts();
   };
   const handleUpVoteReply = async (replyId: number) => {
     const isUpvoted = upvoteReplies[replyId];
@@ -256,6 +355,42 @@ const Thoughts: React.FC<ThoughtsProps> = ({
         console.error("Remove reply upvote error", error);
       }
     }
+    const { data: existingVote } = await supabase
+      .from("reply_votes")
+      .select("vote_type")
+      .eq("reply_id", replyId)
+      .eq("user_id", userInfo.auth_id)
+      .single();
+
+    if (existingVote?.vote_type === "up") {
+      // Remove upvote
+      await supabase
+        .from("reply_votes")
+        .delete()
+        .eq("reply_id", replyId)
+        .eq("user_id", userInfo.auth_id);
+    } else {
+      // Remove downvote if exists
+      if (existingVote?.vote_type === "down") {
+        await supabase
+          .from("reply_votes")
+          .update({
+            reply_id: replyId,
+            user_id: userInfo.auth_id,
+            vote_type: "up",
+          })
+          .eq("reply_id", replyId)
+          .eq("user_id", userInfo.auth_id);
+      } else {
+        await supabase.from("reply_votes").insert({
+          reply_id: replyId,
+          user_id: userInfo.auth_id,
+          vote_type: "up",
+        });
+      }
+    }
+
+    fetchThoughts();
   };
   const handleDownVoteReply = async (replyId: number) => {
     const isDownvoted = downvoteReplies[replyId];
@@ -279,6 +414,42 @@ const Thoughts: React.FC<ThoughtsProps> = ({
         console.error("Remove reply downvote error", error);
       }
     }
+    const { data: existingVote } = await supabase
+      .from("reply_votes")
+      .select("vote_type")
+      .eq("reply_id", replyId)
+      .eq("user_id", userInfo.auth_id)
+      .single();
+
+    if (existingVote?.vote_type === "down") {
+      // Remove downvote
+      await supabase
+        .from("reply_votes")
+        .delete()
+        .eq("reply_id", replyId)
+        .eq("user_id", userInfo.auth_id);
+    } else {
+      // Remove upvote if exists
+      if (existingVote?.vote_type === "up") {
+        await supabase
+          .from("reply_votes")
+          .update({
+            reply_id: replyId,
+            user_id: userInfo.auth_id,
+            vote_type: "down",
+          })
+          .eq("reply_id", replyId)
+          .eq("user_id", userInfo.auth_id);
+      } else {
+        await supabase.from("reply_votes").insert({
+          reply_id: replyId,
+          user_id: userInfo.auth_id,
+          vote_type: "down",
+        });
+      }
+    }
+
+    fetchThoughts();
   };
 
   const handleDeleteReply = async (replyID: number) => {
@@ -303,9 +474,10 @@ const Thoughts: React.FC<ThoughtsProps> = ({
       <h2>Thoughts</h2>
 
       {/* New Thought Form */}
-      {userId && (
+      {userInfo && (
         <div className="new-thought-form">
           <MuiRating
+            max={10}
             value={newRating}
             onChange={(_, value) => setNewRating(value)}
             size="large"
@@ -344,7 +516,12 @@ const Thoughts: React.FC<ThoughtsProps> = ({
               author={thought.user.username}
               avatar={
                 <Avatar
-                  src={`http://localhost:3001/uploads/pfp/${thought.user.pfp_path}`}
+                  //src={`http://localhost:3001/uploads/pfp/${thought.user.pfp_path}`}
+                  src={
+                    supabase.storage
+                      .from("pfps")
+                      .getPublicUrl(thought.user.pfp_path).data.publicUrl
+                  }
                   icon={!thought.user.pfp_path && <UserOutlined />}
                 />
               }
@@ -361,7 +538,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({
                     <IconButton>
                       <ThumbUpIcon style={{ marginRight: 4 }} />{" "}
                       <CartBadge
-                        badgeContent={thought.upvotes + 1}
+                        badgeContent={thought.upvotes}
                         color="primary"
                         overlap="circular"
                       />
@@ -383,7 +560,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({
                     <IconButton>
                       <ThumbDownAltIcon style={{ marginRight: 4 }} />{" "}
                       <CartBadge
-                        badgeContent={thought.downvotes + 1}
+                        badgeContent={thought.downvotes}
                         color="primary"
                         overlap="circular"
                       />
@@ -486,8 +663,8 @@ const Thoughts: React.FC<ThoughtsProps> = ({
                   onSubmitSuccess={() => {
                     setLocalRefreshKey((prev) => prev + 1);
                     setOpen(false);
+                    fetchThoughts();
                   }}
-                  userInfo={userInfo}
                 />
               </Box>
             </Dialog>
@@ -525,7 +702,12 @@ const Thoughts: React.FC<ThoughtsProps> = ({
                         author={reply.user.username}
                         avatar={
                           <Avatar
-                            src={`http://localhost:3001/uploads/pfp/${reply.user.pfp_path}`}
+                            src={
+                              supabase.storage
+                                .from("pfps")
+                                .getPublicUrl(reply.user.pfp_path).data
+                                .publicUrl
+                            }
                             icon={<UserOutlined />}
                           />
                         }
@@ -539,9 +721,23 @@ const Thoughts: React.FC<ThoughtsProps> = ({
                             onClick={() => handleUpVoteReply(reply.id)}
                           >
                             {upvoteReplies[reply.id] ? (
-                              <ThumbUpIcon style={{ marginRight: 4 }} />
+                              <IconButton>
+                                <ThumbUpIcon style={{ marginRight: 4 }} />
+                                <CartBadge
+                                  badgeContent={reply.upvotes}
+                                  color="primary"
+                                  overlap="circular"
+                                />
+                              </IconButton>
                             ) : (
-                              <ThumbUpOffAltIcon style={{ marginRight: 4 }} />
+                              <IconButton>
+                                <ThumbUpOffAltIcon style={{ marginRight: 4 }} />
+                                <CartBadge
+                                  badgeContent={reply.upvotes}
+                                  color="primary"
+                                  overlap="circular"
+                                />
+                              </IconButton>
                             )}
                           </span>,
 
@@ -550,9 +746,25 @@ const Thoughts: React.FC<ThoughtsProps> = ({
                             onClick={() => handleDownVoteReply(reply.id)}
                           >
                             {downvoteReplies[reply.id] ? (
-                              <ThumbDownAltIcon style={{ marginRight: 4 }} />
+                              <IconButton>
+                                <ThumbDownAltIcon style={{ marginRight: 4 }} />
+                                <CartBadge
+                                  badgeContent={reply.downvotes}
+                                  color="primary"
+                                  overlap="circular"
+                                />
+                              </IconButton>
                             ) : (
-                              <ThumbDownOffAltIcon style={{ marginRight: 4 }} />
+                              <IconButton>
+                                <ThumbDownOffAltIcon
+                                  style={{ marginRight: 4 }}
+                                />{" "}
+                                <CartBadge
+                                  badgeContent={reply.downvotes}
+                                  color="primary"
+                                  overlap="circular"
+                                />
+                              </IconButton>
                             )}
                             Downvote
                           </span>,
