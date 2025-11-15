@@ -3,7 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import { useRecommendations } from "../features/recommendations/hooks/useHomPage";
-import CustomLoading from "../L3/CutomsLoading";
+import CustomLoading from "../SmallComponents/CutomsLoading";
 
 const HomePage: React.FC = () => {
   const { userInfo } = useAuth();

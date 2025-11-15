@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import supabase from "../../../lib/supabaseClient";
 import { ToastContainer, toast } from "react-toastify";
-import CustomLoading from "../../../L3/CutomsLoading";
+import CustomLoading from "../../../SmallComponents/CutomsLoading";
 import "react-toastify/dist/ReactToastify.css";
-import ShinyText from "../../../L3/ShinyText";
-import FuzzyText from "../../../L3/FuzzyText";
-import Shuffle from "../../../L3/Shuffle";
+import ShinyText from "../../../SmallComponents/ShinyText";
+import FuzzyText from "../../../SmallComponents/FuzzyText";
+import Shuffle from "../../../SmallComponents/Shuffle";
 import TechnicalReportForm from "../../report/components/TechReport";
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";

@@ -2,7 +2,7 @@
 import React from "react";
 import AppLayout from "../../layouts/layout-main";
 import { useFlaggedFilms } from "../../features/admin/flagged_films/useFlaggedFilms";
-import CustomLoading from "../../L3/CutomsLoading";
+import CustomLoading from "../../SmallComponents/CutomsLoading";
 import { FiAlertCircle, FiTrash2, FiRotateCcw } from "react-icons/fi";
 import supabase from "../../lib/supabaseClient";
 

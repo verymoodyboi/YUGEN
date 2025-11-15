@@ -1,6 +1,6 @@
 // src/components/ErrorBoundary.tsx
 import React from "react";
-import FuzzyText from "../L3/FuzzyText";
+import FuzzyText from "../SmallComponents/FuzzyText";
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },

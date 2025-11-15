@@ -7,7 +7,7 @@ import AppLayout from "../layouts/layout-main";
 import Thoughts from "../features/thoughts/components/thoughts";
 import { useSimilarFilms } from "../features/recommendations/hooks/useSimilarFilms";
 import SimilarFilmCard from "../features/recommendations/components/recommendedFilmCard";
-import CustomLoading from "../L3/CutomsLoading";
+import CustomLoading from "../SmallComponents/CutomsLoading";
 
 const Watch: React.FC = () => {
   const [searchParams] = useSearchParams();

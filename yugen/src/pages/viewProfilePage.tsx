@@ -15,7 +15,7 @@ import supabase from "../lib/supabaseClient";
 import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import PlaylistCard from "../features/playlist/components/PlaylistCard";
-import CustomLoading from "../L3/CutomsLoading";
+import CustomLoading from "../SmallComponents/CutomsLoading";
 import { useViewProfile } from "../features/profile/hooks/useViewProfile";
 
 const AccProfile: React.FC = () => {

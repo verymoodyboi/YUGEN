@@ -3,7 +3,7 @@ import SearchBar from "../features/search/components/SearchBar";
 import supabase from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import logo from "../YugenAssits/Transparent long.png";
-import PillNav from "../L3/PillNav";
+import PillNav from "../SmallComponents/PillNav";
 import { useState, useRef, useEffect } from "react";
 
 function NavBar() {
