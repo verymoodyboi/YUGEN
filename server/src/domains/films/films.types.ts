@@ -1,0 +1,18 @@
+export interface FilmInsert {
+  film_uuid: string;
+  film_title: string;
+  thesis: string;
+  film_genre: any;
+  uploader_id: string;
+  country?: string;
+  crew?: any;
+  cast?: any;
+  film_path: string;
+  poster_path: string;
+  film_duration: string;
+  embedding: any;
+  moderation_status:string
+
+}
+
+export type FilmUpdate = Partial<Omit<FilmInsert, 'film_uuid' | 'uploader_id'>>;

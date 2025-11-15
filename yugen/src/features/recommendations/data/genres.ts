@@ -1,0 +1,15 @@
+export const GENRES = [
+  { id: "documentary", name: "Documentary", overview: "Explore stories from the real world through the lens of talented storytellers" },
+  { id: "horror", name: "Horror", overview: "Do not watch before going to bed" },
+  { id: "thriller", name: "Thriller", overview: "Will keep you at the edge of your seat" },
+  { id: "action", name: "Action", overview: "Fast paced, and full of thrill" },
+  { id: "comedy", name: "Comedy", overview: "Not that serious" },
+  { id: "romance", name: "Romance", overview: "Also known as sci-fi" },
+  { id: "sci-fi", name: "Sci-Fi", overview: "From interstellar travelling to dragons" },
+  { id: "animation", name: "Animation", overview: "When film and paintings collide" },
+  { id: "biography", name: "Biography", overview: "Tales of famous figures" },
+  { id: "musical", name: "Musical", overview: "When music and film collide" },
+  { id: "mystery", name: "Mystery", overview: "Remains unsolved" },
+  { id: "history", name: "History", overview: "From historical epics, to legends and myths" },
+  { id: "coming-of-age", name: "Coming of age", overview: "We live, and we learn." },
+];

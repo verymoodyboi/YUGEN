@@ -1,0 +1,53 @@
+@import url("https://fonts.googleapis.com/css2?family=Freckle+Face&display=swap");
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  font-family: "Freckle Face", system-ui;
+  font-weight: 400;
+  font-style: normal;
+  
+background-color: #ECFDF5;
+}
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+   overflow-y: hidden;
+   overflow-x: hidden;
+}
+.all-letters
+{
+  font-size: 20px;
+  color: #000000;
+  opacity:0.7;
+}
+
+/*general*/
+
+/* Webkit Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0fdfa; /* emerald-50 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #022c22; /* emerald-950 */
+  border-radius: 4px;
+  border: 1px solid #f0fdfa;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #064e3b; /* emerald-900 */
+}
+
+::-webkit-scrollbar-corner {
+  background: #f0fdfa;
+}
