@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import logo from "../../../YugenAssits/YugenLogoFINAL.svg";
 const HeroSection: React.FC = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
@@ -124,7 +124,11 @@ const HeroSection: React.FC = () => {
         style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
         className="transition-transform duration-150 ease-out"
       >
-        <img alt="Yugen Logo" className="w-40 h-auto" />
+        <img
+          alt="Yugen Logo"
+          className="w-40 h-auto"
+          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
+        />
       </div>
 
       {/* Title */}
