@@ -3,7 +3,7 @@ import {
   fetchFilmsByCountry,
   fetchCountryStats,
   getArtistsByCountry,
-} from "./globe.controller";
+} from "./globe.controller.js";
 
 const router = express.Router();
 

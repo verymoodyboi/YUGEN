@@ -34,8 +34,8 @@ const AccProfile: React.FC = () => {
     fetchNextPage,
     hasNextPage,
     myPlaylists,
-    userChallenges,
-    challengesLoading,
+    // userChallenges,
+    // challengesLoading,
     handleSubscribe,
     handleNotify,
   } = useViewProfile(username);
@@ -80,12 +80,12 @@ const AccProfile: React.FC = () => {
               <p className="flex items-center gap-2">
                 <FiGlobe /> {user?.region || "N/A"}
               </p>
-              {user?.academic_status && user.academic_status !== "pending" && (
+              {/* {user?.academic_status && user.academic_status !== "pending" && (
                 <p className="flex items-center gap-2 text-emerald-950">
                   <SchoolIcon fontSize="small" />
                   {user.academic_status}
                 </p>
-              )}
+              )} */}
 
               {/* Social Links */}
               <div className="flex gap-3 mt-2">
@@ -201,7 +201,7 @@ const AccProfile: React.FC = () => {
             )}
 
             <div>
-              {challengesLoading ? (
+              {/* {challengesLoading ? (
                 <CustomLoading />
               ) : (
                 <>
@@ -253,7 +253,7 @@ const AccProfile: React.FC = () => {
                     </>
                   )}
                 </>
-              )}
+              )} */}
             </div>
           </div>
         )}
@@ -272,11 +272,11 @@ const AccProfile: React.FC = () => {
               <FiVideo /> Films: {user?.films_count}
             </p>
             {user?.join_date && <p>Joined: {user.join_date}</p>}
-            {user?.academic_status && user.academic_status !== "pending" && (
+            {/* {user?.academic_status && user.academic_status !== "pending" && (
               <p>
                 <SchoolIcon fontSize="small" /> {user.academic_status}
               </p>
-            )}
+            )} */}
             <span className="opacity-80">Socials</span>
             <div className="flex items-center gap-3 justify-start max-w-full">
               {user?.youtube && (

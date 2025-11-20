@@ -21,10 +21,8 @@ const FooterSection: React.FC = () => {
   ];
 
   const socialLinks: SocialLink[] = [
-    { name: "Twitter", href: "#", icon: <FiTwitter /> },
     { name: "Instagram", href: "#", icon: <FiInstagram /> },
     { name: "YouTube", href: "#", icon: <FiYoutube /> },
-    { name: "Facebook", href: "#", icon: <FiFacebook /> },
   ];
   const [openContact, setOpenContact] = useState(false);
 
@@ -119,13 +117,10 @@ const FooterSection: React.FC = () => {
             </h2>
             <ul className="space-y-2 text-emerald-950 dark:text-emerald-50">
               <li>
-                <strong>Email:</strong> support@yourapp.com
+                <strong>Email:</strong> support@yugen.film
               </li>
               <li>
-                <strong>Phone:</strong> +1 (555) 123-4567
-              </li>
-              <li>
-                <strong>Address:</strong> 123 Streaming St, Film City, USA
+                <strong>Address:</strong> All over the world.
               </li>
             </ul>
             <button

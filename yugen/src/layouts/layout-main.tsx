@@ -75,13 +75,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </h2>
             <ul className="space-y-2 text-emerald-950 dark:text-emerald-50">
               <li>
-                <strong>Email:</strong> support@yourapp.com
+                <strong>Email:</strong> support@yugen.film
               </li>
               <li>
-                <strong>Phone:</strong> +1 (555) 123-4567
-              </li>
-              <li>
-                <strong>Address:</strong> 123 Streaming St, Film City, USA
+                <strong>Address:</strong> All over the world.
               </li>
             </ul>
             <button

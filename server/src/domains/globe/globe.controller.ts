@@ -3,7 +3,7 @@ import {
   getFilmsByCountry,
   getCountryStats,
   fetchArtistsByCountry,
-} from "./globe.services";
+} from "./globe.services.js";
 import logger from "../../lib/logger";
 
 /**

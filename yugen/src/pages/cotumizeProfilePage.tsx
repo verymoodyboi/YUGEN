@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useEditProfile } from "../features/profile/hooks/useEditProfile";
-import { useAcademic } from "../features/academic/hooks/useAcademicAplication";
+// import { useAcademic } from "../features/academic/hooks/useAcademicAplication";
 
 // Icons
 import { FaYoutube, FaInstagram, FaLinkedin } from "react-icons/fa";
@@ -13,7 +13,7 @@ type Stage =
   | "role"
   | "filmmaker"
   | "audience"
-  | "studentForm"
+  // | "studentForm"
   | "socials"
   | "done";
 
@@ -36,35 +36,35 @@ const ProfileCustomization: React.FC = () => {
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username") || "";
 
-  const {
-    academicEmail,
-    universityName,
-    uniID,
-    role,
-    verificationFile,
-    setAcademicEmail,
-    setUniversityName,
-    setUniID,
-    setRole,
-    setVerificationFile,
-    handleAcademicSubmit,
-    handleAcademicSubmitFinal,
-  } = useAcademic();
-  const submitAcadmic = async () => {
-    if (!academicEmail || !role || !universityName || !uniID) {
-      toast.error("Please fill all fields");
-      return;
-    }
+  // const {
+  //   academicEmail,
+  //   universityName,
+  //   uniID,
+  //   role,
+  //   verificationFile,
+  //   setAcademicEmail,
+  //   setUniversityName,
+  //   setUniID,
+  //   setRole,
+  //   setVerificationFile,
+  //   handleAcademicSubmit,
+  //   handleAcademicSubmitFinal,
+  // } = useAcademic();
+  // const submitAcadmic = async () => {
+  //   if (!academicEmail || !role || !universityName || !uniID) {
+  //     toast.error("Please fill all fields");
+  //     return;
+  //   }
 
-    try {
-      await handleAcademicSubmitFinal(); // submit via hook
-      toast.success("Academic verification submitted!");
-      setStage("done"); // ✅ automatically go to done
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to submit academic info");
-    }
-  };
+  //   try {
+  //     await handleAcademicSubmitFinal(); // submit via hook
+  //     toast.success("Academic verification submitted!");
+  //     setStage("done"); // ✅ automatically go to done
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to submit academic info");
+  //   }
+  // };
   // Socials
   const { handleUpdateSocials, loading } = useEditProfile(() =>
     setStage("done")
@@ -165,13 +165,13 @@ const ProfileCustomization: React.FC = () => {
             <h2 className="text-2xl font-semibold">
               What type of filmmaker are you?
             </h2>
-            <div className="grid grid-cols-3 gap-4 mt-6">
-              <button
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              {/* <button
                 onClick={() => setStage("studentForm")}
                 className="px-4 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
               >
                 Student
-              </button>
+              </button> */}
               <button
                 onClick={() => setStage("socials")}
                 className="px-4 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
@@ -212,7 +212,7 @@ const ProfileCustomization: React.FC = () => {
         )}
 
         {/* Student Form (academic section) */}
-        {stage === "studentForm" && (
+        {/* {stage === "studentForm" && (
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold mb-3">
               Academic Verification
@@ -292,7 +292,7 @@ const ProfileCustomization: React.FC = () => {
               </div>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Socials */}
         {stage === "socials" && (

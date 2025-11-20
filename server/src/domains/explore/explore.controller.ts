@@ -1,7 +1,7 @@
 // src/features/explore/explore.controller.ts
 import { Request, Response } from "express";
-import { getRandomFilms } from "./explore.services";
-import { randomFilmsSchema } from "./explore.validations";
+import { getRandomFilms } from "./explore.services.js";
+import { randomFilmsSchema } from "./explore.validations.js";
 
 export const fetchRandomFilms = async (req: Request, res: Response) => {
   try {

@@ -4,7 +4,7 @@ import {
   getAllFlaggedFilmsController,
   recoverFilmController,
   deleteFilmController,
-} from "./flagged_films.controller";
+} from "./flagged_films.controller.js";
 
 const router = express.Router();
 

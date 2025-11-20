@@ -36,7 +36,7 @@ function Wrapper({ children }) {
   }, [getAccessToken]);
 
   if (status === "loading") return <div>Loading...</div>;
-  if (status === "unauthenticated") return <Navigate to="/LoginPage" />;
+  if (status === "unauthenticated") return <Navigate to="/login" />;
   if (status === "signupGoogle") return <Navigate to="/googleSignUp" />;
 
   return <>{children}</>;

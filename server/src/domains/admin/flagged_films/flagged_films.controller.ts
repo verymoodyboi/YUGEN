@@ -4,7 +4,7 @@ import {
   getFlaggedFilms,
   recoverFilm,
   deleteFilm,
-} from "./flagged_films.services";
+} from "./flagged_films.services.js";
 
 export async function getAllFlaggedFilmsController(req: Request, res: Response): Promise<void> {
   try {

@@ -12,12 +12,12 @@ export async function uploadFilmController(
     const result = await filmService.uploadFilm(req);
 
     // 2️⃣ Make filmId available for the moderation middleware
-    res.locals.filmId = result.filmId;
+    res.locals.filmId = result.film_uuid;
 
     // 3️⃣ Respond immediately to the client
     res.status(201).json({
       success: true,
-      filmId: result.filmId,
+      filmId: result.film_uuid,
       message: "Film uploaded successfully and pending moderation.",
     });
 

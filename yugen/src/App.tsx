@@ -37,14 +37,14 @@ function Yugen() {
           <Router>
             <Routes>
               <Route
-                path="/"
+                path="/home"
                 element={
                   <Wrapper>
                     <HomePage />
                   </Wrapper>
                 }
               />
-              <Route path="/landing" element={<LandingPage />} />
+              <Route path="/" element={<LandingPage />} />
 
               <Route
                 path="/UploadFilmPage"

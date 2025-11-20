@@ -98,7 +98,7 @@ const embedding = await concatenateInfo(Title,Genres,Thesis,Country,uplouderUser
 
   // Get public URL for moderation clip
   const { data: clipUrlData } = supabase.storage.from("moderation").getPublicUrl(filmFileName);
-  const clipUrl = clipUrlData?.publicUrl ?? clipUrlData?.public_url ?? null;
+  const clipUrl = clipUrlData?.publicUrl ?? clipUrlData?.publicUrl ?? null;
   if (!clipUrl) {
     // cleanup and flag
     await supabase
@@ -122,7 +122,7 @@ const embedding = await concatenateInfo(Title,Genres,Thesis,Country,uplouderUser
 
   // Get public URL for poster (for immediate check)
   const { data: posterUrlData } = supabase.storage.from("posters").getPublicUrl(posterFileName);
-  const posterPublicUrl = posterUrlData?.publicUrl ?? posterUrlData?.public_url ?? null;
+  const posterPublicUrl = posterUrlData?.publicUrl ?? posterUrlData?.publicUrl ?? null;
 
   // 🔹 Submit the clip to Sightengine for async moderation (callback handles result)
   try {

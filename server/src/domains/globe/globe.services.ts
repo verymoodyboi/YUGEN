@@ -1,4 +1,4 @@
-import supabase from "../../lib/supabase";
+import supabase from "../../lib/supabase.js";
 
 /**
  * Fetch films for a given country name, ordered by view_count DESC

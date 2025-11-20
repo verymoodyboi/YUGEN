@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Expose port (matches your server.ts / env)
-EXPOSE 8080
+EXPOSE 3000
 
 # Set environment variable
 ENV NODE_ENV=production

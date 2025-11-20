@@ -53,10 +53,10 @@ const UserProfile: React.FC = () => {
     films,
     myPlaylists,
     playlistsLoading,
-    userChallengesData,
-    userChallengesLoading,
-    userChallengesError,
-    userChallenges,
+    // userChallengesData,
+    // userChallengesLoading,
+    // userChallengesError,
+    // userChallenges,
   } = useMyProfile(user?.auth_id, getAccessToken);
   if (!user)
     return (
@@ -92,7 +92,7 @@ const UserProfile: React.FC = () => {
                 <FiGlobe /> {user?.region || "N/A"}
               </p>
 
-              {user?.academic_status && (
+              {/* {user?.academic_status && (
                 <p
                   className={`flex items-center gap-2 ${
                     user.academic_status === "pending"
@@ -103,7 +103,7 @@ const UserProfile: React.FC = () => {
                   <SchoolIcon fontSize="small" />
                   {user.academic_status}
                 </p>
-              )}
+              )} */}
 
               {/* Social Links */}
               <div className="flex gap-3 mt-2">
@@ -250,7 +250,7 @@ const UserProfile: React.FC = () => {
             )}
 
             <div>
-              <h2 className="text-2xl mb-2">Challenges</h2>
+              {/* <h2 className="text-2xl mb-2">Challenges</h2>
               {userChallengesLoading ? (
                 <CustomLoading />
               ) : userChallengesError ? (
@@ -298,7 +298,7 @@ const UserProfile: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         )}
@@ -318,11 +318,11 @@ const UserProfile: React.FC = () => {
             <p>
               <FiCalendar /> Joined: {user?.join_date || "N/A"}
             </p>
-            {user?.academic_status && (
+            {/* {user?.academic_status && (
               <p>
                 <SchoolIcon fontSize="small" /> {user.academic_status}
               </p>
-            )}
+            )} */}
             <span className="opacity-80">Socials</span>
             <div className="flex items-center gap-3 justify-start max-w-full">
               {user?.youtube && (
