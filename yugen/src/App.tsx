@@ -36,14 +36,7 @@ function Yugen() {
         <ErrorBoundary>
           <Router>
             <Routes>
-              <Route
-                path="/home"
-                element={
-                  <Wrapper>
-                    <HomePage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/home" element={<HomePage />} />
               <Route path="/" element={<LandingPage />} />
 
               <Route

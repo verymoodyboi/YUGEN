@@ -58,7 +58,7 @@ function LoginForm() {
   const handleGoogleSignIn = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/home` },
+      options: { redirectTo: `${window.location.origin}#/home` },
     });
     if (error) {
       console.error("Google sign in error:", error);
