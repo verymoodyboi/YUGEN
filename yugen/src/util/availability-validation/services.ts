@@ -8,7 +8,7 @@ export async function checkUsernameAvailable(username: string): Promise<boolean>
   if (!username) return false;
   try {
     await api.get("/tools/usernameCheck", { params: { username } });
-    return true; // available
+    return true; // availab
   } catch (err: any) {
     if (err.response?.status === 409) return false;
     console.error("Username check error:", err);
