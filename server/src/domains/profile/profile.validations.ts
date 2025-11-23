@@ -12,7 +12,7 @@ export const editProfileSchema = Joi.object({
   UserName: Joi.string().min(3).allow('', null).optional(),
   Bio: Joi.string().max(500).allow('', null).optional(),
   Gender: Joi.string().allow('', null).optional(),
-  Region: Joi.string().allow('', null).optional(),
+  Region: Joi.allow('', null).optional(),
 }).unknown(true);
 
 

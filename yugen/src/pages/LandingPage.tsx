@@ -10,9 +10,6 @@ const LandingPage: React.FC = () => {
   return (
     <main className="flex flex-col bg-emerald-50 w-full h-screen overflow-y-auto overflow-x-hidden">
       {/* Hero Section - will be full viewport height */}
-      <div className="w-full flex-shrink-0">
-        <HeroSection />
-      </div>
 
       {/* Footer Section - will appear below hero when scrolling */}
       <div className="w-full flex-shrink-0">

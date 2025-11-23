@@ -8,10 +8,10 @@ export async function uploadFilmController(
   next: Function
 ): Promise<void> {
   try {
-    // 1️⃣ Upload and insert film (is_approved = false)
+    //  Upoad and insert film (is_approved = false)
     const result = await filmService.uploadFilm(req);
 
-    // 2️⃣ Make filmId available for the moderation middleware
+    //  filmId available for the moderation middleware
     res.locals.filmId = result.film_uuid;
 
     // 3️⃣ Respond immediately to the client
@@ -21,7 +21,7 @@ export async function uploadFilmController(
       message: "Film uploaded successfully and pending moderation.",
     });
 
-    // 4️⃣ Continue to moderation middleware after sending response
+    // 4️⃣ Continueo moderation middleware after sending response
     next();
   } catch (err) {
     logger.error("Upload film failed:", err);

@@ -1,13 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from "path";
+
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0', // 👈 this is critical for access from other devices (like your phone)
-    port: 5173,      // optional: change port if needed
+    host: '0.0.0.0', // 👈 allows access from other devices
+    port: 5173,
+    watch: {
+      usePolling: true,  // 👈 force polling to detect file changes on Windows
+      interval: 100      // optional: check every 100ms
+    }
   },
-   resolve: {
+  resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@features": path.resolve(__dirname, "./src/features"),
