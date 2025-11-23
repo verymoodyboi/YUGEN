@@ -4,7 +4,7 @@ import AppLayout from "../layouts/layout-main";
 import NewPlaylist from "../features/playlist/components/new-playlist-form";
 import { useAuth } from "../contexts/AuthContext";
 import { usePlaylist } from "../features/playlist/hooks/usePlaylist";
-
+import Loading from "../components/loading_kickflip";
 const PlaylistsPage: React.FC = () => {
   const { getAccessToken } = useAuth();
   const [isOpenAdd, setIsOpenAdd] = React.useState(false);
@@ -32,7 +32,7 @@ const PlaylistsPage: React.FC = () => {
         </button>
 
         {loading ? (
-          <p className="text-emerald-900 dark:text-emerald-50">Loading…</p>
+          <Loading />
         ) : myPlaylists.length === 0 ? (
           <p className="text-emerald-900 dark:text-emerald-50">
             No playlists yet.

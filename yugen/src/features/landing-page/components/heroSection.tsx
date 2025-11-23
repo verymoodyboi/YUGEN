@@ -126,8 +126,8 @@ const HeroSection: React.FC = () => {
       >
         <img
           alt="Yugen Logo"
-          className="w-40 h-auto"
-          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
+          className="w-50 h-auto"
+          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
         />
       </div>
 
@@ -147,8 +147,8 @@ const HeroSection: React.FC = () => {
 
       {/* Subtitle */}
       <p className="mt-3 text-emerald-950/70 text-lg italic text-center">
-        Discover unique stories told by filmmakers around the world, or tell
-        your stories to the world.
+        Discover unique stories told by filmmakers around the world, and share
+        your stories with the world.
       </p>
 
       {/* CTA Button */}

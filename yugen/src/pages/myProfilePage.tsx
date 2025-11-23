@@ -22,6 +22,7 @@ import {
   FiCalendar,
 } from "react-icons/fi";
 import SchoolIcon from "@mui/icons-material/School";
+import Loading from "../components/loading_kickflip";
 
 const UserProfile: React.FC = () => {
   const { userInfo: user, getAccessToken } = useAuth();
@@ -62,7 +63,7 @@ const UserProfile: React.FC = () => {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-screen text-emerald-950 font-freckle">
-          Loading profile...
+          <Loading />
         </div>
       </AppLayout>
     );

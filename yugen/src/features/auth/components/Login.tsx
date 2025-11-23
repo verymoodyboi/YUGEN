@@ -75,7 +75,7 @@ function LoginForm() {
         className="bg-emerald-50 rounded-3xl shadow-xl p-8 max-w-md w-full border-4 border-emerald-950"
       >
         <img
-          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
+          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
           alt="Yugen Logo"
           className="h-36 w-auto mx-auto mb-6"
         />

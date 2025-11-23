@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
-
+import Loading from "../components/loading_kickflip";
 function Wrapper({ children }) {
   const [status, setStatus] = useState<
     "loading" | "unauthenticated" | "signupGoogle" | "authenticated"
@@ -35,7 +35,12 @@ function Wrapper({ children }) {
     checkUser();
   }, [getAccessToken]);
 
-  if (status === "loading") return <div>Loading...</div>;
+  if (status === "loading")
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
   if (status === "unauthenticated") return <Navigate to="/login" />;
   if (status === "signupGoogle") return <Navigate to="/googleSignUp" />;
 

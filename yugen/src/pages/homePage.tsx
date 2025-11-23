@@ -4,7 +4,7 @@ import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import { useRecommendations } from "../features/recommendations/hooks/useHomPage";
 import CustomLoading from "../SmallComponents/CutomsLoading";
-
+import Loading from "../components/loading_kickflip";
 const HomePage: React.FC = () => {
   const { userInfo } = useAuth();
   const { hottest, fresh, subscriptions, watchlist, isLoading } =
@@ -44,7 +44,7 @@ const HomePage: React.FC = () => {
     return (
       <AppLayout>
         <div className="flex justify-center items-center h-screen">
-          <CustomLoading />
+          <Loading />
         </div>
       </AppLayout>
     );

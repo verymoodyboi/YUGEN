@@ -4,6 +4,7 @@ import AppLayout from "../layouts/layout-main";
 
 import { useMyWatchlist } from "../features/watchlist/hooks/useGetMyWatchlist";
 import FilmScrollRowDynamic from "../layouts/filmcard-scroll-h-dynamic";
+import Loading from "../components/loading_kickflip";
 const WatchlistPage: React.FC = () => {
   const { watchlist, loading, error } = useMyWatchlist();
 
@@ -14,7 +15,7 @@ const WatchlistPage: React.FC = () => {
       </h2>
 
       {loading ? (
-        <p className="text-emerald-900 dark:text-emerald-50">Loading…</p>
+        <Loading />
       ) : watchlist.length === 0 ? (
         <p className="text-emerald-900 dark:text-emerald-50">
           No films in your watchlist yet.

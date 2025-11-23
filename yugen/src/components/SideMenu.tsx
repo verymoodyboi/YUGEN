@@ -64,7 +64,7 @@ function SideMenu({
           navigate("/watchlist");
           setOpen(false);
         }}
-        badge={userInfo?.watchlist_count || 0}
+        badge={userInfo?.watchlist_count || "0"}
       />
       <MenuButton
         label="Watch history"

@@ -23,7 +23,12 @@ const ResetPassword: React.FC = () => {
   if (isDone) {
     return (
       <Box className="centered-box-v-blurred">
-        <CheckIcon sx={{ fontSize: 100 }}></CheckIcon>
+        <img
+          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
+          alt="Yugen Logo"
+          className="h-36 w-auto mx-auto mb-6"
+        />
+
         <Typography
           variant="h3"
           sx={{

@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import AppLayout from "../layouts/layout-main";
 import FilmScrollRowDynamic from "../layouts/filmcard-scroll-h-dynamic";
 import { useHistory } from "../features/history/useHistory";
-
+import Loading from "../components/loading_kickflip";
 const HistoryPage: React.FC = () => {
   const { history, loading, error } = useHistory();
 
@@ -23,9 +23,7 @@ const HistoryPage: React.FC = () => {
           Watch history
         </h2>
 
-        {loading && (
-          <p className="text-emerald-900 dark:text-emerald-50">Loading…</p>
-        )}
+        {loading && <Loading />}
         {error && (
           <p className="text-red-600 dark:text-red-400">
             Failed to load history.

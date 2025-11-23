@@ -19,6 +19,7 @@ import ReportForm from "../../report/components/Report";
 import Wrapper from "../../../pages/Wrapper";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useFilms } from "../hooks/useFilm";
+import Loading from "../../../components/loading_kickflip";
 
 interface Props {
   filmId: string;
@@ -49,7 +50,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-80 text-emerald-950">
-        Loading...
+        <Loading />
       </div>
     );
   }
