@@ -6,7 +6,7 @@ import { useFilmsByGenre } from "../features/recommendations/hooks/useFilmsByGen
 import { useGenresWithFilms } from "../features/genres/useGenres";
 import FilmCard from "../components/filmCard-2x3";
 import { FiStar, FiEye } from "react-icons/fi";
-
+import Loading from "../components/loading_kickflip";
 const GenrePage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const genreName = searchParams.get("genre") || undefined;
@@ -109,7 +109,7 @@ const GenrePage: React.FC = () => {
             {genreInfo?.film_count ?? films.length} Films
           </span>
           {loading && films.length === 0 && (
-            <p className="text-emerald-950 dark:text-emerald-50">Loading…</p>
+          <Loading />
           )}
 
           {!loading && films.length === 0 && (

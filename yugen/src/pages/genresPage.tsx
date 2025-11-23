@@ -2,7 +2,7 @@ import React from "react";
 import AppLayout from "../layouts/layout-main";
 import GenreCard from "../features/genres/components/genreCard";
 import { useGenresWithFilms } from "../features/genres/useGenres";
-
+import Loading from "../components/loading_kickflip";
 const GenresPage: React.FC = () => {
   const { genresWithFilms, loading } = useGenresWithFilms();
 
@@ -22,9 +22,7 @@ const GenresPage: React.FC = () => {
         {/* Loading & Empty States */}
         {loading && (
           <div className="flex justify-center items-center py-20">
-            <p className="text-lg font-freckle text-emerald-950 dark:text-emerald-50 animate-pulse">
-              Loading genres…
-            </p>
+             <Loading />
           </div>
         )}
 

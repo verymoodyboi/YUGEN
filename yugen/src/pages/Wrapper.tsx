@@ -3,18 +3,22 @@ import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import Loading from "../components/loading_kickflip";
+
 function Wrapper({ children }) {
   const [status, setStatus] = useState<
     "loading" | "unauthenticated" | "signupGoogle" | "authenticated"
   >("loading");
+
   const { getAccessToken } = useAuth();
 
   useEffect(() => {
+    let mounted = true;
+
     const checkUser = async () => {
       try {
         const token = await getAccessToken();
         if (!token) {
-          setStatus("unauthenticated");
+          if (mounted) setStatus("unauthenticated");
           return;
         }
 
@@ -25,24 +29,24 @@ function Wrapper({ children }) {
           }
         );
 
-        setStatus(data.status);
-      } catch (err) {
-        console.error("Error checking auth status:", err);
-        setStatus("unauthenticated");
+        if (mounted) setStatus(data.status);
+      } catch {
+        if (mounted) setStatus("unauthenticated");
       }
     };
 
     checkUser();
+
+    return () => {
+      mounted = false;
+    };
   }, [getAccessToken]);
 
-  if (status === "loading")
-    return (
-      <div>
-        <Loading />
-      </div>
-    );
-  if (status === "unauthenticated") return <Navigate to="/login" />;
-  if (status === "signupGoogle") return <Navigate to="/googleSignUp" />;
+  if (status === "loading") return <Loading />;
+
+  if (status === "unauthenticated") return <Navigate to="/about" replace />;
+
+  if (status === "signupGoogle") return <Navigate to="/googleSignUp" replace />;
 
   return <>{children}</>;
 }

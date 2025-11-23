@@ -8,6 +8,7 @@ import Thoughts from "../features/thoughts/components/thoughts";
 import { useSimilarFilms } from "../features/recommendations/hooks/useSimilarFilms";
 import SimilarFilmCard from "../features/recommendations/components/recommendedFilmCard";
 import CustomLoading from "../SmallComponents/CutomsLoading";
+import Loading from "../components/loading_kickflip";
 
 const Watch: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -58,7 +59,7 @@ const Watch: React.FC = () => {
               {activeTab === "recommended" && (
                 <div className="space-y-4">
                   {isLoading ? (
-                    <CustomLoading />
+                    <Loading />
                   ) : similarFilms.length > 0 ? (
                     similarFilms.map((film) => (
                       <SimilarFilmCard key={film.film_uuid} film={film} />

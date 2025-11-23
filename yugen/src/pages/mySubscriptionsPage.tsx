@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import AccountCard from "../components/AccountCard";
 import AppLayout from "../layouts/layout-main";
 import { useSubs } from "../features/subscriptions/hooks/useSubs";
+import Loading from "../components/loading_kickflip";
 
 const SubscriptionsPage: React.FC = () => {
   const { getAccessToken, userInfo } = useAuth();
@@ -27,7 +28,7 @@ const SubscriptionsPage: React.FC = () => {
         </h2>
 
         {loading ? (
-          <p className="text-emerald-950">Loading…</p>
+          <Loading/>
         ) : subscriptions.length === 0 ? (
           <p className="text-emerald-950">No subscriptions yet.</p>
         ) : (

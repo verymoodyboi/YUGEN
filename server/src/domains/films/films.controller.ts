@@ -8,7 +8,7 @@ export async function uploadFilmController(
   next: Function
 ): Promise<void> {
   try {
-    //  Upoad and insert film (is_approved = false)
+    //  Upoad and insert film (is_aproved = false)
     const result = await filmService.uploadFilm(req);
 
     //  filmId available for the moderation middleware

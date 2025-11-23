@@ -218,7 +218,7 @@ const UserProfile: React.FC = () => {
               >
                 <div className="flex gap-3 flex-nowrap">
                   {isLoading ? (
-                    <CustomLoading />
+                    <Loading />
                   ) : isError ? (
                     <p className="text-red-500">Failed to load films</p>
                   ) : (
@@ -230,7 +230,7 @@ const UserProfile: React.FC = () => {
                   )}
                   {isFetchingNextPage && (
                     <div className="flex items-center justify-center text-sm text-emerald-950 animate-pulse flex-shrink-0">
-                      Loading more...
+                       <Loading/>
                     </div>
                   )}
                 </div>
@@ -375,7 +375,7 @@ const UserProfile: React.FC = () => {
             <h2 className="text-2xl mb-2">Your Uploads</h2>
 
             {isLoading ? (
-              <CustomLoading />
+              <Loading />
             ) : isError ? (
               <p className="text-red-500">Failed to load films</p>
             ) : films.length > 0 ? (
@@ -385,7 +385,7 @@ const UserProfile: React.FC = () => {
                 ))}
                 {isFetchingNextPage && (
                   <div className="text-center text-emerald-900 animate-pulse py-2">
-                    Loading more uploads...
+                   <Loading/>
                   </div>
                 )}
               </>

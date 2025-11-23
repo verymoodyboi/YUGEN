@@ -17,6 +17,7 @@ import FilmCard from "../components/filmCard-2x3";
 import PlaylistCard from "../features/playlist/components/PlaylistCard";
 import CustomLoading from "../SmallComponents/CutomsLoading";
 import { useViewProfile } from "../features/profile/hooks/useViewProfile";
+import Loading from "../components/loading_kickflip";
 
 const AccProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ const AccProfile: React.FC = () => {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-screen text-emerald-950 font-freckle">
-          Loading profile...
+          <Loading/>
         </div>
       </AppLayout>
     );

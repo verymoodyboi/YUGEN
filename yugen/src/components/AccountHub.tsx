@@ -24,7 +24,7 @@ function AccHub() {
 
   const logOut = async () => {
     const { error } = await supabase.auth.signOut();
-    if (!error) navigate("/loginPage");
+    if (!error) navigate("/login");
   };
 
   const handleChangePasswordEmail = async () => {

@@ -394,7 +394,7 @@ const SignUpForm: React.FC = () => {
         {/* link to login */}
         <div className="mt-6 text-sm">
           Already have an account?{" "}
-          <Link to="/LoginPage" className="text-emerald-950 underline">
+          <Link to="/login" className="text-emerald-950 underline">
             Login
           </Link>
         </div>

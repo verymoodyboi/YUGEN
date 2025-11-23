@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "../layouts/layout-main";
 import supabase from "../lib/supabaseClient";
 import { useNotifications } from "../features/notifications/useNotifications";
+import Loading from "../components/loading_kickflip";
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const NotificationsPage: React.FC = () => {
 
         {/* Notifications List */}
         {notificationsLoading ? (
-          <p className="text-emerald-900">Loading notifications…</p>
+        <Loading/>
         ) : notifications.length === 0 ? (
           <p className="text-emerald-900">No notifications yet.</p>
         ) : (

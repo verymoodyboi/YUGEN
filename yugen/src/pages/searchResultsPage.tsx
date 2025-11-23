@@ -7,6 +7,7 @@ import FilmCard from "../components/filmCard-2x3";
 import PlayListCard from "../features/playlist/components/PlaylistCard";
 import AccountCard from "../components/AccountCard";
 import { useSearchResults } from "../features/search/hooks/useSearchResults";
+import Loading from "../components/loading_kickflip";
 
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -130,7 +131,7 @@ const SearchPage: React.FC = () => {
         {(filmsQuery.isLoading ||
           suggestQuery.isLoading ||
           accountsQuery.isLoading ||
-          playlistsQuery.isLoading) && <LoadingIndicator />}
+          playlistsQuery.isLoading) && <Loading />}
       </div>
     </AppLayout>
   );
