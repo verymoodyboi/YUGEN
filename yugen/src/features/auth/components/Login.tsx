@@ -88,6 +88,7 @@ function LoginForm() {
           >
             Signup
           </Link>
+          z
         </p>
 
         {/* Email */}

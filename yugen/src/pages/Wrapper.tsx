@@ -22,12 +22,9 @@ function Wrapper({ children }) {
           return;
         }
 
-        const { data } = await axios.get(
-          "http://localhost:8080/api/auth/status",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const { data } = await axios.get("zz/auth/status", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         if (mounted) setStatus(data.status);
       } catch {
