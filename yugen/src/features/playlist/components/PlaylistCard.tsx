@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import supabase from "../../../lib/supabaseClient";
 import { useAuth } from "../../../contexts/AuthContext";
 import { usePlaylistCard } from "../hooks/usePlaylistCard";
@@ -21,10 +22,15 @@ const PlaylistCard = ({ playlist }: any) => {
     const target = e.target as HTMLElement;
     if (target.closest(".ignore-click")) return;
 
-    navigate(
-      `/watchplaylist?uuid=${playlist.playlist_films?.[0]?.films?.film_uuid}&list_id=${playlist.playlist_uuid}`,
-      { state: { playlist } }
-    );
+    const isEmpty = playlist?.film_count === 0 ||
+      (Array.isArray(playlist?.playlist_films) && playlist.playlist_films.length === 0);
+
+    if (isEmpty) {
+      toast.warn("This playlist is empty. Please add a film to access it.");
+      return;
+    }
+
+    navigate(`/watchplaylist?uuid=${playlist.playlist_uuid}`, { state: { playlist } });
   };
 
   return (

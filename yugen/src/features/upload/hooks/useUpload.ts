@@ -1,12 +1,20 @@
 // src/features/upload/hooks/useUpload.ts
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useUploadManager } from "../../uploads/useUploadManager";
 import { useAuth } from "../../../contexts/AuthContext";
 import { uploadFilm } from "../services";
 import { searchMentions } from "../../search/services";
 
 export const useUpload = () => {
   const { getAccessToken } = useAuth();
+  const uploadManager = (() => {
+    try {
+      return useUploadManager();
+    } catch {
+      return null as any;
+    }
+  })();
 const {userInfo}=useAuth()
   // core film upload states
   const [filmFile, setFilmFile] = useState<File | null>(null);
@@ -77,11 +85,34 @@ const {userInfo}=useAuth()
 
   // === Submit film upload ===
   const handleSubmit = async () => {
+    // non-blocking: delegate to UploadManager if present, otherwise fallback to existing uploadFilm
     if (!filmFile || !posterFile || !title || !thesis || genres.length === 0) {
       toast.warn("Please fill all required fields before uploading");
       return;
     }
 
+    // If UploadManager is available, use it to start a background upload and return immediately
+    if (uploadManager && uploadManager.addUpload) {
+      try {
+        uploadManager.addUpload(filmFile, {
+          Title: title,
+          Thesis: thesis,
+          Genres: genres,
+          Country: country,
+          Crew: crewList,
+          Cast: cast,
+          Poster: posterFile,
+        });
+        toast.success("Upload started — running in background");
+        return;
+      } catch (err) {
+        console.error("Failed to start background upload", err);
+        toast.error("Failed to start upload");
+        return;
+      }
+    }
+
+    // Fallback: older direct upload path (keeps behavior for code paths that expect it)
     setIsSubmit(true);
     setUploadProgress(0);
     try {
@@ -89,7 +120,7 @@ const {userInfo}=useAuth()
       const formData = new FormData();
       formData.append("Title", title);
       formData.append("Thesis", thesis);
-formData.append("Genres", JSON.stringify(genres));
+      formData.append("Genres", JSON.stringify(genres));
       formData.append("Country", country);
       formData.append("Crew", JSON.stringify(crewList));
       formData.append("Cast", JSON.stringify(cast));
@@ -143,7 +174,9 @@ formData.append("Genres", JSON.stringify(genres));
     setCast,
     setIsValidFilm,
     setCrewSearchInput,
+    setCrewSearchResults,
     setActorSearchInput,
+    setActorSearchResults,
     setErrorMsg,
     setIsDone,
 

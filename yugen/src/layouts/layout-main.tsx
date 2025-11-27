@@ -1,5 +1,7 @@
 // src/layouts/AppLayout.tsx
 import { useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import SideMenu from "../components/SideMenu";
 import AccHub from "../components/AccountHub";
 import NavBar from "../components/NavBar";
@@ -40,6 +42,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           onOpenContact={() => setOpenContact(true)}
         />
       </div>
+
+      {/* Global Toasts */}
+      <ToastContainer
+        position="top-left"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        draggable
+        pauseOnHover
+        theme="light"
+      />
 
       {/* === Technical Report Modal === */}
       {openReport && (

@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import * as filmService from './films.service.js';
 import logger from '../../lib/logger.js';
+import crypto from 'crypto';
 
 export async function uploadFilmController(
   req: Request,
@@ -8,20 +9,29 @@ export async function uploadFilmController(
   next: Function
 ): Promise<void> {
   try {
-    //  Upoad and insert film (is_aproved = false)
-    const result = await filmService.uploadFilm(req);
+    // Generate film UUID here so we can respond immediately while processing continues
+    const filmUuid = crypto.randomUUID();
 
-    //  filmId available for the moderation middleware
-    res.locals.filmId = result.film_uuid;
+    // Make filmId available for downstream middleware
+    res.locals.filmId = filmUuid;
 
-    // 3️⃣ Respond immediately to the client
+    // Respond immediately to the client (fire-and-forget processing)
     res.status(201).json({
       success: true,
-      filmId: result.film_uuid,
-      message: "Film uploaded successfully and pending moderation.",
+      filmId: filmUuid,
+      message: 'Film upload accepted; processing in background and pending moderation.',
     });
 
-    // 4️⃣ Continueo moderation middleware after sending response
+    // Start background processing without blocking the response
+    void (async () => {
+      try {
+        await filmService.uploadFilm(req, filmUuid);
+      } catch (err: any) {
+        logger.error('Background film processing failed for %s: %o', filmUuid, err);
+      }
+    })();
+
+    // Continue to next middleware (moderation hook) — it can use res.locals.filmId
     next();
   } catch (err) {
     logger.error("Upload film failed:", err);
@@ -47,3 +57,5 @@ export async function deleteFilmController(req: Request, res: Response): Promise
     res.status(500).json({ error: 'Unexpected server error' });
   }
 }
+
+// Status controller removed in revert

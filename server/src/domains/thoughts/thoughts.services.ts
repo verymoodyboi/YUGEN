@@ -16,7 +16,6 @@ export async function getThoughts(filmId: string, userId: string) {
   `)
   .eq('film_uuid', filmId)
   .order('upvotes', { ascending: false });
-
 if (error) throw error;
 
 // Get IDs of thoughts flagged by this user

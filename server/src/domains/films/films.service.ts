@@ -15,7 +15,7 @@ import { title } from 'process';
 
 
 // Upload film
-export async function uploadFilm(req: Request) {
+export async function uploadFilm(req: Request, providedUuid?: string) {
   const { Title, Thesis, Country, Crew, Cast } = req.body;
   const uplouderUsername= req.body?.uplouderUsername;
   const uploaderId = req.user?.id;
@@ -25,7 +25,7 @@ export async function uploadFilm(req: Request) {
 
   if (!filmFile || !posterFile) throw new Error("Missing required files");
 
-  const uuid = crypto.randomUUID();
+  const uuid = providedUuid ?? crypto.randomUUID();
   const filmFileName = `${uuid}.mp4`;
   const posterFileName = `${uuid}.jpg`;
 
@@ -254,3 +254,6 @@ export async function deleteFilm(req: Request) {
 
   return { success: true };
 }
+
+// Get film upload/processing status
+// Status function removed in revert

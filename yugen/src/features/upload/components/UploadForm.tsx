@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import supabase from "../../../lib/supabaseClient";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import CustomLoading from "../../../SmallComponents/CutomsLoading";
 import "react-toastify/dist/ReactToastify.css";
 import ShinyText from "../../../SmallComponents/ShinyText";
@@ -18,6 +18,8 @@ import "react-image-crop/dist/ReactCrop.css";
 import ErrorImg from "../../../YugenAssits/Icons/ErrorImg.png";
 import AccHub from "../../../components/AccountHub";
 import { useUpload } from "../hooks/useUpload";
+import { useUploadManager } from "../../uploads/useUploadManager";
+import { useNavigate } from "react-router-dom";
 import { useGenresWithFilms } from "../../genres/useGenres";
 registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
@@ -227,6 +229,40 @@ const UploadForm: React.FC = () => {
     [allGenres]
   );
   const [openReport, setOpenReport] = useState(false);
+  const { addUpload } = useUploadManager();
+
+  const handleStartUpload = async () => {
+    // validate required fields
+    if (!filmFile || !croppedFile) {
+      toast.warn("Please upload both film and poster.");
+      return;
+    }
+    if (!title || !thesis || !genres || genres.length === 0) {
+      toast.warn("Please fill title, description and genres.");
+      return;
+    }
+
+    try {
+      // start background upload; pass metadata including poster file
+      const id = addUpload(filmFile, {
+        Title: title,
+        Thesis: thesis,
+        Genres: genres,
+        Country: country,
+        Crew: crewList,
+        Cast: cast,
+        Poster: croppedFile,
+      });
+      toast.success("Upload started — running in background", { autoClose: 4000, closeOnClick: true });
+      // do not navigate — non-blocking. Optionally clear film selection
+      // setFilmFile(null);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to start upload");
+    }
+  };
+
+  // navigation on backend completion removed in revert
 
   // UI: Error / Done / Uploading states preserved but implemented with Tailwind
   if (errorMsg) {
@@ -893,7 +929,7 @@ const UploadForm: React.FC = () => {
               </button>
             ) : (
               <button
-                onClick={handleSubmit}
+                onClick={handleStartUpload}
                 className="px-6 py-2 rounded-md bg-emerald-950 text-emerald-50"
               >
                 Upload
@@ -903,7 +939,7 @@ const UploadForm: React.FC = () => {
         </div>
       </div>
 
-      <ToastContainer position="top-left" theme="dark" />
+      {/* Local ToastContainer removed; using global layout container */}
     </>
   );
 };

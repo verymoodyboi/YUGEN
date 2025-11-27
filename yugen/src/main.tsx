@@ -6,6 +6,7 @@ import { AuthProvider } from "./contexts/AuthContext.tsx";
 import App from "./App.tsx";
 import "./App.css";
 import { ThemeProvider } from "./contexts/ThemeContext.tsx";
+import { UploadProvider } from "./features/uploads/useUploadManager";
 const queryClient = new QueryClient();
 // window.addEventListener("unhandledrejection", (event) => {
 //   console.error("Unhandled rejection:", event.reason);
@@ -20,9 +21,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <App />
-        </QueryClientProvider>
+        <UploadProvider>
+          <QueryClientProvider client={queryClient}>
+            <App />
+          </QueryClientProvider>
+        </UploadProvider>
       </AuthProvider>
     </ThemeProvider>
   </StrictMode>

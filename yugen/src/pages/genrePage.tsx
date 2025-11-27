@@ -1,18 +1,19 @@
 import * as React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import AppLayout from "../layouts/layout-main";
 import supabase from "../lib/supabaseClient";
 import { useFilmsByGenre } from "../features/recommendations/hooks/useFilmsByGenre";
 import { useGenresWithFilms } from "../features/genres/useGenres";
 import FilmCard from "../components/filmCard-2x3";
-import { FiStar, FiEye } from "react-icons/fi";
+import { FiStar, FiEye, FiArrowLeft } from "react-icons/fi";
 import Loading from "../components/loading_kickflip";
+
 const GenrePage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const genreName = searchParams.get("genre") || undefined;
 
   const { films, loading, hasMore, fetchNextPage } = useFilmsByGenre(genreName);
-  const { genres, loading: genresLoading } = useGenresWithFilms();
+  const { genres } = useGenresWithFilms();
 
   const genreInfo = React.useMemo(
     () => genres?.find((g) => g.genre === genreName),
@@ -40,10 +41,35 @@ const GenrePage: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [hasMore, loading, fetchNextPage]);
 
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    try {
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate("/genres");
+      }
+    } catch {
+      navigate("/genres");
+    }
+  };
   return (
     <AppLayout>
       <div className="flex flex-col space-y-10 text-emerald-950 dark:text-emerald-50">
         {/* === HERO SECTION === */}
+
+        <div className="mb-4 pl-6 md:pl-10">
+          <button
+            onClick={handleBack}
+            aria-label="Go Back"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-950 bg-emerald-50 text-emerald-950 text-xs font-freckle hover:bg-emerald-100 transition duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+          >
+            <FiArrowLeft size={16} />
+            Back
+          </button>
+        </div>
+
         <div className="relative w-full rounded-3xl overflow-hidden border border-emerald-950/30 shadow-lg bg-emerald-50 dark:bg-emerald-900/20">
           {/* Background Poster (faded) */}
           {mainPoster && (

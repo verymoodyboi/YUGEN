@@ -22,3 +22,4 @@ export const editFilmSchema = Joi.object({
 export const deleteFilmSchema = Joi.object({
   film_uuid: Joi.string().required(),
 });
+// Status validation removed in revert
