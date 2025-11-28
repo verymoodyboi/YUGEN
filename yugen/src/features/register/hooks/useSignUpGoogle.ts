@@ -89,12 +89,10 @@ export function useSignupGoogle(googleUser: { email: string; name: string }) {
     }
     return false;
   }
-
-  const handleNext = async () => {
-    const ok = await validateStep(activeStep);
-    if (ok) setActiveStep((s) => Math.min(s + 1, steps.length - 1));
+ const handleNext = async () => {
+     const ok = await validateStep(activeStep);
+  if (ok) setActiveStep((s) => Math.min(s + 1, steps.length - 1));
   };
-
   const handleBack = () => setActiveStep((s) => Math.max(s - 1, 0));
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

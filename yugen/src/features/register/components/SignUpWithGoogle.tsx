@@ -1,9 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSignupGoogle } from "../hooks/useSignUpGoogle";
 import { ImageCropper } from "../../../util/image-cropping/components/image-cropper";
+import countries from "../../../Data/countries.json";
 
 const SignupGoogle: React.FC = () => {
   // Simulated Google user — replace with your real Google OAuth data
@@ -67,15 +68,22 @@ const SignupGoogle: React.FC = () => {
       </div>
     </div>
   );
-
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center bg-emerald-50 text-emerald-950 font-freckle p-6">
+      <div className="fixed top-0 left-4 z-50 flex items-center gap-2">
+        <img
+          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
+          alt="Yugen Logo"
+          className="w-20 h-20 object-contain cursor-pointer"
+          onClick={() => navigate("/")}
+        />
+      </div>
       <ToastContainer position="top-left" />
 
       <div className="w-full max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl p-6 h-[600px] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Complete Google Signup</h1>
-          <p className="text-sm opacity-80">Welcome, {email}</p>
+          <h1 className="text-3xl font-bold">Finish setting up your account</h1>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between mb-6">
@@ -90,7 +98,13 @@ const SignupGoogle: React.FC = () => {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault(); // ← this stops the browser from reloading
+            handleSubmit();
+          }}
+          className="space-y-6"
+        >
           {activeStep === 0 && (
             <div>
               <label className="block mb-1">First Name</label>
@@ -115,15 +129,14 @@ const SignupGoogle: React.FC = () => {
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2"
+                  className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
                 >
-                  <option value="">Select region...</option>
-                  <option value="North America">North America</option>
-                  <option value="Europe">Europe</option>
-                  <option value="Asia">Asia</option>
-                  <option value="Africa">Africa</option>
-                  <option value="South America">South America</option>
-                  <option value="Australia">Australia</option>
+                  <option value="">Select country...</option>
+                  {countries.map((c: any) => (
+                    <option key={c.code} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

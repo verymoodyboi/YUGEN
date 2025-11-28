@@ -1,12 +1,4 @@
 // src/pages/SignUpForm.tsx
-/**
- * Tailwind refactor of your SignUp stepper + profile customization
- * - Preserves all step validations & logic from the original MUI version.
- * - Uses react-image-crop for circular cropping (exports a File).
- * - Vintage style: bg-emerald-50 with emerald-950 content/borders, retro hover animations.
- *
- * Original MUI file is still available at: /mnt/data/SignUp.tsx
- */
 
 import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
@@ -16,6 +8,7 @@ import "react-image-crop/dist/ReactCrop.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSignup } from "../hooks/useSignUp";
+import countries from "../../../Data/countries.json";
 import { ImageCropper } from "../../../util/image-cropping/components/image-cropper";
 // Helper: checks email / username via your backend endpoints (same as original)
 
@@ -146,19 +139,26 @@ const SignUpForm: React.FC = () => {
       </div>
     </div>
   );
-
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center bg-emerald-50 text-emerald-950 font-freckle p-6">
+      <div className="fixed top-0 left-4 z-50 flex items-center gap-2">
+        <img
+          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
+          alt="Yugen Logo"
+          className="w-20 h-20 object-contain cursor-pointer"
+          onClick={() => navigate("/")}
+        />
+      </div>
       <ToastContainer position="top-left" />
 
       <div
-        className="w-full max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl 
+        className="w-full max-h-[65vh] max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl 
                p-6 h-[600px] overflow-y-auto"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Create your account</h1>
-          <p className="text-sm opacity-80">Vintage · Emerald theme</p>
         </div>
 
         {/* Stepper */}
@@ -175,7 +175,13 @@ const SignUpForm: React.FC = () => {
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault(); // ← this stops the browser from reloading
+            handleSubmit();
+          }}
+          className="space-y-6"
+        >
           {/* Name */}
           {activeStep === 0 && (
             <div>
@@ -204,15 +210,14 @@ const SignUpForm: React.FC = () => {
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
-                  className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2 focus:outline-none"
+                  className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
                 >
-                  <option value="">Select region...</option>
-                  <option value="North America">North America</option>
-                  <option value="Europe">Europe</option>
-                  <option value="Asia">Asia</option>
-                  <option value="Africa">Africa</option>
-                  <option value="South America">South America</option>
-                  <option value="Australia">Australia</option>
+                  <option value="">Select country...</option>
+                  {countries.map((c: any) => (
+                    <option key={c.code} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

@@ -1,16 +1,16 @@
 
 import supabase from '../../lib/supabase.js';
+import supabaseA from '../../lib/anonSupabase.js';
 import  logger from '../../lib/logger.js';
 
-export async function registerUser(
-  body: any,
-  file?: Express.Multer.File
-) {
+export async function registerUser(body: any, file?: Express.Multer.File) {
   const { FName, LName, UserName, Bio, Email, Password, BirthDate, Gender, Region } = body;
-  const date = new Date().toISOString().split('T')[0];
 
-  // Create Supabase Auth user
-  const { data: dataSupa, error: errorSupa } = await supabase.auth.signUp({
+  const joinDate = new Date().toISOString().split("T")[0];
+  const pfpFileName = `${Email}-pfp.jpg`;
+
+  // Auth Sign Up (correct for trigger & metadata)
+  const { data: dataSupa, error: errorSupa } = await supabaseA.auth.signUp({
     email: Email,
     password: Password,
     options: {
@@ -19,44 +19,48 @@ export async function registerUser(
         f_name: FName,
         l_name: LName,
         bio: Bio,
-        gender: Gender,
+        gender: Gender ?? "prefer not to say",
         region: Region,
         birthdate: BirthDate,
-        is_artist: false,
-        is_admin: false,
-        pfp_path: `${Email}-pfp.jpg`,
-        join_date: date,
+   
+        pfp_path: pfpFileName,
+        join_date: joinDate,
       },
+      emailRedirectTo: "https://your-app.com/welcome", // optional but recommended
     },
   });
 
   if (errorSupa) {
-    logger.error('Supabase signUp error', { errorSupa });
-    throw new Error('Sign up failed: ' + errorSupa.message);
+    logger.error("Supabase signUp error", { errorSupa });
+    throw new Error("Sign up failed: " + errorSupa.message);
   }
 
   const userId = dataSupa.user?.id;
-  if (!userId) throw new Error('User creation failed, no ID returned');
+  if (!userId) {
+    throw new Error("User creation failed — no ID returned");
+  }
 
-  // Upload profile picture if provided
+  // Upload profile picture
   if (file) {
-    const { error: uploadError } = await supabase.storage
-      .from('pfps')
-      .upload(`${Email}-pfp.jpg`, file.buffer, {
+    const { error: uploadError } = await supabase
+      .storage
+      .from("pfps")
+      .upload(pfpFileName, file.buffer, {
         contentType: file.mimetype,
         upsert: true,
       });
 
     if (uploadError) {
-      logger.error('Upload error', { uploadError });
-      throw new Error('Failed to upload profile picture');
+      logger.error("Upload error", { uploadError });
+      throw new Error("Failed to upload profile picture");
     }
   } else {
-    logger.warn('No PFP file uploaded with registration');
+    logger.warn("No PFP file uploaded with registration");
   }
 
-  return { success: true, message: 'Registration successful!' };
+  return { success: true, message: "Registration successful!" };
 }
+
 
 export async function registerGoogleUser(
   body: any,

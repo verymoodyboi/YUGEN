@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      "https://iqvsgbsnpqvbddmdixoz.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlxdnNnYnNucHF2YmRkbWRpeG96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDYyODIwMDAsImV4cCI6MjA2MTg1ODAwMH0.gXi9u1QIXf9gJkNvCGZror9pkJu-U0nPeerZN7F-Gzw"
+    );
+
+    supabase.auth.signInWithOtp({
+      email: "ahmed.hossam18@gmail.com"
+    })
+    .then(() => console.log("Email sent"));
+  </script>
+</body>
+</html>

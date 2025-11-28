@@ -1,3 +1,4 @@
+
 // src/features/signup/hooks/useSignup.tsx
 import { useState, useRef,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -85,7 +86,7 @@ const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
     setEmailValidated(true);
 
     if (!ok) {
-      toast.warn("Email already in use");
+      toast.warn("Error registering this email, try a different one.");
       return false;
     }
   }
@@ -95,10 +96,10 @@ const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
     return false;
   }
 
-  if (emailAvailable === null) {
-    toast.warn("Please validate your email before continuing");
-    return false;
-  }
+ if (!isValidEmail(email)) {
+  toast.warn("Enter a valid email");
+  return false;
+}
 
   if (!password || password.length < 8) {
     toast.warn("Password must be at least 8 characters");
@@ -146,9 +147,12 @@ if (step === 3) {
   }
 
   // handlers
+  const isValidEmail = (e: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
   const handleNext = async () => {
-    const ok = await validateStep(activeStep);
-    if (ok) setActiveStep((s) => Math.min(s + 1, steps.length - 1));
+     const ok = await validateStep(activeStep);
+  if (ok) setActiveStep((s) => Math.min(s + 1, steps.length - 1));
   };
   const handleBack = () => setActiveStep((s) => Math.max(s - 1, 0));
 

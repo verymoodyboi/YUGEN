@@ -1,7 +1,10 @@
 import { Box, Typography } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 function WaitingComfirmation() {
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get("email");
   return (
     <Box className="centered-box-v-blurred">
       <img
@@ -16,7 +19,7 @@ function WaitingComfirmation() {
           fontFamily: '"Freckle Face", system-ui',
         }}
       >
-        Your Email is not verified yet, Check your inbox!
+        an email was sent to {email} chack your inbox to confirm!
       </Typography>
     </Box>
   );

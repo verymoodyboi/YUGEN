@@ -29,6 +29,7 @@ import FilmGlobePage from "./pages/filmGlobePage.tsx";
 import FlaggedFilmsPage from "./pages/admin/flaggedFilmsPage.tsx";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage.tsx";
+import WaitingComfirmation from "./pages/waitingEmailComfirmationPage.tsx";
 function Yugen() {
   return (
     <ThemeProvider>
@@ -36,8 +37,24 @@ function Yugen() {
         <ErrorBoundary>
           <Router>
             <Routes>
-              <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/SignUpPage" element={<SignUpPage />} />
+              <Route path="/googleSignUp" element={<SignUpGoogle />} />
+              <Route path="/resetPassword" element={<ResetPassword />} />
+              <Route
+                path="/confirmation:pending:"
+                element={<WaitingComfirmation />}
+              />
+
+              <Route
+                path="/"
+                element={
+                  <Wrapper>
+                    <HomePage />
+                  </Wrapper>
+                }
+              />
 
               <Route
                 path="/UploadFilmPage"
@@ -47,32 +64,156 @@ function Yugen() {
                   </Wrapper>
                 }
               />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/watch" element={<Watch />} />
-              <Route path="/random" element={<FilmRollPickerPage />} />
-              <Route path="/globe" element={<FilmGlobePage />} />
 
-              <Route path="/watchplaylist" element={<WatchPlaylist />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/subs" element={<Subscriptons />} />
-              <Route path="/playlists" element={<PlaylistsPage />} />
-              <Route path="/watchlist" element={<WatchlistPage />} />
-              <Route path="/history" element={<HistoryPage />} />
-              <Route path="/genre" element={<GenrePage />} />
-              <Route path="/genres" element={<GenresPage />} />
+              <Route
+                path="/search"
+                element={
+                  <Wrapper>
+                    <SearchPage />
+                  </Wrapper>
+                }
+              />
 
-              <Route path="/challenges" element={<ExploreChallengesPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/challenge" element={<ChallengePage />} />
-              <Route path="/@" element={<AccountProfile />} />
-              <Route path="/SignUpPage" element={<SignUpPage />} />
-              <Route path="/googleSignUp" element={<SignUpGoogle />} />
+              <Route
+                path="/watch"
+                element={
+                  <Wrapper>
+                    <Watch />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/random"
+                element={
+                  <Wrapper>
+                    <FilmRollPickerPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/globe"
+                element={
+                  <Wrapper>
+                    <FilmGlobePage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/watchplaylist"
+                element={
+                  <Wrapper>
+                    <WatchPlaylist />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/settings"
+                element={
+                  <Wrapper>
+                    <SettingsPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/subs"
+                element={
+                  <Wrapper>
+                    <Subscriptons />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/playlists"
+                element={
+                  <Wrapper>
+                    <PlaylistsPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/watchlist"
+                element={
+                  <Wrapper>
+                    <WatchlistPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/history"
+                element={
+                  <Wrapper>
+                    <HistoryPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/genre"
+                element={
+                  <Wrapper>
+                    <GenrePage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/genres"
+                element={
+                  <Wrapper>
+                    <GenresPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/challenges"
+                element={
+                  <Wrapper>
+                    <ExploreChallengesPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/notifications"
+                element={
+                  <Wrapper>
+                    <NotificationsPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/challenge"
+                element={
+                  <Wrapper>
+                    <ChallengePage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/@"
+                element={
+                  <Wrapper>
+                    <AccountProfile />
+                  </Wrapper>
+                }
+              />
+
               <Route
                 path="/profile-customization"
                 element={<ProfileCustomization />}
               />
 
-              <Route path="/login" element={<LoginPage />} />
               <Route
                 path="/Profile"
                 element={
@@ -81,15 +222,15 @@ function Yugen() {
                   </Wrapper>
                 }
               />
+
               <Route
-                path="/resetPassword"
+                path="/flagged"
                 element={
                   <Wrapper>
-                    <ResetPassword />
+                    <FlaggedFilmsPage />
                   </Wrapper>
                 }
               />
-              <Route path="/flagged" element={<FlaggedFilmsPage />} />
             </Routes>
           </Router>
         </ErrorBoundary>
