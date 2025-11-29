@@ -140,15 +140,25 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         const finishedAt = Date.now();
         setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, progress: 100, loadedBytes: u.size, status: "completed", finishedAt, filmId } : u)));
         setHistory((h) => [{ id, fileName: file.name, size: file.size, status: "completed", startedAt, finishedAt, filmId }, ...h]);
+        // Remove from active uploads after a short delay so UI shows 100% briefly
+        setTimeout(() => {
+          setUploads((prev) => prev.filter((u) => u.id !== id));
+        }, 1500);
         toast.success(`${file.name} uploaded`, { autoClose: 3000, closeOnClick: true });
       } catch (err: any) {
         if (axios.isCancel(err)) {
-          setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, status: "canceled", finishedAt: Date.now(), error: "canceled" } : u)));
-          setHistory((h) => [{ id, fileName: file.name, size: file.size, status: "canceled", startedAt, finishedAt: Date.now(), error: "canceled" }, ...h]);
+          const finishedAt = Date.now();
+          setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, status: "canceled", finishedAt, error: "canceled" } : u)));
+          setHistory((h) => [{ id, fileName: file.name, size: file.size, status: "canceled", startedAt, finishedAt, error: "canceled" }, ...h]);
+          // remove from active uploads after brief delay
+          setTimeout(() => setUploads((prev) => prev.filter((u) => u.id !== id)), 1500);
           toast.warn(`${file.name} upload canceled`, { autoClose: 4000 });
         } else {
-          setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, status: "failed", finishedAt: Date.now(), error: String(err?.message || err) } : u)));
-          setHistory((h) => [{ id, fileName: file.name, size: file.size, status: "failed", startedAt, finishedAt: Date.now(), error: String(err?.message || err) }, ...h]);
+          const finishedAt = Date.now();
+          const errorMsg = String(err?.message || err);
+          setUploads((prev) => prev.map((u) => (u.id === id ? { ...u, status: "failed", finishedAt, error: errorMsg } : u)));
+          setHistory((h) => [{ id, fileName: file.name, size: file.size, status: "failed", startedAt, finishedAt, error: errorMsg }, ...h]);
+          setTimeout(() => setUploads((prev) => prev.filter((u) => u.id !== id)), 1500);
           toast.error(`${file.name} upload failed`, { autoClose: 6000 });
         }
       }

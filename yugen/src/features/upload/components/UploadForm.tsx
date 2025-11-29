@@ -230,6 +230,7 @@ const UploadForm: React.FC = () => {
   );
   const [openReport, setOpenReport] = useState(false);
   const { addUpload } = useUploadManager();
+  const navigate = useNavigate();
 
   const handleStartUpload = async () => {
     // validate required fields
@@ -260,6 +261,8 @@ const UploadForm: React.FC = () => {
       console.error(err);
       toast.error("Failed to start upload");
     }
+      // Redirect to home immediately after starting non-blocking upload
+      navigate("/");
   };
 
   // navigation on backend completion removed in revert

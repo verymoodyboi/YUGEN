@@ -5,21 +5,11 @@ import { useNavigate } from "react-router-dom";
 import logo from "../YugenAssits/Transparent long.png";
 import PillNav from "../SmallComponents/PillNav";
 import { useState, useRef, useEffect } from "react";
-import UploadsPanel from "../features/uploads/UploadsPanel";
-import { useUploadManager } from "../features/uploads/useUploadManager";
 
 function NavBar() {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
-  const [openUploads, setOpenUploads] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
-  const uploadManager = (() => {
-    try {
-      return useUploadManager();
-    } catch {
-      return null as any;
-    }
-  })();
 
   const logOut = async () => {
     await supabase.auth.signOut();
@@ -55,11 +45,10 @@ function NavBar() {
           { label: "🕭 Notifications", href: "/notifications" },
           {
             label: "⬆ Uploads",
-            href: "#",
+            href: "/Profile#uploads",
             onClick: (e: React.MouseEvent) => {
               e.preventDefault();
-              if (uploadManager && uploadManager.setOpenPanel) uploadManager.setOpenPanel(true);
-              else setOpenUploads(true);
+              navigate("/Profile#uploads");
             },
           },
         ]}
@@ -86,7 +75,7 @@ function NavBar() {
           </div>
         </div>
       )}
-      <UploadsPanel open={(uploadManager && uploadManager.openPanel) || openUploads} onClose={() => { if (uploadManager && uploadManager.setOpenPanel) uploadManager.setOpenPanel(false); else setOpenUploads(false); }} />
+      {/* Uploads panel removed from NavBar; 'Uploads' now navigates to profile uploads section */}
     </div>
   );
 }

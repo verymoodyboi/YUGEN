@@ -1,7 +1,7 @@
 // src/pages/UserProfile.tsx
 import React, { useState, useRef, useEffect, Fragment } from "react";
 import { useMyProfile } from "../features/profile/hooks/useMyProfile";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import supabase from "../lib/supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
 import AppLayout from "../layouts/layout-main";
@@ -11,6 +11,7 @@ import CustomLoading from "../SmallComponents/CutomsLoading";
 import EditProfile from "../features/profile/components/EditProfile copy";
 import { Dialog, Transition } from "@headlessui/react";
 import UploadFilmCard from "../features/profile/components/uploadedFilmsCard";
+import ProfileUploads from "../features/uploads/ProfileUploads";
 import {
   FiYoutube,
   FiInstagram,
@@ -39,6 +40,18 @@ const UserProfile: React.FC = () => {
   const [value, setValue] = useState<"library" | "info" | "uploads">("library");
   const [openEdit, setOpenEdit] = useState(false);
   const infoRef = useRef<HTMLDivElement | null>(null);
+  const location = useLocation();
+
+  // If navigated with hash or query to uploads, open the uploads tab
+  useEffect(() => {
+    try {
+      if (location.hash === "#uploads") setValue("uploads");
+      const q = new URLSearchParams(location.search);
+      if (q.get("tab") === "uploads") setValue("uploads");
+    } catch (e) {
+      // ignore
+    }
+  }, [location]);
 
   const scrollToInfo = () =>
     infoRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -159,7 +172,7 @@ const UserProfile: React.FC = () => {
           {/* Upload Visual */}
           <div>
             <video
-              onClick={() => navigate("/UploadFilmPage")}
+              onClick={() => navigate("/")}
               autoPlay
               loop
               muted
@@ -368,32 +381,34 @@ const UserProfile: React.FC = () => {
           </div>
         )}
         {value === "uploads" && (
-          <div
-            onScroll={handleScroll}
-            className="flex flex-col gap-4 mt-4 max-h-[70vh] overflow-y-auto pr-2 no-scrollbar"
-          >
-            <h2 className="text-2xl mb-2">Your Uploads</h2>
+          <div className="flex flex-col gap-4 mt-4">
+            <ProfileUploads />
 
-            {isLoading ? (
-              <Loading />
-            ) : isError ? (
-              <p className="text-red-500">Failed to load films</p>
-            ) : films.length > 0 ? (
-              <>
-                {films.map((film) => (
-                  <UploadFilmCard key={film.film_uuid} film={film} />
-                ))}
-                {isFetchingNextPage && (
-                  <div className="text-center text-emerald-900 animate-pulse py-2">
-                   <Loading/>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-emerald-900">
-                You haven’t uploaded any films yet.
-              </p>
-            )}
+            <div
+              onScroll={handleScroll}
+              className="flex flex-col gap-4 mt-4 max-h-[50vh] overflow-y-auto pr-2 no-scrollbar"
+            >
+              <h2 className="text-2xl mb-2">Your Uploads</h2>
+
+              {isLoading ? (
+                <Loading />
+              ) : isError ? (
+                <p className="text-red-500">Failed to load films</p>
+              ) : films.length > 0 ? (
+                <>
+                  {films.map((film) => (
+                    <UploadFilmCard key={film.film_uuid} film={film} />
+                  ))}
+                  {isFetchingNextPage && (
+                    <div className="text-center text-emerald-900 animate-pulse py-2">
+                      <Loading />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-emerald-900">You haven’t uploaded any films yet.</p>
+              )}
+            </div>
           </div>
         )}
 

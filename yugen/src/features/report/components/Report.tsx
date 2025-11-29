@@ -30,32 +30,32 @@ const ReportForm: React.FC<ReportFormProps> = ({
   if (isSubmit)
     return (
       <div className="flex flex-col items-center justify-center text-center p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b] font-freckle">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-16 h-16 text-emerald-950 mb-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 12l2 2l4 -4"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10z"
-          />
-        </svg>
-        <h2 className="text-2xl text-emerald-950 mb-2">
-          Report submitted successfully!
-        </h2>
-        <p className="text-emerald-950/80">
-          Thank you for your feedback — our team will review it soon.
-        </p>
-      </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-16 h-16 text-emerald-950 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 12l2 2l4 -4"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10z"
+            />
+          </svg>
+          <h2 className="text-2xl text-emerald-950 mb-2">
+            Report submitted successfully!
+          </h2>
+          <p className="text-emerald-950/80">
+            Thank you for your feedback — our team will review it soon.
+          </p>
+        </div>
     );
 
   return (
