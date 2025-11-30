@@ -11,6 +11,7 @@ interface CountryStats {
   film_count: number | null;
   artist_count: number | null;
 }
+ import { toast } from "react-toastify";
 
 export const useGlobe = () => {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -27,30 +28,39 @@ export const useGlobe = () => {
   const FILM_LIMIT = 12;
   const USER_LIMIT = 9;
 
-  const handleCountryClick = useCallback(async (countryName: string) => {
-    if (!countryName) return;
-    setSelectedCountry(countryName);
-    setLoading(true);
-    setError(null);
-    setFilmOffset(0);
-    setUserOffset(0);
 
-    try {
-      const [stats, filmsData, usersData] = await Promise.all([
-        fetchCountryStats(countryName),
-        fetchFilmsByCountry(countryName),
-        fetchUsersByCountry(countryName),
-      ]);
+const handleCountryClick = useCallback(async (countryName: string) => {
+  if (!countryName) return;
+  setLoading(true);
+  setError(null);
+  setFilmOffset(0);
+  setUserOffset(0);
 
-      setCountryStats(stats || { film_count: 0, artist_count: 0 });
-      setFilms(filmsData || []);
-      setUsers(usersData?.data || usersData || []);
-    } catch (err: any) {
-      setError(err.message || "Failed to load data");
-    } finally {
-      setLoading(false);
+  try {
+    const [stats, filmsData, usersData] = await Promise.all([
+      fetchCountryStats(countryName),
+      fetchFilmsByCountry(countryName),
+      fetchUsersByCountry(countryName),
+    ]);
+
+    const filmCount = filmsData?.length || 0;
+
+    if (filmCount === 0) {
+      toast.warn(`No films uploaded from ${countryName} yet!`);
+      return; 
     }
-  }, []);
+
+    setSelectedCountry(countryName);
+    setCountryStats(stats || { film_count: 0, artist_count: 0 });
+    setFilms(filmsData || []);
+    setUsers(usersData?.data || usersData || []);
+  } catch (err: any) {
+    setError(err.message || "Failed to load data");
+    toast.error(`Failed to load data for ${countryName}`);
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   // Load more films when scrolling
   const loadMoreFilms = useCallback(async () => {
@@ -105,7 +115,6 @@ export const useGlobe = () => {
         if (stats)
           setHoverStats((prev) => ({ ...prev, [countryName]: stats }));
       } catch {
-        // silent
       }
     },
     [hoverStats]

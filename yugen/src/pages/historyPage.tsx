@@ -19,7 +19,7 @@ const HistoryPage: React.FC = () => {
   return (
     <AppLayout>
       <div className="h-full w-full flex flex-col overflow-auto p-4">
-        <h2 className="font-freckle text-2xl text-emerald-950 dark:text-emerald-50 mb-4">
+        <h2 className="font-freckle text-2xl text-emerald-950 ">
           Watch history
         </h2>
 
@@ -30,9 +30,7 @@ const HistoryPage: React.FC = () => {
           </p>
         )}
         {!loading && history.length === 0 && (
-          <p className="text-emerald-900 dark:text-emerald-50">
-            No films in your history yet.
-          </p>
+          <p className="text-emerald-900 ">No films in your history yet.</p>
         )}
 
         {!loading && history.length > 0 && (
@@ -41,11 +39,11 @@ const HistoryPage: React.FC = () => {
               <div key={date}>
                 {/* Date divider */}
                 <div className="flex items-center my-4">
-                  <div className="flex-grow border-t border-emerald-950/20 dark:border-emerald-50/20" />
-                  <span className="px-4 font-freckle text-lg text-emerald-950 dark:text-emerald-50 whitespace-nowrap">
+                  <div className="flex-grow border-t border-emerald-950/20 " />
+                  <span className="px-4 font-freckle text-lg text-emerald-950 ">
                     {dayjs(date).format("MMMM D, YYYY")}
                   </span>
-                  <div className="flex-grow border-t border-emerald-950/20 dark:border-emerald-50/20" />
+                  <div className="flex-grow border-t border-emerald-950/20" />
                 </div>
 
                 {/* Film scroll row */}

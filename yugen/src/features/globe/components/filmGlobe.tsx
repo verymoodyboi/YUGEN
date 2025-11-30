@@ -1,12 +1,12 @@
 // src/features/globe/components/FilmGlobe.tsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
 import * as THREE from "three";
-import { scaleSequentialSqrt } from "d3-scale";
-import { interpolateYlOrRd } from "d3-scale-chromatic";
 import { useGlobe } from "../useGlobe";
 import CountryModal from "./countryFilmsModal";
 import { FiFilm, FiUser } from "react-icons/fi";
+import { toast, ToastContainer } from "react-toastify";
+
 interface CountryFeature {
   type: "Feature";
   properties: {
@@ -20,8 +20,10 @@ interface CountryFeature {
 
 const FilmGlobe: React.FC = () => {
   const globeRef = useRef<any>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [countries, setCountries] = useState<CountryFeature[]>([]);
   const [hoverD, setHoverD] = useState<CountryFeature | null>(null);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   const {
     selectedCountry,
@@ -37,6 +39,7 @@ const FilmGlobe: React.FC = () => {
     loadMoreUsers,
   } = useGlobe();
 
+  // Load country geojson
   useEffect(() => {
     fetch("/world.geojson")
       .then((res) => res.json())
@@ -44,13 +47,22 @@ const FilmGlobe: React.FC = () => {
       .catch((err) => console.error("Failed to load countries:", err));
   }, []);
 
-  const colorScale = useMemo(
-    () => scaleSequentialSqrt(interpolateYlOrRd).domain([0, 1]),
-    []
-  );
+  // Update container dimensions on resize
+  useEffect(() => {
+    const updateSize = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight,
+        });
+      }
+    };
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
-  const getColor = (d: CountryFeature) => colorScale(Math.random());
-
+  // Globe controls
   useEffect(() => {
     if (!globeRef.current) return;
     const controls = globeRef.current.controls();
@@ -60,7 +72,7 @@ const FilmGlobe: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex items-top justify-center min-h-screen relative">
+    <div ref={containerRef} className="w-full h-full relative flex-1">
       {/* Tooltip */}
       {hoverD && (
         <div
@@ -96,8 +108,8 @@ const FilmGlobe: React.FC = () => {
 
       <Globe
         ref={globeRef}
-        width={1500}
-        height={650}
+        width={dimensions.width}
+        height={dimensions.height}
         globeImageUrl="earth.png"
         backgroundImageUrl="galaxy.png"
         polygonsData={countries.filter((d) => d.properties.ISO_A3 !== "ATA")}
@@ -137,6 +149,7 @@ const FilmGlobe: React.FC = () => {
           loadMoreUsers={loadMoreUsers}
         />
       )}
+      <ToastContainer />
     </div>
   );
 };

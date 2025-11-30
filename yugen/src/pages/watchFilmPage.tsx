@@ -74,7 +74,7 @@ const Watch: React.FC = () => {
             </div>
           </>
         ) : (
-          <p className="text-emerald-950 dark:text-emerald-50 font-freckle text-xl">
+          <p className="text-emerald-950 font-freckle text-xl">
             No film selected
           </p>
         )}

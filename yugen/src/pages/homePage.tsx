@@ -7,16 +7,26 @@ import Loading from "../components/loading_kickflip";
 
 const HomePage: React.FC = () => {
   const { userInfo } = useAuth();
-  const { hottest, fresh, subscriptions, watchlist, isLoading } =
-    useRecommendations(userInfo?.auth_id);
+  const {
+    hottest,
+    fresh,
+    subscriptions,
+    watchlist,
+    isLoading,
+
+    hottestRef,
+    freshRef,
+    subsRef,
+    watchlistRef,
+  } = useRecommendations(userInfo?.auth_id);
 
   const renderSection = (
     title: string,
     films: any[],
-    subtitle?: string,
-    showIfEmpty = false
+    ref: React.Ref<HTMLDivElement>,
+    subtitle?: string
   ) => {
-    if (!films?.length && !showIfEmpty) return null;
+    if (!films?.length) return null;
 
     return (
       <section className="space-y-3">
@@ -28,31 +38,22 @@ const HomePage: React.FC = () => {
         </div>
 
         <div className="flex overflow-x-auto space-x-3 pb-2 pl-2 -mx-2">
-          {films.length > 0 ? (
-            films.map((film) => (
-              <div key={film.film_uuid} className="flex-shrink-0">
+          {films.map((film, index) => {
+            const isLast = index === films.length - 1;
+            return (
+              <div
+                key={film.film_uuid}
+                className="flex-shrink-0"
+                ref={isLast ? ref : null}
+              >
                 <FilmCard film={film} />
               </div>
-            ))
-          ) : (
-            <p className="text-emerald-700 text-sm italic">
-              No films available.
-            </p>
-          )}
+            );
+          })}
         </div>
       </section>
     );
   };
-
-  if (isLoading) {
-    return (
-      <AppLayout>
-        <div className="flex justify-center items-center h-screen">
-          <Loading />
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>
@@ -60,22 +61,35 @@ const HomePage: React.FC = () => {
         {renderSection(
           "Hottest Picks",
           hottest,
+          hottestRef,
           "Audience favorites at the moment"
         )}
+
         {renderSection(
           "Fresh Out of the Oven",
           fresh,
+          freshRef,
           "Newest trending releases"
         )}
+
         {renderSection(
           "From Your Subscriptions",
           subscriptions,
+          subsRef,
           "Films by filmmakers you follow"
         )}
+
         {renderSection(
           "From Your Watchlist",
           watchlist,
+          watchlistRef,
           "Films on your watchlist"
+        )}
+
+        {isLoading && (
+          <div className="flex justify-center py-4">
+            <Loading />
+          </div>
         )}
       </div>
     </AppLayout>

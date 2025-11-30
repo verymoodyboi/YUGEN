@@ -19,13 +19,11 @@ const PlaylistsPage: React.FC = () => {
   return (
     <AppLayout>
       <div className="flex flex-col space-y-6">
-        <h2 className="font-freckle text-2xl text-emerald-950 dark:text-emerald-50">
-          My Playlists
-        </h2>
+        <h2 className="font-freckle text-2xl text-emerald-950">My Playlists</h2>
 
         <button
-          className="flex items-center gap-2 bg-emerald-900/20 dark:bg-emerald-50/20 text-emerald-950 dark:text-emerald-50 
-                     px-4 py-2 rounded-lg hover:bg-emerald-900/30 dark:hover:bg-emerald-50/30 transition"
+          className="flex items-center gap-2 bg-emerald-900/20 text-emerald-950 
+                     px-4 py-2 rounded-lg hover:bg-emerald-900/30 transition"
           onClick={() => setIsOpenAdd(true)}
         >
           Create a playlist
@@ -34,9 +32,7 @@ const PlaylistsPage: React.FC = () => {
         {loading ? (
           <Loading />
         ) : myPlaylists.length === 0 ? (
-          <p className="text-emerald-900 dark:text-emerald-50">
-            No playlists yet.
-          </p>
+          <p className="text-emerald-900 ">No playlists yet.</p>
         ) : (
           <div className="flex flex-wrap gap-3">
             {myPlaylists.map((playlist) => (

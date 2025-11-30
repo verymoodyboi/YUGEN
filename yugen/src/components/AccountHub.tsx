@@ -49,7 +49,7 @@ function AccHub() {
   }, []);
 
   return (
-    <div className="absolute top-2 right-5 flex items-center justify-between z-10 h-[60px] w-35 rounded-full border-2 border-emerald-950/100 bg-emerald-50 dark:bg-emerald-950/50 backdrop-blur-md p-2 gap-0.5">
+    <div className="absolute top-2 right-5 flex items-center justify-between z-10 h-[60px] w-35 rounded-full border-2 border-emerald-950/100 bg-emerald-50  backdrop-blur-md p-2 gap-0.5">
       {/* Profile video */}
       <video
         onClick={() => navigate("/UploadFilmPage")}
@@ -73,16 +73,16 @@ function AccHub() {
         }
         alt="avatar"
         onClick={toggleMenu}
-        className="h-[50px] w-auto rounded-full cursor-pointer border-2 border-emerald-950 dark:border-emerald-50 transition-transform duration-300 ease-in-out hover:scale-105"
+        className="h-[50px] w-auto rounded-full cursor-pointer border-2 border-emerald-950  transition-transform duration-300 ease-in-out hover:scale-105"
       />
       {/* Dropdown Menu */}
       {menuOpen && (
         <div
           ref={menuRef}
-          className="absolute top-12 right-0 bg-emerald-50 dark:bg-emerald-950 border border-emerald-950 dark:border-emerald-50 rounded-xl shadow-lg w-40 py-2 flex flex-col"
+          className="absolute top-12 right-0 bg-emerald-50 border border-emerald-950  rounded-xl shadow-lg w-40 py-2 flex flex-col"
         >
           <button
-            className="flex items-center gap-2 px-4 py-2 text-emerald-950 dark:text-emerald-50 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-lg"
+            className="flex items-center gap-2 px-4 py-2 text-emerald-950  hover:bg-emerald-100  rounded-lg"
             onClick={() => {
               navigate("/profile");
               setMenuOpen(false);
@@ -92,7 +92,7 @@ function AccHub() {
             Profile
           </button>
           <button
-            className="flex items-center gap-2 px-4 py-2 text-emerald-950 dark:text-emerald-50 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-lg"
+            className="flex items-center gap-2 px-4 py-2 text-emerald-950  hover:bg-emerald-100 rounded-lg"
             onClick={() => {
               navigate("/settings");
               setMenuOpen(false);
@@ -102,7 +102,7 @@ function AccHub() {
             Settings
           </button>
           <button
-            className="flex items-center gap-2 px-4 py-2 text-emerald-950 dark:text-emerald-50 hover:bg-emerald-100 dark:hover:bg-emerald-900 rounded-lg"
+            className="flex items-center gap-2 px-4 py-2 text-emerald-950  hover:bg-emerald-100 rounded-lg"
             onClick={() => {
               setMenuOpen(false);
               logOut();

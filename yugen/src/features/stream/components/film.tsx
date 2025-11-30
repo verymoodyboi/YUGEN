@@ -114,6 +114,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               <div className="flex items-center gap-1">
                 <FiEye size={22} /> {filmData.view_count ?? 0}
               </div>
+
               <div className="flex items-center gap-1">
                 <FiStar size={22} /> {filmData.avg_rating ?? 0}
               </div>
@@ -275,7 +276,9 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                   <Wrapper>
                     <ReportForm
                       film_id={filmData.film_uuid}
-                      onSubmitSuccess={() => setIsReportOpen(false)}
+                      onSubmitSuccess={() =>
+                        setTimeout(() => setIsReportOpen(false), 2000)
+                      }
                     />
                   </Wrapper>
                 </Dialog.Panel>

@@ -8,13 +8,13 @@ const GenresPage: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="min-h-screen flex flex-col gap-10 text-emerald-950 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-50 px-4 sm:px-8 py-10 transition-colors duration-300">
+      <div className="min-h-screen flex flex-col gap-10 text-emerald-950 bg-emerald-50  px-4 sm:px-8 py-10 transition-colors duration-300">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
-          <h1 className="text-4xl font-freckle font-bold border-b-4 border-emerald-950 dark:border-emerald-50 pb-2">
+          <h1 className="text-4xl font-freckle font-bold border-b-4 border-emerald-950  pb-2">
             Explore Genres
           </h1>
-          <p className="text-sm text-emerald-900/70 dark:text-emerald-100/70 mt-2 sm:mt-0">
+          <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">
             Discover films by theme, tone, and feel.
           </p>
         </div>
@@ -22,13 +22,13 @@ const GenresPage: React.FC = () => {
         {/* Loading & Empty States */}
         {loading && (
           <div className="flex justify-center items-center py-20">
-             <Loading />
+            <Loading />
           </div>
         )}
 
         {!loading && genresWithFilms.length === 0 && (
           <div className="flex justify-center items-center py-20">
-            <p className="text-lg font-freckle text-emerald-900/80 dark:text-emerald-100/80">
+            <p className="text-lg font-freckle text-emerald-900/80 ">
               No genres available at this time.
             </p>
           </div>

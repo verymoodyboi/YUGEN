@@ -42,9 +42,9 @@ const GenrePage: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="flex flex-col space-y-10 text-emerald-950 dark:text-emerald-50">
+      <div className="flex flex-col space-y-10 text-emerald-950 ">
         {/* === HERO SECTION === */}
-        <div className="relative w-full rounded-3xl overflow-hidden border border-emerald-950/30 shadow-lg bg-emerald-50 dark:bg-emerald-900/20">
+        <div className="relative w-full rounded-3xl overflow-hidden border border-emerald-950/30 shadow-lg bg-emerald-50 ">
           {/* Background Poster (faded) */}
           {mainPoster && (
             <>
@@ -108,14 +108,10 @@ const GenrePage: React.FC = () => {
           <span className="inline-block px-4 py-1 mt-2 rounded-full bg-emerald-50 text-emerald-950 font-freckle  shadow">
             {genreInfo?.film_count ?? films.length} Films
           </span>
-          {loading && films.length === 0 && (
-          <Loading />
-          )}
+          {loading && films.length === 0 && <Loading />}
 
           {!loading && films.length === 0 && (
-            <p className="text-emerald-950 dark:text-emerald-50">
-              No films found in this genre.
-            </p>
+            <p className="text-emerald-950 ">No films found in this genre.</p>
           )}
 
           {/* Film Grid */}
@@ -126,7 +122,7 @@ const GenrePage: React.FC = () => {
           </div>
 
           {hasMore && (
-            <div className="text-center py-4 text-emerald-950 dark:text-emerald-50 animate-pulse">
+            <div className="text-center py-4 text-emerald-950 animate-pulse">
               Loading more films…
             </div>
           )}

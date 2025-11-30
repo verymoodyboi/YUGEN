@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext.tsx";
 import App from "./App.tsx";
 import "./App.css";
-import { ThemeProvider } from "./contexts/ThemeContext.tsx";
 const queryClient = new QueryClient();
 // window.addEventListener("unhandledrejection", (event) => {
 //   console.error("Unhandled rejection:", event.reason);
@@ -18,12 +17,10 @@ const queryClient = new QueryClient();
 // });
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider>
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <App />
-        </QueryClientProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </AuthProvider>
   </StrictMode>
 );

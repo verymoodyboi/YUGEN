@@ -10,16 +10,12 @@ const WatchlistPage: React.FC = () => {
 
   return (
     <AppLayout>
-      <h2 className="font-freckle text-2xl text-emerald-950 dark:text-emerald-50 text-left mb-4">
-        My Watchlist
-      </h2>
+      <h2 className="font-freckle text-2xl text-emerald-950 ">My Watchlist</h2>
 
       {loading ? (
         <Loading />
       ) : watchlist.length === 0 ? (
-        <p className="text-emerald-900 dark:text-emerald-50">
-          No films in your watchlist yet.
-        </p>
+        <p className="text-emerald-900 ">No films in your watchlist yet.</p>
       ) : (
         <FilmScrollRowDynamic
           films={watchlist.map((item) => item.films)}

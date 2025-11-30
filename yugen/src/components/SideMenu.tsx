@@ -19,9 +19,7 @@ function SideMenu({
   const [open, setOpen] = useState(false);
 
   const SectionTitle = ({ children }: { children: string }) => (
-    <h2 className="text-lg font-freckle text-emerald-950 dark:text-emerald-50 mb-2">
-      {children}
-    </h2>
+    <h2 className="text-lg font-freckle text-emerald-950  mb-2">{children}</h2>
   );
 
   const MenuButton = ({
@@ -41,12 +39,12 @@ function SideMenu({
       className={`relative w-full py-2 px-4 font-freckle text-lg transition-transform duration-200 border-2 ${
         disabled
           ? "border-gray-700 bg-emerald-950 text-emerald-50 cursor-not-allowed shadow-none"
-          : "border-emerald-950 dark:border-emerald-50 bg-emerald-50/60 dark:bg-emerald-950/60 text-emerald-950 dark:text-emerald-50 hover:scale-105 hover:shadow-[4px_4px_0_0_#064e3b]"
+          : "border-emerald-950  bg-emerald-50/60  text-emerald-950  hover:scale-105 hover:shadow-[4px_4px_0_0_#064e3b]"
       }`}
     >
       {label}
       {badge && (
-        <span className="absolute -top-1 -right-1 bg-emerald-50 dark:bg-emerald-50 text-emerald-950 text-xs px-2 py-0.5 rounded-full shadow-sm border-emerald-950 border-2">
+        <span className="absolute -top-1 -right-1 bg-emerald-50 text-emerald-950 text-xs px-2 py-0.5 rounded-full shadow-sm border-emerald-950 border-2">
           {badge}
         </span>
       )}
@@ -55,7 +53,7 @@ function SideMenu({
 
   // Menu sections
   const MenuContent = (
-    <div className="w-full h-full bg-emerald-50 dark:bg-emerald-950 border-emerald-950 dark:border-emerald-50 flex flex-col gap-4 p-6 overflow-y-auto">
+    <div className="w-full h-full bg-emerald-50 border-emerald-950  flex flex-col gap-4 p-6 overflow-y-auto">
       {/* Library */}
       <SectionTitle>Your Library</SectionTitle>
       <MenuButton
@@ -143,8 +141,8 @@ function SideMenu({
             py-2 px-5 
             font-freckle text-lg 
             border-2 border-emerald-950 
-            bg-emerald-50/70 dark:bg-emerald-950/70 
-            text-emerald-950 dark:text-emerald-50 
+            bg-emerald-50/70  
+            text-emerald-950
             rounded-full shadow-md
             backdrop-blur-sm
             hover:scale-105 hover:shadow-[3px_3px_0_0_#064e3b]
@@ -166,7 +164,7 @@ function SideMenu({
         }}
       >
         <div
-          className={`absolute top-0 left-0 h-full w-64 bg-emerald-50 dark:bg-emerald-950 
+          className={`absolute top-0 left-0 h-full w-64 bg-emerald-50  
       border-r-2 border-emerald-950 shadow-2xl transform transition-transform duration-300 ease-in-out
       ${open ? "translate-x-0" : "-translate-x-full"}`}
           onClick={(e) => e.stopPropagation()}
@@ -174,7 +172,7 @@ function SideMenu({
           {MenuContent}
 
           <button
-            className="absolute top-2 right-2 text-emerald-950 dark:text-emerald-50"
+            className="absolute top-2 right-2 text-emerald-950 "
             onClick={() => setOpen(false)}
           >
             ✕

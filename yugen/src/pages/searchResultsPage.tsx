@@ -123,7 +123,7 @@ const SearchPage: React.FC = () => {
           accounts.length === 0 &&
           playlists.length === 0 &&
           suggestions.length === 0 && (
-            <p className="text-center text-emerald-950 dark:text-emerald-50 font-freckle text-lg">
+            <p className="text-center text-emerald-950  font-freckle text-lg">
               No results found.
             </p>
           )}

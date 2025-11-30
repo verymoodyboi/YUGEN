@@ -8,7 +8,7 @@ import {
   FiTrash,
   FiX,
 } from "react-icons/fi";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import supabase from "../../../lib/supabaseClient";
 import ReplyForm from "./ReplyForm";
@@ -454,7 +454,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
       {/* Tailwind Flag Modal */}
       {flagModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md bg-white dark:bg-emerald-900 rounded-lg p-6 shadow-lg">
+          <div className="w-full max-w-md bg-white  rounded-lg p-6 shadow-lg">
             <h3 className="font-freckle text-xl mb-4">Report this content</h3>
 
             <label className="block text-sm font-semibold mb-2">
@@ -497,7 +497,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
       {/* Flag modal (tailwind) */}
       {flagOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md bg-white dark:bg-emerald-900 rounded-lg p-6 shadow-lg">
+          <div className="w-full max-w-md bg-white  rounded-lg p-6 shadow-lg">
             <h3 className="text-lg font-semibold text-emerald-950 mb-3">
               Flag Reply
             </h3>

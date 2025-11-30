@@ -59,7 +59,7 @@ function NavBar() {
           <div
             ref={drawerRef}
             onClick={(e) => e.stopPropagation()}
-            className="w-full h-[50vh] bg-emerald-50 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-50 backdrop-blur-md backdrop-saturate-150 rounded-b-2xl border border-emerald-950 dark:border-emerald-50 shadow-lg flex flex-col items-center p-4"
+            className="w-full h-[50vh] bg-emerald-50  text-emerald-950 backdrop-blur-md backdrop-saturate-150 rounded-b-2xl border border-emerald-950 dark:border-emerald-50 shadow-lg flex flex-col items-center p-4"
           >
             <div className="w-full h-[10vh] flex justify-center items-center">
               <SearchBar />

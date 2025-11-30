@@ -4,7 +4,7 @@ import SideMenu from "../components/SideMenu";
 import AccHub from "../components/AccountHub";
 import NavBar from "../components/NavBar";
 import TechnicalReportForm from "../features/report/components/TechReport";
-
+import { ToastContainer, toast } from "react-toastify";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [openReport, setOpenReport] = useState(false);
   const [openContact, setOpenContact] = useState(false);
@@ -49,11 +49,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             if (e.target === e.currentTarget) setOpenReport(false);
           }}
         >
-          <div
-            className="bg-emerald-50 dark:bg-emerald-950 rounded-xl shadow-lg w-full max-w-lg p-4 border-2 border-emerald-950"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <TechnicalReportForm onSubmitSuccess={() => setOpenReport(false)} />
+          <div className=" max-w-lg p-4 " onClick={(e) => e.stopPropagation()}>
+            <TechnicalReportForm
+              onSubmitSuccess={async () => {
+                setTimeout(() => setOpenReport(false), 2000);
+              }}
+            />
           </div>
         </div>
       )}
@@ -67,29 +68,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           }}
         >
           <div
-            className="bg-emerald-50 dark:bg-emerald-950 rounded-xl shadow-lg w-full max-w-sm p-6 border-2 border-emerald-950 space-y-4"
+            className="bg-emerald-50 rounded-xl shadow-lg w-full max-w-sm p-6 border-2 border-emerald-950 space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-freckle text-2xl text-emerald-950 dark:text-emerald-50">
+            <h2 className="font-freckle text-2xl text-emerald-950 ">
               Contact Information
             </h2>
-            <ul className="space-y-2 text-emerald-950 dark:text-emerald-50">
+            <ul className="space-y-2 text-emerald-950 ">
               <li>
-                <strong>Email:</strong> support@yugen.film
+                <strong>Email:</strong> support@try-yugen.com
               </li>
               <li>
-                <strong>Address:</strong> All over the world.
+                <strong>Address:</strong> All over the world! (until we can
+                afford an office!)
               </li>
             </ul>
             <button
               onClick={() => setOpenContact(false)}
-              className="w-full py-2 rounded-lg bg-emerald-950 dark:bg-emerald-50 text-emerald-50 dark:text-emerald-950 font-freckle hover:scale-105 transition-transform"
+              className="w-full py-2 rounded-lg bg-emerald-950  text-emerald-50  font-freckle hover:scale-105 transition-transform"
             >
               Close
             </button>
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 }
