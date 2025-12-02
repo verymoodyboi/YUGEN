@@ -10,7 +10,6 @@ export interface FilmInsert {
   film_path: string;
   poster_path: string;
   film_duration: string;
-  embedding: any;
   moderation_status:string
 
 }

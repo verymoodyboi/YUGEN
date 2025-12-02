@@ -31,7 +31,7 @@ const HomePage: React.FC = () => {
     return (
       <section className="space-y-3">
         <div className="flex flex-col">
-          <h2 className="text-2xl font-freckle text-emerald-950">| {title}</h2>
+          <h2 className="text-2xl title text-emerald-950">| {title}</h2>
           {subtitle && (
             <p className="text-emerald-900 text-sm italic">{subtitle}</p>
           )}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import supabase from "../../../lib/supabaseClient";
-import { FiStar, FiEdit3 } from "react-icons/fi";
+import { FiStar, FiEdit3, FiImage } from "react-icons/fi";
 import { createPortal } from "react-dom";
 import EditFilm from "../../editFilm/components/EditFilm";
 
@@ -9,27 +9,45 @@ const UploadFilmCard: React.FC<{ film: any }> = ({ film }) => {
 
   const posterUrl =
     supabase.storage.from("posters").getPublicUrl(film.poster_path || "").data
-      .publicUrl || "/placeholder.jpg";
+      .publicUrl || null;
 
   const isFlagged = film.is_flagged === true;
   const isUnderReview = film.moderation_status === "under_review";
+  const isUploading = film.moderation_status === "uploading";
+  const isUploadError = film.moderation_status === "upload_error";
 
-  // 🔹 Decide background and border color based on film state
-  const cardClass = isFlagged
-    ? "bg-red-50 border-red-700 hover:bg-red-100"
-    : isUnderReview
-      ? "bg-yellow-50 border-yellow-600 hover:bg-yellow-100"
-      : "bg-emerald-50 border-emerald-950 hover:bg-emerald-100";
+  // 🔹 Card color logic
+  const cardClass = isUploadError
+    ? "bg-red-100 border-red-700"
+    : isUploading
+      ? "bg-blue-50 border-blue-600 animate-pulse"
+      : isFlagged
+        ? "bg-red-50 border-red-700 hover:bg-red-100"
+        : isUnderReview
+          ? "bg-yellow-50 border-yellow-600 hover:bg-yellow-100"
+          : "bg-emerald-50 border-emerald-950 hover:bg-emerald-100";
 
   return (
     <div
       className={`flex items-center gap-4 p-3 rounded-lg border-2 transition-all ${cardClass}`}
     >
-      <img
-        src={posterUrl}
-        alt={film.film_title}
-        className="w-20 h-28 object-cover rounded-md border border-emerald-950"
-      />
+      {/* =============================
+          POSTER — UPDATED LOGIC HERE
+         ============================= */}
+      <div className="relative w-20 h-28">
+        {isUploading || !posterUrl ? (
+          // 🔵 Pulsating placeholder icon
+          <div className="w-full h-full flex items-center justify-center bg-blue-100 border border-blue-600 rounded-md animate-pulse">
+            <FiImage className="text-blue-700" size={28} />
+          </div>
+        ) : (
+          <img
+            src={posterUrl}
+            alt={film.film_title}
+            className="w-full h-full object-cover rounded-md border border-emerald-950"
+          />
+        )}
+      </div>
 
       <div className="flex-1 text-left">
         <h3 className="font-freckle text-lg text-emerald-950">
@@ -46,7 +64,14 @@ const UploadFilmCard: React.FC<{ film: any }> = ({ film }) => {
           <FiStar className="text-yellow-600" /> {film.avg_rating ?? "N/A"}
         </p>
 
-        {/*  Flagged warning */}
+        {/* ❌ Upload error */}
+        {isUploadError && (
+          <p className="text-sm text-red-800 font-semibold mt-1">
+            ❗ Upload failed. Please review the error report.
+          </p>
+        )}
+
+        {/* Flagged warning */}
         {isFlagged && (
           <p className="text-sm text-red-800 font-semibold mt-1">
             ⚠️ This film was{" "}
@@ -60,19 +85,30 @@ const UploadFilmCard: React.FC<{ film: any }> = ({ film }) => {
           </p>
         )}
 
-        {/*  Under Review Notice */}
+        {/* Under review */}
         {isUnderReview && (
           <p className="text-sm text-yellow-800 font-semibold mt-1">
             ⏳ This film is being scanned for inappropriate content. It may take
             a couple of minutes before it is visible to the public.
           </p>
         )}
+
+        {/* Uploading state */}
+        {isUploading && (
+          <p className="text-sm text-blue-700 font-semibold mt-1">
+            ⏳ Uploading… please wait, this might take a while.
+          </p>
+        )}
       </div>
 
-      {/*  Edit button */}
+      {/* Edit / Error Report button */}
       <button
-        className="text-emerald-950 hover:text-emerald-700 transition ml-2"
-        title="Edit"
+        className={`transition ml-2 ${
+          isUploadError
+            ? "text-red-700 hover:text-red-500"
+            : "text-emerald-950 hover:text-emerald-700"
+        }`}
+        title={isUploadError ? "Open Error Report" : "Edit"}
         onClick={(e) => {
           e.stopPropagation();
           setOpenEdit(true);
@@ -81,7 +117,7 @@ const UploadFilmCard: React.FC<{ film: any }> = ({ film }) => {
         <FiEdit3 size={20} />
       </button>
 
-      {/*  Edit Modal */}
+      {/* Edit Modal */}
       {openEdit &&
         createPortal(
           <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">

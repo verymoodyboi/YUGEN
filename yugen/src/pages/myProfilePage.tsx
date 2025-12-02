@@ -11,6 +11,7 @@ import CustomLoading from "../SmallComponents/CutomsLoading";
 import EditProfile from "../features/profile/components/EditProfile copy";
 import { Dialog, Transition } from "@headlessui/react";
 import UploadFilmCard from "../features/profile/components/uploadedFilmsCard";
+import { useSearchParams } from "react-router-dom";
 import {
   FiYoutube,
   FiInstagram,
@@ -35,8 +36,18 @@ const UserProfile: React.FC = () => {
       await fetchNextPage();
     }
   };
+  const [searchParams] = useSearchParams();
 
-  const [value, setValue] = useState<"library" | "info" | "uploads">("library");
+  const paramTab = searchParams.get("to");
+  const initialTab =
+    paramTab === "uploads" || paramTab === "info" || paramTab === "library"
+      ? paramTab
+      : "library";
+
+  const [value, setValue] = useState<"library" | "info" | "uploads">(
+    initialTab
+  );
+
   const [openEdit, setOpenEdit] = useState(false);
   const infoRef = useRef<HTMLDivElement | null>(null);
 
@@ -230,7 +241,7 @@ const UserProfile: React.FC = () => {
                   )}
                   {isFetchingNextPage && (
                     <div className="flex items-center justify-center text-sm text-emerald-950 animate-pulse flex-shrink-0">
-                       <Loading/>
+                      <Loading />
                     </div>
                   )}
                 </div>
@@ -385,7 +396,7 @@ const UserProfile: React.FC = () => {
                 ))}
                 {isFetchingNextPage && (
                   <div className="text-center text-emerald-900 animate-pulse py-2">
-                   <Loading/>
+                    <Loading />
                   </div>
                 )}
               </>

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../../../contexts/AuthContext";
 import { uploadFilm } from "../services";
 import { searchMentions } from "../../search/services";
-
+import { useNavigate } from "react-router-dom";
 export const useUpload = () => {
   const { getAccessToken } = useAuth();
 const {userInfo}=useAuth()
@@ -31,7 +31,7 @@ const {userInfo}=useAuth()
   const [actorSearchInput, setActorSearchInput] = useState("");
   const [actorSearchResults, setActorSearchResults] = useState<any[]>([]);
   const [actorLoading, setActorLoading] = useState(false);
-
+const navigate=useNavigate()
   // Debounced mention searches
   useEffect(() => {
     const delay = setTimeout(async () => {
@@ -77,6 +77,8 @@ const {userInfo}=useAuth()
 
   // === Submit film upload ===
   const handleSubmit = async () => {
+          navigate('/profile?to=uploads')
+
     if (!filmFile || !posterFile || !title || !thesis || genres.length === 0) {
       toast.warn("Please fill all required fields before uploading");
       return;
@@ -98,8 +100,11 @@ formData.append("Genres", JSON.stringify(genres));
       if (posterFile) formData.append("Poster", posterFile);
 
       await uploadFilm(token, formData, setUploadProgress);
+            navigate('/profile?to=uploads')
+
       setIsDone(true);
       toast.success("Upload complete!");
+      navigate('/profile?to=uploads')
     } catch (error) {
       console.error("Upload failed:", error);
       setErrorMsg("Upload failed! Please try again.");

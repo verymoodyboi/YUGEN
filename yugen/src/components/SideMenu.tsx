@@ -19,7 +19,7 @@ function SideMenu({
   const [open, setOpen] = useState(false);
 
   const SectionTitle = ({ children }: { children: string }) => (
-    <h2 className="text-lg font-freckle text-emerald-950  mb-2">{children}</h2>
+    <h2 className="text-2xl title text-emerald-950  mb-2">{children}</h2>
   );
 
   const MenuButton = ({

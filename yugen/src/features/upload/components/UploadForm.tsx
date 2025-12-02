@@ -199,20 +199,37 @@ const UploadForm: React.FC = () => {
   // navigation
   const handleNext = async () => {
     const valid = validateStep();
-    if (valid) setActiveStep((p) => p + 1);
+    if (!valid) return;
+
+    // If this is the last step, submit instead of advancing
+    if (activeStep === steps.length - 1) {
+      handleSubmit(); // <-- actual function call
+      return;
+    }
+
+    setActiveStep((p) => p + 1);
   };
+
   const handleBack = () => setActiveStep((p) => Math.max(0, p - 1));
 
   const validateStep = () => {
     const s = activeStep;
+
     if (s === 0 && (!filmFile || !croppedFile)) {
-      toast.warn("Please upload both film and poster.");
+      toast.warn("Please upload both a film and a poster.");
       return false;
     }
+
     if (s === 1 && (!title || !thesis || !genres || genres.length === 0)) {
-      toast.warn("Please fill title, description and genres.");
+      toast.warn("Please fill the title, thesis, and at least one genre.");
       return false;
     }
+
+    if (s === 2 && !country) {
+      toast.warn("Please choose a country.");
+      return false;
+    }
+
     return true;
   };
 
@@ -893,7 +910,7 @@ const UploadForm: React.FC = () => {
               </button>
             ) : (
               <button
-                onClick={handleSubmit}
+                onClick={handleNext}
                 className="px-6 py-2 rounded-md bg-emerald-950 text-emerald-50"
               >
                 Upload
