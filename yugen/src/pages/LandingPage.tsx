@@ -6,9 +6,12 @@ import FooterSection from "../features/landing-page/components/footer";
 
 const LandingPage: React.FC = () => {
   const [openContact, setOpenContact] = useState(false);
-
+  const mainRef = React.useRef<HTMLDivElement>(null);
   return (
-    <main className="flex flex-col bg-emerald-50 w-full h-screen overflow-y-auto overflow-x-hidden">
+    <main
+      ref={mainRef}
+      className="flex flex-col bg-emerald-50 w-full h-screen overflow-y-auto overflow-x-hidden"
+    >
       {/* Hero Section - will be full viewport height */}
       <div className="w-full flex-shrink-0">
         <HeroSection />
@@ -16,7 +19,11 @@ const LandingPage: React.FC = () => {
 
       {/* Footer Section - will appear below hero when scrolling */}
       <div className="w-full flex-shrink-0">
-        <FooterSection />
+        <FooterSection
+          scrollToTop={() => {
+            mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
       </div>
     </main>
   );

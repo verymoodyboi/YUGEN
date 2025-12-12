@@ -28,16 +28,21 @@ const NotificationsPage: React.FC = () => {
   };
 
   return (
-    <AppLayout>
-      <div className="flex flex-col h-full w-full font-freckle text-emerald-950">
+    <>
+      <div className="flex flex-col h-full w-full font-freckle text-emerald-950 ">
         {/* Header Section */}
-        <h2 className="text-3xl font-bold text-emerald-950 mb-6 border-b-4 border-emerald-950 pb-2">
-          Notifications
-        </h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2">
+          <h1 className="text-4xl font-bold border-b-4 border-emerald-950  pb-2">
+            Notifications
+          </h1>
+          <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">
+            Catch up on the latest stories from your favourite storytellers
+          </p>
+        </div>
 
         {/* Notifications List */}
         {notificationsLoading ? (
-        <Loading/>
+          <Loading />
         ) : notifications.length === 0 ? (
           <p className="text-emerald-900">No notifications yet.</p>
         ) : (
@@ -100,7 +105,7 @@ const NotificationsPage: React.FC = () => {
           </ul>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

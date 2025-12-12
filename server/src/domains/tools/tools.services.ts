@@ -29,4 +29,18 @@ export async function checkUsername(username: string) {
 
   return { available: true };
 }
+export async function getUserInfo(userID: string) {
+  const { data, error } = await supabase
+    .from("users")
+    .select("username, pfp_path")
+    .eq("auth_id", userID)
+    .single();
+
+  if (error) return null;
+
+  return {
+    username: data.username,
+    pfp_path: data.pfp_path,
+  };
+}
 

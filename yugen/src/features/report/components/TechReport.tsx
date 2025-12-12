@@ -1,8 +1,6 @@
-import React, { useState } from "react";
-import { ToastContainer } from "react-toastify";
+import React, { useState, useRef, useEffect } from "react";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useTechnicalReport } from "../hooks/useTechReport";
-import "react-toastify/dist/ReactToastify.css";
 
 interface Props {
   onSubmitSuccess?: () => void;
@@ -12,6 +10,7 @@ const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess }) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [reportType, setReportType] = useState("");
   const [report, setReport] = useState("");
+
   const { handleSubmit, loading } = useTechnicalReport(() => {
     setIsSubmit(true);
     onSubmitSuccess?.();
@@ -27,32 +26,59 @@ const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess }) => {
     "Other technical issue",
   ];
 
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const [animate, setAnimate] = useState(false);
+  useEffect(() => {
+    setTimeout(() => setAnimate(true), 10);
+  }, []);
+
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(e.target as Node)) {
+        onSubmitSuccess?.();
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [onSubmitSuccess]);
+
   if (isSubmit)
     return (
-      <div className="flex flex-col items-center justify-center text-center bg-emerald-50 text-emerald-950 p-6 rounded-3xl border-4 border-emerald-950 shadow-2xl font-freckle max-w-md mx-auto">
+      <div
+        ref={formRef}
+        className={`flex flex-col items-center justify-center text-center p-6 rounded-2xl border-4 
+        border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b] font-freckle 
+        transition-all duration-300 ease-out 
+        ${animate ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
+      >
         <CheckCircleOutlineIcon sx={{ fontSize: 100, color: "#064e3b" }} />
         <h2 className="text-3xl mt-4 mb-2">Technical report submitted!</h2>
         <p className="text-lg">
           Thank you for your feedback — our technical team will review the
           issue.
         </p>
-        <ToastContainer position="top-left" theme="dark" />
       </div>
     );
 
   return (
-    <div className="bg-emerald-50 text-emerald-950 font-freckle p-6 rounded-3xl border-4 border-emerald-950 shadow-2xl max-w-md mx-auto">
-      <h2 className="text-3xl font-bold mb-4 text-center">
-        Report a Technical Issue
-      </h2>
-
+    <div
+      ref={formRef}
+      className={`transition-all duration-300 ease-out 
+      ${animate ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
+    >
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSubmit(reportType, report);
         }}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b]"
       >
+        <h2 className="text-3xl font-bold mb-4 text-center">
+          Report a Technical Issue
+        </h2>
+
         <label className="block text-lg mb-1">Issue Type</label>
         <select
           value={reportType}
@@ -83,8 +109,6 @@ const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess }) => {
           {loading ? "Submitting..." : "Submit Technical Report"}
         </button>
       </form>
-
-      <ToastContainer position="top-left" autoClose={4000} theme="dark" />
     </div>
   );
 };

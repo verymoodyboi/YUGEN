@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import ReactPlayer from "react-player";
-import { ToastContainer, toast } from "react-toastify";
+import { useToast } from "../../../components/toaster";
 import "react-toastify/dist/ReactToastify.css";
 import countries from "../../../Data/countries.json";
 import { registerPlugin } from "react-filepond";
@@ -44,6 +44,7 @@ interface EditFilmProps {
 }
 
 const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
+  const toast = useToast();
   const { userInfo } = useAuth();
   const { genres: allGenres, loading: genresLoading } = useGenresWithFilms();
   const genreOptions = React.useMemo(
@@ -440,7 +441,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                   className="w-8 h-8 rounded-full object-cover border border-emerald-950"
                 />
                 <span className="text-emerald-950 font-freckle">
-                  @{opt.username}
+                  {opt.username}
                 </span>
               </li>
             ))}
@@ -674,7 +675,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                     <UserAutocomplete
                       value={crewName}
                       onChange={(val: string, pfp?: string) => {
-                        setCrewName(val);
+                        setCrewName("@" + val);
                         if (pfp) setCrewPFP(pfp);
                       }}
                       placeholder="Start typing a username..."
@@ -710,7 +711,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                         />
                         <div>
                           <div className="font-semibold">{member.role}</div>
-                          <div className="text-sm">@{member.name}</div>
+                          <div className="text-sm">{member.name}</div>
                         </div>
                       </div>
 
@@ -746,7 +747,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                     <UserAutocomplete
                       value={actor}
                       onChange={(val: string, pfp?: string) => {
-                        setActor(val);
+                        setActor("@" + val);
                         if (pfp) setActorPFP(pfp);
                       }}
                       placeholder="Actor username..."
@@ -924,8 +925,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
           </div>
         </div>
       )}
-
-      <ToastContainer position="top-left" />
     </div>
   );
   // NOTE: The original file ended after UserAutocomplete. To preserve layout/style/logic exactly,

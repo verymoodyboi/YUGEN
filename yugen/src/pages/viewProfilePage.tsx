@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   FiYoutube,
@@ -18,11 +18,27 @@ import PlaylistCard from "../features/playlist/components/PlaylistCard";
 import CustomLoading from "../SmallComponents/CutomsLoading";
 import { useViewProfile } from "../features/profile/hooks/useViewProfile";
 import Loading from "../components/loading_kickflip";
+import { useAuth } from "../contexts/AuthContext";
+import { Tooltip } from "@mui/material";
 
 const AccProfile: React.FC = () => {
   const navigate = useNavigate();
+  const { userInfo } = useAuth();
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username");
+  if (username == userInfo.username) {
+    navigate("/profile");
+  }
+  const paramTab = searchParams.get("tab");
+  const initialTab =
+    paramTab === "uploads" || paramTab === "info" || paramTab === "library"
+      ? paramTab
+      : "library";
+  const infoRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToInfo = () =>
+    infoRef.current?.scrollIntoView({ behavior: "smooth" });
+  const [tab, setTab] = useState<"library" | "info" | "uploads">(initialTab);
 
   const {
     user,
@@ -41,8 +57,6 @@ const AccProfile: React.FC = () => {
     handleNotify,
   } = useViewProfile(username);
 
-  const [tab, setTab] = useState<"library" | "info">("library");
-
   const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const scrollRight = target.scrollLeft + target.clientWidth;
@@ -52,15 +66,15 @@ const AccProfile: React.FC = () => {
 
   if (loading)
     return (
-      <AppLayout>
+      <>
         <div className="flex items-center justify-center h-screen text-emerald-950 font-freckle">
-          <Loading/>
+          <Loading />
         </div>
-      </AppLayout>
+      </>
     );
 
   return (
-    <AppLayout>
+    <>
       <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-4 flex flex-col gap-6">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
@@ -75,11 +89,27 @@ const AccProfile: React.FC = () => {
             />
             <div>
               <h1 className="text-3xl">@{user?.username}</h1>
+
               <p className="flex items-center gap-2 mt-1 text-emerald-900">
-                <FiVideo /> {user?.films_count} <FiUsers /> {user?.sub_count}
+                <>
+                  <Tooltip title="Films">
+                    <FiVideo />
+                  </Tooltip>
+                  {user?.films_count}
+                </>
+                <>
+                  {" "}
+                  <Tooltip title="Subscribers">
+                    <FiUsers />
+                  </Tooltip>
+                  {user?.sub_count}
+                </>
               </p>
               <p className="flex items-center gap-2">
-                <FiGlobe /> {user?.region || "N/A"}
+                <Tooltip title="Region">
+                  <FiGlobe />
+                </Tooltip>
+                {user?.region || "N/A"}
               </p>
               {/* {user?.academic_status && user.academic_status !== "pending" && (
                 <p className="flex items-center gap-2 text-emerald-950">
@@ -91,25 +121,48 @@ const AccProfile: React.FC = () => {
               {/* Social Links */}
               <div className="flex gap-3 mt-2">
                 {user?.youtube && (
-                  <FiYoutube
-                    className="cursor-pointer hover:scale-110"
-                    onClick={() => window.open(user.youtube, "_blank")}
-                  />
+                  <Tooltip title="YouTube">
+                    <FiYoutube
+                      className="cursor-pointer hover:scale-110"
+                      onClick={() => window.open(user.youtube, "_blank")}
+                    />
+                  </Tooltip>
                 )}
                 {user?.instagram && (
-                  <FiInstagram
-                    className="cursor-pointer hover:scale-110"
-                    onClick={() => window.open(user.instagram, "_blank")}
-                  />
+                  <Tooltip title="Instagarm">
+                    <FiInstagram
+                      className="cursor-pointer hover:scale-110"
+                      onClick={() => window.open(user.instagram, "_blank")}
+                    />
+                  </Tooltip>
                 )}
                 {user?.linkedin && (
-                  <FiLinkedin
-                    className="cursor-pointer hover:scale-110"
-                    onClick={() => window.open(user.linkedin, "_blank")}
-                  />
+                  <Tooltip title="LinkedIn">
+                    <FiLinkedin
+                      className="cursor-pointer hover:scale-110"
+                      onClick={() => window.open(user.linkedin, "_blank")}
+                    />
+                  </Tooltip>
                 )}
               </div>
+              {user?.bio && (
+                <div className="flex items-center gap-1 cursor-pointer">
+                  <p className="font-freckle text-emerald-950 text-sm truncate max-w-[50%]">
+                    {user?.bio?.slice(0, 50)}...
+                  </p>
 
+                  <button
+                    className="font-freckle text-emerald-950 underline text-sm flex-shrink-0 "
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setTab("info");
+                      setTimeout(scrollToInfo, 150);
+                    }}
+                  >
+                    more
+                  </button>
+                </div>
+              )}
               {/* Subscribe / Notify */}
               {isSubscribed !== null && (
                 <div className="mt-3 flex gap-3">
@@ -125,12 +178,14 @@ const AccProfile: React.FC = () => {
                   </button>
 
                   {isSubscribed && (
-                    <button
-                      onClick={handleNotify}
-                      className="px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-bold hover:scale-105"
-                    >
-                      {isNotify ? <FiBell /> : <FiBellOff />}
-                    </button>
+                    <Tooltip title="Notification">
+                      <button
+                        onClick={handleNotify}
+                        className="px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-bold hover:scale-105"
+                      >
+                        {isNotify ? <FiBell /> : <FiBellOff />}
+                      </button>
+                    </Tooltip>
                   )}
                 </div>
               )}
@@ -168,22 +223,31 @@ const AccProfile: React.FC = () => {
             {films.length > 0 && (
               <div>
                 <h2 className="text-2xl mb-2">Films by @{user?.username}</h2>
+
                 <div
                   onScroll={handleScroll}
-                  className="flex gap-3 overflow-x-auto pb-2"
+                  className="flex overflow-x-auto pb-2 gap-3 no-scrollbar"
                 >
-                  {filmsLoading ? (
-                    <CustomLoading />
-                  ) : (
-                    films.map((film) => (
-                      <FilmCard key={film.film_uuid} film={film} />
-                    ))
-                  )}
-                  {isFetchingNextPage && (
-                    <div className="flex items-center justify-center text-sm text-emerald-950 animate-pulse">
-                      Loading more...
-                    </div>
-                  )}
+                  <div className="flex gap-3 flex-nowrap">
+                    {filmsLoading ? (
+                      <Loading />
+                    ) : (
+                      films.map((film) => (
+                        <div key={film.film_uuid} className="flex-shrink-0">
+                          <FilmCard film={film} />
+                        </div>
+                      ))
+                    )}
+
+                    {isFetchingNextPage && (
+                      <div
+                        className="flex-shrink-0 flex items-center justify-center 
+            w-46 h-90 rounded-xl"
+                      >
+                        <Loading />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -261,16 +325,23 @@ const AccProfile: React.FC = () => {
 
         {/* INFO TAB */}
         {tab === "info" && (
-          <div className="flex flex-col gap-3 mt-4">
+          <div ref={infoRef} className="flex flex-col gap-3 mt-4">
             <h2 className="text-2xl mb-2">More Info</h2>
+            <Tooltip title="Region">
+              <FiGlobe />
+            </Tooltip>{" "}
+            {user?.region || "N/A"}
             <p>
-              <FiGlobe /> {user?.region || "N/A"}
+              <Tooltip title="Subscribers">
+                <FiUsers />
+              </Tooltip>{" "}
+              Subscribers: {user?.sub_count}
             </p>
             <p>
-              <FiUsers /> Subscribers: {user?.sub_count}
-            </p>
-            <p>
-              <FiVideo /> Films: {user?.films_count}
+              <Tooltip title="Films">
+                <FiVideo />
+              </Tooltip>
+              Films: {user?.films_count}
             </p>
             {user?.join_date && <p>Joined: {user.join_date}</p>}
             {/* {user?.academic_status && user.academic_status !== "pending" && (
@@ -281,37 +352,43 @@ const AccProfile: React.FC = () => {
             <span className="opacity-80">Socials</span>
             <div className="flex items-center gap-3 justify-start max-w-full">
               {user?.youtube && (
-                <a
-                  href={user.youtube}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 max-w-[280px] truncate"
-                >
-                  <FiYoutube />
-                  <span className="truncate text-sm">{user.youtube}</span>
-                </a>
+                <Tooltip title="YouTube">
+                  <a
+                    href={user.youtube}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 max-w-[280px] truncate"
+                  >
+                    <FiYoutube />
+                    <span className="truncate text-sm">{user.youtube}</span>
+                  </a>
+                </Tooltip>
               )}
               {user?.instagram && (
-                <a
-                  href={user.instagram}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 max-w-[280px] truncate"
-                >
-                  <FiInstagram />
-                  <span className="truncate text-sm">{user.instagram}</span>
-                </a>
+                <Tooltip title="instagram">
+                  <a
+                    href={user.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 max-w-[280px] truncate"
+                  >
+                    <FiInstagram />
+                    <span className="truncate text-sm">{user.instagram}</span>
+                  </a>
+                </Tooltip>
               )}
               {user?.linkedin && (
-                <a
-                  href={user.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 max-w-[280px] truncate"
-                >
-                  <FiLinkedin />
-                  <span className="truncate text-sm">{user.linkedin}</span>
-                </a>
+                <Tooltip title="LinkedIn">
+                  <a
+                    href={user.linkedin}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 max-w-[280px] truncate"
+                  >
+                    <FiLinkedin />
+                    <span className="truncate text-sm">{user.linkedin}</span>
+                  </a>
+                </Tooltip>
               )}
             </div>
             {user?.bio && (
@@ -322,7 +399,7 @@ const AccProfile: React.FC = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

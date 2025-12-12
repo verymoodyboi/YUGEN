@@ -1,22 +1,27 @@
 // src/L2/AccountHub.tsx
 import "../App.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import supabase from "../lib/supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PhotoCameraFrontIcon from "@mui/icons-material/PhotoCameraFront";
 import SettingsIcon from "@mui/icons-material/Settings";
-
-import { toast } from "react-toastify";
-
+import upload_button from "../YugenAssits/upload-button/Upload button modified REPEAT.gif";
+import { useToast } from "./toaster";
+import upload_button_static from "../YugenAssits/upload-button/Regular.png";
+import upload_button_gif from "../YugenAssits/upload-button/Upload button modified REPEAT.gif";
+import { Tooltip } from "@mui/material";
 function AccHub() {
+  const toast = useToast();
   const { userInfo } = useAuth();
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
-
+  useEffect(() => {
+    const img = new Image();
+    img.src = upload_button_gif;
+  }, []);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openResetPassword, setOpenResetPassword] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -24,7 +29,7 @@ function AccHub() {
 
   const logOut = async () => {
     const { error } = await supabase.auth.signOut();
-    if (!error) navigate("/login");
+    if (!error) navigate("/about");
   };
 
   const handleChangePasswordEmail = async () => {
@@ -47,22 +52,21 @@ function AccHub() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  const [isHover, setIsHover] = useState(false);
 
   return (
-    <div className="absolute top-2 right-5 flex items-center justify-between z-10 h-[60px] w-35 rounded-full border-2 border-emerald-950/100 bg-emerald-50  backdrop-blur-md p-2 gap-0.5">
+    <div className="absolute top-2 right-5 flex items-center justify-between z-10 h-[60px] w-35 rounded-full border-3 border-solid border-emerald-950/100 bg-emerald-50  backdrop-blur-md p-2 gap-0.5">
       {/* Profile video */}
-      <video
-        onClick={() => navigate("/UploadFilmPage")}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="h-[50px] w-auto cursor-pointer rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"
-        src={
-          supabase.storage.from("assets").getPublicUrl("createButtonFinal.webm")
-            .data.publicUrl
-        }
-      />
+      <Tooltip title="Upload">
+        <img
+          src={isHover ? upload_button_gif : upload_button_static}
+          onClick={() => navigate("/UploadFilmPage")}
+          onMouseEnter={() => setIsHover(true)}
+          onMouseLeave={() => setIsHover(false)}
+          className="h-[60px] w-auto cursor-pointer rounded-lg transition-transform duration-300 ease-in-out "
+          alt="upload_button"
+        />
+      </Tooltip>
       {/* Avatar */}
       <img
         src={

@@ -18,7 +18,7 @@ const HeroSection: React.FC = () => {
   const floatingIcons = [
     {
       id: 1,
-      top: "5%",
+      top: "9%",
       left: "5%",
       scale: 1.4,
       rotate: -20,
@@ -45,7 +45,7 @@ const HeroSection: React.FC = () => {
     },
     {
       id: 4,
-      top: "60%",
+      top: "70%",
       left: "85%",
       scale: 1.3,
       rotate: -15,
@@ -54,7 +54,7 @@ const HeroSection: React.FC = () => {
     },
     {
       id: 5,
-      top: "-1%",
+      top: "5%",
       left: "70%",
       scale: 1.3,
       rotate: -15,
@@ -63,7 +63,7 @@ const HeroSection: React.FC = () => {
     },
     {
       id: 6,
-      top: "-1%",
+      top: "5%",
       left: "20%",
       scale: 1.3,
       rotate: 15,
@@ -114,7 +114,7 @@ const HeroSection: React.FC = () => {
           <img
             src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
             alt="floating icon"
-            className="w-[100px] h-[200px] object-contain opacity-50"
+            className="w-[8vw] h-[16vh] object-contain opacity-50"
           />
         </div>
       ))}
@@ -135,13 +135,9 @@ const HeroSection: React.FC = () => {
       <div className="mt-10 text-center">
         <p className="text-3xl font-freckle text-emerald-950 tracking-tight">
           Don’t consume, but{" "}
-          <span className="text-3xl font-freckle text-emerald-700">
-            CURATE.
-          </span>{" "}
-          Don’t generate, but{" "}
-          <span className="text-3xl font-freckle text-emerald-700">
-            CREATE.
-          </span>
+          <span className="text-3xl title text-emerald-700">CURATE.</span> Don’t
+          generate, but{" "}
+          <span className="text-3xl title text-emerald-700">CREATE.</span>
         </p>
       </div>
 

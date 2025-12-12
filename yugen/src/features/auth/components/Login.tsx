@@ -7,9 +7,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CheckIcon from "@mui/icons-material/Check";
 import logo from "../../../YugenAssits/Transparent long.png";
-import { toast, ToastContainer } from "react-toastify";
+
+import { useToast } from "../../../components/toaster.tsx";
+import { Transition } from "@headlessui/react";
 
 function LoginForm() {
+  const toast = useToast();
   const [openReset, setOpenReset] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const [email, setEmail] = useState("");
@@ -22,7 +25,7 @@ function LoginForm() {
     }
     setIsDone(true);
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:5173/#/resetPassword",
+      redirectTo: "http://localhost:5173/resetPassword",
     });
   };
 
@@ -68,8 +71,6 @@ function LoginForm() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-emerald-50 text-center p-6">
-      <ToastContainer />
-
       <form
         onSubmit={handleSubmit}
         className="bg-emerald-50 rounded-3xl shadow-xl p-8 max-w-md w-full border-4 border-emerald-950"
@@ -137,56 +138,81 @@ function LoginForm() {
       </form>
 
       {/* Reset Modal */}
+      {/* Reset Modal */}
+      {/* Reset Modal */}
       {openReset && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50">
-          <div className="relative bg-emerald-50 rounded-3xl shadow-2xl p-8 w-full max-w-lg border-4 border-emerald-950 text-center">
-            {/* Close Button */}
-            <button
-              onClick={() => {
-                setOpenReset(false);
-                setIsDone(false);
-              }}
-              className="absolute top-4 left-4 text-emerald-950 hover:scale-110 transition"
+        <Transition
+          show={openReset}
+          enter="transition duration-200 ease-out"
+          enterFrom="opacity-0 scale-95"
+          enterTo="opacity-100 scale-100"
+          leave="transition duration-150 ease-in"
+          leaveFrom="opacity-100 scale-100"
+          leaveTo="opacity-0 scale-95"
+        >
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => {
+              setOpenReset(false);
+              setIsDone(false);
+            }}
+          >
+            <div
+              className="
+          relative flex flex-col gap-4 w-full max-w-md p-6 
+          rounded-2xl border-4 border-emerald-950 bg-emerald-50
+          shadow-[6px_6px_0_#064e3b] font-freckle
+        "
+              onClick={(e) => e.stopPropagation()}
             >
-              <CloseIcon />
-            </button>
+              {/* Content */}
+              {isDone ? (
+                <>
+                  <CheckIcon
+                    className="text-emerald-950 mx-auto mb-4"
+                    sx={{ fontSize: 100 }}
+                  />
+                  <h2 className="text-2xl text-center text-emerald-950">
+                    You will be sent an email to reset your password!
+                  </h2>
+                </>
+              ) : (
+                <>
+                  <VpnKeyIcon
+                    className="text-emerald-950 mx-auto mb-4"
+                    sx={{ fontSize: 100 }}
+                  />
 
-            {/* Content */}
-            {isDone ? (
-              <>
-                <CheckIcon
-                  className="text-emerald-950 mx-auto mb-4"
-                  sx={{ fontSize: 100 }}
-                />
-                <h2 className="text-2xl font-freckle text-emerald-950 mb-2">
-                  You will be sent an email to reset your password!
-                </h2>
-              </>
-            ) : (
-              <>
-                <VpnKeyIcon
-                  className="text-emerald-950 mx-auto mb-4"
-                  sx={{ fontSize: 100 }}
-                />
-                <h2 className="text-xl font-freckle text-emerald-950 mb-4">
-                  Please confirm your email to reset your password
-                </h2>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 mb-6 border-2 border-emerald-950 text-emerald-950 bg-emerald-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 font-freckle"
-                />
-                <button
-                  onClick={handleChangePasswordEmail}
-                  className="w-full py-3 rounded-xl font-freckle text-emerald-50 bg-emerald-950 hover:bg-emerald-800 transition-all"
-                >
-                  Finish
-                </button>
-              </>
-            )}
+                  <h2 className="text-xl text-center text-emerald-950 mb-2">
+                    Please confirm your email to reset your password
+                  </h2>
+
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="
+                w-full px-4 py-3 mb-3 border-2 border-emerald-950 
+                bg-emerald-50 text-emerald-950 rounded-xl
+                focus:outline-none focus:ring-2 focus:ring-emerald-600
+                font-freckle
+              "
+                  />
+
+                  <button
+                    onClick={handleChangePasswordEmail}
+                    className="
+                w-full py-3 rounded-xl font-freckle text-emerald-50
+                bg-emerald-950 hover:scale-105 transition
+              "
+                  >
+                    Finish
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        </Transition>
       )}
     </div>
   );

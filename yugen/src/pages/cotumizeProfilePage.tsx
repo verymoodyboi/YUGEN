@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useEditProfile } from "../features/profile/hooks/useEditProfile";
 import { FaYoutube, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { useToast } from "../components/toaster";
 
 type Stage = "welcome" | "role" | "filmmaker" | "audience" | "socials" | "done";
 
@@ -21,6 +21,7 @@ const platformIcons: Record<string, JSX.Element> = {
 };
 
 const ProfileCustomization: React.FC = () => {
+  const toast = useToast();
   const navigate = useNavigate();
   const [stage, setStage] = useState<Stage>("welcome");
   const [searchParams] = useSearchParams();
@@ -87,8 +88,6 @@ const ProfileCustomization: React.FC = () => {
           onClick={() => navigate("/")}
         />
       </div>
-
-      <ToastContainer position="top-left" />
 
       <div className="w-full max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl p-6">
         {/* ---------------------------------- */}

@@ -6,11 +6,16 @@ import { useAddHistory } from "../features/history/useHistory";
 import AppLayout from "../layouts/layout-main";
 import PlaylistSection from "../features/playlist/components/playlist";
 import Thoughts from "../features/thoughts/components/thoughts";
+import { useSimilarFilms } from "../features/recommendations/hooks/useSimilarFilms";
+import SimilarFilmCard from "../features/recommendations/components/recommendedFilmCard";
+import Loading from "../components/loading_kickflip";
 
 const WatchPlaylist: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const uuid = searchParams.get("uuid");
+  const { films: similarFilms, isLoading } = useSimilarFilms(uuid || undefined);
+
   const playlistId =
     searchParams.get("list_id") ||
     searchParams.get("playlist_id") ||
@@ -19,15 +24,15 @@ const WatchPlaylist: React.FC = () => {
 
   console.log(" WatchPlaylist params:", { uuid, playlistId });
 
-  const [activeTab, setActiveTab] = React.useState<"thoughts" | "playlist">(
-    "thoughts"
-  );
+  const [activeTab, setActiveTab] = React.useState<
+    "thoughts" | "playlist" | "recommended"
+  >("thoughts");
 
   useAddHistory(uuid || undefined);
   const [nextFilmTrigger, setNextFilmTrigger] = React.useState(0);
 
   return (
-    <AppLayout>
+    <>
       <div className="flex flex-col gap-6 p-4 bg-emerald-50 min-h-screen text-emerald-950 font-freckle">
         {uuid ? (
           <>
@@ -57,26 +62,41 @@ const WatchPlaylist: React.FC = () => {
               >
                 Playlist
               </button>
+              <button
+                onClick={() => setActiveTab("recommended")}
+                className={`px-4 py-2 rounded-full border-2 font-bold shadow transition transform hover:-translate-y-[1px] ${
+                  activeTab === "recommended"
+                    ? "bg-emerald-950 text-emerald-50 border-emerald-50"
+                    : "bg-emerald-50 text-emerald-950 border-emerald-950 hover:bg-emerald-100"
+                }`}
+              >
+                recommended
+              </button>
             </div>
 
             {/* Tab content */}
             <div className="mt-4">
               {activeTab === "thoughts" ? (
                 <Thoughts filmId={uuid} />
-              ) : playlistId ? (
+              ) : activeTab === "playlist" ? (
                 <PlaylistSection
                   playlistId={playlistId}
                   currentFilmId={uuid}
-                  nextFilmTrigger={nextFilmTrigger} // 🔹 Pass trigger to playlist
+                  nextFilmTrigger={nextFilmTrigger}
                 />
               ) : (
-                <div className="text-center py-10 border-2 border-emerald-950 bg-emerald-50 rounded-3xl shadow-lg">
-                  <p className="text-emerald-950 text-xl font-freckle">
-                    No playlist selected 💿
-                  </p>
-                  <p className="text-emerald-950/70 text-sm">
-                    Try reloading or navigating from a playlist.
-                  </p>
+                <div className="space-y-4">
+                  {isLoading ? (
+                    <Loading />
+                  ) : similarFilms.length > 0 ? (
+                    similarFilms.map((film) => (
+                      <SimilarFilmCard key={film.film_uuid} film={film} />
+                    ))
+                  ) : (
+                    <p className="text-emerald-900 font-freckle text-lg">
+                      No similar films found yet.
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -87,7 +107,7 @@ const WatchPlaylist: React.FC = () => {
           </p>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import supabase from "../lib/supabaseClient";
-import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../components/toaster";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +10,7 @@ const ResetPassword: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isDone, setIsDone] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const toast = useToast();
 
   const handleResetPassword = async () => {
     if (!newPassword || newPassword.length < 8) {
@@ -35,14 +36,6 @@ const ResetPassword: React.FC = () => {
   if (isDone) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-emerald-50 text-emerald-950 p-6 font-freckle">
-        <div className="fixed top-0 left-4 z-50 flex items-center gap-2">
-          <img
-            src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
-            alt="Yugen Logo"
-            className="w-20 h-20 object-contain cursor-pointer"
-            onClick={() => navigate("/")}
-          />
-        </div>
         <div className="w-full max-w-md bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl p-8 text-center space-y-6">
           <img
             src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
@@ -54,7 +47,7 @@ const ResetPassword: React.FC = () => {
             You can now log in with your new password and start exploring Yūgen.
           </p>
           <button
-            onClick={() => navigate("/loginPage")}
+            onClick={() => navigate("/login")}
             className="px-6 py-2 bg-emerald-950 text-emerald-50 rounded-lg shadow hover:scale-105 transition"
           >
             Go to Login
@@ -67,6 +60,11 @@ const ResetPassword: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-emerald-50 text-emerald-950 p-6 font-freckle">
       <div className="w-full max-w-md bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl p-8 space-y-6">
+        <img
+          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
+          alt="Yugen Logo"
+          className="w-36 h-36 mx-auto"
+        />
         <h1 className="text-3xl font-bold text-center">Reset Password</h1>
 
         <input
@@ -96,8 +94,12 @@ const ResetPassword: React.FC = () => {
         >
           {isProcessing ? "Processing..." : "Reset Password"}
         </button>
-
-        <ToastContainer position="top-left" />
+        <button
+          onClick={() => navigate("/")}
+          className={`outline hover:scale-105 w-full px-6 py-2 rounded-lg shadow text-emerald-950 transition bg-emerald-50 border-emerald-950`}
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );

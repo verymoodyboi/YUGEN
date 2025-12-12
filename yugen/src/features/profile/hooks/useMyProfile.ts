@@ -28,7 +28,6 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
   // convenience flattened films array (your component used this pattern already)
   const films = data?.pages.flat() ?? [];
 
-  // ---- Playlists (keeps the `myPlaylists` name used in component) ----
   const [myPlaylists, setMyPlaylists] = useState<any[]>([]);
   const [playlistsLoading, setPlaylistsLoading] = useState(false);
 
@@ -54,6 +53,22 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
       mounted = false;
     };
   }, [uploaderID, getAccessToken]);
+
+  // add this inside UserProfile component BEFORE return:
+
+const handleLocalPlaylistUpdate = (playlist_uuid: string, updates: any) => {
+  setMyPlaylists((prev) =>
+    prev.map((p) =>
+      p.playlist_uuid === playlist_uuid ? { ...p, ...updates } : p
+    )
+  );
+};
+
+const handleLocalPlaylistDelete = (playlist_uuid: string) => {
+  setMyPlaylists((prev) =>
+    prev.filter((p) => p.playlist_uuid !== playlist_uuid)
+  );
+};
 
   // ---- Challenges (paginated) ----
  
@@ -87,7 +102,8 @@ const userChallenges = userChallengesData?.pages.flat() ?? [];
     // Playlists (same variable name used in component)
     myPlaylists,
     playlistsLoading,
-
+handleLocalPlaylistDelete,
+handleLocalPlaylistUpdate,
     // Challenges (same variables used in component)
     userChallengesData,
     userChallengesLoading,

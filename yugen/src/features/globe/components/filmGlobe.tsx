@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { useGlobe } from "../useGlobe";
 import CountryModal from "./countryFilmsModal";
 import { FiFilm, FiUser } from "react-icons/fi";
-import { toast, ToastContainer } from "react-toastify";
+import { useToast } from "../../../components/toaster";
 
 interface CountryFeature {
   type: "Feature";
@@ -19,6 +19,8 @@ interface CountryFeature {
 }
 
 const FilmGlobe: React.FC = () => {
+  const toast = useToast();
+
   const globeRef = useRef<any>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [countries, setCountries] = useState<CountryFeature[]>([]);
@@ -149,7 +151,6 @@ const FilmGlobe: React.FC = () => {
           loadMoreUsers={loadMoreUsers}
         />
       )}
-      <ToastContainer />
     </div>
   );
 };

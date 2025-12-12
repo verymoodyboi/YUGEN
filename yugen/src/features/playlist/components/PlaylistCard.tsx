@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../lib/supabaseClient";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -7,11 +8,24 @@ import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from "@mui/icons-material/Check";
 
-const PlaylistCard = ({ playlist }: any) => {
+const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
   const { userInfo } = useAuth();
   const navigate = useNavigate();
-  const { isPublic, handleTogglePublic } = usePlaylistCard(playlist);
+  const {
+    isPublic,
+    handleTogglePublic,
+    handleDeletePlaylist,
+    handleUpdateName,
+  } = usePlaylistCard(playlist);
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState(playlist.playlist_name);
+
+  const ownsPlaylist = userInfo?.username === playlist?.creator?.username;
 
   const posters = (playlist.playlist_films || [])
     .sort((a: any, b: any) => a.film_index - b.film_index)
@@ -25,6 +39,12 @@ const PlaylistCard = ({ playlist }: any) => {
       `/watchplaylist?uuid=${playlist.playlist_films?.[0]?.films?.film_uuid}&list_id=${playlist.playlist_uuid}`,
       { state: { playlist } }
     );
+  };
+
+  const handleNameSave = () => {
+    handleUpdateName(newName);
+    onLocalChange?.(playlist.playlist_uuid, { playlist_name: newName }); // local UI update
+    setIsEditingName(false);
   };
 
   return (
@@ -69,10 +89,43 @@ const PlaylistCard = ({ playlist }: any) => {
 
       {/* Content */}
       <div className="p-3 flex justify-between items-start">
-        <div className="text-left">
-          <h3 className="font-freckle text-lg text-emerald-950 flex items-center gap-1">
-            <PlaylistPlayIcon fontSize="small" /> {playlist.playlist_name}
-          </h3>
+        <div className="text-left flex flex-col gap-1">
+          <div className="flex items-center gap-1">
+            <PlaylistPlayIcon fontSize="small" />
+            {isEditingName ? (
+              <div className="flex items-center gap-1">
+                <input
+                  className="border rounded px-1 py-0.5 text-sm w-36"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNameSave();
+                  }}
+                  className="text-emerald-950"
+                >
+                  <CheckIcon fontSize="small" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <span>{playlist.playlist_name}</span>
+                {ownsPlaylist && (
+                  <EditIcon
+                    className="text-emerald-950 cursor-pointer"
+                    fontSize="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditingName(true);
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </div>
           <p className="text-sm text-emerald-950/70">
             by @{playlist.creator?.username || ""}
           </p>
@@ -86,14 +139,8 @@ const PlaylistCard = ({ playlist }: any) => {
       </div>
 
       {/* Bottom section */}
-      <div className="ignore-click flex flex-col items-center justify-center bg-emerald-50 border-t-2 border-emerald-950 h-20">
-        {isPublic ? (
-          <VisibilityIcon className="text-emerald-950 mb-1" />
-        ) : (
-          <VisibilityOffIcon className="text-emerald-950 mb-1" />
-        )}
-
-        {userInfo?.username === playlist?.creator?.username && (
+      {ownsPlaylist && (
+        <div className="ignore-click flex flex-col items-center justify-center bg-emerald-50 border-t-2 border-emerald-950 h-20 gap-2">
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
@@ -103,8 +150,19 @@ const PlaylistCard = ({ playlist }: any) => {
             />
             <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-emerald-950 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-emerald-50 after:h-5 after:w-5 after:rounded-full after:transition-all peer-checked:after:translate-x-full" />
           </label>
-        )}
-      </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeletePlaylist();
+              onLocalDelete?.(playlist.playlist_uuid);
+            }}
+            className="p-2 rounded-full border-2 bg-red-600 text-white hover:scale-105 transition flex items-center gap-1"
+          >
+            <DeleteIcon fontSize="small" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

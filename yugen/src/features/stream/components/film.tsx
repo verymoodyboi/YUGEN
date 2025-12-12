@@ -20,6 +20,7 @@ import Wrapper from "../../../pages/Wrapper";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useFilms } from "../hooks/useFilm";
 import Loading from "../../../components/loading_kickflip";
+import { Tooltip } from "@mui/material";
 
 interface Props {
   filmId: string;
@@ -100,7 +101,6 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               on70={handleIncrementView}
             />
           )}
-          {/* Title & Actions */}
           <div className="flex justify-between items-start p-2">
             <div>
               <h1 className="text-3xl font-freckle text-emerald-950">
@@ -110,44 +110,63 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                 {filmData.film_genre || "Genres not available"}
               </p>
             </div>
-            <div className="flex flex-col items-center gap-2 text-emerald-950">
-              <div className="flex items-center gap-1">
-                <FiEye size={22} /> {filmData.view_count ?? 0}
-              </div>
 
-              <div className="flex items-center gap-1">
-                <FiStar size={22} /> {filmData.avg_rating ?? 0}
-              </div>
+            <div className="flex flex-col items-center gap-2 text-emerald-950">
+              <Tooltip title="Views">
+                <div className="flex items-center gap-1">
+                  <FiEye size={22} /> {filmData.view_count ?? 0}
+                </div>
+              </Tooltip>
+              <Tooltip title="Rating">
+                <div className="flex items-center gap-1">
+                  <FiStar size={22} /> {filmData.avg_rating ?? 0}{" "}
+                  <p className="text-emerald-950/60 text-xs">
+                    ({filmData.rating_count ?? 0})
+                  </p>
+                </div>
+              </Tooltip>
+            </div>
+          </div>
+
+          {/* Spacing between top info and action+accordions */}
+          <div className="h-4" />
+
+          {/* Actions on TOP */}
+          <div className="flex gap-4 p-2 justify-start text-emerald-950">
+            <Tooltip title="Report">
               <button
                 onClick={() => setIsReportOpen(true)}
                 className="hover:scale-110 transition"
               >
-                <FiFlag size={22} />
+                <FiFlag size={26} />
               </button>
+            </Tooltip>
+            <Tooltip title="Add to plalist">
               <button
                 onClick={() => setIsPlaylistOpen(true)}
                 className="hover:scale-110 transition"
               >
-                <FiPlusSquare size={22} />
+                <FiPlusSquare size={26} />
               </button>
+            </Tooltip>
+            <Tooltip title="Add to Watchlist">
               <button
                 onClick={handleWatchlist}
                 className="hover:scale-110 transition"
               >
                 {watchlisted ? (
-                  <FiCheckSquare size={22} />
+                  <FiCheckSquare size={26} />
                 ) : (
-                  <FiBookmark size={22} />
+                  <FiBookmark size={26} />
                 )}
               </button>
-            </div>
+            </Tooltip>
           </div>
 
-          {/* Accordions */}
-          <div className="max-w-2xl mx-auto w-full">
+          <div className="flex flex-col gap-2 w-full">
             {/* Thesis */}
             <div
-              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl mb-2 cursor-pointer"
+              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer"
               onClick={() =>
                 setExpanded(expanded === "thesis" ? false : "thesis")
               }
@@ -157,14 +176,18 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               </div>
               {expanded === "thesis" && (
                 <div className="p-2 text-emerald-950">
-                  {filmData.thesis || "Thesis not available"}
+                  {filmData.thesis && filmData.thesis.trim() !== "" ? (
+                    filmData.thesis
+                  ) : (
+                    <div className="text-emerald-950/70"> Not available</div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Cast */}
             <div
-              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl mb-2 cursor-pointer"
+              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer"
               onClick={() => setExpanded(expanded === "cast" ? false : "cast")}
             >
               <div className="p-2 font-freckle text-lg text-emerald-950">
@@ -172,46 +195,51 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               </div>
               {expanded === "cast" && (
                 <div className="p-2 text-emerald-950">
-                  {filmData.cast
-                    ? JSON.parse(filmData.cast).map(
-                        (member: any, idx: number) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
-                          >
+                  {filmData.cast && JSON.parse(filmData.cast).length > 0 ? (
+                    JSON.parse(filmData.cast).map(
+                      (member: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
+                        >
+                          {member.actor.includes("@") && (
                             <img
                               src={
-                                supabase.storage
-                                  .from("pfps")
-                                  .getPublicUrl(member.pfp).data.publicUrl
+                                member.pfp
+                                  ? supabase.storage
+                                      .from("pfps")
+                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  : ""
                               }
                               alt={member.actor}
-                              className="w-6 h-6 rounded-full border border-emerald-950 cursor-pointer hover:scale-110 transition"
+                              className="w-8 h-8 rounded-full object-cover"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (username === member.username) {
+                                if (username === member.actor.replace(/^@/, ""))
                                   navigate("/profile");
-                                } else {
+                                else
                                   navigate(
-                                    `/@?username=${encodeURIComponent(member.username)}`
+                                    `/@?username=${encodeURIComponent(member.actor.replace(/^@/, ""))}`
                                   );
-                                }
                               }}
                             />
-                            <span>
-                              {member.actor} as {member.character}
-                            </span>
-                          </div>
-                        )
+                          )}
+                          <span>
+                            {member.actor} as {member.character}
+                          </span>
+                        </div>
                       )
-                    : "Cast not available"}
+                    )
+                  ) : (
+                    <div className="text-emerald-950/70"> Not available</div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Crew */}
             <div
-              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl mb-2 cursor-pointer"
+              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer"
               onClick={() => setExpanded(expanded === "crew" ? false : "crew")}
             >
               <div className="p-2 font-freckle text-lg text-emerald-950">
@@ -219,39 +247,47 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               </div>
               {expanded === "crew" && (
                 <div className="p-2 text-emerald-950">
-                  {filmData.crew
-                    ? JSON.parse(filmData.crew).map(
-                        (member: any, idx: number) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
-                          >
+                  {filmData.crew && JSON.parse(filmData.crew).length > 0 ? (
+                    JSON.parse(filmData.crew).map(
+                      (member: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
+                        >
+                          {member.name.includes("@") && (
                             <img
                               src={
-                                supabase.storage
-                                  .from("pfps")
-                                  .getPublicUrl(member.pfp).data.publicUrl
+                                member.pfp
+                                  ? supabase.storage
+                                      .from("pfps")
+                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  : ""
                               }
                               alt={member.name}
-                              className="w-6 h-6 rounded-full border border-emerald-950 cursor-pointer hover:scale-110 transition"
+                              className="w-8 h-8 rounded-full object-cover"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (username === member.username) {
+                                if (username === member.name.replace(/^@/, ""))
                                   navigate("/profile");
-                                } else {
+                                else
                                   navigate(
-                                    `/@?username=${encodeURIComponent(member.username)}`
+                                    `/@?username=${encodeURIComponent(
+                                      member.name.replace(/^@/, "")
+                                    )}`
                                   );
-                                }
                               }}
                             />
-                            <span>
-                              {member.role}: {member.name}
-                            </span>
-                          </div>
-                        )
+                          )}
+
+                          <span>
+                            {member.role}: {member.name}
+                          </span>
+                        </div>
                       )
-                    : "Crew not available"}
+                    )
+                  ) : (
+                    <div className="text-emerald-950/70"> Not available</div>
+                  )}
                 </div>
               )}
             </div>
@@ -287,29 +323,46 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
           </Transition>
 
           {/* Playlist Dialog */}
-          <Transition show={isPlaylistOpen} as={Fragment}>
+          {/* Playlist Dialog */}
+          <Transition show={isPlaylistOpen}>
             <Dialog
               onClose={() => setIsPlaylistOpen(false)}
               className="relative z-50"
             >
-              <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-                <Dialog.Panel className="bg-emerald-50 border-2 border-emerald-950 rounded-xl p-4 max-w-md w-full">
+              {/* Backdrop */}
+              <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+                {/* Panel */}
+                <Dialog.Panel
+                  className="
+          relative w-full max-w-md p-6 font-freckle
+          rounded-2xl border-4 border-emerald-950 bg-emerald-50
+          shadow-[6px_6px_0_#064e3b]
+        "
+                >
+                  {/* Close Button */}
                   <button
                     onClick={() => setIsPlaylistOpen(false)}
-                    className="absolute top-2 right-2 text-emerald-950"
+                    className="absolute top-3 right-3 text-emerald-950 hover:scale-110 transition"
                   >
-                    <FiX size={20} />
+                    <FiX size={22} />
                   </button>
-                  <h2 className="font-freckle text-lg text-emerald-950 mb-2">
+
+                  <h2 className="text-2xl text-emerald-950 mb-4">
                     Add to playlist
                   </h2>
 
-                  <div className="flex flex-col gap-2">
+                  {/* Playlist list */}
+                  <div className="flex flex-col gap-3">
                     {myPlaylists.map((pl, idx) => (
                       <button
                         key={idx}
                         onClick={() => handleAddToPlaylist(pl.playlist_uuid)}
-                        className="flex items-center gap-2 p-2 border-2 border-emerald-950 rounded-lg hover:bg-emerald-100 text-emerald-950"
+                        className="
+                flex items-center gap-2 p-3 text-left
+                border-2 border-emerald-950 rounded-xl
+                hover:bg-emerald-100 transition
+                text-emerald-950
+              "
                       >
                         {listedPlaylists[pl.playlist_uuid] ? (
                           <FiCheckSquare />
@@ -321,9 +374,16 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                     ))}
                   </div>
 
+                  {/* Done button */}
                   <button
                     onClick={() => setIsPlaylistOpen(false)}
-                    className="mt-4 px-3 py-1 border-2 border-emerald-950 text-emerald-950 rounded hover:bg-emerald-100 transition"
+                    className="
+            mt-6 px-4 py-2
+            border-2 border-emerald-950
+            bg-emerald-950 text-emerald-50
+            rounded-xl
+            hover:scale-105 transition
+          "
                   >
                     Done
                   </button>

@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { FiTwitter, FiInstagram, FiYoutube, FiFacebook } from "react-icons/fi";
-
+import footer_logo from "../../../YugenAssits/logo/Yugen Logo (Outline).svg";
 interface NavLink {
   title: string;
   path: string;
@@ -13,10 +13,11 @@ interface SocialLink {
   icon: JSX.Element;
 }
 
-const FooterSection: React.FC = () => {
+const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
+  scrollToTop,
+}) => {
   const navigationLinks: NavLink[] = [
-    { title: "Home", path: "#/" },
-    { title: "About", path: "#/landing" },
+    { title: "Home", path: "#/login" },
     { title: "Login", path: "#/login" },
   ];
 
@@ -38,25 +39,28 @@ const FooterSection: React.FC = () => {
           <div className="flex flex-col space-y-4 flex-1">
             <div className="flex items-center space-x-3">
               <img
-                src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
+                src={footer_logo}
                 alt="Yugen Logo"
-                className="w-10 h-10 bg-emerald-50 rounded-full p-1 pl-3.5"
+                className="w-18 h-18 object-contain rounded-full  p-0.5 overflow-visible"
+                style={{ objectPosition: "center" }}
               />
-              <span className="text-xl font-freckle text-emerald-50 tracking-wide">
+
+              <span className="text-xl title text-emerald-50 tracking-wide">
                 Yugen, INC
               </span>
             </div>
+
             <p className="text-emerald-100/70 text-sm max-w-xs">
               Don’t consume, but{" "}
-              <span className="font-freckle text-emerald-700">CURATE.</span>{" "}
-              Don’t generate, but{" "}
-              <span className="font-freckle text-emerald-700">CREATE.</span>
+              <span className="title text-emerald-700">CURATE.</span> Don’t
+              generate, but{" "}
+              <span className="title text-emerald-700">CREATE.</span>
             </p>
           </div>
 
           {/* Navigation */}
           <nav className="flex flex-col space-y-3 flex-1 md:items-center">
-            <h3 className="text-emerald-50 font-semibold mb-2">Navigation</h3>
+            <h3 className="text-emerald-50 title text-xl">Navigate</h3>
             {navigationLinks.map((link) => (
               <a
                 key={link.title}
@@ -67,16 +71,22 @@ const FooterSection: React.FC = () => {
               </a>
             ))}
             <p
+              onClick={() => scrollToTop()}
+              className="cursor-pointer text-emerald-100/80 hover:text-emerald-50 hover:translate-x-1 transition-all duration-200"
+            >
+              About
+            </p>
+            <p
               onClick={() => setOpenContact(true)}
               className="cursor-pointer text-emerald-100/80 hover:text-emerald-50 hover:translate-x-1 transition-all duration-200"
             >
-              Conatct us
+              Contact us
             </p>
           </nav>
 
           {/* Social Icons */}
           <div className="flex flex-col space-y-4 flex-1 md:items-end">
-            <h3 className="text-emerald-50 font-semibold mb-2">Follow Us</h3>
+            <h3 className="text-emerald-50 title text-xl">Follow Us</h3>
             <div className="flex space-x-3">
               {socialLinks.map((social) => (
                 <a

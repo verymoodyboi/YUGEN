@@ -23,7 +23,7 @@ const Watch: React.FC = () => {
   const { films: similarFilms, isLoading } = useSimilarFilms(uuid || undefined);
 
   return (
-    <AppLayout>
+    <>
       <div className="h-full w-full flex flex-col overflow-auto p-4">
         {uuid ? (
           <>
@@ -79,7 +79,7 @@ const Watch: React.FC = () => {
           </p>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

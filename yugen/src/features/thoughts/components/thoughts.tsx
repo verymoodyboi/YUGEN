@@ -1,5 +1,5 @@
 // src/features/thought/components/Thoughts.tsx
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import { Dialog } from "@mui/material";
 import {
   FiThumbsUp,
@@ -8,13 +8,13 @@ import {
   FiTrash,
   FiX,
 } from "react-icons/fi";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useToast } from "../../../components/toaster";
 import supabase from "../../../lib/supabaseClient";
 import ReplyForm from "./ReplyForm";
 import { useThoughts } from "../hooks/useThoughts";
 import { useReply } from "../hooks/useReply";
 import { FiFlag, FiCheck } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface ThoughtsProps {
   filmId: number;
@@ -32,9 +32,11 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
     fetchThoughts,
     refresh,
     setActiveIcon,
-    handleFlagThought, // ✅ add this
+    handleFlagThought,
     flaggedItems,
   } = useThoughts(filmId, refreshKey);
+  const toast = useToast();
+  const navigate = useNavigate();
   // Flag modal state
   const [flagModalOpen, setFlagModalOpen] = useState(false);
   const [flagTargetId, setFlagTargetId] = useState<number | null>(null);
@@ -65,7 +67,13 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
   const [replyDisplayCount, setReplyDisplayCount] = useState<{
     [key: number]: number;
   }>({});
-
+  const userThought = Array.isArray(thoughts)
+    ? thoughts.find((t: any) => t?.user?.username === userInfo?.username)
+    : null;
+  const hasUserThought = !!userThought;
+  const sortedThoughts = userThought
+    ? [userThought, ...thoughts.filter((t: any) => t.id !== userThought.id)]
+    : thoughts;
   const toggleReplies = (thoughtId: number) => {
     setRepliesVisible((prev) => {
       const isVisible = !prev[thoughtId];
@@ -77,9 +85,11 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
   };
 
   const onShareThought = async () => {
-    await handleAdd(newRating ?? 0, newComment.trim() || null);
-    setNewRating(null);
-    setNewComment("");
+    const success = await handleAdd(newRating, newComment.trim() || null);
+    if (success) {
+      setNewRating(null);
+      setNewComment("");
+    }
   };
 
   return (
@@ -92,12 +102,16 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
           {[...Array(10)].map((_, i) => (
             <span
               key={i}
-              onClick={() => setNewRating(i + 1)}
+              onClick={hasUserThought ? undefined : () => setNewRating(i + 1)}
               className={`cursor-pointer text-xl ${
-                newRating && newRating > i
-                  ? "text-emerald-950"
-                  : "text-gray-300"
-              }`}
+                hasUserThought
+                  ? (userThought?.rating ?? 0) > i
+                    ? "text-emerald-950"
+                    : "text-gray-300"
+                  : newRating && newRating > i
+                    ? "text-emerald-950"
+                    : "text-gray-300"
+              } ${hasUserThought ? "cursor-not-allowed opacity-60" : ""}`}
             >
               ★
             </span>
@@ -111,10 +125,17 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
           rows={3}
         />
         <button
-          onClick={onShareThought}
-          className="mt-2 px-4 py-2 bg-emerald-950 text-emerald-50 rounded-md font-freckle hover:scale-105 transition-transform"
+          onClick={hasUserThought ? undefined : onShareThought}
+          disabled={hasUserThought}
+          className={`mt-2 px-4 py-2 rounded-md font-freckle transition-transform ${
+            hasUserThought
+              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+              : "bg-emerald-950 text-emerald-50 hover:scale-105"
+          }`}
         >
-          Share Thought
+          {hasUserThought
+            ? "You already shared your thoughts here!"
+            : "Share Thought"}
         </button>
       </div>
 
@@ -123,7 +144,8 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
         <p className="text-emerald-950">No thoughts yet. Be the first!</p>
       ) : (
         <div className="flex flex-col gap-4">
-          {thoughts.map((thought: any) => {
+          {sortedThoughts.map((thought: any) => {
+            const isUser = thought?.user?.username === userInfo?.username;
             const tid = thought?.id;
             const user = thought?.user ?? {};
             const pfpPath = user?.pfp_path ?? "";
@@ -137,11 +159,22 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
             return (
               <div
                 key={tid}
-                className="p-4 border-2 border-emerald-950 rounded-lg bg-emerald-50 text-emerald-950 
-                         transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[4px_4px_0_0_#064e3b]"
+                className={`p-4 border-2 rounded-lg bg-emerald-50 text-emerald-950 transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[4px_4px_0_0_#064e3b] ${
+                  isUser
+                    ? "border-emerald-50 shadow-[0_0_10px_rgba(234,179,8,0.6)]"
+                    : "border-emerald-950"
+                }`}
               >
                 {/* Author */}
-                <div className="flex items-center gap-3 mb-2">
+                <div
+                  className="flex items-center gap-3 mb-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(
+                      `/@?username=${encodeURIComponent(user?.username)}`
+                    );
+                  }}
+                >
                   <img
                     src={displayPfp}
                     alt={user?.username ?? "user"}
@@ -431,13 +464,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
         }}
       >
         <div className="w-[80vw] h-[80vh] flex justify-center items-center relative">
-          <button
-            onClick={() => setOpen(false)}
-            className="absolute top-4 left-4 text-emerald-50 hover:scale-110 transition-transform"
-          >
-            <FiX size={28} />
-          </button>
-
           <ReplyForm
             comment_id={replyToID}
             commentor={replyToUsername}
@@ -450,11 +476,10 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
         </div>
       </Dialog>
 
-      <ToastContainer position="top-left" autoClose={5000} theme="dark" />
       {/* Tailwind Flag Modal */}
       {flagModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md bg-white  rounded-lg p-6 shadow-lg">
+          <div className="flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-red-200 shadow-[6px_6px_0_#064e3b]">
             <h3 className="font-freckle text-xl mb-4">Report this content</h3>
 
             <label className="block text-sm font-semibold mb-2">

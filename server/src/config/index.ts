@@ -9,7 +9,7 @@ const config = {
   ALLOWED_ORIGINS: (process.env.ALLOWED_ORIGINS || '').split(','),
   RATE_LIMIT: {
     windowMs: 15 * 60 * 1000,
-    max: 1000,
+    max: 100000000000,
   },
 };
 

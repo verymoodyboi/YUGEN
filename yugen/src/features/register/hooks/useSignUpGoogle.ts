@@ -1,16 +1,16 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { Crop } from "react-image-crop";
 import { api } from "../../../lib/api";
 import { getCroppedFileFromImage } from "../../../util/image-cropping/services";
 import { checkUsernameAvailable } from "../../../util/availability-validation/services";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../components/toaster";
 
 export function useSignupGoogle(googleUser: { email: string; name: string }) {
     const {user}= useAuth()
   const navigate = useNavigate();
-
+const toast=useToast()
   const steps = ["Name", "Additional Info", "Profile"];
   const [activeStep, setActiveStep] = useState(0);
 

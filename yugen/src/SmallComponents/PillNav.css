@@ -1,18 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&display=swap');
+
 .pill-nav-container {
   position: absolute;
   top: 1em;
   z-index: 99;
+  font-family: "Comic Relief", system-ui, sans-serif;
 }
 
 @media (max-width: 1000px) {
   .pill-nav-container {
     width: 100%;
     left: 0;
+    
   }
 }
 
 .pill-nav {
-  --nav-h: 50px;
+  --nav-h: 80px;
   --logo: 100px;
   --pill-pad-x: 18px;
   --pill-gap: 3px;
@@ -20,6 +24,7 @@
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  font-family: "Comic Relief", system-ui, sans-serif;
 }
 
 @media (max-width: 1000px) {
@@ -37,13 +42,15 @@
   align-items: center;
   height: var(--nav-h);
   background: var(--base, #000);
-  border-radius: 9999px;
-  border: #032a20 2px solid;
+  border-radius: 7px;
+  /* border: #032a20 4px dashed; */
+  font-family: "Comic Relief", system-ui, sans-serif;
+
 }
 
 .pill-logo {
-  width: 100px;
-  height: 70px;
+  width: 110px;
+  height: 80px;
   border-radius: 50%;
   background: var(--base, #000);
   padding: 8px;
@@ -58,6 +65,8 @@
   height: 100%;
   object-fit: contain;
   display: block;
+  margin-bottom: 15px;
+
 }
 
 .pill-list {
@@ -70,7 +79,7 @@
   height: 100%;
 }
 
-.pill-list>li {
+.pill-list > li {
   display: flex;
   height: 100%;
 }
@@ -79,12 +88,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 70%;
+  margin-top: 8px;
   padding: 0 var(--pill-pad-x);
   background: var(--pill-bg, #fff);
   color: var(--pill-text, var(--base, #000));
   text-decoration: none;
-  border-radius: 9999px;
+  border-radius: 10px;
   box-sizing: border-box;
   font-weight: 600;
   font-size: 16px;
@@ -95,6 +105,7 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  font-family: "Comic Relief", system-ui, sans-serif;
 }
 
 .pill .hover-circle {
@@ -114,6 +125,7 @@
   display: inline-block;
   line-height: 1;
   z-index: 2;
+  font-family: "Comic Relief", system-ui, sans-serif;
 }
 
 .pill .pill-label {
@@ -122,6 +134,7 @@
   display: inline-block;
   line-height: 1;
   will-change: transform;
+  font-family: "Comic Relief", system-ui, sans-serif;
 }
 
 .pill .pill-label-hover {
@@ -132,6 +145,7 @@
   z-index: 3;
   display: inline-block;
   will-change: transform, opacity;
+  font-family: "Comic Relief", system-ui, sans-serif;
 }
 
 .pill.is-active::after {
@@ -169,8 +183,6 @@
   width: var(--nav-h);
   height: var(--nav-h);
   border-radius: 25%;
-
-
   border: none;
   display: none;
   flex-direction: column;
@@ -191,7 +203,7 @@
 .hamburger-line {
   width: 16px;
   height: 2px;
-  background:  #033024;
+  background: #033024;
   border-radius: 1px;
   transition: all 0.01s ease;
   transform-origin: center;
@@ -203,9 +215,8 @@
   left: 1rem;
   right: 1rem;
   width: 155px;
-  background:   transparent;
+  background: transparent;
   border-radius: 27px;
-  /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); */
   z-index: 998;
   opacity: 0;
   transform-origin: top center;
@@ -226,13 +237,14 @@
   padding: 12px 16px;
   color: var(--pill-text, #fff);
   background-color: var(--pill-bg, #fff);
-  border:#032a20 2px solid;
+  border: #032a20 2px solid;
   text-decoration: none;
   font-size: 16px;
   font-weight: 500;
   border-radius: 50px;
   transition: all 0.2s ease;
   width: 150px;
+  font-family: "Comic Relief", system-ui, sans-serif;
 }
 
 .mobile-menu-popover .mobile-menu-link:hover {

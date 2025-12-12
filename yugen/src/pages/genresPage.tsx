@@ -7,7 +7,7 @@ const GenresPage: React.FC = () => {
   const { genresWithFilms, loading } = useGenresWithFilms();
 
   return (
-    <AppLayout>
+    <>
       <div className="min-h-screen flex flex-col gap-10 text-emerald-950 bg-emerald-50  px-4 sm:px-8 py-10 transition-colors duration-300">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
@@ -48,7 +48,7 @@ const GenresPage: React.FC = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

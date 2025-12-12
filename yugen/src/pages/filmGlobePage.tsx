@@ -4,7 +4,7 @@ import { FiFilm, FiUsers } from "react-icons/fi";
 
 export default function FilmGlobePage(): JSX.Element {
   return (
-    <AppLayout>
+    <>
       <div
         className="flex flex-col items-center w-full"
         style={{ height: "calc(100vh - 120px)" }}
@@ -24,14 +24,14 @@ export default function FilmGlobePage(): JSX.Element {
           </div>
 
           <div className="flex gap-3">
-            <div className="bg-emerald-50 border-2 border-emerald-950 rounded-lg p-3 w-32 shadow-md hover:shadow-[4px_4px_0_0_#064e3b] transition-transform hover:scale-105 cursor-pointer flex flex-col items-center gap-2">
+            <div className="bg-emerald-50 border-2 border-emerald-950 rounded-lg p-3 w-32 shadow-md hover:shadow-[4px_4px_0_0_#064e3b] transition-transform hover:scale-105 cursor-crosshair flex flex-col items-center gap-2">
               <FiFilm size={28} className="text-emerald-950" />
               <h3 className="font-bold text-emerald-950">Films</h3>
               <p className="text-xs text-emerald-950 mt-1 text-center">
                 Worldwide collection
               </p>
             </div>
-            <div className="bg-emerald-50 border-2 border-emerald-950 rounded-lg p-3 w-32 shadow-md hover:shadow-[4px_4px_0_0_#064e3b] transition-transform hover:scale-105 cursor-pointer flex flex-col items-center gap-2">
+            <div className="bg-emerald-50 border-2 border-emerald-950 rounded-lg p-3 w-32 shadow-md hover:shadow-[4px_4px_0_0_#064e3b] transition-transform hover:scale-105 cursor-crosshair flex flex-col items-center gap-2">
               <FiUsers size={28} className="text-emerald-950" />
               <h3 className="font-bold text-emerald-950">Artists</h3>
               <p className="text-xs text-emerald-950 mt-1 text-center">
@@ -41,7 +41,7 @@ export default function FilmGlobePage(): JSX.Element {
           </div>
         </div>
         <div
-          className="flex-1 w-full max-w-6xl flex items-center justify-center relative"
+          className="flex-1 w-full max-w-6xl flex items-center justify-center cursor-crosshair relative"
           style={{
             minHeight: 0,
             borderRadius: "2rem",
@@ -74,6 +74,6 @@ export default function FilmGlobePage(): JSX.Element {
           />
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 }

@@ -4,15 +4,16 @@ import SideMenu from "../components/SideMenu";
 import AccHub from "../components/AccountHub";
 import NavBar from "../components/NavBar";
 import TechnicalReportForm from "../features/report/components/TechReport";
-import { ToastContainer, toast } from "react-toastify";
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+import { Outlet } from "react-router-dom";
+
+export default function AppLayout() {
   const [openReport, setOpenReport] = useState(false);
   const [openContact, setOpenContact] = useState(false);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-emerald-50 text-emerald-950">
       {/* Header */}
-      <header className="h-[80px] min-h-[80px] w-full border-b-4 border-emerald-950 border-dashed flex items-center px-4">
+      <header className="h-[80px] min-h-[80px] w-full border-b-3 border-emerald-950 border-solid flex items-center px-4">
         <AccHub />
         <NavBar />
       </header>
@@ -20,7 +21,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Body */}
       <div className="flex flex-1 h-[90vh]">
         {/* Desktop Side Menu */}
-        <aside className="hidden lg:block w-[18vw] h-full border-dashed  border-r-4 border-emerald-950">
+        <aside className="hidden lg:block w-[18vw] h-full border-dashed  border-r-8 border-emerald-950">
           <SideMenu
             mode="desktop"
             onOpenReport={() => setOpenReport(true)}
@@ -29,7 +30,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 h-full p-4 overflow-scroll">{children}</main>
+        <main className="flex-1 h-full p-4 overflow-scroll">
+          <Outlet />
+        </main>
       </div>
 
       {/* Mobile Menu */}
@@ -92,7 +95,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
-      <ToastContainer />
     </div>
   );
 }

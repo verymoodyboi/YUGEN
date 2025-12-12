@@ -29,12 +29,12 @@ const GenreCard: React.FC<GenreCardProps> = ({
       : undefined;
 
   return (
-    <div className="relative bg-emerald-50 text-emerald-950 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-emerald-950/20">
-      {/* Background Poster (more visible) */}
+    <div className="relative bg-emerald-50 text-emerald-950 rounded-3xl overflow-hidden shadow-lg border-emerald-950  hover:scale-105 hover:shadow-[4px_4px_0_0_#064e3b] transition-all duration-300 border-4 border-emerald-950">
+      {/* Background Poster (less visible) */}
       {mainPoster && (
         <>
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-70 transition-opacity duration-500"
+            className="absolute inset-0 bg-cover bg-center opacity-40 transition-opacity duration-500"
             style={{ backgroundImage: `url(${mainPoster})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/40 via-emerald-50/30 to-transparent" />
@@ -49,7 +49,7 @@ const GenreCard: React.FC<GenreCardProps> = ({
             {name || "Untitled Genre"}
           </h3>
           {description && (
-            <p className="text-sm text-emerald-950/90 max-w-3xl drop-shadow-sm">
+            <p className="text-md text-emerald-950/90 max-w-3xl drop-shadow-sm">
               {description}
             </p>
           )}

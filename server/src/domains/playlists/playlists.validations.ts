@@ -18,3 +18,9 @@ export const checkListedSchema = Joi.object({
 export const togglePublicSchema = Joi.object({
   playlist_uuid: Joi.string().uuid().required(),
 });
+
+export const updateNameSchema = Joi.object({
+  playlistID: Joi.string().uuid().required(),
+    newName: Joi.string().required(),
+
+});

@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as service from "./tools.services.js";
-import { checkEmailSchema, checkUsernameSchema } from "./tools.validations.js";
+import { checkEmailSchema, checkUsernameSchema,getUserInfoSchema } from "./tools.validations.js";
 
 export async function checkEmail(req: Request, res: Response) {
   try {
@@ -36,6 +36,37 @@ export async function checkUsername(req: Request, res: Response) {
     res.json({ message: "Username available" });
   } catch (err: any) {
     console.error("Error checking username:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+}
+
+
+
+
+export async function getUserInfo(req: Request, res: Response) {
+  try {
+    const { error } = getUserInfoSchema.validate(req.query);
+    if (error) {
+      return res.status(400).json({
+        error: error.details.map(d => d.message),
+      });
+    }
+
+    const { userID } = req.query as { userID: string };
+
+    const result = await service.getUserInfo(userID);
+
+    if (!result) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      message: "User info fetched",
+      username: result.username,
+      pfp: result.pfp_path,
+    });
+  } catch (err: any) {
+    console.error("Error fetching user info:", err);
     res.status(500).json({ error: "Server error" });
   }
 }

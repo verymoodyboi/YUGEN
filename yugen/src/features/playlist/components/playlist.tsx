@@ -1,10 +1,10 @@
 // src/features/playlist/components/PlaylistSection.tsx
 import React from "react";
-import supabase from "../../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { FiEye, FiShuffle, FiPlay } from "react-icons/fi";
 import { useAuth } from "../../../contexts/AuthContext";
 import { usePlaylist } from "../hooks/useWatchPlaylist";
-import { FiEye, FiStar, FiShuffle, FiPlay } from "react-icons/fi";
+import PlaylistItem from "./playlistFilmCard";
 
 const PlaylistSection = ({
   playlistId,
@@ -83,46 +83,18 @@ const PlaylistSection = ({
       <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
         {films.length > 0 ? (
           films.map((pf, i) => {
-            const film = pf.films || pf;
-            const posterUrl =
-              supabase.storage.from("posters").getPublicUrl(film.poster_path)
-                .data.publicUrl || "/placeholder.jpg";
-            const isActive = film.film_uuid === currentFilmId;
-
+            const isActive = pf.films?.film_uuid === currentFilmId;
             return (
-              <div
-                key={film.film_uuid || i}
+              <PlaylistItem
+                key={pf.films?.film_uuid || i}
+                pf={pf}
+                selected={!!isActive}
                 onClick={() =>
                   navigate(
-                    `/watchplaylist?uuid=${film.film_uuid}&playlist=${playlistId}`
+                    `/watchplaylist?uuid=${pf.films.film_uuid}&playlist=${playlistId}`
                   )
                 }
-                className={`p-4 border-2 border-emerald-950 rounded-lg bg-emerald-50 text-emerald-950 cursor-pointer transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[4px_4px_0_0_#064e3b] ${
-                  isActive ? "bg-emerald-100" : ""
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <img
-                    src={posterUrl}
-                    alt={film.film_title}
-                    className="w-20 h-28 object-cover rounded-md border border-emerald-950"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-freckle text-xl">{film.film_title}</h3>
-                    <p className="text-sm text-emerald-950/70">
-                      {film.film_genre || "No genre"}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end text-sm text-emerald-950">
-                    <div className="flex items-center gap-1">
-                      <FiEye size={16} /> {film.view_count ?? 0}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <FiStar size={16} /> {film.avg_rating ?? "N/A"}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              />
             );
           })
         ) : (

@@ -29,7 +29,7 @@ const SearchBar = () => {
             navigate(`/search?query=${encodeURIComponent(searchInput)}`);
           }
         }}
-        placeholder="🔍︎ Search by title, filmmaker, or discription"
+        placeholder="🔍︎ Search by title, filmmaker, or description"
         className="w-full px-4 py-2 rounded-xl border-2 border-emerald-950 
                    bg-emerald-50 text-emerald-950 font-freckle text-lg 
                    placeholder:text-emerald-900/60 focus:outline-none 

@@ -37,7 +37,7 @@ export async function getPlaylistFilms(id: string) {
     .select(`
       film_id,
       film_index,
-      films(film_uuid, film_title, film_genre, poster_path, avg_rating)
+      films(film_uuid, film_title, film_genre, poster_path, avg_rating,uploader_id)
     `)
     .eq('playlist_id', id)
     .order('film_index', { ascending: true });
@@ -78,7 +78,8 @@ export async function getMyPlaylists(userId: string) {
           release_date,
           film_duration,
           avg_rating,
-          view_count
+          view_count,
+          uploader_id
         )
       )
     `)
@@ -188,13 +189,35 @@ export async function checkPublic(playlist_uuid: string) {
   return { isPub: data?.is_public ?? false };
 }
 
-export async function deletePlaylists(playlist_uuid: string) {
+export async function deletePlaylists(
+  playlist_uuid: string,
+  user_id: string
+) {
   const { data, error } = await supabase
-    .from('playlists')
+    .from("playlists")
     .delete()
-    .eq('playlist_uuid', playlist_uuid)
-
+    .eq("playlist_uuid", playlist_uuid)
+    .eq("user_id", user_id)
+    .select();
 
   if (error) throw new Error(error.message);
-  return { isPub: data ?? false };
+
+  return data ?? []; 
+}
+
+export async function updateName(userId: string, playlist_uuid: string,newName:string) {
+  const { data: old, error: fetchError } = await supabase
+    .from('playlists')
+    .select('user_id')
+    .eq('playlist_uuid', playlist_uuid)
+    .maybeSingle();
+
+  if (fetchError || !old) throw new Error('Playlist not found');
+  if (old.user_id !== userId) throw new Error('Not authorized');
+
+  await supabase.from('playlists')
+    .update({ playlist_name: newName })
+    .eq('playlist_uuid', playlist_uuid);
+
+  return { updated_to: newName };
 }

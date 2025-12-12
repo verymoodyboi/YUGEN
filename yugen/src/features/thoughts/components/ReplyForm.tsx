@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useState, useRef, useEffect } from "react";
 import { useReply } from "../hooks/useReply";
 
 interface TargetReply {
   comment_id: number;
   commentor: string;
-  onSubmitSuccess?: () => void;
+  onSubmitSuccess?: () => void; // will be used to close form
 }
 
 const ReplyForm: React.FC<TargetReply> = ({
@@ -14,12 +12,23 @@ const ReplyForm: React.FC<TargetReply> = ({
   commentor,
   onSubmitSuccess,
 }) => {
-  // Get only the function we need
   const { submitReply } = useReply(onSubmitSuccess);
 
-  // Local state for textarea
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(e.target as Node)) {
+        onSubmitSuccess?.(); // close form
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onSubmitSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,31 +36,27 @@ const ReplyForm: React.FC<TargetReply> = ({
     setIsSubmitting(true);
     await submitReply(comment_id, comment);
     setIsSubmitting(false);
-    setComment(""); // reset form
+    setComment("");
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div ref={formRef} className="w-full max-w-xl mx-auto">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col gap-3 p-4 rounded-xl border-2 border-emerald-950 bg-emerald-50 shadow-md"
+        className="flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b]"
       >
         <p className="font-freckle text-emerald-950 text-lg">
           Reply to <span className="font-bold">@{commentor}</span>
         </p>
 
-        {/* Textarea */}
         <textarea
           name="Comment"
           placeholder={`@${commentor} `}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          className="w-full min-h-[80px] p-2 text-emerald-950 border-2 border-emerald-950 rounded-lg 
-                     bg-emerald-50 font-freckle focus:outline-none focus:ring-2 focus:ring-emerald-950
-                     resize-y"
+          className="w-full min-h-[80px] p-2 text-emerald-950 border-2 border-emerald-950 rounded-lg bg-emerald-50 font-freckle focus:outline-none focus:ring-2 focus:ring-emerald-950 resize-y"
         />
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -64,19 +69,6 @@ const ReplyForm: React.FC<TargetReply> = ({
           {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
-
-      <ToastContainer
-        position="top-left"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
     </div>
   );
 };

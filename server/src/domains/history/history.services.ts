@@ -52,7 +52,8 @@ export async function getHistory(userId: string) {
         poster_path,
         avg_rating,
         thesis,
-        view_count
+        view_count,
+        uploader_id
       )
     `)
     .eq('history_id', userId)

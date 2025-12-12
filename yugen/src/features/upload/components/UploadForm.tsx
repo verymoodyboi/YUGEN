@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import supabase from "../../../lib/supabaseClient";
-import { ToastContainer, toast } from "react-toastify";
 import CustomLoading from "../../../SmallComponents/CutomsLoading";
 import "react-toastify/dist/ReactToastify.css";
 import ShinyText from "../../../SmallComponents/ShinyText";
@@ -19,11 +18,14 @@ import ErrorImg from "../../../YugenAssits/Icons/ErrorImg.png";
 import AccHub from "../../../components/AccountHub";
 import { useUpload } from "../hooks/useUpload";
 import { useGenresWithFilms } from "../../genres/useGenres";
+import { useToast } from "../../../components/toaster";
+import uploading_animation from "../../../YugenAssits/upload-button/Yugen Upload.gif";
 registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
 const steps = ["Upload", "Details", "Additional details"];
 
 const UploadForm: React.FC = () => {
+  const toast = useToast();
   const {
     filmFile,
     title,
@@ -196,14 +198,12 @@ const UploadForm: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [crop]);
 
-  // navigation
   const handleNext = async () => {
     const valid = validateStep();
     if (!valid) return;
 
-    // If this is the last step, submit instead of advancing
     if (activeStep === steps.length - 1) {
-      handleSubmit(); // <-- actual function call
+      handleSubmit();
       return;
     }
 
@@ -337,47 +337,15 @@ const UploadForm: React.FC = () => {
   if (isSubmit) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-emerald-50 p-6">
-        <div className="rounded-2xl border-4 border-emerald-950 bg-emerald-50 p-8 shadow-2xl w-full max-w-lg flex flex-col items-center gap-6">
-          <div>
-            {uploadProgress < 100 ? (
-              <ShinyText text="Uploading file" disabled={false} speed={3} />
-            ) : (
-              <ShinyText
-                text="Processing your film"
-                disabled={false}
-                speed={3}
-              />
-            )}
-          </div>
-
-          <div>
-            {uploadProgress < 100 ? (
-              <CustomLoading
-                determinate
-                value={uploadProgress}
-                size={80}
-                thickness={5}
-              />
-            ) : (
-              <CustomLoading />
-            )}
-          </div>
-
-          <div className="mt-4">
-            <Shuffle
-              text="please do not leave this page"
-              shuffleDirection="right"
-              duration={0.35}
-              animationMode="evenodd"
-              shuffleTimes={1}
-              ease="power3.out"
-              stagger={0.03}
-              threshold={0.1}
-              triggerOnce={true}
-              triggerOnHover={true}
-              respectReducedMotion={true}
-            />
-          </div>
+        <div className="flex flex-col items-center justify-center text-center">
+          <img
+            src={uploading_animation}
+            className="h-[200px] min-w-[100px] cursor-pointer rounded-lg transition-transform duration-300 ease-in-out"
+            alt="upload done!"
+          />
+          <p className="text-2xl title text-emerald-950 mb-2">
+            Prepare for take off!
+          </p>
         </div>
       </div>
     );
@@ -744,20 +712,23 @@ const UploadForm: React.FC = () => {
                       className="flex items-center justify-between bg-emerald-100 p-3 rounded-lg border-2 border-emerald-950"
                     >
                       <div className="flex items-center gap-3">
-                        <strong>{member.role}</strong>
+                        <strong>{member.role}:</strong>
                         <div className="flex items-center gap-2">
-                          <img
-                            src={
-                              member.pfp
-                                ? supabase.storage
-                                    .from("pfps")
-                                    .getPublicUrl(member.pfp).data.publicUrl
-                                : ""
-                            }
-                            alt={member.name}
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                          <span>@{member.name}</span>
+                          {member.name.includes("@") && (
+                            <img
+                              src={
+                                member.pfp
+                                  ? supabase.storage
+                                      .from("pfps")
+                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  : ""
+                              }
+                              alt={member.name}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          )}
+
+                          <span>{member.name}</span>
                         </div>
                       </div>
                       <button
@@ -805,7 +776,7 @@ const UploadForm: React.FC = () => {
                             <div
                               key={opt.username}
                               onClick={() => {
-                                setActor(opt.username);
+                                setActor("@" + opt.username);
                                 setActorPFP(opt.pfp);
                                 setActorSearchInput("");
                                 setActorSearchResults([]);
@@ -860,20 +831,23 @@ const UploadForm: React.FC = () => {
                       className="flex items-center justify-between bg-emerald-100 p-3 rounded-lg border-2 border-emerald-950"
                     >
                       <div className="flex items-center gap-3">
-                        <strong>{member.character}</strong>
+                        <strong>{member.character}:</strong>
                         <div className="flex items-center gap-2">
-                          <img
-                            src={
-                              member.pfp
-                                ? supabase.storage
-                                    .from("pfps")
-                                    .getPublicUrl(member.pfp).data.publicUrl
-                                : ""
-                            }
-                            alt={member.actor}
-                            className="w-8 h-8 rounded-full object-cover"
-                          />
-                          <span>@{member.actor}</span>
+                          {member.actor.includes("@") && (
+                            <img
+                              src={
+                                member.pfp
+                                  ? supabase.storage
+                                      .from("pfps")
+                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  : ""
+                              }
+                              alt={member.actor}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          )}
+
+                          <span>{member.actor}</span>
                         </div>
                       </div>
                       <button
@@ -919,8 +893,6 @@ const UploadForm: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <ToastContainer position="top-left" theme="dark" />
     </>
   );
 };

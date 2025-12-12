@@ -5,8 +5,6 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import ReactCrop, { Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useSignup } from "../hooks/useSignUp";
 import countries from "../../../Data/countries.json";
 import { ImageCropper } from "../../../util/image-cropping/components/image-cropper";
@@ -150,15 +148,16 @@ const SignUpForm: React.FC = () => {
           onClick={() => navigate("/")}
         />
       </div>
-      <ToastContainer position="top-left" />
 
       <div
-        className="w-full max-h-[65vh] max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl 
-               p-6 h-[600px] overflow-y-auto"
+        className="
+    w-full max-h-[65vh] max-w-3xl bg-emerald-50 border-4 border-emerald-950 
+    rounded-3xl shadow-2xl p-6 h-[600px] overflow-y-auto hidden-scrollbar
+  "
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Create your account</h1>
+          <h1 className="text-3xl title font-bold">Create your account</h1>
         </div>
 
         {/* Stepper */}

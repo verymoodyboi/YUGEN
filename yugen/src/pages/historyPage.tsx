@@ -17,12 +17,16 @@ const HistoryPage: React.FC = () => {
   }, {});
 
   return (
-    <AppLayout>
-      <div className="h-full w-full flex flex-col overflow-auto p-4">
-        <h2 className="font-freckle text-2xl text-emerald-950 ">
+    <>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+        <h1 className="text-4xl font-bold border-b-4 border-emerald-950  pb-2">
           Watch history
-        </h2>
-
+        </h1>
+        <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">
+          Revisit the unforgetable stories you watched
+        </p>
+      </div>{" "}
+      <div className="h-full w-full flex flex-col overflow-auto p-4">
         {loading && <Loading />}
         {error && (
           <p className="text-red-600 dark:text-red-400">
@@ -57,7 +61,7 @@ const HistoryPage: React.FC = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

@@ -152,7 +152,7 @@ const PillNav: React.FC<PillNavProps> = ({
     }
 
     return () => window.removeEventListener("resize", onResize);
-  }, [items, ease, initialLoadAnimation]);
+  }, []);
 
   const handleEnter = (i: number) => {
     const tl = tlRefs.current[i];

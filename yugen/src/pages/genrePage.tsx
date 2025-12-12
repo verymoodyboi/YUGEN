@@ -41,7 +41,7 @@ const GenrePage: React.FC = () => {
   }, [hasMore, loading, fetchNextPage]);
 
   return (
-    <AppLayout>
+    <>
       <div className="flex flex-col space-y-10 text-emerald-950 ">
         {/* === HERO SECTION === */}
         <div className="relative w-full rounded-3xl overflow-hidden border border-emerald-950/30 shadow-lg bg-emerald-50 ">
@@ -128,7 +128,7 @@ const GenrePage: React.FC = () => {
           )}
         </section>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

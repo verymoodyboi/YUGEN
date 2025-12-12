@@ -16,6 +16,8 @@ router.get('/checkPublic', requireAuth, controller.checkPublic);
 router.post('/create', requireAuth, controller.createPlaylist);
 router.post('/add-to', requireAuth, controller.addOrRemoveFilm);
 router.post('/togglePublic', requireAuth, controller.togglePublic);
+router.post('/update-name', requireAuth, controller.updateName);
+
 // delete
 
 router.delete('/', requireAuth, controller.deletePlaylists);

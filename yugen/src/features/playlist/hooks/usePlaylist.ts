@@ -9,6 +9,7 @@ interface Playlist {
 }
 
 export function usePlaylist() {
+
   const [myPlaylists, setMyPlaylists] = useState<Playlist[] | any>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -45,12 +46,26 @@ const {getAccessToken}= useAuth()
     },
     [getAccessToken, fetchMyPlaylists]
   );
+const handleLocalPlaylistUpdate = (playlist_uuid: string, updates: any) => {
+  setMyPlaylists((prev) =>
+    prev.map((p) =>
+      p.playlist_uuid === playlist_uuid ? { ...p, ...updates } : p
+    )
+  );
+};
 
+const handleLocalPlaylistDelete = (playlist_uuid: string) => {
+  setMyPlaylists((prev) =>
+    prev.filter((p) => p.playlist_uuid !== playlist_uuid)
+  );
+};
   return {
     myPlaylists,
     loading,
     creating,
     fetchMyPlaylists,
     handleCreatePlaylist,
+    handleLocalPlaylistDelete,
+    handleLocalPlaylistUpdate
   };
 }

@@ -1,13 +1,14 @@
-import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import * as svc from "../services";
+import { useToast } from "../../../components/toaster";
 
 export function useReply(
   onSuccess?: () => void,
   sharedActiveIcon?: any,
   setSharedActiveIcon?: any
 ) {
+  const toast = useToast()
   const { getAccessToken } = useAuth();
 
   // Local flag state

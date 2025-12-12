@@ -57,10 +57,18 @@ const AccountCard = ({ account }: any) => {
             {account?.bio?.slice(0, 50)}...
           </p>
           <button
-            className="font-freckle text-emerald-950 underline text-sm flex-shrink-0"
+            className="font-freckle text-emerald-950 underline text-sm flex-shrink-0 
+             cursor-auto hover:cursor-auto"
             onClick={(e) => {
               e.stopPropagation();
-              // TODO: open expanded bio dialog or page
+
+              if (userInfo?.username === account?.username) {
+                navigate("/profile?tab=info");
+              } else {
+                navigate(
+                  `/@?username=${encodeURIComponent(account?.username)}&tab=info`
+                );
+              }
             }}
           >
             more

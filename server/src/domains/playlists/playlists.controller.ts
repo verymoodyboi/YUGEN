@@ -5,6 +5,7 @@ import {
   addToPlaylistSchema,
   checkListedSchema,
   togglePublicSchema,
+  updateNameSchema,
 } from './playlists.validations.js';
 
 export async function getUserPlaylists(req: Request, res: Response) {
@@ -120,11 +121,40 @@ export async function checkPublic(req: Request, res: Response) {
 
 export async function deletePlaylists(req: Request, res: Response) {
   try {
-    const userId = req.query.userId as string;
-    const playlists = await service.deletePlaylists(userId);
-    res.json({ playlists });
+    const playlist_uuid = req.body.playlistID as string;
+    const user_id = req.user?.id;
+
+    if (!user_id) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (!playlist_uuid) {
+      return res.status(400).json({ error: "playlistID is required" });
+    }
+
+    const deleted = await service.deletePlaylists(playlist_uuid, user_id);
+
+    if (deleted.length === 0) {
+      return res.status(403).json({ error: "Not allowed to delete this playlist" });
+    }
+
+    return res.json({ deleted });
   } catch (err: any) {
-    console.error('Error deleting playlists:', err);
+    console.error("Error deleting playlists:", err);
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+export async function updateName(req: Request, res: Response) {
+  try {
+    const { error } = updateNameSchema.validate(req.body);
+    if (error) return res.status(400).json({ error: error.details.map(d => d.message) });
+
+    const userId = req.user?.id;
+    const result = await service.updateName(userId!, req.body.playlist_uuid,req.body.newName);
+    res.json(result);
+  } catch (err: any) {
+    console.error('update name error:', err);
     res.status(500).json({ error: err.message });
   }
 }

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
 import { submitFilmReport } from "../services";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../components/toaster";
 
 export function useFilmReport(onSuccess?: () => void) {
+  const toast = useToast()
   const { userInfo } = useAuth();
   const [loading, setLoading] = useState(false);
 

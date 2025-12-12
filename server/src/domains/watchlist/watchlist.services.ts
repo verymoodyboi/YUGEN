@@ -64,7 +64,8 @@ export async function getMyWatchlist(userId: string) {
         film_genre,
         poster_path,
         avg_rating,
-        thesis
+        thesis,
+        uploader_id
       )
     `
     )

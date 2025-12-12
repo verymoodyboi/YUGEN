@@ -2,15 +2,15 @@
 // src/features/signup/hooks/useSignup.tsx
 import { useState, useRef,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { Crop } from "react-image-crop";
 import { api } from "../../../lib/api";
 import { getCroppedFileFromImage } from "../../../util/image-cropping/services";
 import { checkUsernameAvailable,checkEmailAvailable } from "../../../util/availability-validation/services";
+import { useToast } from "../../../components/toaster";
 
 export function useSignup() {
   const navigate = useNavigate();
-
+const toast= useToast()
   const steps = ["Name", "Additional Info", "Credentials", "Profile"];
   const [activeStep, setActiveStep] = useState(0);
 

@@ -8,10 +8,13 @@ import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import PlaylistCard from "../features/playlist/components/PlaylistCard";
 import CustomLoading from "../SmallComponents/CutomsLoading";
-import EditProfile from "../features/profile/components/EditProfile copy";
+import EditProfile from "../features/profile/components/EditProfile";
 import { Dialog, Transition } from "@headlessui/react";
 import UploadFilmCard from "../features/profile/components/uploadedFilmsCard";
 import { useSearchParams } from "react-router-dom";
+import upload_button_static from "../YugenAssits/upload-button/Regular.png";
+import upload_button_gif from "../YugenAssits/upload-button/Upload button modified REPEAT.gif";
+
 import {
   FiYoutube,
   FiInstagram,
@@ -24,6 +27,7 @@ import {
 } from "react-icons/fi";
 import SchoolIcon from "@mui/icons-material/School";
 import Loading from "../components/loading_kickflip";
+import { Tooltip } from "@mui/material";
 
 const UserProfile: React.FC = () => {
   const { userInfo: user, getAccessToken } = useAuth();
@@ -64,26 +68,29 @@ const UserProfile: React.FC = () => {
     isFetchingNextPage,
     films,
     myPlaylists,
+    handleLocalPlaylistDelete,
+    handleLocalPlaylistUpdate,
     playlistsLoading,
-    // userChallengesData,
-    // userChallengesLoading,
-    // userChallengesError,
-    // userChallenges,
   } = useMyProfile(user?.auth_id, getAccessToken);
+  const [isHover, setIsHover] = useState(false);
+  useEffect(() => {
+    const img = new Image();
+    img.src = upload_button_gif;
+  }, []);
   if (!user)
     return (
-      <AppLayout>
+      <>
         <div className="flex items-center justify-center h-screen text-emerald-950 font-freckle">
           <Loading />
         </div>
-      </AppLayout>
+      </>
     );
 
   return (
-    <AppLayout>
+    <>
       <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-4 flex flex-col gap-6">
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
+        <div className="flex flex-row gap-1 items-start justify-between">
           {/* Profile Info */}
           <div className="flex gap-4 items-center">
             <img
@@ -98,10 +105,20 @@ const UserProfile: React.FC = () => {
             <div>
               <h1 className="text-3xl">@{user?.username}</h1>
               <p className="flex items-center gap-2 mt-1 text-emerald-900">
-                <FiVideo /> {user?.films_count} <FiUsers /> {user?.sub_count}
+                <Tooltip title="Films">
+                  <FiVideo />
+                </Tooltip>
+                {user?.films_count}{" "}
+                <Tooltip title="Subscrbiers">
+                  <FiUsers />
+                </Tooltip>{" "}
+                {user?.sub_count}
               </p>
               <p className="flex items-center gap-2">
-                <FiGlobe /> {user?.region || "N/A"}
+                <Tooltip title="Region">
+                  <FiGlobe />
+                </Tooltip>{" "}
+                {user?.region || "N/A"}
               </p>
 
               {/* {user?.academic_status && (
@@ -120,41 +137,51 @@ const UserProfile: React.FC = () => {
               {/* Social Links */}
               <div className="flex gap-3 mt-2">
                 {user?.youtube && (
-                  <FiYoutube
-                    className="cursor-pointer hover:scale-110"
-                    onClick={() => window.open(user.youtube, "_blank")}
-                  />
+                  <Tooltip title="Youtube">
+                    <FiYoutube
+                      className="cursor-pointer hover:scale-110"
+                      onClick={() => window.open(user.youtube, "_blank")}
+                    />
+                  </Tooltip>
                 )}
                 {user?.instagram && (
-                  <FiInstagram
-                    className="cursor-pointer hover:scale-110"
-                    onClick={() => window.open(user.instagram, "_blank")}
-                  />
+                  <Tooltip title="Instagram">
+                    <FiInstagram
+                      className="cursor-pointer hover:scale-110"
+                      onClick={() => window.open(user.instagram, "_blank")}
+                    />
+                  </Tooltip>
                 )}
                 {user?.linkedin && (
-                  <FiLinkedin
-                    className="cursor-pointer hover:scale-110"
-                    onClick={() => window.open(user.linkedin, "_blank")}
-                  />
+                  <Tooltip title="LinkedIn">
+                    <FiLinkedin
+                      className="cursor-pointer hover:scale-110"
+                      onClick={() => window.open(user.linkedin, "_blank")}
+                    />
+                  </Tooltip>
                 )}
               </div>
 
-              {/* Bio Preview */}
+              {/* Bio Preview           */}
               {user?.bio && (
-                <p
-                  className="mt-2 text-emerald-900 cursor-pointer hover:underline"
-                  onClick={() => {
-                    setValue("info");
-                    setTimeout(scrollToInfo, 150);
-                  }}
-                >
-                  {user.bio.length > 50
-                    ? user.bio.slice(0, 50) + "..."
-                    : user.bio}
-                </p>
+                <div className="flex items-center gap-1">
+                  <p className="font-freckle text-emerald-950 text-sm truncate max-w-[50%]">
+                    {user?.bio?.slice(0, 50)}...
+                  </p>
+                  <Tooltip title="View more details">
+                    <button
+                      className="font-freckle text-emerald-950 underline text-sm flex-shrink-0 cursor-pointer"
+                      onClick={(e) => {
+                        setValue("info");
+                        setTimeout(scrollToInfo, 150);
+                      }}
+                    >
+                      more
+                    </button>
+                  </Tooltip>
+                </div>
               )}
 
-              {/* Edit Button */}
               <div className="mt-3">
                 <button
                   onClick={() => setOpenEdit(true)}
@@ -169,27 +196,23 @@ const UserProfile: React.FC = () => {
 
           {/* Upload Visual */}
           <div>
-            <video
-              onClick={() => navigate("/UploadFilmPage")}
-              autoPlay
-              loop
-              muted
-              playsInline
-              src={
-                supabase.storage
-                  .from("assets")
-                  .getPublicUrl("createButtonFinal.webm").data.publicUrl
-              }
-              className="w-56 h-36 object-cover rounded-xl border-4 border-emerald-950 cursor-pointer hover:scale-105 transition"
-            />
+            <Tooltip title="Upload">
+              <img
+                src={isHover ? upload_button_gif : upload_button_static}
+                onClick={() => navigate("/UploadFilmPage")}
+                onMouseEnter={() => setIsHover(true)}
+                onMouseLeave={() => setIsHover(false)}
+                className="h-[150px] min-w-[75px] cursor-pointer rounded-lg transition-transform duration-300 ease-in-out "
+                alt="upload_button"
+              />
+            </Tooltip>
           </div>
         </div>
 
-        {/* TABS */}
         <div className="flex gap-4 border-b-2 border-emerald-950 pb-2">
           <button
             onClick={() => setValue("library")}
-            className={`px-4 py-2 rounded-t-md font-bold transition-transform hover:-translate-y-[1px] ${
+            className={`px-3 py-1.5 text-sm rounded-t-md font-semibold transition-transform hover:-translate-y-[1px] ${
               value === "library"
                 ? "bg-emerald-950 text-emerald-50"
                 : "bg-emerald-50 text-emerald-950 border-2 border-emerald-950"
@@ -199,7 +222,7 @@ const UserProfile: React.FC = () => {
           </button>
           <button
             onClick={() => setValue("info")}
-            className={`px-4 py-2 rounded-t-md font-bold transition-transform hover:-translate-y-[1px] ${
+            className={`px-3 py-1.5 text-sm rounded-t-md font-semibold transition-transform hover:-translate-y-[1px] ${
               value === "info"
                 ? "bg-emerald-950 text-emerald-50"
                 : "bg-emerald-50 text-emerald-950 border-2 border-emerald-950"
@@ -209,7 +232,7 @@ const UserProfile: React.FC = () => {
           </button>
           <button
             onClick={() => setValue("uploads")}
-            className={`px-4 py-2 rounded-t-md font-bold transition-transform hover:-translate-y-[1px] ${
+            className={`px-3 py-1.5 text-sm rounded-t-md font-semibold transition-transform hover:-translate-y-[1px] ${
               value === "uploads"
                 ? "bg-emerald-950 text-emerald-50"
                 : "bg-emerald-50 text-emerald-950 border-2 border-emerald-950"
@@ -225,7 +248,7 @@ const UserProfile: React.FC = () => {
             {films.length > 0 && (
               <div
                 onScroll={handleScroll}
-                className="flex overflow-x-auto pb-2 gap-3 no-scrollbar"
+                className="flex overflow-x-auto pb-2 gap-3 no-scrollbar max-h-100"
               >
                 <div className="flex gap-3 flex-nowrap">
                   {isLoading ? (
@@ -240,7 +263,11 @@ const UserProfile: React.FC = () => {
                     ))
                   )}
                   {isFetchingNextPage && (
-                    <div className="flex items-center justify-center text-sm text-emerald-950 animate-pulse flex-shrink-0">
+                    <div
+                      className="flex-shrink-0 flex items-center justify-center 
+                  w-46 h-90 
+                  rounded-xl"
+                    >
                       <Loading />
                     </div>
                   )}
@@ -255,7 +282,12 @@ const UserProfile: React.FC = () => {
                 </h2>
                 <div className="flex flex-wrap gap-4">
                   {myPlaylists.map((pl: any, idx: number) => (
-                    <PlaylistCard key={idx} playlist={pl} />
+                    <PlaylistCard
+                      key={idx}
+                      playlist={pl}
+                      onLocalChange={handleLocalPlaylistUpdate}
+                      onLocalDelete={handleLocalPlaylistDelete}
+                    />
                   ))}
                 </div>
               </div>
@@ -411,18 +443,16 @@ const UserProfile: React.FC = () => {
         {/* Edit modal */}
         <Transition show={openEdit} as={Fragment}>
           <Dialog onClose={() => setOpenEdit(false)} className="relative z-50">
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-              <Dialog.Panel className="bg-emerald-50 border-4 border-emerald-950 rounded-2xl p-4 max-w-lg w-full">
-                <EditProfile
-                  onSubmitSuccess={() => setOpenEdit(false)}
-                  onCancel={() => setOpenEdit(false)}
-                />
-              </Dialog.Panel>
+            <div className="fixed h-[100vh] inset-0 bg-black/40 flex items-center justify-center">
+              <EditProfile
+                onSubmitSuccess={() => setOpenEdit(false)}
+                onCancel={() => setOpenEdit(false)}
+              />
             </div>
           </Dialog>
         </Transition>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

@@ -6,14 +6,16 @@ import {
   fetchUsersByCountry,
 } from "./services";
 import { Film } from "../stream/types/film";
+import { useToast } from "../../components/toaster";
 
 interface CountryStats {
   film_count: number | null;
   artist_count: number | null;
 }
- import { toast } from "react-toastify";
 
 export const useGlobe = () => {
+    const toast = useToast()
+  
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [countryStats, setCountryStats] = useState<CountryStats | null>(null);
   const [films, setFilms] = useState<Film[]>([]);

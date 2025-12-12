@@ -6,11 +6,11 @@ import supabase from "../../../lib/supabaseClient";
 import {
   FiFilm,
   FiUser,
-  FiClock,
   FiEye,
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface Uploader {
   auth_id?: string;
@@ -52,9 +52,16 @@ const CountryModal: React.FC<CountryModalProps> = ({
   loadMoreUsers,
   loadMoreFilms,
 }) => {
+  const navigate = useNavigate();
+  if (!open) return null;
+
+  // -------------------------
+  // STATE
+  // -------------------------
+  const [activeTab, setActiveTab] = useState<"films" | "artists">("films");
   const [displayedFilms, setDisplayedFilms] = useState<FilmWithUploader[]>([]);
   const [displayedUsers, setDisplayedUsers] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<"films" | "artists">("films");
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fading, setFading] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -62,17 +69,17 @@ const CountryModal: React.FC<CountryModalProps> = ({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLDivElement | null>(null);
 
-  const normalizedUsers = Array.isArray(users)
-    ? users
-    : users?.data
-      ? users.data
-      : [];
+  // -------------------------
+  // DATA NORMALIZATION
+  // -------------------------
+  const normalizedUsers = Array.isArray(users) ? users : users?.data || [];
 
   const getPosterUrl = (path?: string, updatedAt?: string) => {
     if (!path) return "/placeholder-poster.png";
     const { data } = supabase.storage.from("posters").getPublicUrl(path);
-    const publicUrl = data?.publicUrl || "";
-    return publicUrl + (updatedAt ? `?v=${new Date(updatedAt).getTime()}` : "");
+    return updatedAt
+      ? `${data?.publicUrl}?v=${new Date(updatedAt).getTime()}`
+      : data?.publicUrl;
   };
 
   const getPfpUrl = (path?: string) => {
@@ -80,18 +87,12 @@ const CountryModal: React.FC<CountryModalProps> = ({
     return data?.publicUrl || "/default-avatar.png";
   };
 
-  // --- get uploader safely ---
-  const getUploader = (film: any): Uploader | null => {
-    if (!film) return null;
-    return (
-      film.uploader ||
-      film.users || // in case Supabase join used "users" alias
-      film.uploader_data ||
-      null
-    );
-  };
+  const getUploader = (film: any): Uploader | null =>
+    film?.uploader || film?.users || film?.uploader_data || null;
 
-  // initial pagination
+  // -------------------------
+  // PAGINATION
+  // -------------------------
   useEffect(() => {
     setDisplayedFilms(films.slice(0, 12));
   }, [films]);
@@ -100,282 +101,276 @@ const CountryModal: React.FC<CountryModalProps> = ({
     setDisplayedUsers(normalizedUsers.slice(0, 9));
   }, [normalizedUsers]);
 
-  // header rotation
-  const featuredFilms = films.slice(0, 10) || [];
+  // -------------------------
+  // FEATURED ROTATION
+  // -------------------------
+  const featuredFilms = films.slice(0, 8);
+  const currentFilm = featuredFilms[currentIndex];
+  const uploader = getUploader(currentFilm);
 
   useEffect(() => {
     if (!featuredFilms.length) return;
     const interval = setInterval(() => {
-      if (paused) return;
-      setFading(true);
-      setTimeout(() => {
-        setCurrentIndex((i) => (i + 1) % featuredFilms.length);
-        setFading(false);
-      }, 400);
+      if (!paused) {
+        setFading(true);
+        setTimeout(() => {
+          setCurrentIndex((i) => (i + 1) % featuredFilms.length);
+          setFading(false);
+        }, 280);
+      }
     }, 4200);
+
     return () => clearInterval(interval);
   }, [featuredFilms, paused]);
 
   useEffect(() => {
     const el = headerRef.current;
     if (!el) return;
-    const onEnter = () => setPaused(true);
-    const onLeave = () => setPaused(false);
-    el.addEventListener("mouseenter", onEnter);
-    el.addEventListener("mouseleave", onLeave);
+    const enter = () => setPaused(true);
+    const leave = () => setPaused(false);
+    el.addEventListener("mouseenter", enter);
+    el.addEventListener("mouseleave", leave);
     return () => {
-      el.removeEventListener("mouseenter", onEnter);
-      el.removeEventListener("mouseleave", onLeave);
+      el.removeEventListener("mouseenter", enter);
+      el.removeEventListener("mouseleave", leave);
     };
   }, []);
 
-  if (!open) return null;
-
-  const currentFilm = featuredFilms[currentIndex] || null;
-  const uploader = getUploader(currentFilm);
-
-  const StatItem: React.FC<{
-    icon: React.ReactNode;
-    value: string | number;
-  }> = ({ icon, value }) => (
-    <div className="flex items-center gap-2 text-emerald-950/90 text-sm">
-      <span className="text-lg">{icon}</span>
-      <span className="font-medium">{value}</span>
-    </div>
-  );
+  // -------------------------
+  // SCROLL LOADING
+  // -------------------------
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    const nearBottom = scrollTop + clientHeight >= scrollHeight - 20;
+    const nearBottom = scrollTop + clientHeight >= scrollHeight - 40;
 
-    if (nearBottom && !loading) {
-      if (activeTab === "films") {
-        loadMoreFilms();
-      } else {
-        loadMoreUsers();
-      }
-    }
+    if (!nearBottom || loading) return;
+    activeTab === "films" ? loadMoreFilms() : loadMoreUsers();
   };
+
+  // -------------------------
+  // SMALL UI COMPONENT
+  // -------------------------
+  const Stat = ({ icon, label }: { icon: any; label: any }) => (
+    <div className="flex items-center gap-2 text-emerald-900/80 text-sm">
+      <span className="text-base">{icon}</span>
+      <span className="font-medium">{label}</span>
+    </div>
+  );
+
+  // -------------------------
+  // MAIN RENDER
+  // -------------------------
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-emerald-950/80 backdrop-blur-sm p-4"
       onClick={onClose}
+      className="fixed inset-0 z-[200] bg-black/30 backdrop-blur-sm flex justify-center items-start p-6 overflow-y-auto"
     >
       <div
-        className="relative w-full max-w-6xl max-h-[92vh] flex flex-col overflow-hidden rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[10px_10px_0_#064e3b]"
         onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-6xl bg-white rounded-2xl 
+                 border border-emerald-900/20 shadow-xl overflow-hidden"
       >
-        {/* HEADER */}
-        {/* COUNTRY HEADER SECTION */}
-        <div className="px-6 pt-5 pb-2 border-b border-emerald-950/20">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className="font-freckle text-3xl text-emerald-950 leading-none">
-                {countryName}
-              </h2>
-              <div className="mt-1 flex gap-4 text-emerald-900/90 text-sm">
-                <div className="flex items-center gap-1">
-                  <FiFilm className="text-emerald-900" />
-                  <span>{countryStats?.film_count ?? 0} films</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <FiUser className="text-emerald-900" />
-                  <span>{countryStats?.artist_count ?? 0} artists</span>
-                </div>
-              </div>
-            </div>
+        {/* ---------------------------------- */}
+        {/* 1. TOP HEADER (C + B aesthetic) */}
+        {/* ---------------------------------- */}
+        <div className="px-8 pb-4 pt-6 border-b border-emerald-900/15 bg-white sticky top-0 z-10">
+          <h1 className="font-freckle text-4xl tracking-tight text-emerald-950">
+            {countryName}
+          </h1>
 
-            {/* Small country accent line */}
-            <div className="h-[2px] w-1/3 bg-emerald-950/40 rounded-full" />
+          <div className="mt-2 flex gap-6 text-emerald-900/80 text-sm">
+            <div className="flex items-center gap-2">
+              <FiFilm className="text-emerald-900" />
+              {countryStats?.film_count ?? 0} films
+            </div>
+            <div className="flex items-center gap-2">
+              <FiUser className="text-emerald-900" />
+              {countryStats?.artist_count ?? 0} artists
+            </div>
           </div>
         </div>
 
-        {/* HEADER - Featured Film */}
+        {/* ---------------------------------- */}
+        {/* 2. FEATURED SECTION */}
+        {/* ---------------------------------- */}
         <div
           ref={headerRef}
-          className="flex gap-6 px-6 py-5 border-b-2 border-emerald-950/40 items-center"
+          className="relative border-b border-emerald-900/15 bg-emerald-50/40"
         >
-          {/* Poster with thesis */}
+          {/* Banner */}
           <div
-            className={`relative flex-shrink-0 rounded-lg overflow-hidden shadow-lg transition-all duration-500 ${
-              fading ? "opacity-0 scale-98" : "opacity-100 scale-100"
-            }`}
-            style={{ width: "55%", height: 220 }}
+            className={`relative w-full h-[260px] overflow-hidden transition-all duration-500 
+            ${fading ? "opacity-0 scale-[0.98]" : "opacity-100 scale-100"}`}
           >
             {currentFilm && (
-              <>
-                <img
-                  src={getPosterUrl(
-                    currentFilm.poster_path,
-                    currentFilm.updated_at
-                  )}
-                  alt={currentFilm.film_title || "Poster"}
-                  className="w-full h-full object-cover"
-                />
+              <img
+                src={getPosterUrl(
+                  currentFilm.poster_path,
+                  currentFilm.updated_at
+                )}
+                alt=""
+                className="w-full h-full object-cover object-center"
+              />
+            )}
 
-                {/* thesis overlay */}
+            {/* Film info overlay */}
+            {/* Film info overlay */}
+            {currentFilm && (
+              <div
+                className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm text-white 
+               px-4 py-3 rounded-lg flex flex-col gap-1 max-w-[300px]"
+              >
+                {/* Title */}
+                <div className="font-freckle text-xl leading-tight">
+                  {currentFilm.film_title}
+                </div>
+
+                {/* Rating & Views */}
+                <div className="flex items-center gap-4 text-sm opacity-90">
+                  <div className="flex items-center gap-1">
+                    ★ {currentFilm.avg_rating ?? "—"}
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <FiEye /> {currentFilm.view_count ?? 0}
+                  </div>
+                </div>
+
+                {/* Thesis (XS only) */}
                 {currentFilm.thesis && (
-                  <div className="absolute top-3 left-1/2 transform -translate-x-1/2 bg-emerald-50/40 text-emerald-950 text-sm italic font-freckle rounded-md px-4 py-2 shadow-md max-w-[90%] text-center">
-                    “
+                  <div className="text-xs mt-1 opacity-90 block">
                     {currentFilm.thesis.length > 100
                       ? currentFilm.thesis.slice(0, 100) + "…"
                       : currentFilm.thesis}
-                    ”
                   </div>
                 )}
-
-                {/* film info */}
-                <div className="absolute left-4 bottom-4 bg-emerald-50/40 text-emerald-950 rounded-md px-3 py-1 flex items-center gap-3">
-                  <FiFilm className="text-lg" />
-                  <div className="text-left">
-                    <div className="font-freckle font-semibold text-base leading-tight truncate max-w-[420px]">
-                      {currentFilm.film_title || "Untitled"}
-                    </div>
-                    <div className="text-xs text-emerald-900">
-                      {currentFilm.release_date
-                        ? new Date(
-                            currentFilm.release_date
-                          ).toLocaleDateString()
-                        : "Unknown date"}
-                    </div>
-                  </div>
-                </div>
-              </>
+              </div>
             )}
+
+            {/* Fade gradient bottom */}
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
           </div>
 
-          {/* Uploader side */}
-          <div className="flex flex-col flex-1 gap-3 justify-center">
-            <div className="flex items-center gap-4">
-              <div className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-emerald-950 shadow-md flex-shrink-0">
-                <img
-                  src={getPfpUrl(uploader?.pfp_path)}
-                  alt={uploader?.username || "uploader"}
-                  className="w-full h-full object-cover opacity-80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-50/60 via-transparent to-transparent" />
-              </div>
-              <div className="flex flex-col">
-                <h3 className="font-freckle text-2xl text-emerald-950">
-                  @{uploader?.username ?? "unknown"}
-                </h3>
-                <p className="mt-1 text-emerald-900 text-sm max-w-[360px] line-clamp-2">
-                  {uploader?.bio
-                    ? uploader.bio
-                    : currentFilm?.thesis
-                      ? currentFilm.thesis.slice(0, 150) +
-                        (currentFilm.thesis.length > 150 ? "…" : "")
-                      : ""}
-                </p>
+          {/* Simplified uploader capsule */}
+          {uploader && (
+            <div
+              className="absolute left-8 bottom-6 bg-white/90 backdrop-blur px-4 py-3 
+                       rounded-xl shadow-md flex items-center gap-3 border border-emerald-900/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(
+                  `/@?username=${encodeURIComponent(uploader.username)}`
+                );
+              }}
+            >
+              <img
+                src={getPfpUrl(uploader.pfp_path)}
+                className="w-12 h-12 rounded-full object-cover border border-emerald-900/20"
+              />
+              <div className="font-freckle text-lg text-emerald-950">
+                @{uploader.username}
               </div>
             </div>
+          )}
 
-            {/* stats */}
-            <div className="flex items-center gap-6 mt-2">
-              <StatItem icon={<FiUser />} value={uploader?.sub_count ?? "—"} />
-              <StatItem icon={<FiEye />} value={currentFilm?.view_count ?? 0} />
-            </div>
+          {/* Rotation controls — now extra interactive */}
+          <div className="absolute right-8 bottom-6 flex gap-3">
+            <button
+              onClick={() => {
+                setFading(true);
+                setTimeout(() => {
+                  setCurrentIndex(
+                    (i) => (i - 1 + featuredFilms.length) % featuredFilms.length
+                  );
+                  setFading(false);
+                }, 200);
+              }}
+              className="bg-white/90 backdrop-blur border border-emerald-900/10 
+                       w-10 h-10 rounded-full flex items-center justify-center 
+                       text-emerald-900 hover:bg-white hover:scale-[1.05]
+                       active:scale-[0.95] transition-transform duration-150"
+            >
+              <FiChevronLeft />
+            </button>
 
-            {/* rotation controls */}
-            <div className="mt-3 flex items-center gap-3">
-              <button
-                onClick={() => {
-                  setFading(true);
-                  setTimeout(() => {
-                    setCurrentIndex(
-                      (i) =>
-                        (i - 1 + featuredFilms.length) % featuredFilms.length
-                    );
-                    setFading(false);
-                  }, 200);
-                }}
-                className="px-3 py-1 rounded-md bg-emerald-950 text-emerald-50 hover:scale-105 transition-transform"
-              >
-                <FiChevronLeft />
-              </button>
-              <button
-                onClick={() => {
-                  setFading(true);
-                  setTimeout(() => {
-                    setCurrentIndex((i) => (i + 1) % featuredFilms.length);
-                    setFading(false);
-                  }, 200);
-                }}
-                className="px-3 py-1 rounded-md bg-emerald-950 text-emerald-50 hover:scale-105 transition-transform"
-              >
-                <FiChevronRight />
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setFading(true);
+                setTimeout(() => {
+                  setCurrentIndex((i) => (i + 1) % featuredFilms.length);
+                  setFading(false);
+                }, 200);
+              }}
+              className="bg-white/90 backdrop-blur border border-emerald-900/10 
+                       w-10 h-10 rounded-full flex items-center justify-center 
+                       text-emerald-900 hover:bg-white hover:scale-[1.05]
+                       active:scale-[0.95] transition-transform duration-150"
+            >
+              <FiChevronRight />
+            </button>
           </div>
         </div>
 
-        {/* TABS */}
-        <div className="flex border-b-2 border-emerald-950/30">
-          <button
-            onClick={() => setActiveTab("films")}
-            className={`flex-1 px-6 py-3 font-freckle text-base transition-all duration-200 ${
-              activeTab === "films"
-                ? "bg-emerald-950 text-emerald-50 shadow-inner"
-                : "text-emerald-950 hover:bg-emerald-100"
-            }`}
-          >
-            Films
-          </button>
-          <button
-            onClick={() => setActiveTab("artists")}
-            className={`flex-1 px-6 py-3 font-freckle text-base transition-all duration-200 ${
-              activeTab === "artists"
-                ? "bg-emerald-950 text-emerald-50 shadow-inner"
-                : "text-emerald-950 hover:bg-emerald-100"
-            }`}
-          >
-            Artists
-          </button>
+        {/* ---------------------------------- */}
+        {/* 3. TABS */}
+        {/* ---------------------------------- */}
+        <div className="flex border-b border-emerald-900/15 bg-white sticky top-0 z-10">
+          {["films", "artists"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setActiveTab(t as any)}
+              className={`flex-1 py-3 font-freckle text-lg transition-all
+              ${
+                activeTab === t
+                  ? "text-emerald-950 border-b-2 border-emerald-950"
+                  : "text-emerald-900/60 hover:text-emerald-900"
+              }
+              hover:scale-[1.03] active:scale-[0.97] duration-150
+            `}
+            >
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
         </div>
 
-        {/* CONTENT */}
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="flex-1 overflow-y-auto p-6 bg-emerald-50"
-        >
+        {/* ---------------------------------- */}
+        {/* 4. CONTENT GRID */}
+        {/* ---------------------------------- */}
+        <div ref={scrollRef} onScroll={handleScroll} className="p-8 bg-white">
           {loading ? (
-            <div className="flex items-center justify-center h-36 text-emerald-950">
-              Loading…
-            </div>
+            <div className="text-center py-10 text-emerald-900">Loading…</div>
           ) : activeTab === "films" ? (
             displayedFilms.length ? (
-              <div className="flex flex-wrap justify-center gap-5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
                 {displayedFilms.map((film) => (
-                  <div
-                    key={film.film_uuid}
-                    className="w-36 transform hover:scale-105 transition-transform"
-                  >
-                    <FilmCard film={film} />
-                  </div>
+                  <FilmCard key={film.film_uuid} film={film} />
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-36 text-emerald-950">
+              <div className="text-center py-10 text-emerald-900">
                 No films available.
               </div>
             )
           ) : displayedUsers.length ? (
-            <div className="flex flex-wrap justify-center gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
               {displayedUsers.map((u) => (
                 <AccountCard key={u.username} account={u} />
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-36 text-emerald-950">
+            <div className="text-center py-10 text-emerald-900">
               No artists available.
             </div>
           )}
         </div>
 
-        {/* CLOSE */}
+        {/* CLOSE BUTTON (more interactive) */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 rounded-full p-2 bg-emerald-50 border-2 border-emerald-950 text-emerald-950 hover:scale-105 transition-transform"
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur 
+                 border border-emerald-900/20 text-emerald-900 flex items-center justify-center
+                 hover:bg-white hover:scale-[1.1] active:scale-[0.9]
+                 transition-transform duration-150"
         >
           ✕
         </button>

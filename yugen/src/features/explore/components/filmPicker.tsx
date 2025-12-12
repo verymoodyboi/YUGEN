@@ -247,7 +247,7 @@ const FilmPicker: React.FC<any> = () => {
       {showModal && selectedFilm && (
         <div className="fixed inset-0 z-500 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-emerald-950/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40"
             onClick={() => setShowModal(false)}
           />
           <motion.div

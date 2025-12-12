@@ -3,17 +3,17 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import supabase from "../lib/supabaseClient";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import EditProfile from "../features/profile/components/EditProfile copy";
+import EditProfile from "../features/profile/components/EditProfile";
 import AppLayout from "../layouts/layout-main";
-import universitiesData from "../data/world_universities_and_domains.json";
 import LockIcon from "@mui/icons-material/Lock";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import SchoolIcon from "@mui/icons-material/School";
 import CheckIcon from "@mui/icons-material/Check";
 import { useAcademic } from "../features/academic/hooks/useAcademicAplication";
+import { useToast } from "../components/toaster";
 const SettingsPage: React.FC = () => {
+  const toast = useToast();
   const navigate = useNavigate();
 
   const [selectedTab, setSelectedTab] = useState("profile");
@@ -118,11 +118,7 @@ const SettingsPage: React.FC = () => {
         );
 
       case "profile":
-        return (
-          <div className="flex flex-col gap-6 p-4 text-emerald-950 transition-all duration-300">
-            <EditProfile />
-          </div>
-        );
+        return <EditProfile />;
 
       case "theme":
         return (
@@ -147,9 +143,8 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <>
       <div className="h-full flex flex-col font-freckle text-emerald-950">
-        <ToastContainer />
         <h2 className="text-3xl font-bold border-b-4 border-emerald-950 mb-6 pb-2">
           Settings
         </h2>
@@ -186,7 +181,7 @@ const SettingsPage: React.FC = () => {
           <div className="flex-1 overflow-y-auto">{renderContent()}</div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 };
 

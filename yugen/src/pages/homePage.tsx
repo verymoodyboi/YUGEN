@@ -33,7 +33,7 @@ const HomePage: React.FC = () => {
         <div className="flex flex-col">
           <h2 className="text-2xl title text-emerald-950">| {title}</h2>
           {subtitle && (
-            <p className="text-emerald-900 text-sm italic">{subtitle}</p>
+            <p className="text-emerald-900/80 text-md italic">{subtitle}</p>
           )}
         </div>
 
@@ -56,7 +56,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-10 px-4 py-6">
         {renderSection(
           "Hottest Picks",
@@ -92,7 +92,7 @@ const HomePage: React.FC = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

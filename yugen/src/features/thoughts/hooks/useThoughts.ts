@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
-import { toast } from "react-toastify";
+import { useToast } from "../../../components/toaster";
 import { api } from "../../../lib/api";
 import * as svc from "../services";
 
 export const useThoughts = (filmId: number, refreshKey?: number) => {
+    const toast = useToast();
+
   const { getAccessToken, userInfo } = useAuth();
   const [thoughts, setThoughts] = useState<any[]>([]);
   const [activeIcon, setActiveIcon] = useState<{ [key: string]: boolean }>({});
@@ -94,20 +96,28 @@ export const useThoughts = (filmId: number, refreshKey?: number) => {
     fetchThoughts();
   }, [fetchThoughts, refreshKey]);
 
-  const handleAdd = async (rating: number, comment: string | null) => {
-    try {
-      const token = await getAccessToken();
-      await api.post(
-        "/thoughts/add",
-        { film_uuid: filmId, rating, comment },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Thought shared successfully!");
-      await fetchThoughts();
-    } catch {
-      toast.error("Failed to share thought");
-    }
-  };
+ const handleAdd = async (rating: number | null, comment: string | null): Promise<boolean> => {
+  if (!rating || rating <= 0) {
+    toast.warn("Please add a rating before submitting your thought");
+    return false;
+  }
+
+  try {
+    const token = await getAccessToken();
+    await api.post(
+      "/thoughts/add",
+      { film_uuid: filmId, rating, comment },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    toast.success("Thought shared successfully!");
+    await fetchThoughts();
+    return true;
+  } catch {
+    toast.error("Failed to share thought");
+    return false;
+  }
+};
+
 
   const handleVote = async (
     type: "upvote" | "downvote",
@@ -158,7 +168,7 @@ export const useThoughts = (filmId: number, refreshKey?: number) => {
         { id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success("Comment deleted");
+      toast.success("Thought deleted");
       await fetchThoughts();
     } catch {
       toast.error("Delete failed");

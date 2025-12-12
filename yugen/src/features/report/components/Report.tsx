@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { ToastContainer } from "react-toastify";
 import { useFilmReport } from "../hooks/useFilmReport";
-import "react-toastify/dist/ReactToastify.css";
 
 interface ReportFormProps {
   film_id: string;
@@ -100,7 +98,6 @@ const ReportForm: React.FC<ReportFormProps> = ({
           {loading ? "Submitting..." : "Submit Report"}
         </button>
       </form>
-      <ToastContainer position="top-left" theme="dark" />
     </div>
   );
 };

@@ -18,7 +18,7 @@ const FlaggedFilmsPage: React.FC = () => {
   } = useFlaggedFilms();
 
   return (
-    <AppLayout>
+    <>
       <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-6 flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -90,7 +90,7 @@ const FlaggedFilmsPage: React.FC = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

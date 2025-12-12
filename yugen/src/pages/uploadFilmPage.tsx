@@ -5,11 +5,11 @@ import UploadForm from "../features/upload/components/UploadForm";
 
 const UploadPage: React.FC = () => {
   return (
-    <AppLayout>
+    <>
       <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-6">
         <UploadForm />
       </div>
-    </AppLayout>
+    </>
   );
 };
 

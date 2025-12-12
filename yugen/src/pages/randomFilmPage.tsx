@@ -3,7 +3,7 @@ import FilmPicker from "../features/explore/components/filmPicker";
 
 export default function RandomFilmPage(): JSX.Element {
   return (
-    <AppLayout>
+    <>
       <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle py-12">
         <div className="max-w-[1400px] mx-auto px-6">
           <div className="flex items-center justify-between mb-6">
@@ -13,6 +13,6 @@ export default function RandomFilmPage(): JSX.Element {
           <FilmPicker />
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 }

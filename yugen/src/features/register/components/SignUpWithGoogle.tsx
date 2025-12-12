@@ -1,7 +1,5 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useSignupGoogle } from "../hooks/useSignUpGoogle";
 import { ImageCropper } from "../../../util/image-cropping/components/image-cropper";
 import countries from "../../../Data/countries.json";
@@ -79,11 +77,12 @@ const SignupGoogle: React.FC = () => {
           onClick={() => navigate("/")}
         />
       </div>
-      <ToastContainer position="top-left" />
 
       <div className="w-full max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl p-6 h-[600px] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Finish setting up your account</h1>
+          <h1 className="text-3xl title font-bold">
+            Finish setting up your account
+          </h1>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between mb-6">

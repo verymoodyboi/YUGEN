@@ -81,7 +81,7 @@ const SearchPage: React.FC = () => {
     );
 
   return (
-    <AppLayout>
+    <>
       <div className="w-full h-full overflow-y-auto p-4">
         <h2 className="font-freckle text-3xl mb-6 text-emerald-950 dark:text-emerald-50">
           Search results for: <span className="italic">{query}</span>
@@ -133,7 +133,7 @@ const SearchPage: React.FC = () => {
           accountsQuery.isLoading ||
           playlistsQuery.isLoading) && <Loading />}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

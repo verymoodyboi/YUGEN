@@ -9,20 +9,23 @@ const WatchlistPage: React.FC = () => {
   const { watchlist, loading, error } = useMyWatchlist();
 
   return (
-    <AppLayout>
-      <h2 className="font-freckle text-2xl text-emerald-950 ">My Watchlist</h2>
-
+    <>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+        <h1 className="text-4xl font-bold border-b-4 border-emerald-950  pb-2">
+          My Watchlist
+        </h1>
+        <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">
+          Save it, and watch it when the time is right
+        </p>
+      </div>
       {loading ? (
         <Loading />
       ) : watchlist.length === 0 ? (
         <p className="text-emerald-900 ">No films in your watchlist yet.</p>
       ) : (
-        <FilmScrollRowDynamic
-          films={watchlist.map((item) => item.films)}
-          description="All the films you’ve saved to watch later."
-        />
+        <FilmScrollRowDynamic films={watchlist.map((item) => item.films)} />
       )}
-    </AppLayout>
+    </>
   );
 };
 

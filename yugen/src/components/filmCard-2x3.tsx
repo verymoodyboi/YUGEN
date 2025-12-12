@@ -8,11 +8,14 @@ import { useFilm } from "../features/stream/hooks/useFilmCard";
 import { startScroll, resetScroll } from "../features/stream/util/textScroll";
 import { Film } from "../features/stream/types/film";
 import EditFilm from "../features/editFilm/components/EditFilm";
-
+import BookMarkIcon from "../YugenAssits/fn_icons/Bookmark not added.svg";
+import BookMarkIconheck from "../YugenAssits/fn_icons/Bookmark not added.svg";
+import Edit_icon from "../YugenAssits/fn_icons/Edit_Film.svg";
 // Icons
 import { FiEdit, FiEye, FiStar } from "react-icons/fi";
 import { BsBookmarkPlus, BsBookmarkCheck } from "react-icons/bs";
 import { LuBookOpen } from "react-icons/lu";
+import { Tooltip } from "@mui/material";
 
 interface FilmCardProps {
   film: Film;
@@ -20,7 +23,10 @@ interface FilmCardProps {
 
 const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
   const { userInfo, getAccessToken } = useAuth();
-  const { watchlisted, handleToggleWatchlist } = useFilm(film.film_uuid);
+  const { watchlisted, handleToggleWatchlist, uploader } = useFilm(
+    film.film_uuid,
+    film.uploader_id
+  );
   const [openThesis, setOpenThesis] = React.useState(false);
   const [openEdit, setOpenEdit] = React.useState(false);
   const [openRating, setOpenRating] = React.useState(false);
@@ -58,9 +64,9 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
       onMouseLeave={() =>
         resetScroll(titleTextRef.current, genreTextRef.current)
       }
-      className="relative flex flex-col rounded-xl overflow-hidden aspect-[2/3] w-36 h-70
-             bg-emerald-50 border-2 border-emerald-950 shadow-md cursor-pointer mt-2
-             transition-transform duration-300 hover:scale-105 "
+      className="relative flex flex-col rounded-xl overflow-hidden aspect-[2/3] w-46 h-90
+             bg-emerald-50 border-2 border-emerald-950 shadow-md  mt-2
+             transition-transform duration-300 hover:scale-105 mb-3 mt-3 ml-3 mr-1"
     >
       {/* Poster */}
       <img
@@ -74,45 +80,59 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
       />
 
       {/* Watchlist Icon */}
-      <button
-        className="absolute top-1 left-1 text-emerald-950 bg-emerald-50 rounded-full p-1 border border-emerald-950 
-                   hover:bg-emerald-100 hover:scale-110 transition"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleToggleWatchlist();
-        }}
-      >
-        {watchlisted ? (
-          <BsBookmarkCheck size={18} />
-        ) : (
-          <BsBookmarkPlus size={18} />
-        )}
-      </button>
-
-      {/* Edit Icon */}
-      {userInfo?.auth_id === film.uploader_id && (
+      {/* Watchlist Icon */}
+      <Tooltip title="Watchlist">
         <button
-          className="absolute top-1 right-1 text-emerald-950 bg-emerald-50 rounded-full p-1 border border-emerald-950 
-                     hover:bg-emerald-100 hover:scale-110 transition"
+          className="absolute top-1 left-1 p-1 cursor-pointer hover:scale-110 transition"
           onClick={(e) => {
             e.stopPropagation();
-            setOpenEdit(true);
+            handleToggleWatchlist();
           }}
         >
-          <FiEdit size={16} />
+          <span className=" rounded-full p-[4px] flex items-center justify-center">
+            {watchlisted ? (
+              <img
+                src={BookMarkIconheck}
+                alt="Bookmarked"
+                className="w-[18px] h-[18px]"
+              />
+            ) : (
+              <img
+                src={BookMarkIcon}
+                alt="Add to bookmarks"
+                className="w-[18px] h-[18px]"
+              />
+            )}
+          </span>
         </button>
+      </Tooltip>
+      {/* Edit Icon */}
+      {userInfo?.auth_id === film.uploader_id && (
+        <Tooltip title="Edit">
+          <button
+            className="absolute top-1 right-1 p-1 cursor-pointer hover:scale-110 transition"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenEdit(true);
+            }}
+          >
+            <span className="bg-emerald-50 rounded-full p-[4px] flex items-center justify-center">
+              <img src={Edit_icon} alt="Edited" className="w-[18px] h-[18px]" />{" "}
+            </span>
+          </button>
+        </Tooltip>
       )}
 
       {/* Info Section */}
-      <div className="flex justify-between items-start px-1 py-1 text-xs text-emerald-950">
-        <div className="max-w-[80px]">
+      <div className="flex justify-between items-start px-1 py-0.5  text-emerald-950">
+        <div className="w-[130px] max-w-[130px] ">
           <div
             ref={titleContainerRef}
-            className="overflow-hidden whitespace-nowrap"
+            className="overflow-hidden whitespace-nowrap "
           >
             <span
               ref={titleTextRef}
-              className="inline-block font-freckle font-semibold"
+              className="inline-block font-freckle font-semibold text-md"
             >
               {film.film_title}
             </span>
@@ -123,7 +143,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
           >
             <span
               ref={genreTextRef}
-              className="inline-block font-freckle text-sm"
+              className="inline-block font-freckle text-sm text-emerald-950/70"
             >
               {(() => {
                 try {
@@ -145,38 +165,71 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
             </span>
           </div>
         </div>
-
         {/* Views */}
-        <div className="flex flex-col items-center text-emerald-950">
-          <FiEye size={14} />
-          <span className="text-[11px]">{film.view_count || 0}</span>
+        <Tooltip title="Thesis">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenThesis(true);
+            }}
+            className="hover:scale-110 transition-transform flex flex-col items-center text-emerald-950/70 cursor-pointer"
+          >
+            <LuBookOpen size={25} />
+          </button>
+        </Tooltip>
+      </div>
+
+      {/* footer */}
+      <div className="flex justify-center items-center bg-emerald-950 py-1 h-14 hover:bg-emerald-900 transition-colors gap-6 text-emerald-50">
+        <div
+          className="hover:scale-105 flex items-center gap-1 w-[50%] cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/@?username=${encodeURIComponent(uploader?.username)}`);
+          }}
+        >
+          {uploader.pfp ? (
+            <img
+              src={
+                userInfo?.pfp_path
+                  ? supabase.storage.from("pfps").getPublicUrl(uploader.pfp)
+                      .data.publicUrl + `?v=${Date.now()}`
+                  : undefined
+              }
+              alt="User avatar"
+              className="w-5 h-5 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-5 h-5 rounded-full bg-emerald-700" />
+          )}
+
+          <span className="text-[11px]">
+            {uploader.username && uploader.username.length > 9
+              ? `${uploader.username.slice(0, 9)}...`
+              : uploader.username}
+          </span>
         </div>
 
-        {/* Rating */}
-        <div className="flex flex-col items-center text-emerald-950">
+        {/* Views */}
+        <Tooltip title="Views">
+          <div className="flex flex-col items-center">
+            <FiEye size={14} />
+            <span className="text-[11px]">{film.view_count || 0}</span>
+          </div>
+        </Tooltip>
+
+        <Tooltip title="Rating">
           <button
             onClick={(e) => {
               e.stopPropagation();
               setOpenRating(true);
             }}
+            className="flex flex-col items-center"
           >
             <FiStar size={14} />
+            <span className="text-[11px]">{film.avg_rating ?? 0}</span>
           </button>
-          <span className="text-[11px]">{film.avg_rating ?? 0}</span>
-        </div>
-      </div>
-
-      {/* Thesis Button */}
-      <div className="flex justify-center bg-emerald-950 py-1 hover:bg-emerald-900 transition-colors">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setOpenThesis(true);
-          }}
-          className="text-emerald-50 hover:scale-110 transition-transform"
-        >
-          <LuBookOpen size={16} />
-        </button>
+        </Tooltip>
       </div>
 
       {/* Thesis Modal */}

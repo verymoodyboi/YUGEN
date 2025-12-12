@@ -21,14 +21,19 @@ const SubscriptionsPage: React.FC = () => {
   }, [userInfo?.auth_id, loadSubscriptions]);
 
   return (
-    <AppLayout>
+    <>
       <div className="flex flex-col flex-grow overflow-y-auto space-y-6 pr-2">
-        <h2 className="font-freckle text-2xl text-emerald-950 text-left mb-4">
-          Subscriptions
-        </h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+          <h1 className="text-4xl font-bold border-b-4 border-emerald-950  pb-2">
+            Subscrptions
+          </h1>
+          <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">
+            Your favourite filmmakers
+          </p>
+        </div>
 
         {loading ? (
-          <Loading/>
+          <Loading />
         ) : subscriptions.length === 0 ? (
           <p className="text-emerald-950">No subscriptions yet.</p>
         ) : (
@@ -41,7 +46,7 @@ const SubscriptionsPage: React.FC = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </>
   );
 };
 

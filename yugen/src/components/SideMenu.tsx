@@ -2,6 +2,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import watchlist_icon from "../YugenAssits/menu_icons/Watchlist.svg";
+import history_icon from "../YugenAssits/menu_icons/History menu.svg";
+import playlist_icon from "../YugenAssits/menu_icons/Playlist.svg";
+import subscribtions_icon from "../YugenAssits/menu_icons/Subscriptions.svg";
+import map_icon from "../YugenAssits/menu_icons/Filmmap.svg";
+import genres_icon from "../YugenAssits/menu_icons/Genres.svg";
+import surprise_icon from "../YugenAssits/menu_icons/Random.svg";
+import report_icon from "../YugenAssits/menu_icons/Contact.svg";
+import contact_icon from "../YugenAssits/menu_icons/Report.svg";
 
 type SideMenuProps = {
   mode?: "desktop" | "mobile";
@@ -19,7 +28,7 @@ function SideMenu({
   const [open, setOpen] = useState(false);
 
   const SectionTitle = ({ children }: { children: string }) => (
-    <h2 className="text-2xl title text-emerald-950  mb-2">{children}</h2>
+    <h2 className="text-2xl title text-emerald-50  mb-2">{children}</h2>
   );
 
   const MenuButton = ({
@@ -27,24 +36,30 @@ function SideMenu({
     onClick,
     disabled,
     badge,
+    icon,
   }: {
     label: string;
     onClick?: () => void;
     disabled?: boolean;
     badge?: string | number;
+    icon?: string; // SVG path
   }) => (
     <button
       disabled={disabled}
       onClick={onClick}
-      className={`relative w-full py-2 px-4 font-freckle text-lg transition-transform duration-200 border-2 ${
+      className={`relative w-full py-2 px-4 font-freckle text-lg flex items-center gap-3
+      transition-transform duration-200 border-2 ${
         disabled
-          ? "border-gray-700 bg-emerald-950 text-emerald-50 cursor-not-allowed shadow-none"
-          : "border-emerald-950  bg-emerald-50/60  text-emerald-950  hover:scale-105 hover:shadow-[4px_4px_0_0_#064e3b]"
+          ? "border-white/30 bg-emerald-950 text-emerald-50 cursor-not-allowed shadow-none"
+          : "border-emerald-50 bg-emerald-950 text-emerald-50 hover:scale-105 hover:shadow-[4px_4px_0_0_#ecfdf5]"
       }`}
     >
+      {icon && <img src={icon} alt="" className="w-6 h-6 opacity-90" />}
+
       {label}
+
       {badge && (
-        <span className="absolute -top-1 -right-1 bg-emerald-50 text-emerald-950 text-xs px-2 py-0.5 rounded-full shadow-sm border-emerald-950 border-2">
+        <span className="absolute -top-2 -right-2 bg-emerald-50 text-emerald-950 text-xs px-2 py-0.5 rounded-full shadow-sm border-emerald-950 border-2">
           {badge}
         </span>
       )}
@@ -53,55 +68,68 @@ function SideMenu({
 
   // Menu sections
   const MenuContent = (
-    <div className="w-full h-full bg-emerald-50 border-emerald-950  flex flex-col gap-4 p-6 overflow-y-auto">
+    <div className="no-scrollbar w-full h-full bg-emerald-950 border-emerald-950  flex flex-col gap-4 p-6 overflow-y-auto ">
       {/* Library */}
       <SectionTitle>Your Library</SectionTitle>
       <MenuButton
         label="Watchlist"
+        icon={watchlist_icon}
         onClick={() => {
           navigate("/watchlist");
           setOpen(false);
         }}
         badge={userInfo?.watchlist_count || "0"}
       />
+
       <MenuButton
         label="Watch history"
+        icon={history_icon}
         onClick={() => {
           navigate("/history");
           setOpen(false);
         }}
       />
+
       <MenuButton
         label="Playlists"
+        icon={playlist_icon}
         onClick={() => {
           navigate("/playlists");
           setOpen(false);
         }}
       />
+
       <MenuButton
         label="Subscriptions"
+        icon={subscribtions_icon}
         onClick={() => {
           navigate("/subs");
           setOpen(false);
         }}
       />
+
       {/* Explore */}
       <SectionTitle>Explore</SectionTitle>
       <MenuButton
         label="Film map"
+        icon={map_icon}
         onClick={() => {
           navigate("/globe");
           setOpen(false);
         }}
       />
+
       <MenuButton
         label="Genres"
+        icon={genres_icon}
         onClick={() => {
           navigate("/genres");
         }}
       />
+
       <MenuButton
         label="Surprise me"
+        icon={surprise_icon}
         onClick={() => {
           navigate("/random");
           setOpen(false);
@@ -123,8 +151,17 @@ function SideMenu({
 
       {/* Help */}
       <SectionTitle>Help</SectionTitle>
-      <MenuButton label="Technical Report" onClick={onOpenReport} />
-      <MenuButton label="Contact Us" onClick={onOpenContact} />
+      <MenuButton
+        label="Technical Report"
+        icon={report_icon}
+        onClick={onOpenReport}
+      />
+
+      <MenuButton
+        label="Contact Us"
+        icon={contact_icon}
+        onClick={onOpenContact}
+      />
     </div>
   );
 
