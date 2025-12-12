@@ -8,6 +8,9 @@ export async function getHotThisWeek(offset: number, limit: number): Promise<Fil
   const { data, error } = await supabase
     .from("week_top20")
     .select("id, films!inner(*)")
+    .eq("films.is_flagged", false)
+  .eq("films.moderation_status", "approved")
+  .eq("films.poster_moderation_status", "approved")
     .range(offset, offset + limit - 1) as { data: WeekTop20Row[] | null; error: any };
 
   if (error) throw error;
@@ -19,11 +22,29 @@ export async function getHotThisWeek(offset: number, limit: number): Promise<Fil
 }
 
 export async function getPersonalized(user_id: string, offset: number, limit: number): Promise<Film[]> {
-  const { data: likedFilms, error: likedError } = await supabase
-    .from("thoughtsv1")
-    .select("film_uuid, rating, films!inner(film_uuid, embedding, avg_rating)")
-    .eq("auth_id", user_id)
-    .gt("rating", 5) as { data: ThoughtFilm[] | null; error: any };
+const { data: likedFilms, error: likedError } = await supabase
+  .from("thoughtsv1")
+  .select(`
+    film_uuid,
+    rating,
+    films!inner (
+      film_uuid,
+      embedding,
+      avg_rating,
+      is_flagged,
+      moderation_status,
+      poster_moderation_status
+    )
+  `)
+  .eq("auth_id", user_id)
+  .gt("rating", 5)
+  .eq("films.is_flagged", false)
+  .eq("films.moderation_status", "approved")
+  .eq("films.poster_moderation_status", "approved") as {
+    data: ThoughtFilm[] | null
+    error: any
+  };
+
 
   if (likedError) throw likedError;
   if (!likedFilms || likedFilms.length === 0) return [];
@@ -95,12 +116,18 @@ export async function fetchHomeRecommendations(userId?: string) {
   const { data: hottest } = await supabase
     .from("films")
     .select("*")
+    .eq("is_flagged", false)
+  .eq("moderation_status", "approved")
+  .eq("poster_moderation_status", "approved")
     .order("popularity", { ascending: false })
     .limit(100);
 
   const { data: fresh } = await supabase
     .from("films")
     .select("*")
+      .eq("is_flagged", false)
+  .eq("moderation_status", "approved")
+  .eq("poster_moderation_status", "approved")
     .gte("release_date", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
     .order("popularity", { ascending: false })
     .limit(100);
@@ -119,6 +146,9 @@ export async function fetchHomeRecommendations(userId?: string) {
       const { data } = await supabase
         .from("films")
         .select("*")
+          .eq("is_flagged", false)
+  .eq("moderation_status", "approved")
+  .eq("poster_moderation_status", "approved")
         .in("uploader_id", ids)
         .order("popularity", { ascending: false })
         .limit(100);
@@ -128,6 +158,7 @@ export async function fetchHomeRecommendations(userId?: string) {
     const { data: watch } = await supabase
       .from("watchlists_films")
       .select("film_id")
+
       .eq("watchlist_id", userId);
 
     if (watch?.length) {
@@ -135,6 +166,9 @@ export async function fetchHomeRecommendations(userId?: string) {
       const { data } = await supabase
         .from("films")
         .select("*")
+          .eq("is_flagged", false)
+  .eq("moderation_status", "approved")
+  .eq("poster_moderation_status", "approved")
         .in("film_uuid", ids)
         .order("popularity", { ascending: false })
         .limit(100);
@@ -176,6 +210,9 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
   const { data: film, error: filmErr } = await supabase
     .from("films")
     .select("film_uuid, film_title, thesis, embedding")
+      .eq("is_flagged", false)
+  .eq("moderation_status", "approved")
+  .eq("poster_moderation_status", "approved")
     .eq("film_uuid", filmUuid)
     .maybeSingle();
 
@@ -199,7 +236,7 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
       .from("films")
       .update({ embedding: gen })
       .eq("film_uuid", filmUuid);
-    logger.info("✅ Generated and saved missing embedding", { filmUuid });
+    logger.info(" Generated and saved missing embedding", { filmUuid });
   }
 
   // 3️⃣ Query Postgres directly using pgvector operator (<=>)

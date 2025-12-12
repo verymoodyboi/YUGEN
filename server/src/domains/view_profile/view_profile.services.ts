@@ -42,6 +42,9 @@ export async function getLatestProfileFilms(
   const { data, error } = await supabase
     .from("films")
     .select("*")
+              .eq("is_flagged", false)
+  .eq("moderation_status", "approved")
+  .eq("poster_moderation_status", "approved")
     .eq("uploader_id", uploaderID)
     .order("release_date", { ascending: false })
     .range(offset, offset + limit - 1);

@@ -12,7 +12,7 @@ export default function FilmGlobePage(): JSX.Element {
         {/*  Header */}
         <div className="w-full max-w-6xl mb-6 p-6 bg-emerald-50 border-4 border-emerald-950 rounded-2xl shadow-lg flex items-center justify-between gap-6">
           <div className="flex-1 flex flex-col justify-center gap-2 text-emerald-950">
-            <h1 className="text-5xl font-freckle drop-shadow-lg">Film Globe</h1>
+            <h1 className="text-5xl font-freckle drop-shadow-lg">Film map</h1>
             <div className="flex items-center gap-2 mt-2">
               <div className="w-16 h-1 bg-emerald-950 rounded-full" />
               <span className="text-emerald-950 font-bold text-sm tracking-widest">

@@ -39,6 +39,9 @@ export async function searchFilms(query: any) {
   const { data, error } = await supabase
     .from("films")
     .select("*")
+          .eq("is_flagged", false)
+  .eq("moderation_status", "approved")
+  .eq("poster_moderation_status", "approved")
     .ilike("film_title", `${searchInput}%`)
     .order("popularity", { ascending: false })
     .range(offset, offset + limit - 1);
@@ -101,6 +104,7 @@ export async function searchPlaylists(query: any) {
       )
     `)
     .ilike("playlist_name", `${searchInput}%`)
+
     .eq("is_public", true)
     .range(offset, offset + limit - 1);
 
@@ -117,6 +121,9 @@ export async function combinedSearch(q: string) {
     supabase
       .from("films")
       .select("film_title, poster_path, film_uuid, popularity")
+            .eq("is_flagged", false)
+  .eq("moderation_status", "approved")
+  .eq("poster_moderation_status", "approved")
       .ilike("film_title", `%${q}%`)
       .order("popularity", { ascending: false })
       .limit(10),

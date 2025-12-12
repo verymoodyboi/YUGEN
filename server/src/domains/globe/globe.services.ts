@@ -24,6 +24,9 @@ export const getFilmsByCountry = async (
     `
     )
     .eq("country", country)
+    .eq("moderation_status", "approved")
+    .eq("poster_moderation_status", "approved")
+    .eq("is_flagged", false)
     .order("view_count", { ascending: false })
     .range(offset, offset + limit - 1); //  pagination support
 

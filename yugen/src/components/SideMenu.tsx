@@ -9,8 +9,8 @@ import subscribtions_icon from "../YugenAssits/menu_icons/Subscriptions.svg";
 import map_icon from "../YugenAssits/menu_icons/Filmmap.svg";
 import genres_icon from "../YugenAssits/menu_icons/Genres.svg";
 import surprise_icon from "../YugenAssits/menu_icons/Random.svg";
-import report_icon from "../YugenAssits/menu_icons/Contact.svg";
-import contact_icon from "../YugenAssits/menu_icons/Report.svg";
+import report_icon from "../YugenAssits/menu_icons/Report.svg";
+import contact_icon from "../YugenAssits/menu_icons/Contact.svg";
 
 type SideMenuProps = {
   mode?: "desktop" | "mobile";
