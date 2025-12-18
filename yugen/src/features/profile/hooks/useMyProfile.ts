@@ -1,12 +1,13 @@
 // src/features/profile/hooks/useMyProfile.ts
 import { useEffect, useState } from "react";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchLatestUserFilms } from "../../recommendations/services";
 import { fetchMyPlaylists } from "../../playlist/services/fetchMyPlaylists";
 import { fetchUserChallenges } from "../../challenges/services";
+import { fetchMyUploads } from "../services";
 
 export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise<string>) {
-  // ---- Films (mirrors your current useInfiniteQuery names) ----
+  // ---- Films ----
   const filmsQuery = useInfiniteQuery({
     queryKey: ["films", uploaderID],
     queryFn: ({ pageParam = 0 }) =>
@@ -17,17 +18,33 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
     enabled: !!uploaderID,
   });
 
-  // keep original names your component expects:
-  const data = filmsQuery.data; // pages structure
+  const data = filmsQuery.data;
   const fetchNextPage = filmsQuery.fetchNextPage;
   const hasNextPage = filmsQuery.hasNextPage;
   const isLoading = filmsQuery.isLoading;
   const isError = filmsQuery.isError;
   const isFetchingNextPage = filmsQuery.isFetchingNextPage;
-
-  // convenience flattened films array (your component used this pattern already)
   const films = data?.pages.flat() ?? [];
 
+  // ---- My Uploads (new) ----
+  const uploadsQuery = useInfiniteQuery({
+    queryKey: ["myUploads", uploaderID],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchMyUploads({ pageParam, uploaderID: uploaderID! }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
+    enabled: !!uploaderID,
+  });
+
+  const myUploadsData = uploadsQuery.data;
+  const myUploads = myUploadsData?.pages.flat() ?? [];
+  const fetchNextUploadsPage = uploadsQuery.fetchNextPage;
+  const hasNextUploadsPage = uploadsQuery.hasNextPage;
+  const uploadsLoading = uploadsQuery.isLoading;
+  const uploadsError = uploadsQuery.isError;
+
+  // ---- Playlists ----
   const [myPlaylists, setMyPlaylists] = useState<any[]>([]);
   const [playlistsLoading, setPlaylistsLoading] = useState(false);
 
@@ -40,7 +57,6 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
         const token = await getAccessToken();
         const res = await fetchMyPlaylists(token);
         if (!mounted) return;
-        // fetchMyPlaylists returns res.data in your service; if it returns {playlists: [...]}, normalize:
         setMyPlaylists(res.playlists ?? res);
       } catch (err) {
         console.error("Error fetching playlists:", err);
@@ -49,62 +65,61 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
       }
     };
     load();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [uploaderID, getAccessToken]);
 
-  // add this inside UserProfile component BEFORE return:
+  const handleLocalPlaylistUpdate = (playlist_uuid: string, updates: any) => {
+    setMyPlaylists((prev) =>
+      prev.map((p) => (p.playlist_uuid === playlist_uuid ? { ...p, ...updates } : p))
+    );
+  };
 
-const handleLocalPlaylistUpdate = (playlist_uuid: string, updates: any) => {
-  setMyPlaylists((prev) =>
-    prev.map((p) =>
-      p.playlist_uuid === playlist_uuid ? { ...p, ...updates } : p
-    )
-  );
-};
+  const handleLocalPlaylistDelete = (playlist_uuid: string) => {
+    setMyPlaylists((prev) => prev.filter((p) => p.playlist_uuid !== playlist_uuid));
+  };
 
-const handleLocalPlaylistDelete = (playlist_uuid: string) => {
-  setMyPlaylists((prev) =>
-    prev.filter((p) => p.playlist_uuid !== playlist_uuid)
-  );
-};
+  // ---- Challenges ----
+  const challengesQuery = useInfiniteQuery({
+    queryKey: ["userChallenges", uploaderID],
+    queryFn: ({ pageParam = 0 }) =>
+      fetchUserChallenges({ pageParam, auth_id: uploaderID! }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
+    enabled: !!uploaderID,
+  });
 
-  // ---- Challenges (paginated) ----
- 
-const challengesQuery = useInfiniteQuery({
-  queryKey: ["userChallenges", uploaderID],
-  queryFn: ({ pageParam = 0 }) =>
-    fetchUserChallenges({ pageParam, auth_id: uploaderID! }),
-  initialPageParam: 0,
-  getNextPageParam: (lastPage, allPages) =>
-    !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
-  enabled: !!uploaderID,
-});
+  const userChallengesData = challengesQuery.data;
+  const userChallengesLoading = challengesQuery.isLoading;
+  const userChallengesError = challengesQuery.isError;
+  const userChallenges = userChallengesData?.pages.flat() ?? [];
 
-const userChallengesData = challengesQuery.data;
-const userChallengesLoading = challengesQuery.isLoading;
-const userChallengesError = challengesQuery.isError;
-const userChallenges = userChallengesData?.pages.flat() ?? [];
-
-  // ---- return exact names used in your component so you can drop it in ----
+  // ---- Return ----
   return {
-    // Films (same shape your file expects)
+    // Films
     data,
     fetchNextPage,
     hasNextPage,
     isLoading,
     isError,
     isFetchingNextPage,
-    // convenience
     films,
 
-    // Playlists (same variable name used in component)
+    // My Uploads (new)
+    myUploadsData,
+    myUploads,
+    fetchNextUploadsPage,
+    hasNextUploadsPage,
+    uploadsLoading,
+    uploadsError,
+
+    // Playlists
     myPlaylists,
     playlistsLoading,
-handleLocalPlaylistDelete,
-handleLocalPlaylistUpdate,
-    // Challenges (same variables used in component)
+    handleLocalPlaylistDelete,
+    handleLocalPlaylistUpdate,
+
+    // Challenges
     userChallengesData,
     userChallengesLoading,
     userChallengesError,

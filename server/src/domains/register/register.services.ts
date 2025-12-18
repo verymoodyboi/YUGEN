@@ -98,8 +98,7 @@ export async function registerGoogleUser(
       f_name: FName,
       l_name: LName,
       age: BirthDate,
-      is_artist: false,
-      is_admin: false,
+  
       bio: Bio,
       email: Email,
       pfp_path: `${Email}-pfp.jpg`,

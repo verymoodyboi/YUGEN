@@ -8,4 +8,6 @@ router.get("/users/profile", requireAuth, controller.getUserProfile);
 
 router.get("/latest-profile", controller.getLatestProfileFilms);
 
+router.get("/myUploads", controller.getMyUploads);
+
 export default router;

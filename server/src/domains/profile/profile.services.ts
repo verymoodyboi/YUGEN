@@ -72,3 +72,17 @@ export async function preRegisterSocials(body: { Username: string; Insta?: strin
   return { message: 'Pre-register socials saved successfully!' };
 }
 
+
+
+export async function addUserType(userType:string,authId:string) {
+  const { error } = await supabase
+    .from('users')
+    .update({
+   user_type:userType
+    })
+    .eq('auth_id', authId);
+
+  if (error) throw new Error(error.message);
+
+  return true;
+}

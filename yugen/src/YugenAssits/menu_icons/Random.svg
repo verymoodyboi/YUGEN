@@ -6,8 +6,6 @@
 	<polygon style="fill:#ECFDF5;" points="20.269,860.097 0,160.469 430.662,0 944.105,51.208 934.771,678.683 632.75,970.343 	"/>
 	<polygon style="fill:#ECFDF5;" points="908.631,82.843 899.991,663.613 621.321,932.723 54.431,830.683 35.711,184.513 
 		435.271,35.633 	"/>
-	<polygon style="fill:#ECFDF5;stroke:#012C22;stroke-width:25;stroke-miterlimit:10;" points="908.631,82.843 899.991,663.613 
-		621.321,932.723 54.431,830.683 35.711,184.513 435.271,35.633 	"/>
 	<path style="fill:#ECFDF5;stroke:#012C22;stroke-width:25;stroke-miterlimit:10;" d="M35.713,184.509"/>
 	
 		<ellipse transform="matrix(0.9996 -0.0289 0.0289 0.9996 -5.2807 8.2242)" style="fill:#012C22;stroke:#012C22;stroke-width:25;stroke-miterlimit:10;" cx="281.4" cy="186.491" rx="62.476" ry="9.093"/>

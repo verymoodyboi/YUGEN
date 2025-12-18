@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 9.03 Build 0)  -->
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 944.286 1259.533" style="enable-background:new 0 0 944.286 1259.533;" xml:space="preserve">
+	 viewBox="0 0 914.286 1229.533" style="enable-background:new 0 0 914.286 1229.533;" xml:space="preserve">
 <g id="Bookmark_not_added">
-	<path style="fill:#ECFDF5;stroke:#012C22;stroke-width:30;stroke-miterlimit:10;" d="M44.221,15h855.844
-		c16.138,0,29.221,14.373,29.221,32.103V1209.68c0,26.146-26.927,41.326-46.261,26.079l-394.278-300.21
-		c-9.868-7.782-23.09-8.045-33.208-0.661l-395.15,304.229C40.967,1253.29,15,1237.992,15,1212.376V47.103
-		C15,29.373,28.083,15,44.221,15z"/>
+	<path style="fill:#ECFDF5;" d="M29.221,0h855.844c16.138,0,29.221,14.373,29.221,32.103V1194.68
+		c0,26.146-26.927,41.326-46.261,26.079l-394.278-300.21c-9.868-7.782-23.09-8.045-33.208-0.661l-395.15,304.229
+		C25.967,1238.29,0,1222.992,0,1197.376V32.103C0,14.373,13.083,0,29.221,0z"/>
 	
-		<line style="fill:#ECFDF5;stroke:#012C22;stroke-width:40;stroke-miterlimit:10;" x1="268.714" y1="363.771" x2="675.571" y2="363.771"/>
+		<line style="fill:#ECFDF5;stroke:#012C22;stroke-width:80;stroke-miterlimit:10;" x1="253.714" y1="348.771" x2="660.571" y2="348.771"/>
 	
-		<line style="fill:#ECFDF5;stroke:#012C22;stroke-width:40;stroke-miterlimit:10;" x1="472.143" y1="159.58" x2="472.143" y2="561.866"/>
+		<line style="fill:#ECFDF5;stroke:#012C22;stroke-width:80;stroke-miterlimit:10;" x1="457.143" y1="144.58" x2="457.143" y2="546.866"/>
 </g>
 <g id="Layer_1">
 </g>

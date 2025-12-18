@@ -27,8 +27,10 @@ const ProfileCustomization: React.FC = () => {
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username") || "";
 
-  const { handleUpdateSocials, loading } = useEditProfile(() =>
-    setStage("done")
+  const [userType, setUserType] = useState("audience");
+
+  const { handleUpdateSocials, loading, handleAddUserType } = useEditProfile(
+    () => setStage("done")
   );
 
   const [socials, setSocials] = useState<{ platform: string; url: string }[]>(
@@ -103,7 +105,10 @@ const ProfileCustomization: React.FC = () => {
 
             <div className="flex gap-4 justify-center mt-6">
               <button
-                onClick={() => setStage("done")}
+                onClick={async () => {
+                  await handleAddUserType(userType);
+                  setStage("done");
+                }}
                 className="px-5 py-2 border border-emerald-950 rounded-md hover:bg-emerald-100 transition"
               >
                 Skip
@@ -128,14 +133,20 @@ const ProfileCustomization: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4 mt-6">
               <button
-                onClick={() => setStage("filmmaker")}
+                onClick={() => {
+                  setStage("filmmaker");
+                  setUserType("filmmaker");
+                }}
                 className="px-5 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
               >
                 Filmmaking
               </button>
 
               <button
-                onClick={() => setStage("audience")}
+                onClick={() => {
+                  setStage("audience");
+                  setUserType("audience");
+                }}
                 className="px-5 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
               >
                 Watching Films
@@ -162,7 +173,11 @@ const ProfileCustomization: React.FC = () => {
               </button>
 
               <button
-                onClick={() => setStage("done")}
+                onClick={async () => {
+                  await handleAddUserType(userType);
+
+                  setStage("done");
+                }}
                 className="px-4 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
               >
                 Just Started
@@ -182,7 +197,10 @@ const ProfileCustomization: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4 mt-6">
               <button
-                onClick={() => setStage("done")}
+                onClick={async () => {
+                  await handleAddUserType(userType);
+                  setStage("done");
+                }}
                 className="px-5 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
               >
                 Film Lover
@@ -264,7 +282,10 @@ const ProfileCustomization: React.FC = () => {
               </button>
 
               <button
-                onClick={() => setStage("done")}
+                onClick={async () => {
+                  await handleAddUserType(userType);
+                  setStage("done");
+                }}
                 className="px-4 py-2 border border-emerald-950 rounded-md hover:bg-emerald-100 transition"
               >
                 Skip

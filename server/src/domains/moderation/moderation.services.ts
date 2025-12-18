@@ -22,7 +22,7 @@ export async function submitVideoForModeration(filmUuid: string, publicUrl: stri
           api_user: SIGHTENGINE_USER,
           api_secret: SIGHTENGINE_SECRET,
           models: "nudity-2.1",
-          callback_url: "https://online-pendant-autos-pipe.trycloudflare.com/api/moderation/callback",
+          callback_url: CALLBACK_URL,
         },
         timeout: 30_000,
       }

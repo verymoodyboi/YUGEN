@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { editProfile, updateSocials } from "../services";
+import { addUserType, editProfile, updateSocials } from "../services";
 import { useAuth } from "../../../contexts/AuthContext";
 import { toast } from "react-toastify";
 
@@ -45,6 +45,10 @@ export function useEditProfile(onSuccess?: () => void) {
       setLoading(false);
     }
   };
-
-  return { handleSubmit, handleUpdateSocials, loading };
+const handleAddUserType= async(  userType: string
+)=>{
+  const token = await getAccessToken()
+  await addUserType(userType,token)
+}
+  return { handleSubmit, handleUpdateSocials, loading,handleAddUserType };
 }

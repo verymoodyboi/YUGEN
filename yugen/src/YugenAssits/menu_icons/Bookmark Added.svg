@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 9.03 Build 0)  -->
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 944.286 1259.533" style="enable-background:new 0 0 944.286 1259.533;" xml:space="preserve">
+	 viewBox="0 0 914.286 1229.533" style="enable-background:new 0 0 914.286 1229.533;" xml:space="preserve">
 <g id="Bookmark_Added">
-	<path style="fill:#ECFDF5;stroke:#012C22;stroke-width:30;stroke-miterlimit:10;" d="M44.221,15h855.844
-		c16.138,0,29.221,14.373,29.221,32.103V1209.68c0,26.146-26.927,41.326-46.261,26.079l-394.278-300.21
-		c-9.868-7.782-23.09-8.045-33.208-0.661l-395.15,304.229C40.967,1253.29,15,1237.992,15,1212.376V47.103
-		C15,29.373,28.083,15,44.221,15z"/>
-	<polyline style="fill:#ECFDF5;stroke:#012C22;stroke-width:40;stroke-miterlimit:10;" points="296.516,377.555 446.532,477.127 
-		703.294,227.984 	"/>
+	<path style="fill:#ECFDF5;" d="M29.221,0h855.844c16.138,0,29.221,14.373,29.221,32.103V1194.68
+		c0,26.146-26.927,41.326-46.261,26.079l-394.278-300.21c-9.868-7.782-23.09-8.045-33.208-0.661l-395.15,304.229
+		C25.967,1238.29,0,1222.992,0,1197.376V32.103C0,14.373,13.083,0,29.221,0z"/>
+	<polyline style="fill:#ECFDF5;stroke:#012C22;stroke-width:80;stroke-miterlimit:10;" points="281.516,362.555 431.532,462.127 
+		688.294,212.984 	"/>
 </g>
 <g id="Layer_1">
 </g>

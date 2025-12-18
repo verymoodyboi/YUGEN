@@ -1,4 +1,3 @@
-// src/L2/SideMenu.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -42,7 +41,7 @@ function SideMenu({
     onClick?: () => void;
     disabled?: boolean;
     badge?: string | number;
-    icon?: string; // SVG path
+    icon?: string;
   }) => (
     <button
       disabled={disabled}
@@ -66,7 +65,6 @@ function SideMenu({
     </button>
   );
 
-  // Menu sections
   const MenuContent = (
     <div className="no-scrollbar w-full h-full bg-emerald-950 border-emerald-950  flex flex-col gap-4 p-6 overflow-y-auto ">
       {/* Library */}
@@ -151,16 +149,16 @@ function SideMenu({
 
       {/* Help */}
       <SectionTitle>Help</SectionTitle>
-      <MenuButton
-        label="Technical Report"
-        icon={report_icon}
-        onClick={onOpenReport}
-      />
 
       <MenuButton
         label="Contact Us"
         icon={contact_icon}
         onClick={onOpenContact}
+      />
+      <MenuButton
+        label="Technical Report"
+        icon={report_icon}
+        onClick={onOpenReport}
       />
     </div>
   );

@@ -71,7 +71,14 @@ const UserProfile: React.FC = () => {
     handleLocalPlaylistDelete,
     handleLocalPlaylistUpdate,
     playlistsLoading,
+    myUploads,
+    myUploadsData, // ✅ fixed
+    fetchNextUploadsPage,
+    hasNextUploadsPage,
+    uploadsLoading,
+    uploadsError,
   } = useMyProfile(user?.auth_id, getAccessToken);
+
   const [isHover, setIsHover] = useState(false);
   useEffect(() => {
     const img = new Image();
@@ -417,16 +424,16 @@ const UserProfile: React.FC = () => {
           >
             <h2 className="text-2xl mb-2">Your Uploads</h2>
 
-            {isLoading ? (
+            {uploadsLoading ? (
               <Loading />
-            ) : isError ? (
-              <p className="text-red-500">Failed to load films</p>
-            ) : films.length > 0 ? (
+            ) : uploadsError ? (
+              <p className="text-red-500">Failed to load uploads</p>
+            ) : myUploads.length > 0 ? (
               <>
-                {films.map((film) => (
+                {myUploads.map((film) => (
                   <UploadFilmCard key={film.film_uuid} film={film} />
                 ))}
-                {isFetchingNextPage && (
+                {hasNextUploadsPage && (
                   <div className="text-center text-emerald-900 animate-pulse py-2">
                     <Loading />
                   </div>

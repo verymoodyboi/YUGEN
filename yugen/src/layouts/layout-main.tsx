@@ -21,7 +21,7 @@ export default function AppLayout() {
       {/* Body */}
       <div className="flex flex-1 h-[90vh]">
         {/* Desktop Side Menu */}
-        <aside className="hidden lg:block w-[18vw] h-full border-dashed  border-r-8 border-emerald-950">
+        <aside className="hidden lg:block w-[18vw] min-w-[250px] h-full border-dashed border-r-8 border-emerald-950">
           <SideMenu
             mode="desktop"
             onOpenReport={() => setOpenReport(true)}

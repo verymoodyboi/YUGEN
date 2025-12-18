@@ -9,7 +9,7 @@ import { startScroll, resetScroll } from "../features/stream/util/textScroll";
 import { Film } from "../features/stream/types/film";
 import EditFilm from "../features/editFilm/components/EditFilm";
 import BookMarkIcon from "../YugenAssits/fn_icons/Bookmark not added.svg";
-import BookMarkIconheck from "../YugenAssits/fn_icons/Bookmark not added.svg";
+import BookMarkIconheck from "../YugenAssits/fn_icons/Bookmark added.svg";
 import Edit_icon from "../YugenAssits/fn_icons/Edit_Film.svg";
 // Icons
 import { FiEdit, FiEye, FiStar } from "react-icons/fi";
@@ -116,7 +116,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
               setOpenEdit(true);
             }}
           >
-            <span className="bg-emerald-50 rounded-full p-[4px] flex items-center justify-center">
+            <span className="rounded-full p-[4px] flex items-center justify-center">
               <img src={Edit_icon} alt="Edited" className="w-[18px] h-[18px]" />{" "}
             </span>
           </button>

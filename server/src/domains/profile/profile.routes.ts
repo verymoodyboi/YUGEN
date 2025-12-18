@@ -5,6 +5,7 @@ import * as controller from './profile.controller.js';
 
 const router = Router();
 
+router.post('/type', requireAuth, controller.addUserType);
 
 router.post('/socials', requireAuth, controller.updateSocials);
 const upload = multer(); 

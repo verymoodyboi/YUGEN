@@ -1,31 +1,26 @@
+version: "3.9"
+
 services:
   backend:
     build:
       context: ./server
-      dockerfile: Dockerfile # <-- using the new dev Dockerfile
+      dockerfile: Dockerfile
     container_name: vod-backend
     ports:
       - "8080:3000"
     env_file:
       - ./server/.env
-    volumes:
-      - ./server:/usr/src/app # hot reload
-      - /usr/src/app/node_modules # keep container node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true # ensures file watching works in Docker
+    restart: unless-stopped
 
   frontend:
     build:
       context: ./yugen
-      dockerfile: Dockerfile # <-- unchanged frontend setup
+      dockerfile: Dockerfile
     container_name: vod-frontend
     ports:
-      - "5173:5173"
-    volumes:
-      - ./yugen:/usr/src/app
-      - /usr/src/app/node_modules
+      - "80:80"
     env_file:
       - ./yugen/.env
-    command: npm run dev -- --host
     depends_on:
       - backend
+    restart: unless-stopped

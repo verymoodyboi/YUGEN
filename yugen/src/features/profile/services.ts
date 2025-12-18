@@ -20,3 +20,28 @@ export async function editProfile(formData: FormData, token: string) {
   });
   return res.data;
 }
+
+
+export async function addUserType(
+  userType:string,
+  token: string
+) {
+  const res = await api.post("/profile/type", {userType}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+}
+
+
+export async function fetchMyUploads({
+  pageParam = 0,
+  uploaderID,
+}: {
+  pageParam?: number;
+  uploaderID: string;
+}) {
+  const res = await api.get("/view_profile/myUploads", {
+    params: { offset: pageParam, limit: 10, uploaderID },
+  });
+  return res.data;
+}

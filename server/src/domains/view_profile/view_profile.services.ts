@@ -56,3 +56,23 @@ export async function getLatestProfileFilms(
     poster_path: film.poster_path?.replace(/\\/g, "/"),
   }));
 }
+
+export async function getMyUploads(
+  uploaderID: string,
+  offset: number,
+  limit: number
+) {
+  const { data, error } = await supabase
+    .from("films")
+    .select("*")
+    .eq("uploader_id", uploaderID)
+    .order("release_date", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) throw error;
+
+  return (data || []).map((film) => ({
+    ...film,
+    poster_path: film.poster_path?.replace(/\\/g, "/"),
+  }));
+}
