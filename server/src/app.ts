@@ -37,7 +37,7 @@ import { register } from 'module';
 
 const app: Application = express();
 const allowedOrigins = [
-  "https://frontend-domain.com", // temp production url
+  "http://try-yugen.com", // temp production url
   "http://localhost:5174",  
   "http://localhost:5173",            // for local dev
 ];

@@ -23,7 +23,7 @@ function Wrapper({ children }) {
         }
 
         const { data } = await axios.get(
-          "http://localhost:8080/api/auth/status",
+          "http://46.101.247.144/api/auth/status",
           {
             headers: { Authorization: `Bearer ${token}` },
           }

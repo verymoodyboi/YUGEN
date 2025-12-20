@@ -16,11 +16,14 @@ services:
     build:
       context: ./yugen
       dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     container_name: vod-frontend
     ports:
       - "80:80"
-    env_file:
-      - ./yugen/.env
     depends_on:
       - backend
     restart: unless-stopped
+
