@@ -20,7 +20,7 @@ const HistoryPage: React.FC = () => {
     <>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
         <h1 className="text-4xl font-bold border-b-4 border-emerald-950  pb-2">
-          Watch history
+          Watch History
         </h1>
         <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">
           Revisit the unforgetable stories you watched

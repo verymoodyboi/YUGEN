@@ -11,7 +11,7 @@ export default function AppLayout() {
   const [openContact, setOpenContact] = useState(false);
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-emerald-50 text-emerald-950">
+    <div className="h-screen w-screen flex flex-col bg-emerald-50 text-emerald-950 overflow-x-hidden">
       {/* Header */}
       <header className="h-[80px] min-h-[80px] w-full border-b-3 border-emerald-950 border-solid flex items-center px-4">
         <AccHub />
@@ -19,7 +19,7 @@ export default function AppLayout() {
       </header>
 
       {/* Body */}
-      <div className="flex flex-1 h-[90vh]">
+      <div className="flex flex-1 min-h-0">
         {/* Desktop Side Menu */}
         <aside className="hidden lg:block w-[18vw] min-w-[250px] h-full border-dashed border-r-8 border-emerald-950">
           <SideMenu
@@ -30,13 +30,13 @@ export default function AppLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 h-full p-4 overflow-scroll">
+        <main className="flex-1 min-h-0 h-full p-4 overflow-y-auto">
           <Outlet />
         </main>
       </div>
 
       {/* Mobile Menu */}
-      <div className="lg:hidden">
+      <div className="lg:hidden w-full">
         <SideMenu
           mode="mobile"
           onOpenReport={() => setOpenReport(true)}
@@ -52,10 +52,16 @@ export default function AppLayout() {
             if (e.target === e.currentTarget) setOpenReport(false);
           }}
         >
-          <div className=" max-w-lg p-4 " onClick={(e) => e.stopPropagation()}>
+          <div
+            className="max-w-lg p-4 w-full mx-2"
+            onClick={(e) => e.stopPropagation()}
+          >
             <TechnicalReportForm
               onSubmitSuccess={async () => {
                 setTimeout(() => setOpenReport(false), 2000);
+              }}
+              onClose={() => {
+                setOpenReport(false);
               }}
             />
           </div>
@@ -65,13 +71,13 @@ export default function AppLayout() {
       {/* === Contact Modal === */}
       {openContact && (
         <div
-          className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center"
+          className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center "
           onClick={(e) => {
             if (e.target === e.currentTarget) setOpenContact(false);
           }}
         >
           <div
-            className="bg-emerald-50 rounded-xl shadow-lg w-full max-w-sm p-6 border-2 border-emerald-950 space-y-4"
+            className="flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b] animate-modal-in"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="font-freckle text-2xl text-emerald-950 ">
@@ -88,7 +94,7 @@ export default function AppLayout() {
             </ul>
             <button
               onClick={() => setOpenContact(false)}
-              className="w-full py-2 rounded-lg bg-emerald-950  text-emerald-50  font-freckle hover:scale-105 transition-transform"
+              className="w-full py-2 rounded-lg bg-emerald-950 text-emerald-50 font-freckle hover:scale-105 transition-transform"
             >
               Close
             </button>

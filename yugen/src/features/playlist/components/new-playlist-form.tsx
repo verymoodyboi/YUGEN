@@ -34,7 +34,7 @@ const NewPlaylist: React.FC<NewPlaylistProps> = ({
     }
   }, [isOpen]);
 
-  // 🔥 Close on outside click
+  //  Close on outside click
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
@@ -92,6 +92,15 @@ const NewPlaylist: React.FC<NewPlaylistProps> = ({
           ${visible ? "opacity-100 scale-100" : "opacity-0 scale-95"}
         `}
       >
+        <button
+          onClick={(e) => {
+            setVisible(false);
+            setTimeout(() => onClose(), 200);
+          }}
+          className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-emerald-950 font-bold text-[23px] rounded-full bg-emerald-50 border-2 border-emerald-950 hover:bg-emerald-100 transition"
+        >
+          ×
+        </button>
         <PlaylistPlayIcon
           className="text-emerald-950 mx-auto"
           style={{ fontSize: 80 }}

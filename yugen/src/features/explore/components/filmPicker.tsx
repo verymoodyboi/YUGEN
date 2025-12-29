@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect } from "react";
 import AppLayout from "../../../layouts/layout-main";
 import { motion, useAnimation } from "framer-motion";
 import { FiPlay, FiRefreshCw, FiStar } from "react-icons/fi";
 import supabase from "../../../lib/supabaseClient";
 import { useRandomFilm } from "../hooks/useRandomFilm";
 import { useNavigate } from "react-router-dom";
+import { useFilm } from "../../stream/hooks/useFilmCard";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+
 const SLOT_W = 180;
 const SLOT_H = 270;
 const SLOT_GAP = 24;
@@ -47,13 +51,16 @@ const FilmPicker: React.FC<any> = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // start aligned with first film under the question mark (after data loads)
-  useEffect(() => {
-    if (films.length > 0 && containerWidth > 0) {
-      const startX = -computeDistanceForGlobalIndex(0);
-      controls.set({ x: startX - 12 });
-    }
-  }, [films, containerWidth, controls]);
+  useLayoutEffect(() => {
+    if (!containerRef.current || films.length === 0) return;
+
+    const width = containerRef.current.clientWidth;
+    setContainerWidth(width);
+
+    const startX = -(0 * SLOT_TOTAL - (width / 2 - SLOT_W / 2)) - 12;
+
+    controls.set({ x: startX });
+  }, [films, controls]);
 
   const roll = async () => {
     if (isRolling || disabledRoll || !films.length || containerWidth === 0)
@@ -103,6 +110,11 @@ const FilmPicker: React.FC<any> = () => {
     selectedGlobalIndex !== null && visibleFilms.length > 0
       ? visibleFilms[selectedGlobalIndex % visibleFilms.length]
       : null;
+  const { uploader } = useFilm(
+    selectedFilm?.film_uuid,
+    selectedFilm?.uploader_id
+  );
+  const hasSelectedFilm = selectedFilm !== null;
 
   return (
     <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle py-12">
@@ -136,10 +148,10 @@ const FilmPicker: React.FC<any> = () => {
         {/* question mark before roll */}
         <motion.div
           key="question-mark"
-          initial={{ opacity: 1 }}
+          initial={{ opacity: 0.7 }}
           animate={{ opacity: selectedGlobalIndex === null ? 1 : 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-[180px] h-[270px] border-2 border-emerald-950 rounded-md bg-emerald-50 shadow-inner pointer-events-none"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-[180px] h-[270px] border-2 border-emerald-950 rounded-md bg-emerald-50/50 shadow-inner pointer-events-none"
         >
           <span className="text-7xl text-emerald-950 select-none">?</span>
         </motion.div>
@@ -256,7 +268,15 @@ const FilmPicker: React.FC<any> = () => {
             transition={{ duration: 0.28 }}
             className="relative z-50 max-w-4xl w-full mx-6"
           >
-            <div className="bg-emerald-50 rounded-2xl p-6 border-4 border-emerald-950 shadow-[12px_12px_0_0_#064e3b]">
+            <div className="bg-emerald-50 rounded-2xl p-6 border-4 border-emerald-950 shadow-[12px_12px_0_0_#064e3b] max-h-[90vh] hidden-scrollbar overflow-y-auto">
+              <button
+                onClick={(e) => {
+                  setShowModal(false);
+                }}
+                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-emerald-950 font-bold text-[23px] rounded-full bg-emerald-50 border-2 border-emerald-950 hover:bg-emerald-100 transition"
+              >
+                ×
+              </button>
               <div className="flex flex-col md:flex-row gap-6 items-start">
                 <div className="flex-shrink-0 rounded-md overflow-hidden border-4 border-emerald-950 w-[288px] h-[432px]">
                   <img
@@ -284,11 +304,48 @@ const FilmPicker: React.FC<any> = () => {
                     </span>
                     <span>
                       • {new Date(selectedFilm.release_date).getFullYear()}
+                      <>{() => {}}</>
                     </span>
                   </div>
                   <p className="mb-3 text-sm text-emerald-900">
                     {selectedFilm.thesis}
                   </p>
+                  {hasSelectedFilm && uploader.username && (
+                    <div
+                      className="hover:scale-105 flex items-center gap-1 w-[50%] cursor-pointer mb-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(
+                          `/@?username=${encodeURIComponent(
+                            uploader?.username
+                          )}`
+                        );
+                      }}
+                    >
+                      {uploader.pfp ? (
+                        <img
+                          src={
+                            uploader.pfp
+                              ? supabase.storage
+                                  .from("pfps")
+                                  .getPublicUrl(uploader.pfp).data.publicUrl +
+                                `?v=${Date.now()}`
+                              : tempPFP
+                          }
+                          alt="User avatar"
+                          className="w-5 h-5 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-emerald-700" />
+                      )}
+
+                      <span className="text-[11px]">
+                        {uploader.username && uploader.username.length > 9
+                          ? `${uploader.username.slice(0, 9)}...`
+                          : uploader.username}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {selectedFilm.film_genre?.map((g: string) => (
                       <span
@@ -303,7 +360,9 @@ const FilmPicker: React.FC<any> = () => {
                     <button
                       onClick={() => {
                         navigate(
-                          `/watch?uuid=${encodeURIComponent(selectedFilm.film_uuid)}`
+                          `/watch?uuid=${encodeURIComponent(
+                            selectedFilm.film_uuid
+                          )}`
                         );
                       }}
                       className="px-5 py-2 rounded-lg bg-emerald-950 text-emerald-50 border-4 border-emerald-950 hover:scale-105 transition-transform"

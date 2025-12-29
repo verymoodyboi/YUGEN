@@ -103,11 +103,9 @@ const GenrePage: React.FC = () => {
         {/* === FILMS GRID === */}
         <section className="flex flex-col space-y-4">
           <h2 className="font-freckle text-2xl border-b-4 border-emerald-950 pb-1">
-            {genreName} Films
+            Top {genreName} Films
           </h2>
-          <span className="inline-block px-4 py-1 mt-2 rounded-full bg-emerald-50 text-emerald-950 font-freckle  shadow">
-            {genreInfo?.film_count ?? films.length} Films
-          </span>
+
           {loading && films.length === 0 && <Loading />}
 
           {!loading && films.length === 0 && (
@@ -123,7 +121,7 @@ const GenrePage: React.FC = () => {
 
           {hasMore && (
             <div className="text-center py-4 text-emerald-950 animate-pulse">
-              Loading more films…
+              Thats it for now!
             </div>
           )}
         </section>

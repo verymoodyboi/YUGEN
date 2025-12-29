@@ -30,7 +30,7 @@ export const fetchRecommended = async (
 export const fetchFilmsByGenre = async (
   genre: string,
   offset = 0,
-  limit = 10
+  limit = 100
 ) => {
   const res = await api.get("/recommendations/films-by-genre", {
     params: { genre, offset, limit },

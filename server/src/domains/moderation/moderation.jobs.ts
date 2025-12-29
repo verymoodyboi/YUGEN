@@ -7,7 +7,6 @@ const SIGHTENGINE_USER = process.env.SIGHTENGINE_USER!;
 const SIGHTENGINE_SECRET = process.env.SIGHTENGINE_SECRET!;
 
 const minAgeMinutes = 2; // only poll films submitted more than 2 minutes ago
-const cronSchedule = "*/5 * * * *"; // every 5 minutes
 
 export async function checkPendingModerationsOnce() {
   // select films under_review older than minAgeMinutes

@@ -13,19 +13,19 @@ const UploadFilmCard: React.FC<{ film: any }> = ({ film }) => {
 
   const isFlagged = film.is_flagged === true;
   const isUnderReview = film.moderation_status === "under_review";
-  const isUploading = film.moderation_status === "uploading";
+  const isUploading = ["uploading", "queued"].includes(film.moderation_status);
   const isUploadError = film.moderation_status === "upload_error";
 
   // 🔹 Card color logic
   const cardClass = isUploadError
     ? "bg-red-100 border-red-700"
     : isUploading
-      ? "bg-blue-50 border-blue-600 animate-pulse"
-      : isFlagged
-        ? "bg-red-50 border-red-700 hover:bg-red-100"
-        : isUnderReview
-          ? "bg-yellow-50 border-yellow-600 hover:bg-yellow-100"
-          : "bg-emerald-50 border-emerald-950 hover:bg-emerald-100";
+    ? "bg-blue-50 border-blue-600 animate-pulse"
+    : isFlagged
+    ? "bg-red-50 border-red-700 hover:bg-red-100"
+    : isUnderReview
+    ? "bg-yellow-50 border-yellow-600 hover:bg-yellow-100"
+    : "bg-emerald-50 border-emerald-950 hover:bg-emerald-100";
 
   return (
     <div
@@ -36,7 +36,7 @@ const UploadFilmCard: React.FC<{ film: any }> = ({ film }) => {
          ============================= */}
       <div className="relative w-20 h-28">
         {isUploading || !posterUrl ? (
-          // 🔵 Pulsating placeholder icon
+          //  Pulsating placeholder icon
           <div className="w-full h-full flex items-center justify-center bg-blue-100 border border-blue-600 rounded-md animate-pulse">
             <FiImage className="text-blue-700" size={28} />
           </div>
@@ -96,7 +96,7 @@ const UploadFilmCard: React.FC<{ film: any }> = ({ film }) => {
         {/* Uploading state */}
         {isUploading && (
           <p className="text-sm text-blue-700 font-semibold mt-1">
-            ⏳ Uploading… please wait, this might take a while.
+            ⏳ Uploading… please wait. Great things take time :)
           </p>
         )}
       </div>

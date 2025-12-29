@@ -46,7 +46,7 @@ export function useReply(
   };
 
   const submitReply = async (thoughtId: number, comment: string) => {
-    if (!comment.trim()) return toast.warn("Please add a reply");
+    if (!comment || comment=="") return toast.warn("Please add a reply");
     try {
       const token = await getAccessToken();
       if (!token) return toast.warn("Please log in");

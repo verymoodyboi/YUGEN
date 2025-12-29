@@ -1,10 +1,74 @@
 import { useState } from "react";
 import { addUserType, editProfile, updateSocials } from "../services";
 import { useAuth } from "../../../contexts/AuthContext";
-import { toast } from "react-toastify";
+import { useToast } from "../../../components/toaster";
+
+/* ================== VALIDATION HELPERS ================== */
+const hasLineBreaks = (v: string) => /[\r\n]/.test(v);
+const containsEmoji = (v: string) =>
+  /[\p{Extended_Pictographic}]/u.test(v);
+const isEmpty = (v?: string) => !v || !v.trim();
+
+function validateProfileForm(
+  formData: FormData,
+  toast: ReturnType<typeof useToast>
+): boolean {
+  const fname = formData.get("FName") as string;
+  const lname = formData.get("LName") as string;
+  const username = formData.get("UserName") as string;
+  const region = formData.get("Region") as string;
+  const gender = formData.get("Gender") as string;
+  const bio = formData.get("Bio") as string;
+
+  if (
+    isEmpty(fname) ||
+    isEmpty(lname) ||
+    isEmpty(username) ||
+    isEmpty(region) ||
+    isEmpty(gender) ||
+    isEmpty(bio)
+  ) {
+    toast.error("All fields except socials are required.");
+    return false;
+  }
+
+  if (username.length > 30) {
+    toast.error("Username must be under 30 characters.");
+    return false;
+  }
+
+  if (username.includes(" ")) {
+    toast.error("Username cannot contain spaces.");
+    return false;
+  }
+
+  if (containsEmoji(username)) {
+    toast.error("Username cannot contain emojis.");
+    return false;
+  }
+
+  if (hasLineBreaks(username)) {
+    toast.error("Username cannot contain line breaks.");
+    return false;
+  }
+
+  if (bio.length <= 10 || bio.length >= 500) {
+    toast.error("Bio must be between 10 and 500 characters.");
+    return false;
+  }
+
+  if (hasLineBreaks(bio)) {
+    toast.error("Bio cannot contain line breaks.");
+    return false;
+  }
+
+  return true;
+}
+/* ======================================================== */
 
 export function useEditProfile(onSuccess?: () => void) {
   const { getAccessToken } = useAuth();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
 
   // --- main profile update (profile + socials) ---
@@ -12,6 +76,8 @@ export function useEditProfile(onSuccess?: () => void) {
     formData: FormData,
     socials: { Insta?: string; YT?: string; LI?: string }
   ) => {
+    if (!validateProfileForm(formData, toast)) return;
+
     setLoading(true);
     try {
       const token = await getAccessToken();
@@ -29,7 +95,7 @@ export function useEditProfile(onSuccess?: () => void) {
     }
   };
 
-  // --- 🔹 new standalone socials update ---
+  // --- socials-only update ---
   const handleUpdateSocials = async (
     socials: { Insta?: string; YT?: string; LI?: string }
   ) => {
@@ -45,10 +111,21 @@ export function useEditProfile(onSuccess?: () => void) {
       setLoading(false);
     }
   };
-const handleAddUserType= async(  userType: string
-)=>{
-  const token = await getAccessToken()
-  await addUserType(userType,token)
-}
-  return { handleSubmit, handleUpdateSocials, loading,handleAddUserType };
+
+  const handleAddUserType = async (userType: string) => {
+    try {
+      const token = await getAccessToken();
+      await addUserType(userType, token);
+    } catch (err) {
+      console.error("Failed to add user type:", err);
+      toast.error("Error adding user type");
+    }
+  };
+
+  return {
+    handleSubmit,
+    handleUpdateSocials,
+    handleAddUserType,
+    loading,
+  };
 }

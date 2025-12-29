@@ -18,13 +18,22 @@ const WatchlistPage: React.FC = () => {
           Save it, and watch it when the time is right
         </p>
       </div>
-      {loading ? (
-        <Loading />
-      ) : watchlist.length === 0 ? (
-        <p className="text-emerald-900 ">No films in your watchlist yet.</p>
-      ) : (
-        <FilmScrollRowDynamic films={watchlist.map((item) => item.films)} />
-      )}
+      <>
+        <div className="flex items-center my-4">
+          <div className="flex-grow border-t border-emerald-950/20 " />
+          <span className="px-4 font-freckle text-lg text-emerald-950/80 ">
+            Don`t forget about them!
+          </span>
+          <div className="flex-grow border-t border-emerald-950/20" />
+        </div>{" "}
+        {loading ? (
+          <Loading />
+        ) : watchlist.length === 0 ? (
+          <p className="text-emerald-900 ">No films in your watchlist yet.</p>
+        ) : (
+          <FilmScrollRowDynamic films={watchlist.map((item) => item.films)} />
+        )}
+      </>
     </>
   );
 };

@@ -2,8 +2,11 @@
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../lib/supabaseClient";
 import { useSearchBar } from "../hooks/useSearchBar";
-
-const SearchBar = () => {
+import * as React from "react";
+interface SearchBarProps {
+  onSearch?: () => void;
+}
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const navigate = useNavigate();
   const { searchInput, setSearchInput, searchResults, loading } =
     useSearchBar();
@@ -26,6 +29,7 @@ const SearchBar = () => {
         onKeyDown={(e) => {
           if (e.key === "Enter" && searchInput.trim()) {
             e.preventDefault();
+            onSearch?.();
             navigate(`/search?query=${encodeURIComponent(searchInput)}`);
           }
         }}
@@ -61,19 +65,19 @@ const SearchBar = () => {
                         .from("posters")
                         .getPublicUrl(option.poster).data.publicUrl
                     : option.type === "user"
-                      ? supabase.storage.from("pfps").getPublicUrl(option.pfp)
-                          .data.publicUrl
-                      : supabase.storage
-                          .from("challenge_covers")
-                          .getPublicUrl(option.cover).data.publicUrl
+                    ? supabase.storage.from("pfps").getPublicUrl(option.pfp)
+                        .data.publicUrl
+                    : supabase.storage
+                        .from("challenge_covers")
+                        .getPublicUrl(option.cover).data.publicUrl
                 }
                 alt={option.title || option.username || option.challenge_name}
                 className={`${
                   option.type === "film"
                     ? "w-10 h-14 rounded-md"
                     : option.type === "user"
-                      ? "w-10 h-10 rounded-full"
-                      : "w-12 h-8 rounded-md"
+                    ? "w-10 h-10 rounded-full"
+                    : "w-12 h-8 rounded-md"
                 } border border-emerald-950`}
               />
               <span className="text-emerald-950 font-freckle text-lg">

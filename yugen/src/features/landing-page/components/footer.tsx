@@ -10,15 +10,15 @@ interface NavLink {
 interface SocialLink {
   name: string;
   href: string;
-  icon: JSX.Element;
+  icon: any;
 }
 
 const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
   scrollToTop,
 }) => {
   const navigationLinks: NavLink[] = [
-    { title: "Home", path: "#/login" },
-    { title: "Login", path: "#/login" },
+    { title: "Home", path: "/login" },
+    { title: "Login", path: "/login" },
   ];
 
   const socialLinks: SocialLink[] = [
@@ -41,7 +41,7 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
               <img
                 src={footer_logo}
                 alt="Yugen Logo"
-                className="w-18 h-18 object-contain rounded-full  p-0.5 overflow-visible"
+                className="w-[80px] h-[80px] object-contain rounded-full  p-0.5 overflow-visible"
                 style={{ objectPosition: "center" }}
               />
 
@@ -119,9 +119,17 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
           }}
         >
           <div
-            className="bg-emerald-50 dark:bg-emerald-950 rounded-xl shadow-lg w-full max-w-sm p-6 border-2 border-emerald-950 space-y-4"
+            className="flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b] animate-modal-in"
             onClick={(e) => e.stopPropagation()}
           >
+            <button
+              onClick={(e) => {
+                setOpenContact(false);
+              }}
+              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-emerald-950 font-bold text-[23px] rounded-full bg-emerald-50 border-2 border-emerald-950 hover:bg-emerald-100 transition"
+            >
+              ×
+            </button>
             <h2 className="font-freckle text-2xl text-emerald-950 dark:text-emerald-50">
               Contact Information
             </h2>

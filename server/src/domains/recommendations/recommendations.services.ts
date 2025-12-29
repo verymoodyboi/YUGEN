@@ -91,9 +91,9 @@ const { data: likedFilms, error: likedError } = await supabase
 
 export async function getFilmsByGenre(genre: string, offset: number, limit: number): Promise<Film[]> {
   const cached = genreCache[genre];
-  logger.info(cached)
+  // logger.info(cached)
   if (!cached) return [];
-  return cached.films.slice(offset, offset + limit);
+  return cached.films;
 }
 export async function getAllGenres() {
   try {
@@ -206,7 +206,7 @@ type FilmRow = {
 export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
   if (!filmUuid) return [];
 
-  // 1️⃣ Get target film embedding
+  // 1️ Get target film embedding
   const { data: film, error: filmErr } = await supabase
     .from("films")
     .select("film_uuid, film_title, thesis, embedding")
@@ -217,7 +217,7 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
     .maybeSingle();
 
   if (filmErr || !film) {
-    logger.error("❌ Failed to fetch target film", { filmUuid, filmErr });
+    logger.error(" Failed to fetch target film", { filmUuid, filmErr });
     return [];
   }
 
@@ -228,7 +228,7 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
     const text = `${film.film_title ?? ""} ${film.thesis ?? ""}`.trim();
     const gen = await generateEmbedding(text);
     if (!gen) {
-      logger.warn("⚠️ Could not generate embedding for film", { filmUuid });
+      logger.warn(" Could not generate embedding for film", { filmUuid });
       return [];
     }
     targetEmbedding = gen;
@@ -236,7 +236,7 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
       .from("films")
       .update({ embedding: gen })
       .eq("film_uuid", filmUuid);
-    logger.info(" Generated and saved missing embedding", { filmUuid });
+    // logger.info(" Generated and saved missing embedding", { filmUuid });
   }
 
   // 3️⃣ Query Postgres directly using pgvector operator (<=>)
@@ -247,10 +247,10 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
   });
 
   if (error) {
-    logger.error("❌ pgvector similarity RPC failed", { error });
+    logger.error(" pgvector similarity RPC failed", { error });
     return [];
   }
 
-  logger.info(`✅ Found ${data?.length ?? 0} similar films using pgvector`);
+  // logger.info(` Found ${data?.length ?? 0} similar films using pgvector`);
   return data ?? [];
 }

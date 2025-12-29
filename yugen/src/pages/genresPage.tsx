@@ -8,16 +8,16 @@ const GenresPage: React.FC = () => {
 
   return (
     <>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+        <h1 className="text-4xl font-freckle font-bold border-b-4 border-emerald-950  pb-2">
+          Explore Genres
+        </h1>
+        <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">
+          Discover films by theme, tone, and feel.
+        </p>
+      </div>
       <div className="min-h-screen flex flex-col gap-10 text-emerald-950 bg-emerald-50  px-4 sm:px-8 py-10 transition-colors duration-300">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
-          <h1 className="text-4xl font-freckle font-bold border-b-4 border-emerald-950  pb-2">
-            Explore Genres
-          </h1>
-          <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">
-            Discover films by theme, tone, and feel.
-          </p>
-        </div>
 
         {/* Loading & Empty States */}
         {loading && (

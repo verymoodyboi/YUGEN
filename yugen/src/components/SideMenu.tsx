@@ -80,7 +80,7 @@ function SideMenu({
       />
 
       <MenuButton
-        label="Watch history"
+        label="history"
         icon={history_icon}
         onClick={() => {
           navigate("/history");
@@ -109,19 +109,11 @@ function SideMenu({
       {/* Explore */}
       <SectionTitle>Explore</SectionTitle>
       <MenuButton
-        label="Film map"
+        label="Yūgen map"
         icon={map_icon}
         onClick={() => {
           navigate("/globe");
           setOpen(false);
-        }}
-      />
-
-      <MenuButton
-        label="Genres"
-        icon={genres_icon}
-        onClick={() => {
-          navigate("/genres");
         }}
       />
 
@@ -133,7 +125,13 @@ function SideMenu({
           setOpen(false);
         }}
       />
-
+      <MenuButton
+        label="Genres"
+        icon={genres_icon}
+        onClick={() => {
+          navigate("/genres");
+        }}
+      />
       {/* Community */}
       <SectionTitle>Community</SectionTitle>
       <MenuButton
@@ -183,6 +181,7 @@ function SideMenu({
             hover:scale-105 hover:shadow-[3px_3px_0_0_#064e3b]
             active:scale-95
             transition-all duration-200
+            z-100000000000000
           "
           onClick={() => setOpen(true)}
         >
@@ -190,7 +189,7 @@ function SideMenu({
         </button>
       )}
 
-      {/* 🔹 Always-mounted mobile drawer */}
+      {/* Always-mounted mobile drawer */}
       <div
         className={`fixed inset-0 z-[9999] bg-black/40 backdrop-blur-[1px] transition-opacity duration-300 ease-in-out
     ${open ? "opacity-100 visible" : "opacity-0 pointer-events-none"}`}

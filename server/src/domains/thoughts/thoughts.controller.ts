@@ -5,9 +5,10 @@ export async function flagThought(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     const { thoughtId, reason } = req.body;
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     if (!thoughtId || !reason) return res.status(400).json({ error: "Missing fields" });
-
+if (!userId || !thoughtId) {
+  return res.status(400).json({ error: "Missing parameters" });
+}
     const result = await service.flagThought(userId, thoughtId, reason);
     return res.json(result);
   } catch (err: any) {
@@ -24,9 +25,10 @@ export async function flagReply(req: Request, res: Response) {
   try {
     const userId = req.user?.id;
     const { replyId, reason } = req.body;
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
     if (!replyId || !reason) return res.status(400).json({ error: "Missing fields" });
-
+if (!userId ) {
+  return res.status(400).json({ error: "Missing parameters" });
+}
     const result = await service.flagReply(userId, replyId, reason);
     return res.json(result);
   } catch (err: any) {

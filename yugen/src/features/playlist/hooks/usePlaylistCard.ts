@@ -1,18 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
 import { togglePlaylistPublic, checkPlaylistPublic } from "../services/playlistCardServices";
 import { deletePlaylist } from "../services/deletePlaylist";
-
-import { useAuth } from "../../../contexts/AuthContext";
 import { updateName } from "../services/updateName";
-import { fetchMyPlaylists } from "../services/fetchMyPlaylists";
+import { useAuth } from "../../../contexts/AuthContext";
+import { checkPlaylistSaved, togglePlaylistSaved } from "../services/savePlaylist";
 
 export function usePlaylistCard(playlist: any) {
-  const { getAccessToken } = useAuth();
-  const {userInfo}= useAuth()
+  const { getAccessToken, userInfo } = useAuth();
   const [isPublic, setIsPublic] = useState<boolean>();
-  const [myPlaylists, setMyPlaylists] = useState<any[]>([]);
+  const [isSaved, setIsSaved] = useState<boolean>();
 
-  //  Check current public status
+  // ✅ Check public
   const fetchPublicStatus = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -23,7 +21,7 @@ export function usePlaylistCard(playlist: any) {
     }
   }, [playlist.playlist_uuid, getAccessToken]);
 
-  //  Toggle public/private
+  // ✅ Toggle public
   const handleTogglePublic = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -34,32 +32,62 @@ export function usePlaylistCard(playlist: any) {
     }
   }, [playlist.playlist_uuid, getAccessToken]);
 
+  // ✅ Check saved
+  const fetchSavedStatus = useCallback(async () => {
+    try {
+      const token = await getAccessToken();
+      const saved = await checkPlaylistSaved(playlist.playlist_uuid, token);
+      setIsSaved(saved);
+    } catch (err) {
+      console.error("Error checking saved:", err);
+    }
+  }, [playlist.playlist_uuid, getAccessToken]);
+
+  // ✅ Toggle save/unsave
+  const handleToggleSaved = useCallback(async () => {
+    try {
+      const token = await getAccessToken();
+      const newSaved = await togglePlaylistSaved(playlist.playlist_uuid, token);
+      setIsSaved(newSaved);
+    } catch (err) {
+      console.error("Error toggling saved:", err);
+    }
+  }, [playlist.playlist_uuid, getAccessToken]);
+
+  // ✅ Delete playlist
+  const handleDeletePlaylist = useCallback(async () => {
+    try {
+      const token = await getAccessToken();
+      await deletePlaylist(playlist.playlist_uuid, token);
+    } catch (err) {
+      console.error("Error deleting playlist:", err);
+    }
+  }, [playlist.playlist_uuid, getAccessToken]);
+
+  // ✅ Update name
+  const handleUpdateName = useCallback(async (newName: string) => {
+    try {
+      const token = await getAccessToken();
+      await updateName(playlist.playlist_uuid, newName, token);
+    } catch (err) {
+      console.error("Error updating name:", err);
+    }
+  }, [playlist.playlist_uuid, getAccessToken]);
+
+  // 🔄 Effects
   useEffect(() => {
-    if (playlist?.playlist_uuid) fetchPublicStatus();
-  }, [playlist?.playlist_uuid, fetchPublicStatus]);
-const handleDeletePlaylist = useCallback(async () => {
-  try {
-    const token = await getAccessToken();
-    await deletePlaylist(playlist.playlist_uuid, token);
-  } catch (err) {
-    console.error("Error deleting playlist:", err);
-  }
-}, [playlist.playlist_uuid, getAccessToken]);
+    if (playlist?.playlist_uuid) {
+      fetchPublicStatus();
+      fetchSavedStatus(); // check save status on mount
+    }
+  }, [playlist?.playlist_uuid, fetchPublicStatus, fetchSavedStatus]);
 
-const handleUpdateName = useCallback(async (newName:string) => {
-  try {
-    const token = await getAccessToken();
-    await updateName(playlist.playlist_uuid,newName, token);
-  } catch (err) {
-    console.error("Error updating name:", err);
-  }
-}, [playlist.playlist_uuid, getAccessToken]);
-
-
-
-
-
-  return { isPublic, handleTogglePublic,handleDeletePlaylist,handleUpdateName };
-
+  return {
+    isPublic,
+    handleTogglePublic,
+    handleDeletePlaylist,
+    handleUpdateName,
+    isSaved,
+    handleToggleSaved, // NEW
+  };
 }
-

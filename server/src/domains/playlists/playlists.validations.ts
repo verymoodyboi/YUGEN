@@ -20,7 +20,7 @@ export const togglePublicSchema = Joi.object({
 });
 
 export const updateNameSchema = Joi.object({
-  playlistID: Joi.string().uuid().required(),
+  playlist_uuid: Joi.string().uuid().required(),
     newName: Joi.string().required(),
 
 });

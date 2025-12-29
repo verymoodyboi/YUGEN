@@ -1,11 +1,9 @@
 // src/features/globe/components/FilmGlobe.tsx
 import React, { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
-import * as THREE from "three";
-import { useGlobe } from "../useGlobe";
-import CountryModal from "./countryFilmsModal";
+import { useNavigate } from "react-router-dom";
 import { FiFilm, FiUser } from "react-icons/fi";
-import { useToast } from "../../../components/toaster";
+import { useGlobe } from "../useGlobe";
 
 interface CountryFeature {
   type: "Feature";
@@ -19,27 +17,13 @@ interface CountryFeature {
 }
 
 const FilmGlobe: React.FC = () => {
-  const toast = useToast();
-
   const globeRef = useRef<any>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [countries, setCountries] = useState<CountryFeature[]>([]);
   const [hoverD, setHoverD] = useState<CountryFeature | null>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
-  const {
-    selectedCountry,
-    countryStats,
-    films,
-    hoverStats,
-    handleCountryClick,
-    handleCountryHover,
-    closeDialog,
-    loading,
-    users,
-    loadMoreFilms,
-    loadMoreUsers,
-  } = useGlobe();
+  const navigate = useNavigate();
+  const { hoverStats, handleCountryHover } = useGlobe();
 
   // Load country geojson
   useEffect(() => {
@@ -64,7 +48,7 @@ const FilmGlobe: React.FC = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  // Globe controls
+  // Globe initial controls
   useEffect(() => {
     if (!globeRef.current) return;
     const controls = globeRef.current.controls();
@@ -72,6 +56,13 @@ const FilmGlobe: React.FC = () => {
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.1;
   }, []);
+
+  // Pause/resume rotation on hover
+  useEffect(() => {
+    if (!globeRef.current) return;
+    const controls = globeRef.current.controls();
+    controls.autoRotate = !hoverD;
+  }, [hoverD]);
 
   return (
     <div ref={containerRef} className="w-full h-full relative flex-1">
@@ -123,34 +114,21 @@ const FilmGlobe: React.FC = () => {
         onPolygonHover={(polygon) => {
           const country = polygon as CountryFeature;
           setHoverD(country);
-          if (country?.properties?.name) {
+          if (country?.properties?.name)
             handleCountryHover(country.properties.name);
-          }
         }}
+        onPolygonHoverOut={() => setHoverD(null)}
         onPolygonClick={(polygon) => {
           const country = polygon as CountryFeature;
           if (country?.properties?.name) {
-            handleCountryClick(country.properties.name);
+            navigate(
+              `/country?country=${encodeURIComponent(country.properties.name)}`
+            );
           }
         }}
         lineHoverPrecision={0}
         enablePointerInteraction={true}
       />
-
-      {/* Country Modal */}
-      {selectedCountry && (
-        <CountryModal
-          open={!!selectedCountry}
-          onClose={closeDialog}
-          countryName={selectedCountry}
-          countryStats={countryStats}
-          films={films}
-          users={users}
-          loading={loading}
-          loadMoreFilms={loadMoreFilms}
-          loadMoreUsers={loadMoreUsers}
-        />
-      )}
     </div>
   );
 };

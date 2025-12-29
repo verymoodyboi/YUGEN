@@ -104,3 +104,37 @@ background-color: #ECFDF5;
 .hidden-scrollbar::-webkit-scrollbar {
   display: none;               /* Chrome/Safari */
 }
+
+
+
+@layer utilities {
+  .animate-modal-in {
+    animation: modal-in 0.25s ease-out forwards;
+  }
+
+  .animate-modal-out {
+    animation: modal-out 0.2s ease-in forwards;
+  }
+
+  @keyframes modal-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes modal-out {
+    from {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95) translateY(8px);
+    }
+  }
+}

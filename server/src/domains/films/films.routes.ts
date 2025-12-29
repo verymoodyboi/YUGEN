@@ -20,7 +20,7 @@ router.post(
   requireAuth,
   upload.fields([{ name: "Film" }, { name: "Poster" }]),
   validate(uploadFilmSchema),
-  uploadFilmController // ✅ Only runs if moderation passes
+  uploadFilmController 
 );
 
 // Edit film

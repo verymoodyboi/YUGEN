@@ -4,7 +4,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useEditProfile } from "../features/profile/hooks/useEditProfile";
 import { FaYoutube, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { useToast } from "../components/toaster";
-
+import { api } from "../lib/api";
+import { useAuth } from "../contexts/AuthContext";
 type Stage = "welcome" | "role" | "filmmaker" | "audience" | "socials" | "done";
 
 const detectPlatform = (url: string) => {
@@ -26,9 +27,29 @@ const ProfileCustomization: React.FC = () => {
   const [stage, setStage] = useState<Stage>("welcome");
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username") || "";
-
+  const { getAccessToken } = useAuth();
   const [userType, setUserType] = useState("audience");
+  const { userInfo } = useAuth();
+  const handleGoHome = async () => {
+    try {
+      const token = await getAccessToken();
+      if (!token) return;
 
+      // Call backend to mark first login complete
+      await api.post(
+        "tools/complete-first-login",
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Navigate to home
+      navigate("/");
+    } catch (err) {
+      console.error("Failed to complete first login:", err);
+      // Optionally still navigate to home even if request fails
+      navigate("/");
+    }
+  };
   const { handleUpdateSocials, loading, handleAddUserType } = useEditProfile(
     () => setStage("done")
   );
@@ -106,8 +127,8 @@ const ProfileCustomization: React.FC = () => {
             <div className="flex gap-4 justify-center mt-6">
               <button
                 onClick={async () => {
-                  await handleAddUserType(userType);
                   setStage("done");
+                  await handleAddUserType(userType);
                 }}
                 className="px-5 py-2 border border-emerald-950 rounded-md hover:bg-emerald-100 transition"
               >
@@ -283,8 +304,8 @@ const ProfileCustomization: React.FC = () => {
 
               <button
                 onClick={async () => {
-                  await handleAddUserType(userType);
                   setStage("done");
+                  await handleAddUserType(userType);
                 }}
                 className="px-4 py-2 border border-emerald-950 rounded-md hover:bg-emerald-100 transition"
               >
@@ -308,7 +329,7 @@ const ProfileCustomization: React.FC = () => {
               </p>
 
               <button
-                onClick={() => navigate("/")}
+                onClick={handleGoHome}
                 className="px-5 py-2 bg-emerald-950 text-emerald-50 rounded-lg shadow hover:scale-105 transition mt-4"
               >
                 Go to Home
