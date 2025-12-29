@@ -75,7 +75,7 @@ function Wrapper({ children }: { children: React.ReactNode }) {
         if (!token) return;
 
         const res = await axios.get(
-          "http://localhost:8080/api/tools/checkFirstTimer",
+          "https://46.101.247.144/api/tools/checkFirstTimer",
           {
             headers: { Authorization: `Bearer ${token}` },
           }

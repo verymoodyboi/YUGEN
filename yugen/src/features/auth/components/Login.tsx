@@ -25,7 +25,7 @@ function LoginForm() {
     }
     setIsDone(true);
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:5173/reset-password",
+      redirectTo: "https://try-yugen/reset-password",
     });
   };
 
