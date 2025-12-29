@@ -23,7 +23,26 @@ services:
     container_name: vod-frontend
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./acme:/var/www/acme
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
     depends_on:
       - backend
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: vod-certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    entrypoint: >
+      sh -c "trap exit TERM;
+             while :; do
+               certbot renew --webroot -w /var/www/certbot;
+               sleep 12h;
+             done"
     restart: unless-stopped
 
