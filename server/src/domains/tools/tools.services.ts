@@ -44,3 +44,28 @@ export async function getUserInfo(userID: string) {
   };
 }
 
+export async function checkFirstTimer(authId: string) {
+  const { data, error } = await supabase
+    .from("users")
+    .select("first_timer")
+    .eq("auth_id", authId)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return { first_timer: data.first_timer === true };
+}
+
+export async function completeFirstLogin(authId: string) {
+  const { error } = await supabase
+    .from("users")
+    .update({ first_timer: false })
+    .eq("auth_id", authId);
+
+  if (error) {
+    console.error("Error updating first_timer:", error.message);
+    throw new Error(error.message);
+  }
+
+  return { success: true, message: "First login completed" };
+}

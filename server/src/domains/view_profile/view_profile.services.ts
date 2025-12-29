@@ -8,8 +8,6 @@ export async function getUserProfile(username: string) {
       f_name,
       l_name,
       age,
-      is_artist,
-      is_admin,
       bio,
       pfp_path,
       films_count,

@@ -117,7 +117,7 @@ export async function combinedSearch(q: string) {
   if (!q?.trim()) return [];
 
   // Parallel queries for speed
-  const [filmsRes, matchRes, accountsRes, challengesRes] = await Promise.all([
+  const [filmsRes, matchRes, accountsRes] = await Promise.all([
     supabase
       .from("films")
       .select("film_title, poster_path, film_uuid, popularity")
@@ -142,24 +142,17 @@ export async function combinedSearch(q: string) {
       .order("sub_count", { ascending: false })
       .limit(10),
 
-    supabase
-      .from("challenges")
-      .select("challenge_name, cover_path, challenge_id, vote_count")
-      .ilike("challenge_name", `%${q}%`)
-      .order("vote_count", { ascending: false })
-      .limit(10),
+   
   ]);
 
   // Handle potential RPC errors gracefully
   if (filmsRes.error) console.error("❌ film search error:", filmsRes.error);
   if (matchRes.error) console.error("❌ match_films error:", matchRes.error);
   if (accountsRes.error) console.error("❌ accounts search error:", accountsRes.error);
-  if (challengesRes.error) console.error("❌ challenges search error:", challengesRes.error);
 
   const films = filmsRes.data ?? [];
   const matched = matchRes.data ?? [];
   const accounts = accountsRes.data ?? [];
-  const challenges = challengesRes.data ?? [];
 
   // Merge traditional + semantic film results, prioritize title matches
   const seen = new Set<string>();
@@ -182,14 +175,9 @@ export async function combinedSearch(q: string) {
     pfp: a.pfp_path?.replace(/\\/g, "/"),
   }));
 
-  const challengeResults = challenges.map((c) => ({
-    type: "challenge",
-    challenge_name: c.challenge_name,
-    cover: c.cover_path?.replace(/\\/g, "/"),
-    challenge_id: c.challenge_id,
-  }));
 
-  return [...filmResults, ...accountResults, ...challengeResults];
+
+  return [...filmResults, ...accountResults];
 }
 
 export async function searchMentions(q: string) {

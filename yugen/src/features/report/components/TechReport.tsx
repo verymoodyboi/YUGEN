@@ -4,9 +4,10 @@ import { useTechnicalReport } from "../hooks/useTechReport";
 
 interface Props {
   onSubmitSuccess?: () => void;
+  onClose?: () => void;
 }
 
-const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess }) => {
+const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess, onClose }) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [reportType, setReportType] = useState("");
   const [report, setReport] = useState("");
@@ -73,7 +74,7 @@ const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess }) => {
           e.preventDefault();
           handleSubmit(reportType, report);
         }}
-        className="flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b]"
+        className="relative flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b]"
       >
         <h2 className="text-3xl font-bold mb-4 text-center">
           Report a Technical Issue

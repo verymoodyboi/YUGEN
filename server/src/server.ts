@@ -1,6 +1,7 @@
 import app from './app.js';
 import logger from './lib/logger.js';
 import "./domains/moderation/moderation.jobs.js";
+
 const port = process.env.PORT || 3000;
 console.log("ENV CHECK:", {
   SUPABASE_URL: process.env.SUPABASE_URL,

@@ -12,6 +12,7 @@ import { useToast } from "./toaster";
 import upload_button_static from "../YugenAssits/upload-button/Regular.png";
 import upload_button_gif from "../YugenAssits/upload-button/Upload button modified REPEAT.gif";
 import { Tooltip } from "@mui/material";
+import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
 function AccHub() {
   const toast = useToast();
   const { userInfo } = useAuth();
@@ -55,8 +56,8 @@ function AccHub() {
   const [isHover, setIsHover] = useState(false);
 
   return (
-    <div className="absolute top-2 right-5 flex items-center justify-between z-10 h-[60px] w-35 rounded-full border-3 border-solid border-emerald-950/100 bg-emerald-50  backdrop-blur-md p-2 gap-0.5">
-      {/* Profile video */}
+    <div className="absolute top-2 right-5 flex items-center justify-between z-10000000000000000 h-[60px] w-35 rounded-full border-3 border-solid border-emerald-950/100 bg-emerald-50  backdrop-blur-md p-2 gap-0.5">
+      {/* upload  */}
       <Tooltip title="Upload">
         <img
           src={isHover ? upload_button_gif : upload_button_static}
@@ -73,7 +74,7 @@ function AccHub() {
           userInfo?.pfp_path
             ? supabase.storage.from("pfps").getPublicUrl(userInfo.pfp_path).data
                 .publicUrl + `?v=${Date.now()}`
-            : undefined
+            : tempPFP
         }
         alt="avatar"
         onClick={toggleMenu}

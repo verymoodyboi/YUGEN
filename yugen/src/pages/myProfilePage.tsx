@@ -14,6 +14,7 @@ import UploadFilmCard from "../features/profile/components/uploadedFilmsCard";
 import { useSearchParams } from "react-router-dom";
 import upload_button_static from "../YugenAssits/upload-button/Regular.png";
 import upload_button_gif from "../YugenAssits/upload-button/Upload button modified REPEAT.gif";
+import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
 
 import {
   FiYoutube,
@@ -43,6 +44,7 @@ const UserProfile: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const paramTab = searchParams.get("to");
+
   const initialTab =
     paramTab === "uploads" || paramTab === "info" || paramTab === "library"
       ? paramTab
@@ -97,13 +99,15 @@ const UserProfile: React.FC = () => {
     <>
       <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-4 flex flex-col gap-6">
         {/* HEADER */}
-        <div className="flex flex-row gap-1 items-start justify-between">
+        <div className="flex flex-wrap gap-2 items-start justify-between w-full max-w-full overflow-x-hidden">
           {/* Profile Info */}
           <div className="flex gap-4 items-center">
             <img
               src={
-                supabase.storage.from("pfps").getPublicUrl(user?.pfp_path || "")
-                  .data.publicUrl + `?v=${Date.now()}`
+                user?.pfp_path
+                  ? supabase.storage.from("pfps").getPublicUrl(user.pfp_path)
+                      .data.publicUrl + `?v=${Date.now()}`
+                  : tempPFP
               }
               alt="pfp"
               className="w-24 h-24 rounded-full border-4 border-emerald-950 object-cover"
@@ -127,19 +131,6 @@ const UserProfile: React.FC = () => {
                 </Tooltip>{" "}
                 {user?.region || "N/A"}
               </p>
-
-              {/* {user?.academic_status && (
-                <p
-                  className={`flex items-center gap-2 ${
-                    user.academic_status === "pending"
-                      ? "text-orange-600"
-                      : "text-emerald-950"
-                  }`}
-                >
-                  <SchoolIcon fontSize="small" />
-                  {user.academic_status}
-                </p>
-              )} */}
 
               {/* Social Links */}
               <div className="flex gap-3 mt-2">
@@ -169,7 +160,7 @@ const UserProfile: React.FC = () => {
                 )}
               </div>
 
-              {/* Bio Preview           */}
+              {/* Bio Preview */}
               {user?.bio && (
                 <div className="flex items-center gap-1">
                   <p className="font-freckle text-emerald-950 text-sm truncate max-w-[50%]">
@@ -189,27 +180,41 @@ const UserProfile: React.FC = () => {
                 </div>
               )}
 
-              <div className="mt-3">
+              <div className="mt-3 flex items-center gap-3">
                 <button
                   onClick={() => setOpenEdit(true)}
-                  className="px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-950 text-emerald-50 font-bold transition hover:scale-105"
+                  className="px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-950 text-emerald-50 font-bold transition hover:scale-105 flex items-center gap-2"
                 >
-                  <FiEdit3 className="inline mr-2" />
+                  <FiEdit3 className="inline" />
                   Edit Profile
                 </button>
+
+                {/* Mobile upload button */}
+                <div className="md:hidden">
+                  <Tooltip title="Upload">
+                    <img
+                      src={isHover ? upload_button_gif : upload_button_static}
+                      onClick={() => navigate("/UploadFilmPage")}
+                      onMouseEnter={() => setIsHover(true)}
+                      onMouseLeave={() => setIsHover(false)}
+                      className="h-15 w-15 cursor-pointer rounded-lg transition-transform duration-300 ease-in-out"
+                      alt="upload_button"
+                    />
+                  </Tooltip>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Upload Visual */}
-          <div>
+          {/* Desktop upload button */}
+          <div className="hidden md:block">
             <Tooltip title="Upload">
               <img
                 src={isHover ? upload_button_gif : upload_button_static}
                 onClick={() => navigate("/UploadFilmPage")}
                 onMouseEnter={() => setIsHover(true)}
                 onMouseLeave={() => setIsHover(false)}
-                className="h-[150px] min-w-[75px] cursor-pointer rounded-lg transition-transform duration-300 ease-in-out "
+                className="h-[150px] min-w-[75px] cursor-pointer rounded-lg transition-transform duration-300 ease-in-out"
                 alt="upload_button"
               />
             </Tooltip>
@@ -287,7 +292,7 @@ const UserProfile: React.FC = () => {
                 <h2 className="text-2xl mb-2">
                   Playlists by @{user?.username}
                 </h2>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4 justify-center">
                   {myPlaylists.map((pl: any, idx: number) => (
                     <PlaylistCard
                       key={idx}

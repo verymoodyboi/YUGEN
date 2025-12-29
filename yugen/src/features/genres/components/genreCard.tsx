@@ -25,7 +25,9 @@ const GenreCard: React.FC<GenreCardProps> = ({
 
   const mainPoster =
     films.length > 0
-      ? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/posters/${films[0].poster_path}`
+      ? `${
+          import.meta.env.VITE_SUPABASE_URL
+        }/storage/v1/object/public/posters/${films[0].poster_path}`
       : undefined;
 
   return (
@@ -65,12 +67,19 @@ const GenreCard: React.FC<GenreCardProps> = ({
               <div
                 key={idx}
                 className="relative aspect-[2/3] w-32 rounded-lg overflow-hidden border border-emerald-950 shadow-sm cursor-pointer group bg-emerald-950"
-                onClick={() => f && navigate(`/watch?uuid=${f.film_uuid}`)}
+                onClick={(e) => {
+                  e.stopPropagation;
+                  if (f) {
+                    navigate(`/watch?uuid=${f.film_uuid}`);
+                  }
+                }}
               >
                 {f ? (
                   <>
                     <img
-                      src={`${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/posters/${f.poster_path}`}
+                      src={`${
+                        import.meta.env.VITE_SUPABASE_URL
+                      }/storage/v1/object/public/posters/${f.poster_path}`}
                       alt={f.film_title || `${name} film`}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />

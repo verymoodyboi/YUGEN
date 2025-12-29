@@ -26,6 +26,30 @@ const PlaylistSection = ({
         `/watchplaylist?uuid=${nextFilm.film_uuid}&playlist=${playlistId}`
       );
   };
+  const handleShufflePlay = () => {
+    if (!films.length) return;
+
+    // If only one film exists, just play it
+    if (films.length === 1) {
+      const onlyFilm = films[0]?.films?.film_uuid;
+      if (onlyFilm)
+        navigate(`/watchplaylist?uuid=${onlyFilm}&playlist=${playlistId}`);
+      return;
+    }
+
+    let pickedFilm;
+    let safety = 0;
+
+    do {
+      const randomIndex = Math.floor(Math.random() * films.length);
+      pickedFilm = films[randomIndex]?.films?.film_uuid;
+      safety++;
+    } while (pickedFilm === currentFilmId && safety < 10);
+
+    if (pickedFilm) {
+      navigate(`/watchplaylist?uuid=${pickedFilm}&playlist=${playlistId}`);
+    }
+  };
 
   if (loading)
     return (
@@ -60,21 +84,16 @@ const PlaylistSection = ({
 
         <div className="flex items-center gap-3">
           <button
-            onClick={toggleShuffle}
-            className={`flex items-center gap-2 px-3 py-2 border-2 rounded-full font-freckle text-sm transition-transform hover:scale-105 ${
-              shuffle
-                ? "bg-emerald-950 text-emerald-50 border-emerald-950"
-                : "bg-emerald-50 text-emerald-950 border-emerald-950"
-            }`}
+            onClick={handleShufflePlay}
+            className="
+    flex items-center gap-2 px-4 py-2
+    border-2 border-emerald-950 rounded-full
+    bg-emerald-950 text-emerald-50
+    font-freckle text-sm
+    hover:scale-105 transition-transform
+  "
           >
-            <FiShuffle /> {shuffle ? "Shuffle On" : "Shuffle Off"}
-          </button>
-
-          <button
-            onClick={handleNextFilm}
-            className="flex items-center gap-2 px-3 py-2 border-2 border-emerald-950 rounded-full bg-emerald-950 text-emerald-50 font-freckle hover:scale-105 transition-transform"
-          >
-            <FiPlay /> Play Next
+            <FiShuffle /> Shuffle
           </button>
         </div>
       </div>

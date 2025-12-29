@@ -81,19 +81,28 @@ const UploadForm: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const onPFPload = (e: any) => {
-    const { naturalWidth, naturalHeight } = e.currentTarget;
+  const onPFPload = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    const { naturalWidth, naturalHeight } = img;
+
     if (naturalWidth < MinWidth || naturalHeight < MinHeight) {
-      toast.warn("Image must be at least 150x150 pixels");
-      setPosterPath(ErrorImg);
+      toast.warn(`Poster must be at least ${MinWidth}x${MinHeight} pixels`);
+
+      setPosterPath("");
+      setCrop(null);
+      setIsModalOpen(false);
+
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
+
     const newCrop = makeAspectCrop(
       { unit: "px", width: MinWidth, height: MinHeight },
       aspectRatio,
       naturalWidth,
       naturalHeight
     );
+
     setCrop(newCrop);
   };
 
@@ -173,14 +182,26 @@ const UploadForm: React.FC = () => {
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
     if (!["image/jpeg", "image/png"].includes(file.type)) {
       toast.warn("Only JPEG or PNG images allowed!");
       return;
     }
-    const path = URL.createObjectURL(file);
-    setPosterFile(file);
-    setPosterPath(path);
-    setIsModalOpen(true);
+
+    const img = new Image();
+    img.onload = () => {
+      if (img.width < MinWidth || img.height < MinHeight) {
+        toast.warn(`Poster must be at least ${MinWidth}x${MinHeight} pixels`);
+        return;
+      }
+
+      const path = URL.createObjectURL(file);
+      setPosterFile(file);
+      setPosterPath(path);
+      setIsModalOpen(true);
+    };
+
+    img.src = URL.createObjectURL(file);
   };
 
   const handleRemoveFile = () => {
@@ -220,9 +241,42 @@ const UploadForm: React.FC = () => {
       return false;
     }
 
-    if (s === 1 && (!title || !thesis || !genres || genres.length === 0)) {
-      toast.warn("Please fill the title, thesis, and at least one genre.");
-      return false;
+    if (s === 1) {
+      if (!title || !thesis || !genres || genres.length === 0) {
+        toast.warn("Please fill the title, thesis, and at least one genre.");
+        return false;
+      }
+
+      // Title validation
+      if (title.length > 100) {
+        toast.warn("Title cannot exceed 100 characters");
+        return false;
+      }
+      if (/\r|\n/.test(title)) {
+        toast.warn("Title cannot contain line breaks");
+        return false;
+      }
+      if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(title)) {
+        // disallow emojis and unusual symbols
+        toast.warn("Title cannot contain emojis or special characters");
+        return false;
+      }
+
+      // Thesis validation
+      if (thesis.length > 1000) {
+        toast.warn("Thesis cannot exceed 1000 characters");
+        return false;
+      }
+      if (/\r|\n/.test(thesis)) {
+        toast.warn("Thesis cannot contain line breaks");
+        return false;
+      }
+      if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(thesis)) {
+        toast.warn("Thesis cannot contain emojis or special characters");
+        return false;
+      }
+
+      return true;
     }
 
     if (s === 2 && !country) {
@@ -316,7 +370,8 @@ const UploadForm: React.FC = () => {
             <circle cx="12" cy="12" r="10" strokeWidth="2" />
           </svg>
           <h2 className="text-2xl font-semibold mb-2">
-            Thanks for your upload!
+            Thanks for uploading to Yūgen, your film is being prepeared for
+            release!
           </h2>
           <p className="mb-4">
             Go back to{" "}
@@ -324,7 +379,10 @@ const UploadForm: React.FC = () => {
               home page
             </a>{" "}
             to continue exploring or go to your{" "}
-            <a className="text-emerald-950 underline" href="#/Profile">
+            <a
+              className="text-emerald-950 underline"
+              href="/profile?to=uploads"
+            >
               profile
             </a>{" "}
             to watch your film!
@@ -366,12 +424,22 @@ const UploadForm: React.FC = () => {
                 <div className={`flex items-center gap-3`}>
                   <div
                     className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-semibold
-                        ${done ? "bg-emerald-950 text-emerald-50" : active ? "bg-emerald-950 text-emerald-50 shadow-lg" : "bg-emerald-50 text-emerald-950 border-2 border-emerald-950"}`}
+                        ${
+                          done
+                            ? "bg-emerald-950 text-emerald-50"
+                            : active
+                              ? "bg-emerald-950 text-emerald-50 shadow-lg"
+                              : "bg-emerald-50 text-emerald-950 border-2 border-emerald-950"
+                        }`}
                   >
                     {i + 1}
                   </div>
                   <div
-                    className={`${active ? "text-emerald-950 font-semibold" : "text-emerald-950/80"}`}
+                    className={`${
+                      active
+                        ? "text-emerald-950 font-semibold"
+                        : "text-emerald-950/80"
+                    }`}
                   >
                     {s}
                   </div>
@@ -391,7 +459,11 @@ const UploadForm: React.FC = () => {
                 <FilePond
                   name="File"
                   allowMultiple={false}
-                  acceptedFileTypes={["video/mp4"]}
+                  acceptedFileTypes={[
+                    "video/mp4",
+                    "video/quicktime", // .mov
+                    "video/x-msvideo", // .avi
+                  ]}
                   files={filmFile ? [filmFile] : []}
                   onupdatefiles={(fileItems: any[]) => {
                     const file = fileItems[0]?.file || null;
@@ -456,22 +528,24 @@ const UploadForm: React.FC = () => {
                       </h3>
                       {posterPath && (
                         <>
-                          <ReactCrop
-                            crop={crop}
-                            keepSelection
-                            aspect={2 / 3}
-                            minWidth={MinWidth}
-                            minHeight={MinHeight}
-                            onChange={(pixelCrop) => setCrop(pixelCrop)}
-                          >
-                            <img
-                              ref={imgRef}
-                              src={posterPath}
-                              alt="poster"
-                              onLoad={onPFPload}
-                              className="w-full object-contain rounded-md border"
-                            />
-                          </ReactCrop>
+                          <div className="max-h-[70vh] overflow-hidden flex justify-center">
+                            <ReactCrop
+                              crop={crop}
+                              keepSelection
+                              aspect={2 / 3}
+                              minWidth={MinWidth}
+                              minHeight={MinHeight}
+                              onChange={(pixelCrop) => setCrop(pixelCrop)}
+                            >
+                              <img
+                                ref={imgRef}
+                                src={posterPath}
+                                alt="poster"
+                                onLoad={onPFPload}
+                                className="max-h-[70vh] w-auto object-contain rounded-md border"
+                              />
+                            </ReactCrop>
+                          </div>
 
                           <div className="mt-3 flex gap-2 justify-end">
                             <button

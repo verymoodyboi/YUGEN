@@ -15,6 +15,7 @@ import { useThoughts } from "../hooks/useThoughts";
 import { useReply } from "../hooks/useReply";
 import { FiFlag, FiCheck } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 
 interface ThoughtsProps {
   filmId: number;
@@ -46,7 +47,9 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
   const [flagOpen, setFlagOpen] = useState(false);
   const [flagTargetReply, setFlagTargetReply] = useState<number | null>(null);
   const [flagReason, setFlagReason] = useState<string>("spam");
-
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+  const [confirmMessage, setConfirmMessage] = useState("");
   const {
     handleVote: replyVote,
     handleDelete: replyDelete,
@@ -153,7 +156,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
               pfpPath && typeof pfpPath === "string"
                 ? supabase.storage.from("pfps").getPublicUrl(pfpPath).data
                     ?.publicUrl
-                : undefined;
+                : tempPFP;
             const displayPfp = publicUrl || "/default-pfp.png";
 
             return (
@@ -195,7 +198,11 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                   {[...Array(10)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-lg ${(thought?.rating ?? 0) > i ? "text-emerald-950" : "text-gray-300"}`}
+                      className={`text-lg ${
+                        (thought?.rating ?? 0) > i
+                          ? "text-emerald-950"
+                          : "text-gray-300"
+                      }`}
                     >
                       ★
                     </span>
@@ -205,7 +212,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                 {thought?.comment && <p className="mb-2">{thought.comment}</p>}
 
                 {/* Actions */}
-                <div className="flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-2 text-sm">
                   <button
                     onClick={() =>
                       handleVote(
@@ -255,37 +262,47 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
 
                   {user?.username && user?.username === userInfo?.username && (
                     <button
-                      onClick={() => handleDelete(tid)}
+                      onClick={() => {
+                        setConfirmMessage(
+                          "Are you sure you want to delete this thought? This action cannot be undone."
+                        );
+                        setConfirmAction(() => () => handleDelete(tid));
+                        setConfirmOpen(true);
+                      }}
                       className="flex items-center gap-1 px-2 py-1 rounded-full text-emerald-950 hover:scale-105 transition-transform"
                     >
-                      <FiTrash className="stroke-[2.5]" /> Delete
+                      <FiTrash className="stroke-[2.5]" />{" "}
+                      <span className="hidden sm:inline">Delete</span>
                     </button>
                   )}
-                  <button
-                    disabled={flaggedItems[`thought-${tid}`]} // disable if already flagged
-                    onClick={() => {
-                      setFlagTargetId(tid);
-                      setFlagTargetType("thought");
-                      setFlagModalOpen(true);
-                    }}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
-                      flaggedItems[`thought-${tid}`]
-                        ? "bg-red-800 text-white cursor-not-allowed"
-                        : "text-emerald-950"
-                    }`}
-                  >
-                    {flaggedItems[`thought-${tid}`] ? (
-                      <>
-                        <FiFlag className="stroke-[2.5]" />
-                        <FiCheck className="stroke-[2.5]" />
-                      </>
-                    ) : (
-                      <>
-                        {" "}
-                        <FiFlag className="stroke-[2.5]" /> Flag
-                      </>
-                    )}
-                  </button>
+                  {user?.username && user?.username === userInfo?.username && (
+                    <button
+                      disabled={flaggedItems[`thought-${tid}`]} // disable if already flagged
+                      onClick={() => {
+                        setFlagTargetId(tid);
+                        setFlagTargetType("thought");
+                        setFlagModalOpen(true);
+                      }}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
+                        flaggedItems[`thought-${tid}`]
+                          ? "bg-red-800 text-white cursor-not-allowed"
+                          : "text-emerald-950"
+                      }`}
+                    >
+                      {flaggedItems[`thought-${tid}`] ? (
+                        <>
+                          <FiFlag className="stroke-[2.5]" />
+                          <FiCheck className="stroke-[2.5]" />
+                        </>
+                      ) : (
+                        <>
+                          {" "}
+                          <FiFlag className="stroke-[2.5]" />{" "}
+                          <span className="hidden sm:inline">Flag</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {/* Replies toggle */}
@@ -295,7 +312,11 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                 >
                   {repliesVisible[tid]
                     ? "Hide Replies"
-                    : `Show Replies (${Array.isArray(thought?.replies) ? thought.replies.length : 0})`}
+                    : `Show Replies (${
+                        Array.isArray(thought?.replies)
+                          ? thought.replies.length
+                          : 0
+                      })`}
                 </button>
 
                 {/* Replies List */}
@@ -313,7 +334,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                               ? supabase.storage
                                   .from("pfps")
                                   .getPublicUrl(rPfpPath).data?.publicUrl
-                              : undefined;
+                              : tempPFP;
 
                           return (
                             <div
@@ -381,38 +402,51 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                                 {rUser?.username &&
                                   rUser?.username === userInfo?.username && (
                                     <button
-                                      onClick={() => replyDelete(rid)}
+                                      onClick={() => {
+                                        setConfirmMessage(
+                                          "Are you sure you want to delete this reply? This action cannot be undone."
+                                        );
+                                        setConfirmAction(
+                                          () => () => replyDelete(rid)
+                                        );
+                                        setConfirmOpen(true);
+                                      }}
                                       className="flex items-center gap-1 px-2 py-1 rounded-full text-emerald-950 hover:scale-105 transition-transform"
                                     >
                                       <FiTrash className="stroke-[2.5]" />{" "}
-                                      Delete
+                                      <span className="hidden sm:inline">
+                                        Delete
+                                      </span>
                                     </button>
                                   )}
-                                <button
-                                  onClick={() => {
-                                    setFlagTargetReply(rid);
-                                    setFlagReason("spam"); // default
-                                    setFlagOpen(true);
-                                  }}
-                                  disabled={
-                                    replyFlags[`reply-flag-${rid}`] === true
-                                  } // disable if already flagged locally/server
-                                  className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
-                                    replyFlags[`reply-flag-${rid}`]
-                                      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                                      : "text-emerald-950"
-                                  }`}
-                                  title={
-                                    replyFlags[`reply-flag-${rid}`]
-                                      ? "Already flagged"
-                                      : "Flag"
-                                  }
-                                >
-                                  <FiFlag className="stroke-[2.5]" /> Flag
-                                  {replyFlags[`reply-flag-${rid}`]
-                                    ? "Flagged"
-                                    : "Flag"}
-                                </button>
+                                {rUser?.username &&
+                                  rUser?.username != userInfo?.username && (
+                                    <button
+                                      onClick={() => {
+                                        setFlagTargetReply(rid);
+                                        setFlagReason("spam"); // default
+                                        setFlagOpen(true);
+                                      }}
+                                      disabled={
+                                        replyFlags[`reply-flag-${rid}`] === true
+                                      } // disable if already flagged locally/server
+                                      className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
+                                        replyFlags[`reply-flag-${rid}`]
+                                          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                          : "text-emerald-950"
+                                      }`}
+                                      title={
+                                        replyFlags[`reply-flag-${rid}`]
+                                          ? "Already flagged"
+                                          : "Flag"
+                                      }
+                                    >
+                                      <FiFlag className="stroke-[2.5]" />{" "}
+                                      <span className="hidden sm:inline">
+                                        Flag
+                                      </span>
+                                    </button>
+                                  )}
                               </div>
                             </div>
                           );
@@ -564,6 +598,40 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                 className="px-4 py-2 rounded bg-emerald-950 text-white"
               >
                 Submit Flag
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-emerald-50 border-4 border-emerald-950 rounded-2xl p-6 max-w-sm w-full shadow-[6px_6px_0_#064e3b]">
+            <h3 className="font-freckle text-xl text-emerald-950 mb-2">
+              Confirm Deletion
+            </h3>
+
+            <p className="text-emerald-950 mb-6">{confirmMessage}</p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setConfirmOpen(false);
+                  setConfirmAction(null);
+                }}
+                className="px-4 py-2 border-2 border-emerald-950 rounded-md hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  confirmAction?.();
+                  setConfirmOpen(false);
+                  setConfirmAction(null);
+                }}
+                className="px-4 py-2 bg-red-700 text-white rounded-md hover:scale-105 transition-transform"
+              >
+                Delete
               </button>
             </div>
           </div>

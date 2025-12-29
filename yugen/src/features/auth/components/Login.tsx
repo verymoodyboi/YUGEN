@@ -25,7 +25,7 @@ function LoginForm() {
     }
     setIsDone(true);
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:5173/resetPassword",
+      redirectTo: "http://localhost:5173/reset-password",
     });
   };
 
@@ -38,10 +38,11 @@ function LoginForm() {
 
     if (error) {
       console.error("Supabase login error:", error);
-      setEmail("");
-      setPassword("");
+
       if (error.message.includes("Email not confirmed")) {
-        return toast.warn("Please confirm your email before logging in.");
+        return navigate(
+          `/pending-email-confirmation?email=${encodeURIComponent(email)}`
+        );
       } else {
         return toast.warn("Invalid email or password!");
       }
@@ -52,7 +53,9 @@ function LoginForm() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user?.email_confirmed_at) {
-        return toast.warn("Please verify your email before logging in.");
+        return navigate(
+          `/pending-email-confirmation?email=${encodeURIComponent(email)}`
+        );
       }
       navigate("/");
     }

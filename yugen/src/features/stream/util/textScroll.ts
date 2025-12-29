@@ -1,3 +1,46 @@
+const startLoopingScroll = (
+  textEl: HTMLSpanElement,
+  containerEl: HTMLDivElement,
+  speedMultiplier: number
+) => {
+  const overflow = textEl.scrollWidth - containerEl.clientWidth;
+  if (overflow <= 2) return;
+
+  const durationMs = Math.min(
+    8000,
+    Math.max(2000, Math.round(overflow * speedMultiplier))
+  );
+
+  let timeoutId: number | null = null;
+
+  const start = () => {
+    // force reflow so transition always restarts
+    textEl.getBoundingClientRect();
+
+    textEl.style.transition = `transform ${durationMs}ms linear`;
+    textEl.style.transform = `translateX(-${overflow}px)`;
+  };
+
+  const resetAndRestart = () => {
+    if (timeoutId) window.clearTimeout(timeoutId);
+
+    timeoutId = window.setTimeout(() => {
+      textEl.style.transition = "none";
+      textEl.style.transform = "translateX(0)";
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(start);
+      });
+    }, 500); // ⏸ pause for 0.5s
+  };
+
+  // prevent stacking listeners
+  textEl.removeEventListener("transitionend", resetAndRestart);
+  textEl.addEventListener("transitionend", resetAndRestart);
+
+  start();
+};
+
 export const startScroll = (
   titleEl: HTMLSpanElement | null,
   titleContainer: HTMLDivElement | null,
@@ -5,20 +48,11 @@ export const startScroll = (
   genreContainer: HTMLDivElement | null
 ) => {
   if (titleEl && titleContainer) {
-    const overflow = titleEl.scrollWidth - titleContainer.clientWidth;
-    if (overflow > 2) {
-      const durationMs = Math.min(6000, Math.max(1200, Math.round(overflow * 10)));
-      titleEl.style.transition = `transform ${durationMs}ms linear`;
-      titleEl.style.transform = `translateX(-${overflow}px)`;
-    }
+    startLoopingScroll(titleEl, titleContainer, 10);
   }
+
   if (genreEl && genreContainer) {
-    const overflow = genreEl.scrollWidth - genreContainer.clientWidth;
-    if (overflow > 2) {
-      const durationMs = Math.min(12000, Math.max(3000, Math.round(overflow * 30)));
-      genreEl.style.transition = `transform ${durationMs}ms linear`;
-      genreEl.style.transform = `translateX(-${overflow}px)`;
-    }
+    startLoopingScroll(genreEl, genreContainer, 30);
   }
 };
 
@@ -27,11 +61,14 @@ export const resetScroll = (
   genreEl: HTMLSpanElement | null
 ) => {
   if (titleEl) {
-    titleEl.style.transition = "transform 300ms ease";
+    titleEl.style.transition = "none";
     titleEl.style.transform = "translateX(0)";
+    titleEl.removeEventListener("transitionend", () => {});
   }
+
   if (genreEl) {
-    genreEl.style.transition = "transform 300ms ease";
+    genreEl.style.transition = "none";
     genreEl.style.transform = "translateX(0)";
+    genreEl.removeEventListener("transitionend", () => {});
   }
 };

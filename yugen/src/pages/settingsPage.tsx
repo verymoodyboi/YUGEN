@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "../lib/supabaseClient";
 import "react-toastify/dist/ReactToastify.css";
 import EditProfile from "../features/profile/components/EditProfile";
+import { useSearchParams } from "react-router-dom";
 import AppLayout from "../layouts/layout-main";
 import LockIcon from "@mui/icons-material/Lock";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
@@ -15,8 +16,12 @@ import { useToast } from "../components/toaster";
 const SettingsPage: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const paramTab = searchParams.get("to");
+  const initialTab =
+    paramTab === "password" || paramTab === "profile" ? paramTab : "profile";
 
-  const [selectedTab, setSelectedTab] = useState("profile");
+  const [selectedTab, setSelectedTab] = useState(initialTab);
   const tabGroups = [
     {
       groupLabel: "Account",
@@ -57,7 +62,7 @@ const SettingsPage: React.FC = () => {
 
     setIsDone(true);
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:5173/#/resetPassword",
+      redirectTo: "http://localhost:5173/reset-password",
     });
     toast.info("Reset password email sent");
   };

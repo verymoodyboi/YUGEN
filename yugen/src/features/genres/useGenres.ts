@@ -22,7 +22,7 @@ export const useGenresWithFilms = () => {
         const enrichedGenres = await Promise.all(
           allGenres.map(async (genre: any) => {
             try {
-              const films = await fetchFilmsByGenre(genre.genre, 0, 6);
+              const films = await fetchFilmsByGenre(genre.genre, 0, 100);
               return { ...genre, films: Array.isArray(films) ? films : [] };
             } catch (err) {
               console.error(`Error fetching films for ${genre.genre}:`, err);

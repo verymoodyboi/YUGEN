@@ -114,7 +114,7 @@ const HeroSection: React.FC = () => {
           <img
             src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
             alt="floating icon"
-            className="w-[8vw] h-[16vh] object-contain opacity-50"
+            className="min-w-[100px] min-h-[100px] object-contain opacity-50"
           />
         </div>
       ))}
@@ -132,7 +132,7 @@ const HeroSection: React.FC = () => {
       </div>
 
       {/* Title */}
-      <div className="mt-10 text-center">
+      <div className="m-10 text-center">
         <p className="text-3xl font-freckle text-emerald-950 tracking-tight">
           Don’t consume, but{" "}
           <span className="text-3xl title text-emerald-700">CURATE.</span> Don’t
@@ -142,13 +142,13 @@ const HeroSection: React.FC = () => {
       </div>
 
       {/* Subtitle */}
-      <p className="mt-3 text-emerald-950/70 text-lg italic text-center">
+      <p className="m-3 text-emerald-950/70 text-lg italic text-center">
         Discover unique stories told by filmmakers around the world, and share
         your stories with the world.
       </p>
 
       {/* CTA Button */}
-      <div className="mt-6 flex space-x-4">
+      <div className="m-6 flex space-x-4">
         <button
           onClick={() => navigate("/login")}
           className="px-20 py-3 border-2 border-emerald-950 rounded-xl 

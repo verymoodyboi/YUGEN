@@ -23,7 +23,6 @@ import playlistsRouter from './domains/playlists/playlists.routes.js';
 import watchlistRouter from './domains/watchlist/watchlist.routes.js';
 import searchRouter from './domains/search/search.routes.js';
 import recommendationsRouter from './domains/recommendations/recommendations.routes.js';
-import challengesRouter from './domains/challenges/challenges.routes.js';
 import view_profileRouter from './domains/view_profile/view_profile.routes.js';
 import exploreRouter from "./domains/explore/explore.router.js"
 import globeRoutes from "./domains/globe/globe.routes.js"
@@ -82,7 +81,6 @@ app.use('/api/playlists', playlistsRouter);
 app.use('/api/watchlist', watchlistRouter);
 app.use('/api/search', searchRouter);
 app.use('/api/recommendations', recommendationsRouter);
-app.use('/api/challenges', challengesRouter);
 app.use('/api/view_profile', view_profileRouter);
 app.use("/api/explore",exploreRouter)
 app.use("/api/globe",globeRoutes)

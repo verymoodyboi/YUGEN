@@ -4,7 +4,7 @@ import supabase from "../../lib/supabase.js";
 
 const SIGHTENGINE_USER = process.env.SIGHTENGINE_USER!;
 const SIGHTENGINE_SECRET = process.env.SIGHTENGINE_SECRET!;
-const CALLBACK_URL = process.env.SIGHTENGINE_WEBHOOK_URL!; // e.g. https://your-tunnel/.../api/moderation/callback?secret=...
+const CALLBACK_URL = 'http://46.101.247.144/api/moderation/callback'; // e.g. https://your-tunnel/.../api/moderation/callback?secret=...
 const WEBHOOK_SECRET = process.env.SIGHTENGINE_WEBHOOK_SECRET!;
 
 /**
@@ -35,6 +35,7 @@ export async function submitVideoForModeration(filmUuid: string, publicUrl: stri
     const requestId = res.data?.request?.id ?? null;
     const mediaId = res.data?.media?.id ?? null;
     const mediaUri = res.data?.media?.uri ?? null;
+console.log("Callback IDs:", { requestId, mediaId });
 
     if (!requestId) throw new Error("Missing request id from Sightengine response");
 
@@ -194,7 +195,11 @@ export async function checkPosterForModeration(filmUuid: string, posterUrl: stri
 export async function handleModerationCallback(payload: any) {
   try {
     // payload can be { request: { id }, media: { id, uri }, data: { status, frames } } or older shapes
-    const requestId = payload?.request ?? payload?.request?.id ?? null;
+const requestId =
+  payload?.request?.id ??
+  payload?.request_id ??
+  payload?.requestId ??
+  null;
     const media = payload?.media ?? null;
     // `data` or `summary` may contain the frames and status
     const data = payload?.data ?? payload?.summary ?? payload ?? null;

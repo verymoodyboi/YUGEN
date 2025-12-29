@@ -221,3 +221,76 @@ export async function updateName(userId: string, playlist_uuid: string,newName:s
 
   return { updated_to: newName };
 }
+
+
+
+//saving playlists
+export async function toggleSavePlaylist(userId: string, playlist_uuid: string) {
+  const { data: existing } = await supabase
+    .from("saved_playlists")
+    .select("id")
+    .eq("auth_id", userId)
+    .eq("playlist_id", playlist_uuid)
+    .maybeSingle();
+
+  if (existing) {
+    await supabase
+      .from("saved_playlists")
+      .delete()
+      .eq("auth_id", userId)
+      .eq("playlist_id", playlist_uuid);
+
+    return { saved: false };
+  }
+
+  await supabase.from("saved_playlists").insert({
+    auth_id: userId,
+    playlist_id: playlist_uuid,
+  });
+
+  return { saved: true };
+}
+export async function checkSaved(userId: string, playlist_uuid: string) {
+  const { data, error } = await supabase
+    .from("saved_playlists")
+    .select("id")
+    .eq("auth_id", userId)
+    .eq("playlist_id", playlist_uuid)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return !!data;
+}
+export async function getMySavedPlaylists(userId: string) {
+  const { data, error } = await supabase
+    .from("saved_playlists")
+    .select(`
+      playlist:playlists (
+        playlist_uuid,
+        playlist_name,
+        is_public,
+        film_count,
+        creator:users!inner (
+          username,
+          pfp_path
+        ),
+        playlist_films:playlists_films (
+          film_index,
+          films (
+            film_uuid,
+            film_title,
+            poster_path,
+            release_date,
+            film_duration,
+            avg_rating
+          )
+        )
+      )
+    `)
+    .eq("auth_id", userId);
+
+  if (error) throw new Error(error.message);
+
+  // flatten
+  return data?.map((row: any) => row.playlist) ?? [];
+}

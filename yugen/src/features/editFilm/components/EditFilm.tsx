@@ -340,9 +340,39 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     if (onDone) {
       onDone();
     }
-    if (!title || !thesis || genres.length === 0) {
-      toast.warn("Please fill title, thesis, and select genres.");
-      return;
+
+    if (!title || !thesis || !genres || genres.length === 0) {
+      toast.warn("Please fill the title, thesis, and at least one genre.");
+      return false;
+    }
+
+    // Title validation
+    if (title.length > 100) {
+      toast.warn("Title cannot exceed 100 characters");
+      return false;
+    }
+    if (/\r|\n/.test(title)) {
+      toast.warn("Title cannot contain line breaks");
+      return false;
+    }
+    if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(title)) {
+      // disallow emojis and unusual symbols
+      toast.warn("Title cannot contain emojis or special characters");
+      return false;
+    }
+
+    // Thesis validation
+    if (thesis.length > 1000) {
+      toast.warn("Thesis cannot exceed 1000 characters");
+      return false;
+    }
+    if (/\r|\n/.test(thesis)) {
+      toast.warn("Thesis cannot contain line breaks");
+      return false;
+    }
+    if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(thesis)) {
+      toast.warn("Thesis cannot contain emojis or special characters");
+      return false;
     }
 
     setIsSaving(true);

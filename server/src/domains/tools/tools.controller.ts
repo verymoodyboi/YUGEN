@@ -71,3 +71,38 @@ export async function getUserInfo(req: Request, res: Response) {
   }
 }
 
+
+
+export async function checkFirstTimer(req: Request, res: Response) {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const authId = req.user.id;
+    const { first_timer } = await service.checkFirstTimer(authId);
+
+    return res.status(200).json({ first_timer });
+  } catch (err) {
+    console.error("Error checking first timer:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+}
+
+
+export async function completeFirstLoginController(req: Request, res: Response) {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const authId = req.user.id;
+
+    const result = await service.completeFirstLogin(authId);
+
+    return res.status(200).json(result);
+  } catch (err: any) {
+    console.error("Error completing first login:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+}

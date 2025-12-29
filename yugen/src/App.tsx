@@ -25,11 +25,13 @@ import ProfileCustomization from "./pages/cotumizeProfilePage.tsx";
 import GenresPage from "./pages/genresPage.tsx";
 import FilmRollPickerPage from "./pages/randomFilmPage.tsx";
 import FilmGlobePage from "./pages/filmGlobePage.tsx";
+import CountryPage from "./pages/countryPage.tsx";
 import FlaggedFilmsPage from "./pages/admin/flaggedFilmsPage.tsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage.tsx";
 import WaitingComfirmation from "./pages/waitingEmailComfirmationPage.tsx";
 import AppLayout from "./layouts/layout-main.tsx";
+import Legal from "./pages/legal/termsAndPoliciesPage.tsx";
 function Yugen() {
   return (
     <div>
@@ -37,6 +39,8 @@ function Yugen() {
         <Router>
           <Routes>
             <Route path="/about" element={<LandingPage />} />
+            <Route path="/terms" element={<Legal />} />
+
             <Route path="/login" element={<LoginPage />} />
             <Route path="/SignUpPage" element={<SignUpPage />} />
             <Route path="/googleSignUp" element={<SignUpGoogle />} />
@@ -45,7 +49,7 @@ function Yugen() {
               element={<ProfileCustomization />}
             />
             <Route
-              path="/resetPassword"
+              path="/reset-password"
               element={
                 <Wrapper>
                   <ResetPassword />
@@ -53,7 +57,7 @@ function Yugen() {
               }
             />
             <Route
-              path="/confirmation:pending:"
+              path="/pending-email-confirmation"
               element={<WaitingComfirmation />}
             />
 
@@ -130,6 +134,14 @@ function Yugen() {
                 element={
                   <Wrapper>
                     <FilmGlobePage />
+                  </Wrapper>
+                }
+              />
+              <Route
+                path="/country"
+                element={
+                  <Wrapper>
+                    <CountryPage />
                   </Wrapper>
                 }
               />

@@ -4,7 +4,7 @@ import supabase from "../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import PillNav from "../SmallComponents/PillNav";
 import { useState, useRef, useEffect } from "react";
-
+import { FiSearch, FiBell } from "react-icons/fi";
 function NavBar() {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -43,11 +43,24 @@ function NavBar() {
         logoAlt="Company Logo"
         items={[
           {
-            label: "🔍︎ Search",
+            label: (
+              <span className="flex items-center gap-2">
+                <FiSearch size={16} />
+                Search
+              </span>
+            ),
             href: "/",
             onClick: handleOpenSearch,
           },
-          { label: "🕭 Notifications", href: "/notifications" },
+          {
+            label: (
+              <span className="flex items-center gap-2">
+                <FiBell size={16} />
+                Notifications
+              </span>
+            ),
+            href: "/notifications",
+          },
         ]}
         activeHref="/"
         className="custom-nav"
@@ -61,7 +74,7 @@ function NavBar() {
       {/* Top Drawer for Search */}
       {searchOpen && (
         <div
-          className={`fixed inset-0 z-[1000] flex flex-col items-center justify-start bg-transparent pointer-events-none`}
+          className={`fixed inset-0 z-[100000000000000000] flex flex-col items-center justify-start bg-transparent pointer-events-none`}
         >
           <div
             ref={drawerRef}
@@ -71,7 +84,13 @@ function NavBar() {
                         ${animateOpen ? "translate-y-0" : "-translate-y-full"}`}
           >
             <div className="w-full h-[10vh] flex justify-center items-center">
-              <SearchBar />
+              <SearchBar
+                onSearch={() => {
+                  // Close drawer on search
+                  setAnimateOpen(false);
+                  setTimeout(() => setSearchOpen(false), 300); // match transition
+                }}
+              />
             </div>
           </div>
         </div>

@@ -1,40 +1,41 @@
-# ---- Stage 1: Build frontend ----
+# ---- Stage 1: Build ----
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Install dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copy frontend source
+# Copy source
 COPY . .
 
-# Build args for Supabase
+# Build-time env vars for Vite
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
 ARG VITE_API_BASE_URL
 
-# Set env vars so Vite can pick them up
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
-# Build the production app
+# Build app
 RUN npm run build
 
-# ---- Stage 2: Serve with Nginx ----
+
+# ---- Stage 2: Nginx ----
 FROM nginx:alpine
 
-# Copy frontend build output
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Remove default config
+RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy custom Nginx config for SPA + API proxy
+# Copy custom config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
+# Copy built assets
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Nginx listens on 80
 EXPOSE 80
 
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
-

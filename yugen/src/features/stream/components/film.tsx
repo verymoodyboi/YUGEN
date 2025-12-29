@@ -21,6 +21,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useFilms } from "../hooks/useFilm";
 import Loading from "../../../components/loading_kickflip";
 import { Tooltip } from "@mui/material";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 
 interface Props {
   filmId: string;
@@ -65,10 +66,12 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
           <div className="flex items-center gap-4 p-2">
             <img
               src={
-                supabase.storage
-                  .from("pfps")
-                  .getPublicUrl(filmData?.uploader?.pfp_path || "").data
-                  .publicUrl
+                filmData?.uploader?.pfp
+                  ? supabase.storage
+                      .from("pfps")
+                      .getPublicUrl(filmData?.uploader?.pfp).data.publicUrl +
+                    `?v=${Date.now()}`
+                  : tempPFP
               }
               alt="pfp"
               className="w-20 h-20 rounded-full border-2 border-emerald-950 cursor-pointer"
@@ -77,7 +80,9 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                   navigate("/profile");
                 } else {
                   navigate(
-                    `/@?username=${encodeURIComponent(filmData?.uploader?.username)}`
+                    `/@?username=${encodeURIComponent(
+                      filmData?.uploader?.username
+                    )}`
                   );
                 }
               }}
@@ -106,9 +111,25 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               <h1 className="text-3xl font-freckle text-emerald-950">
                 {filmData.film_title}
               </h1>
-              <p className="text-emerald-950">
-                {filmData.film_genre || "Genres not available"}
-              </p>
+              <span className="inline-block font-freckle text-sm text-emerald-950/70">
+                {(() => {
+                  try {
+                    // If it's a JSON string, parse it
+                    const parsed =
+                      typeof filmData.film_genre === "string"
+                        ? JSON.parse(filmData.film_genre)
+                        : filmData.film_genre;
+
+                    // If it's now an array, join it
+                    return Array.isArray(parsed)
+                      ? parsed.join(", ")
+                      : parsed || "No genre";
+                  } catch {
+                    // fallback if parsing fails
+                    return filmData.film_genre || "No genre";
+                  }
+                })()}
+              </span>
             </div>
 
             <div className="flex flex-col items-center gap-2 text-emerald-950">
@@ -166,7 +187,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
           <div className="flex flex-col gap-2 w-full">
             {/* Thesis */}
             <div
-              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer"
+              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer hover:scale-101 transition"
               onClick={() =>
                 setExpanded(expanded === "thesis" ? false : "thesis")
               }
@@ -187,49 +208,50 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
 
             {/* Cast */}
             <div
-              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer"
+              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer hover:scale-101 "
               onClick={() => setExpanded(expanded === "cast" ? false : "cast")}
             >
-              <div className="p-2 font-freckle text-lg text-emerald-950">
+              <div className="p-2 font-freckle text-lg text-emerald-950 transition">
                 Cast
               </div>
               {expanded === "cast" && (
                 <div className="p-2 text-emerald-950">
-                  {filmData.cast && JSON.parse(filmData.cast).length > 0 ? (
-                    JSON.parse(filmData.cast).map(
-                      (member: any, idx: number) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
-                        >
-                          {member.actor.includes("@") && (
-                            <img
-                              src={
-                                member.pfp
-                                  ? supabase.storage
-                                      .from("pfps")
-                                      .getPublicUrl(member.pfp).data.publicUrl
-                                  : ""
-                              }
-                              alt={member.actor}
-                              className="w-8 h-8 rounded-full object-cover"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (username === member.actor.replace(/^@/, ""))
-                                  navigate("/profile");
-                                else
-                                  navigate(
-                                    `/@?username=${encodeURIComponent(member.actor.replace(/^@/, ""))}`
-                                  );
-                              }}
-                            />
-                          )}
-                          <span>
-                            {member.actor} as {member.character}
-                          </span>
-                        </div>
-                      )
-                    )
+                  {filmData.cast && filmData.cast.length > 0 ? (
+                    filmData.cast.map((member: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
+                      >
+                        {member.actor.includes("@") && (
+                          <img
+                            src={
+                              member?.pfp
+                                ? supabase.storage
+                                    .from("pfps")
+                                    .getPublicUrl(member?.pfp).data.publicUrl +
+                                  `?v=${Date.now()}`
+                                : tempPFP
+                            }
+                            alt={member.actor}
+                            className="w-8 h-8 rounded-full object-cover"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (username === member.actor.replace(/^@/, ""))
+                                navigate("/profile");
+                              else
+                                navigate(
+                                  `/@?username=${encodeURIComponent(
+                                    member.actor.replace(/^@/, "")
+                                  )}`
+                                );
+                            }}
+                          />
+                        )}
+                        <span>
+                          {member.actor} as {member.character}
+                        </span>
+                      </div>
+                    ))
                   ) : (
                     <div className="text-emerald-950/70"> Not available</div>
                   )}
@@ -239,7 +261,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
 
             {/* Crew */}
             <div
-              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer"
+              className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer hover:scale-101 transition"
               onClick={() => setExpanded(expanded === "crew" ? false : "crew")}
             >
               <div className="p-2 font-freckle text-lg text-emerald-950">
@@ -247,44 +269,43 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               </div>
               {expanded === "crew" && (
                 <div className="p-2 text-emerald-950">
-                  {filmData.crew && JSON.parse(filmData.crew).length > 0 ? (
-                    JSON.parse(filmData.crew).map(
-                      (member: any, idx: number) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
-                        >
-                          {member.name.includes("@") && (
-                            <img
-                              src={
-                                member.pfp
-                                  ? supabase.storage
-                                      .from("pfps")
-                                      .getPublicUrl(member.pfp).data.publicUrl
-                                  : ""
-                              }
-                              alt={member.name}
-                              className="w-8 h-8 rounded-full object-cover"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (username === member.name.replace(/^@/, ""))
-                                  navigate("/profile");
-                                else
-                                  navigate(
-                                    `/@?username=${encodeURIComponent(
-                                      member.name.replace(/^@/, "")
-                                    )}`
-                                  );
-                              }}
-                            />
-                          )}
+                  {filmData.crew && filmData.crew.length > 0 ? (
+                    filmData.crew.map((member: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
+                      >
+                        {member.name.includes("@") && (
+                          <img
+                            src={
+                              member?.pfp
+                                ? supabase.storage
+                                    .from("pfps")
+                                    .getPublicUrl(member?.pfp).data.publicUrl +
+                                  `?v=${Date.now()}`
+                                : tempPFP
+                            }
+                            alt={member.name}
+                            className="w-8 h-8 rounded-full object-cover"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (username === member.name.replace(/^@/, ""))
+                                navigate("/profile");
+                              else
+                                navigate(
+                                  `/@?username=${encodeURIComponent(
+                                    member.name.replace(/^@/, "")
+                                  )}`
+                                );
+                            }}
+                          />
+                        )}
 
-                          <span>
-                            {member.role}: {member.name}
-                          </span>
-                        </div>
-                      )
-                    )
+                        <span>
+                          {member.role}: {member.name}
+                        </span>
+                      </div>
+                    ))
                   ) : (
                     <div className="text-emerald-950/70"> Not available</div>
                   )}
@@ -315,6 +336,9 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                       onSubmitSuccess={() =>
                         setTimeout(() => setIsReportOpen(false), 2000)
                       }
+                      onClose={() => {
+                        setIsReportOpen(false);
+                      }}
                     />
                   </Wrapper>
                 </Dialog.Panel>
@@ -352,17 +376,25 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                   </h2>
 
                   {/* Playlist list */}
-                  <div className="flex flex-col gap-3">
+                  {/* Playlist list */}
+                  <div
+                    className="
+    flex flex-col gap-3
+    max-h-64
+    overflow-y-auto
+    pr-1
+  "
+                  >
                     {myPlaylists.map((pl, idx) => (
                       <button
                         key={idx}
                         onClick={() => handleAddToPlaylist(pl.playlist_uuid)}
                         className="
-                flex items-center gap-2 p-3 text-left
-                border-2 border-emerald-950 rounded-xl
-                hover:bg-emerald-100 transition
-                text-emerald-950
-              "
+        flex items-center gap-2 p-3 text-left
+        border-2 border-emerald-950 rounded-xl
+        hover:bg-emerald-100 transition
+        text-emerald-950
+      "
                       >
                         {listedPlaylists[pl.playlist_uuid] ? (
                           <FiCheckSquare />

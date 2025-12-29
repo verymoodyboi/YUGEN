@@ -120,6 +120,13 @@ if (step === 3) {
     return false;
   }
 
+  // New username validations
+  const usernamePattern = /^[\w.-]{1,30}$/; // allows letters, numbers, underscore, dot, dash, max 30 chars
+  if (!usernamePattern.test(username)) {
+    toast.warn("Username must be 1-30 characters, no spaces, emojis, or line breaks");
+    return false;
+  }
+
   if (!usernameValidated) {
     const ok = await checkUsernameAvailable(username);
     setUsernameAvailable(ok);
@@ -132,17 +139,25 @@ if (step === 3) {
     toast.warn("Username already in use");
     return false;
   }
-
-  if (!bio || bio.trim().length < 10) {
-    toast.warn("Bio too short");
-    return false;
-  }
+ if (!bio || bio.trim().length < 10) {
+      toast.warn("Bio too short");
+      return false;
+    }
+    if (bio.length > 500) {
+      toast.warn("Bio cannot exceed 500 characters");
+      return false;
+    }
+    if (/\r|\n/.test(bio)) {
+      toast.warn("Bio cannot contain line breaks");
+      return false;
+    }
   if (!croppedFile && !rawFile) {
     toast.warn("Profile picture required");
     return false;
   }
   return true;
 }
+
     return false;
   }
 

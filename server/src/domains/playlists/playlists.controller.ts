@@ -158,3 +158,45 @@ export async function updateName(req: Request, res: Response) {
     res.status(500).json({ error: err.message });
   }
 }
+
+//saving playlists
+export async function toggleSavePlaylist(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    const { playlist_uuid } = req.body;
+
+    if (!playlist_uuid) {
+      return res.status(400).json({ error: "playlist_uuid is required" });
+    }
+
+    const result = await service.toggleSavePlaylist(userId!, playlist_uuid);
+    res.json(result);
+  } catch (err: any) {
+    console.error("Toggle save playlist error:", err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function checkSaved(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    const playlist_uuid = req.query.playlist_uuid as string;
+
+    const saved = await service.checkSaved(userId!, playlist_uuid);
+    res.json({ saved });
+  } catch (err: any) {
+    console.error("Check saved error:", err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+export async function getMySavedPlaylists(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+    const playlists = await service.getMySavedPlaylists(userId!);
+    res.json({ playlists });
+  } catch (err: any) {
+    console.error("Fetch saved playlists error:", err);
+    res.status(500).json({ error: err.message });
+  }
+}

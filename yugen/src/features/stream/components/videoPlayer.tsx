@@ -41,50 +41,39 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   // Step 2: Initialize player safely *after* DOM is ready
   useEffect(() => {
-    if (!videoRef.current || playerRef.current) return;
+    if (!videoRef.current || playerRef.current || !videoUrl) return;
 
-    const ensureDomReady = () => {
-      if (!document.body.contains(videoRef.current!)) {
-        // Retry next frame if not yet in DOM
-        requestAnimationFrame(ensureDomReady);
-        return;
+    const player = videojs(videoRef.current, {
+      controls: true,
+      preload: "auto",
+      fluid: true,
+      responsive: true,
+      sources: [
+        {
+          src: videoUrl,
+          type: "video/mp4",
+        },
+      ],
+    });
+
+    playerRef.current = player;
+
+    player.on("ended", () => onEnded?.());
+
+    player.on("timeupdate", () => {
+      const current = player.currentTime();
+      const duration = player.duration();
+      if (!watched70Ref.current && duration > 0 && current / duration >= 0.7) {
+        watched70Ref.current = true;
+        on70?.();
       }
-
-      // ✅ Initialize player safely now
-      const player = videojs(videoRef.current!, {
-        controls: true,
-        preload: "auto",
-        fluid: true,
-        responsive: true,
-      });
-
-      playerRef.current = player;
-
-      player.on("ended", () => onEnded?.());
-      player.on("timeupdate", () => {
-        const current = player.currentTime();
-        const duration = player.duration();
-        if (
-          !watched70Ref.current &&
-          duration > 0 &&
-          current / duration >= 0.7
-        ) {
-          watched70Ref.current = true;
-          on70?.();
-        }
-      });
-    };
-
-    // Schedule initialization once DOM is ready
-    requestAnimationFrame(ensureDomReady);
+    });
 
     return () => {
-      if (playerRef.current) {
-        playerRef.current.dispose();
-        playerRef.current = null;
-      }
+      player.dispose();
+      playerRef.current = null;
     };
-  }, [onEnded, on70]);
+  }, [videoUrl, onEnded, on70]);
 
   // Step 3: Update video source reactively
   useEffect(() => {

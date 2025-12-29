@@ -77,7 +77,7 @@ const AccProfile: React.FC = () => {
     <>
       <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-4 flex flex-col gap-6">
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
+        <div className="flex flex-wrap gap-2 items-start justify-between w-full max-w-full overflow-x-hidden">
           <div className="flex gap-4 items-center">
             <img
               src={
@@ -257,7 +257,7 @@ const AccProfile: React.FC = () => {
                 <h2 className="text-2xl mb-2">
                   Playlists by @{user?.username}
                 </h2>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-4 justify-center">
                   {myPlaylists.map((pl, idx) => (
                     <PlaylistCard key={idx} playlist={pl} />
                   ))}

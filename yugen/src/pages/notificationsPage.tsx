@@ -73,8 +73,18 @@ const NotificationsPage: React.FC = () => {
                       {film.film_title}
                     </h3>
                     <p className="text-emerald-900/80 text-sm">
-                      {film.film_genre || "No genre"}
+                      {Array.isArray(film.film_genre) &&
+                      film.film_genre.length > 0
+                        ? film.film_genre
+                            .map((g) =>
+                              g === "docuentry"
+                                ? "Documentary"
+                                : g.charAt(0).toUpperCase() + g.slice(1)
+                            )
+                            .join(", ")
+                        : "No genre"}
                     </p>
+
                     <p className="text-emerald-900/70 text-sm italic">
                       {formatRelativeTime(film.release_date)}
                     </p>

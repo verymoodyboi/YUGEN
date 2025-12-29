@@ -31,25 +31,25 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
         selected ? "bg-emerald-100" : ""
       }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         {/* Poster */}
         <img
           src={posterUrl}
           alt={film.film_title}
-          className="w-20 h-28 object-cover rounded-md border border-emerald-950"
+          className="w-20 h-28 object-cover rounded-md border border-emerald-950 flex-shrink-0"
         />
 
         {/* Film info */}
-        <div className="flex-1 flex flex-col">
-          <h3 className="font-freckle text-xl">{film.film_title}</h3>
-          <p className="text-sm text-emerald-950/70">
+        <div className="flex-1 flex flex-col min-w-0">
+          <h3 className="font-freckle text-xl truncate">{film.film_title}</h3>
+          <p className="text-sm text-emerald-950/70 truncate">
             {film.film_genre || "No genre"}
           </p>
 
           {/* Uploader info under genre */}
           {uploader?.username && (
             <div
-              className="flex items-center gap-1 mt-1 w-32 flex-shrink-0"
+              className="flex items-center gap-1 mt-1 w-full sm:w-32 flex-shrink-0"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(
@@ -79,12 +79,12 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
         </div>
 
         {/* Views & Rating */}
-        <div className="flex flex-col items-end text-sm text-emerald-950">
+        <div className="flex sm:flex-col items-start sm:items-end gap-2 text-sm text-emerald-950 flex-shrink-0 mt-2 sm:mt-0">
           <div className="flex items-center gap-1">
-            <FiEye size={16} /> {film.view_count ?? 0}
+            <FiEye size={16} /> <span>{film.view_count ?? 0}</span>
           </div>
           <div className="flex items-center gap-1">
-            <FiStar size={16} /> {film.avg_rating ?? "N/A"}
+            <FiStar size={16} /> <span>{film.avg_rating ?? "N/A"}</span>
           </div>
         </div>
       </div>

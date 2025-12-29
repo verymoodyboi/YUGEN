@@ -9,7 +9,7 @@ export const socialsSchema = Joi.object({
 export const editProfileSchema = Joi.object({
   FName: Joi.string().allow('', null).optional(),
   LName: Joi.string().allow('', null).optional(),
-  UserName: Joi.string().min(3).allow('', null).optional(),
+  UserName: Joi.string().min(3).optional(),
   Bio: Joi.string().max(500).allow('', null).optional(),
   Gender: Joi.string().allow('', null).optional(),
   Region: Joi.allow('', null).optional(),

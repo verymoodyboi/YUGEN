@@ -11,6 +11,9 @@ import EditFilm from "../features/editFilm/components/EditFilm";
 import BookMarkIcon from "../YugenAssits/fn_icons/Bookmark not added.svg";
 import BookMarkIconheck from "../YugenAssits/fn_icons/Bookmark added.svg";
 import Edit_icon from "../YugenAssits/fn_icons/Edit_Film.svg";
+import { motion, useAnimation } from "framer-motion";
+import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
+
 // Icons
 import { FiEdit, FiEye, FiStar } from "react-icons/fi";
 import { BsBookmarkPlus, BsBookmarkCheck } from "react-icons/bs";
@@ -23,15 +26,37 @@ interface FilmCardProps {
 
 const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
   const { userInfo, getAccessToken } = useAuth();
+  const controls = useAnimation();
+
   const { watchlisted, handleToggleWatchlist, uploader } = useFilm(
     film.film_uuid,
     film.uploader_id
   );
   const [openThesis, setOpenThesis] = React.useState(false);
   const [openEdit, setOpenEdit] = React.useState(false);
+  const [showModal, setShowModal] = React.useState(false);
+
   const [openRating, setOpenRating] = React.useState(false);
   const navigate = useNavigate();
 
+  const isMobile = React.useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 768px)").matches;
+  }, []);
+  React.useEffect(() => {
+    if (isMobile) {
+      startScroll(
+        titleTextRef.current,
+        titleContainerRef.current,
+        genreTextRef.current,
+        genreContainerRef.current
+      );
+    }
+
+    return () => {
+      resetScroll(titleTextRef.current, genreTextRef.current);
+    };
+  }, [isMobile]);
   const titleContainerRef = React.useRef<HTMLDivElement | null>(null);
   const titleTextRef = React.useRef<HTMLSpanElement | null>(null);
   const genreContainerRef = React.useRef<HTMLDivElement | null>(null);
@@ -53,17 +78,21 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
   return (
     <div
       onClick={handleCardClick}
-      onMouseEnter={() =>
-        startScroll(
-          titleTextRef.current,
-          titleContainerRef.current,
-          genreTextRef.current,
-          genreContainerRef.current
-        )
-      }
-      onMouseLeave={() =>
-        resetScroll(titleTextRef.current, genreTextRef.current)
-      }
+      onMouseEnter={() => {
+        if (!isMobile) {
+          startScroll(
+            titleTextRef.current,
+            titleContainerRef.current,
+            genreTextRef.current,
+            genreContainerRef.current
+          );
+        }
+      }}
+      onMouseLeave={() => {
+        if (!isMobile) {
+          resetScroll(titleTextRef.current, genreTextRef.current);
+        }
+      }}
       className="relative flex flex-col rounded-xl overflow-hidden aspect-[2/3] w-46 h-90
              bg-emerald-50 border-2 border-emerald-950 shadow-md  mt-2
              transition-transform duration-300 hover:scale-105 mb-3 mt-3 ml-3 mr-1"
@@ -94,13 +123,13 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
               <img
                 src={BookMarkIconheck}
                 alt="Bookmarked"
-                className="w-[18px] h-[18px]"
+                className="w-[24px] h-[24px]"
               />
             ) : (
               <img
                 src={BookMarkIcon}
                 alt="Add to bookmarks"
-                className="w-[18px] h-[18px]"
+                className="w-[24px] h-[24px]"
               />
             )}
           </span>
@@ -117,7 +146,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
             }}
           >
             <span className="rounded-full p-[4px] flex items-center justify-center">
-              <img src={Edit_icon} alt="Edited" className="w-[18px] h-[18px]" />{" "}
+              <img src={Edit_icon} alt="Edited" className="w-[24px] h-[24px]" />{" "}
             </span>
           </button>
         </Tooltip>
@@ -170,7 +199,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setOpenThesis(true);
+              setShowModal(true);
             }}
             className="hover:scale-110 transition-transform flex flex-col items-center text-emerald-950/70 cursor-pointer"
           >
@@ -191,10 +220,10 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
           {uploader.pfp ? (
             <img
               src={
-                userInfo?.pfp_path
+                uploader?.pfp
                   ? supabase.storage.from("pfps").getPublicUrl(uploader.pfp)
                       .data.publicUrl + `?v=${Date.now()}`
-                  : undefined
+                  : tempPFP
               }
               alt="User avatar"
               className="w-5 h-5 rounded-full object-cover"
@@ -262,6 +291,137 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
               onClick={(e) => e.stopPropagation()}
             >
               <EditFilm onDone={() => setOpenEdit(false)} filmInfo={film} />
+            </div>
+          </div>,
+          document.body
+        )}
+      {showModal &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Overlay */}
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setShowModal(false)}
+            />
+
+            {/* Modal content */}
+            <div
+              className="relative bg-emerald-50 rounded-2xl p-6 border-4 border-emerald-950 shadow-[12px_12px_0_0_#064e3b] max-h-[90vh] hidden-scrollbar overflow-y-auto"
+              onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing
+            >
+              {/* X Close Button */}
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-emerald-950 font-bold text-[23px] rounded-full bg-emerald-50 border-2 border-emerald-950 hover:bg-emerald-100 transition"
+              >
+                ×
+              </button>
+
+              {/* Modal body */}
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                {/* Poster */}
+                <div className="flex-shrink-0 rounded-md overflow-hidden border-4 border-emerald-950 w-[288px] h-[432px]">
+                  <img
+                    src={
+                      supabase.storage
+                        .from("posters")
+                        .getPublicUrl(film.poster_path).data.publicUrl +
+                      (film.updated_at
+                        ? `?v=${new Date(film.updated_at).getTime()}`
+                        : "")
+                    }
+                    alt={film.film_title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Details */}
+                <div className="flex-1">
+                  <h2 className="text-3xl font-bold mb-2 mt-3">
+                    {film.film_title}
+                  </h2>
+                  <div className="flex items-center gap-4 text-sm mb-3">
+                    <span className="italic">{film.country}</span>
+                    <span>• {film.film_duration}</span>
+                    <span className="flex items-center gap-1">
+                      <FiStar /> {film.avg_rating ?? 0}
+                    </span>
+                    <span>• {new Date(film.release_date).getFullYear()}</span>
+                  </div>
+
+                  <p className="mb-3 text-sm text-emerald-900">{film.thesis}</p>
+
+                  {/* Uploader */}
+                  {uploader.username && (
+                    <div
+                      className="hover:scale-105 flex items-center gap-1 w-[50%] cursor-pointer mb-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(
+                          `/@?username=${encodeURIComponent(uploader.username)}`
+                        );
+                      }}
+                    >
+                      {uploader.pfp ? (
+                        <img
+                          src={
+                            uploader?.pfp
+                              ? supabase.storage
+                                  .from("pfps")
+                                  .getPublicUrl(uploader?.pfp).data.publicUrl +
+                                `?v=${Date.now()}`
+                              : tempPFP
+                          }
+                          alt="User avatar"
+                          className="w-5 h-5 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-5 h-5 rounded-full bg-emerald-700" />
+                      )}
+                      <span className="text-[11px]">
+                        {uploader.username.length > 9
+                          ? `${uploader.username.slice(0, 9)}...`
+                          : uploader.username}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Genres */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {film.film_genre?.map((g: string) => (
+                      <span
+                        key={g}
+                        className="px-3 py-1 rounded-full border border-emerald-950 text-xs"
+                      >
+                        {g}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        navigate(
+                          `/watch?uuid=${encodeURIComponent(film.film_uuid)}`
+                        );
+                      }}
+                      className="px-5 py-2 rounded-lg bg-emerald-950 text-emerald-50 border-4 border-emerald-950 hover:scale-105 transition-transform"
+                    >
+                      Watch Film
+                    </button>
+                    <button
+                      onClick={() => setShowModal(false)}
+                      className="px-5 py-2 rounded-lg border-2 border-emerald-950 hover:scale-105 transition-transform"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>,
           document.body

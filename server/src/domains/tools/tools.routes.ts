@@ -8,6 +8,13 @@ const router = Router();
 router.get("/emailCheck", controller.checkEmail);
 router.get("/usernameCheck", controller.checkUsername);
 router.get("/getUserInfo", controller.getUserInfo);
+router.get("/checkFirstTimer",  requireAuth, controller.checkFirstTimer);
+router.post(
+  "/complete-first-login",
+  requireAuth,
+  controller.completeFirstLoginController
+);
+
 
 
 export default router;

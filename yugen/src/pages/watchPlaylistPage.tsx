@@ -40,7 +40,7 @@ const WatchPlaylist: React.FC = () => {
             <Film filmId={uuid} />
 
             {/* Vintage Tabs */}
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-1 mt-6">
               <button
                 onClick={() => setActiveTab("thoughts")}
                 className={`px-4 py-2 rounded-full border-2 font-bold shadow transition transform hover:-translate-y-[1px] ${
@@ -54,7 +54,7 @@ const WatchPlaylist: React.FC = () => {
 
               <button
                 onClick={() => setActiveTab("playlist")}
-                className={`px-4 py-2 rounded-full border-2 font-bold shadow transition transform hover:-translate-y-[1px] ${
+                className={`px-2 py-2 rounded-full border-2 font-bold shadow transition transform hover:-translate-y-[1px] ${
                   activeTab === "playlist"
                     ? "bg-emerald-950 text-emerald-50 border-emerald-50"
                     : "bg-emerald-50 text-emerald-950 border-emerald-950 hover:bg-emerald-100"

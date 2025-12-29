@@ -102,6 +102,12 @@ export const useThoughts = (filmId: number, refreshKey?: number) => {
     return false;
   }
 
+ if (!comment || comment == "") {
+    toast.warn("Please add a comment before submitting your thought");
+    return false;
+  }
+
+
   try {
     const token = await getAccessToken();
     await api.post(

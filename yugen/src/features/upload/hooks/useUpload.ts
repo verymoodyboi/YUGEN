@@ -78,9 +78,9 @@ const navigate=useNavigate()
 
   // === Submit film upload ===
   const handleSubmit = async () => {
-          setTimeout(() => {
-             navigate('/profile?to=uploads')
-          }, 5000); 
+          // setTimeout(() => {
+          //    navigate('/profile?to=uploads')
+          // }, 5000); 
     if (!filmFile || !posterFile || !title || !thesis || genres.length === 0) {
       toast.warn("Please fill all required fields before uploading");
       return;
@@ -103,9 +103,9 @@ formData.append("Genres", JSON.stringify(genres));
 
       await uploadFilm(token, formData, setUploadProgress);
            setIsDone(true);
-               setTimeout(() => {
-      navigate('/profile?to=uploads');
-    }, 10000);
+    //            setTimeout(() => {
+    //   navigate('/profile?to=uploads');
+    // }, 10000);
 
 
       toast.success("Upload complete!");

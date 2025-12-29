@@ -2,25 +2,26 @@ version: "3.9"
 
 services:
   backend:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: vod-backend
+    build: ./server
+    container_name: vod-backend-dev
+    working_dir: /usr/src/app
+    volumes:
+      - ./server:/usr/src/app
+      - backend_node_modules:/usr/src/app/node_modules
     ports:
       - "8080:3000"
     env_file:
       - ./server/.env
-    restart: unless-stopped
+    command: npm run dev
 
   frontend:
-    build:
-      context: ./yugen
-      dockerfile: Dockerfile
-      args:
-        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
-        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
-    container_name: vod-frontend
+    image: node:20-alpine
+    container_name: vod-frontend-dev
+    working_dir: /app
+    volumes:
+      - ./yugen:/app
+      - frontend_node_modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host"
     ports:
       - "80:80"
       - "443:443"
