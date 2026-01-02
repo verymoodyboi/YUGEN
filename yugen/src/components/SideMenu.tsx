@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -17,6 +18,11 @@ type SideMenuProps = {
   onOpenContact?: () => void;
 };
 
+interface NavLink {
+  title: string;
+  path: string;
+}
+
 function SideMenu({
   mode = "desktop",
   onOpenReport,
@@ -29,7 +35,11 @@ function SideMenu({
   const SectionTitle = ({ children }: { children: string }) => (
     <h2 className="text-2xl title text-emerald-50  mb-2">{children}</h2>
   );
-
+  const navigationLinks: NavLink[] = [
+    { title: "Home", path: "/login" },
+    { title: "Login", path: "/login" },
+    { title: "Terms and Conditions", path: "/terms" },
+  ];
   const MenuButton = ({
     label,
     onClick,
@@ -158,6 +168,18 @@ function SideMenu({
         icon={report_icon}
         onClick={onOpenReport}
       />
+      <nav className="flex flex-col space-y-3 flex-1 md:items-center">
+        <h3 className="text-emerald-50 title text-xl">Navigate</h3>
+        {navigationLinks.map((link) => (
+          <a
+            key={link.title}
+            href={link.path}
+            className="text-emerald-100/80 hover:text-emerald-50 hover:translate-x-1 transition-all duration-200"
+          >
+            {link.title}
+          </a>
+        ))}
+      </nav>
     </div>
   );
 
