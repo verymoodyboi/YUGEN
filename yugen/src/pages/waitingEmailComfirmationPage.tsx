@@ -27,9 +27,6 @@ function WaitingConfirmation() {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: cleanEmail,
-        options: {
-          emailRedirectTo: "http://localhost:5173/profile-customization",
-        },
       });
 
       if (error) throw error;
@@ -44,7 +41,7 @@ function WaitingConfirmation() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-emerald-50 p-6">
+    <div className="min-h-screen flex items-center justify-center  p-6">
       <div
         className="
           flex flex-col items-center text-center gap-4

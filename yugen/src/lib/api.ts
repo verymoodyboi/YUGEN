@@ -1,9 +1,9 @@
 // src/lib/api.ts
 import axios from "axios";
-import supabase from "./supabaseClient";// or your auth util if different
+import supabase from "./supabaseClient";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "https://46.101.247.144/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
 

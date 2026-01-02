@@ -26,7 +26,6 @@ export async function registerUser(body: any, file?: Express.Multer.File) {
         pfp_path: pfpFileName,
         join_date: joinDate,
       },
-      emailRedirectTo: "https://your-app.com/welcome", // optional but recommended
     },
   });
 
@@ -55,7 +54,7 @@ export async function registerUser(body: any, file?: Express.Multer.File) {
       throw new Error("Failed to upload profile picture");
     }
   } else {
-    logger.warn("No PFP file uploaded with registration");
+    logger.warn("No PFP file uploaded with registraton");
   }
 
   return { success: true, message: "Registration successful!" };

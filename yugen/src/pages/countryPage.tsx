@@ -165,11 +165,21 @@ const CountryPage: React.FC = () => {
               >
                 <img
                   src={
-                    uploader.pfp
-                      ? supabase.storage.from("pfps").getPublicUrl(uploader.pfp)
-                          .data.publicUrl + `?v=${Date.now()}`
+                    uploader?.pfp_path
+                      ? supabase.storage
+                          .from("pfps")
+                          .getPublicUrl(uploader?.pfp_path).data.publicUrl +
+                        (uploader?.updated_at
+                          ? `?v=${new Date(uploader?.updated_at).getTime()}`
+                          : "")
                       : tempPFP
                   }
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (img.src !== tempPFP) {
+                      img.src = tempPFP;
+                    }
+                  }}
                   className="w-12 h-12 rounded-full object-cover border border-emerald-900/20"
                 />
                 <div className="font-freckle text-lg text-emerald-950 truncate max-w-[150px]">
@@ -232,7 +242,7 @@ const CountryPage: React.FC = () => {
           <div className="text-center py-10 text-emerald-900">Loading…</div>
         ) : activeTab === "films" ? (
           displayedFilms.length ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8 place-items-center">
               {displayedFilms.map((film) => (
                 <FilmCard key={film.film_uuid} film={film} />
               ))}
@@ -243,7 +253,7 @@ const CountryPage: React.FC = () => {
             </div>
           )
         ) : displayedUsers.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-8 place-items-center">
             {displayedUsers.map((u) => (
               <AccountCard key={u.username} account={u} />
             ))}

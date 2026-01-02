@@ -15,9 +15,11 @@ import { title } from 'process';
 
 
 // Upload film
+
 export async function uploadFilm(req: Request) {
   const { Title, Thesis, Country, Crew, Cast } = req.body;
   const uploaderId = req.user!.id;
+
   const filmFile = (req.files as any)?.Film?.[0];
   const posterFile = (req.files as any)?.Poster?.[0];
   const Genres = JSON.parse(req.body.Genres || "[]");
@@ -26,40 +28,65 @@ export async function uploadFilm(req: Request) {
     throw new Error("Missing required files");
   }
 
-  const uuid = crypto.randomUUID();
+  const filmUuid = crypto.randomUUID();
+
+  // Read buffers immediately
+  const filmStream = fs.createReadStream(filmFile.path);
+  const posterStream = fs.createReadStream(posterFile.path);
 
   const duration = await getDuration(filmFile.path);
 
-  const film = {
-    film_uuid: uuid,
-    film_title: Title,
-    thesis: Thesis,
-    film_genre: Genres,
-    uploader_id: uploaderId,
-    country: Country,
-    crew: Crew ? JSON.parse(Crew) : null,
-    cast: Cast ? JSON.parse(Cast) : null,
-    film_path: `${uuid}.mp4`,
-    poster_path: `${uuid}.jpg`,
-    film_duration: duration,
-    moderation_status: "queued",
-  };
+  // 1️⃣ Insert DB row
+  const { error } = await supabase.from("films").insert([
+    {
+      film_uuid: filmUuid,
+      film_title: Title,
+      thesis: Thesis,
+      film_genre: Genres,
+      uploader_id: uploaderId,
+      country: Country,
+      crew: Crew ? JSON.parse(Crew) : null,
+      cast: Cast ? JSON.parse(Cast) : null,
+      film_path: `${filmUuid}.mp4`,
+      poster_path: `${filmUuid}.jpg`,
+      film_duration: duration,
+      moderation_status: "queued",
+    },
+  ]);
 
-  await supabase.from("films").insert([film]);
+  if (error) throw error;
 
-  // 🔑 enqueue job instead of processing
+  // 2️⃣ Upload originals (FAST, streaming, async I/O)
+  await Promise.all([
+    supabase.storage
+      .from("original_film_files")
+      .upload(`${filmUuid}.mp4`, filmStream, {
+        contentType: filmFile.mimetype,
+        upsert: true,
+      }),
+
+    supabase.storage
+      .from("posters")
+      .upload(`${filmUuid}.jpg`, posterStream, {
+        contentType: posterFile.mimetype,
+        upsert: true,
+      }),
+  ]);
+
+  // 3️⃣ Enqueue processing job
   await supabase.from("jobs").insert([
     {
       type: "PROCESS_FILM",
       payload: {
-        filmUuid: uuid,
-        filmTmpPath: filmFile.path,
-        posterTmpPath: posterFile.path,
+        filmUuid,
+        filmKey: `${filmUuid}.mp4`,
+        posterKey: `${filmUuid}.jpg`,
       },
     },
   ]);
 
-  return { success: true, film_uuid: uuid };
+  // 4️⃣ Respond immediately
+  return { success: true, film_uuid: filmUuid };
 }
 
 // Edit film

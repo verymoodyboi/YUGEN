@@ -13,6 +13,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from "@mui/icons-material/Check";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
+import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useToast } from "../../../components/toaster";
@@ -84,13 +85,20 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
                 <img
                   src={
                     pf.films?.poster_path
-                      ? `${
-                          supabase.storage
-                            .from("posters")
-                            .getPublicUrl(pf.films.poster_path).data.publicUrl
-                        }?v=${Date.now()}`
-                      : "/placeholder.png"
+                      ? supabase.storage
+                          .from("posters")
+                          .getPublicUrl(pf.films?.poster_path).data.publicUrl +
+                        (pf.updated_at
+                          ? `?v=${new Date(pf.updated_at).getTime()}`
+                          : "")
+                      : tempPoster
                   }
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (img.src !== tempPoster) {
+                      img.src = tempPoster;
+                    }
+                  }}
                   alt={pf.films?.film_title || "Film poster"}
                   className="w-full h-full object-cover"
                 />

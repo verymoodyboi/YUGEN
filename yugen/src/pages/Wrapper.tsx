@@ -4,6 +4,7 @@ import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import Loading from "../components/loading_kickflip";
 import supabase from "../lib/supabaseClient";
+import { api } from "../lib/api";
 
 type AuthStatus =
   | "loading"
@@ -17,7 +18,6 @@ type AuthStatus =
 function Wrapper({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const { getAccessToken } = useAuth();
-
   /* ------------------------------------------------------------------ */
   /* STEP 1: BASIC AUTH CHECK (NO PROVIDER LOGIC)                        */
   /* ------------------------------------------------------------------ */
@@ -74,12 +74,9 @@ function Wrapper({ children }: { children: React.ReactNode }) {
         const token = await getAccessToken();
         if (!token) return;
 
-        const res = await axios.get(
-          "https://46.101.247.144/api/tools/checkFirstTimer",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await api.get("/tools/checkFirstTimer", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         /**
          * Backend response decides everything

@@ -149,7 +149,7 @@ const SignUpForm: React.FC = () => {
   );
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen flex items-center justify-center bg-emerald-50 text-emerald-950 font-freckle p-6">
+    <div className="min-h-screen flex items-center justify-center  text-emerald-950 font-freckle p-6">
       <div className="fixed top-0 left-4 z-50 flex items-center gap-2">
         <img
           src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"

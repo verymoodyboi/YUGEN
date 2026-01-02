@@ -117,7 +117,7 @@ const FilmPicker: React.FC<any> = () => {
   const hasSelectedFilm = selectedFilm !== null;
 
   return (
-    <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle py-12">
+    <div className="min-h-screen  text-emerald-950 font-freckle py-12 relative z-10">
       <div
         ref={containerRef}
         className="relative w-full overflow-hidden rounded-2xl border-4 border-emerald-950 bg-emerald-950/50 shadow-[inset_0_20px_30px_rgba(0,0,0,0.3),0_6px_20px_rgba(0,0,0,0.2)] h-[342px]"

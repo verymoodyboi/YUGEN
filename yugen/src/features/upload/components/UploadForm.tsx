@@ -20,9 +20,11 @@ import { useUpload } from "../hooks/useUpload";
 import { useGenresWithFilms } from "../../genres/useGenres";
 import { useToast } from "../../../components/toaster";
 import uploading_animation from "../../../YugenAssits/upload-button/Yugen Upload.gif";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+
 registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
-const steps = ["Upload", "Details", "Additional details"];
+const steps = ["Upload", "Details", "more details"];
 
 const UploadForm: React.FC = () => {
   const toast = useToast();
@@ -421,7 +423,7 @@ const UploadForm: React.FC = () => {
             const done = i < activeStep;
             return (
               <div key={s} className="flex-1 px-2">
-                <div className={`flex items-center gap-3`}>
+                <div className={`flex-row items-center gap-1`}>
                   <div
                     className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-semibold
                         ${
@@ -689,12 +691,11 @@ const UploadForm: React.FC = () => {
               </div>
 
               <div className="pt-2 border-t border-emerald-950/20">
-                <h4 className="font-semibold mb-2">Crew info (optional)</h4>
-                <div className="flex gap-2 items-center mb-3">
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center mb-3">
                   <select
                     value={crewRole}
                     onChange={(e) => setCrewRole(e.target.value)}
-                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
+                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50 w-full sm:w-auto"
                   >
                     <option value="">Select role</option>
                     {crewRoles
@@ -706,7 +707,7 @@ const UploadForm: React.FC = () => {
                       ))}
                   </select>
 
-                  <div className="relative flex-1">
+                  <div className="relative flex-1 w-full">
                     <input
                       value={crewName}
                       onChange={(e) => {
@@ -716,7 +717,6 @@ const UploadForm: React.FC = () => {
                       placeholder="Start typing a username..."
                       className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
                     />
-                    {/* suggestions dropdown */}
                     {crewSearchInput.trim() !== "" && (
                       <div className="absolute left-0 right-0 mt-1 bg-emerald-50 border-2 border-emerald-950 rounded-lg max-h-56 overflow-y-auto z-40">
                         {crewLoading ? (
@@ -728,7 +728,7 @@ const UploadForm: React.FC = () => {
                             <div
                               key={opt.username}
                               onClick={() => {
-                                setCrewName(opt.username);
+                                setCrewName("@" + opt.username);
                                 setCrewPFP(opt.pfp);
                                 setCrewSearchInput("");
                                 setCrewSearchResults([]);
@@ -741,7 +741,7 @@ const UploadForm: React.FC = () => {
                                     ? supabase.storage
                                         .from("pfps")
                                         .getPublicUrl(opt.pfp).data.publicUrl
-                                    : ""
+                                    : tempPFP
                                 }
                                 alt={opt.username}
                                 className="w-8 h-8 rounded-full object-cover border"
@@ -772,7 +772,8 @@ const UploadForm: React.FC = () => {
                       setCrewRole("");
                       setCrewPFP("");
                     }}
-                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50"
+                    type="button"
+                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 w-full sm:w-auto"
                   >
                     Add
                   </button>
@@ -795,7 +796,7 @@ const UploadForm: React.FC = () => {
                                   ? supabase.storage
                                       .from("pfps")
                                       .getPublicUrl(member.pfp).data.publicUrl
-                                  : ""
+                                  : tempPFP
                               }
                               alt={member.name}
                               className="w-8 h-8 rounded-full object-cover"
@@ -822,14 +823,16 @@ const UploadForm: React.FC = () => {
 
               <div className="pt-4 border-t border-emerald-950/20">
                 <h4 className="font-semibold mb-2">Cast info (optional)</h4>
-                <div className="flex gap-2 items-center mb-3">
+
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center mb-3">
                   <input
                     value={character}
                     onChange={(e) => setCharacter(e.target.value)}
                     placeholder="Character"
-                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
+                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50 w-full sm:w-auto"
                   />
-                  <div className="relative flex-1">
+
+                  <div className="relative flex-1 w-full">
                     <input
                       value={actor}
                       onChange={(e) => {
@@ -863,7 +866,7 @@ const UploadForm: React.FC = () => {
                                     ? supabase.storage
                                         .from("pfps")
                                         .getPublicUrl(opt.pfp).data.publicUrl
-                                    : ""
+                                    : tempPFP
                                 }
                                 alt={opt.username}
                                 className="w-8 h-8 rounded-full object-cover border"
@@ -892,7 +895,8 @@ const UploadForm: React.FC = () => {
                       setActor("");
                       setActorPFP("");
                     }}
-                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50"
+                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 w-full sm:w-auto"
+                    type="button"
                   >
                     Add
                   </button>
@@ -914,13 +918,12 @@ const UploadForm: React.FC = () => {
                                   ? supabase.storage
                                       .from("pfps")
                                       .getPublicUrl(member.pfp).data.publicUrl
-                                  : ""
+                                  : tempPFP
                               }
                               alt={member.actor}
                               className="w-8 h-8 rounded-full object-cover"
                             />
                           )}
-
                           <span>{member.actor}</span>
                         </div>
                       </div>

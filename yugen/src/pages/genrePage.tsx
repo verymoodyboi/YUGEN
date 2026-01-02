@@ -44,7 +44,7 @@ const GenrePage: React.FC = () => {
     <>
       <div className="flex flex-col space-y-10 text-emerald-950 ">
         {/* === HERO SECTION === */}
-        <div className="relative w-full rounded-3xl overflow-hidden border border-emerald-950/30 shadow-lg bg-emerald-50 ">
+        <div className=" w-full rounded-3xl  overflow-hidden border border-emerald-950/30 shadow-lg bg-emerald-950 ">
           {/* Background Poster (faded) */}
           {mainPoster && (
             <>

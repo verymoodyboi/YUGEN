@@ -3,7 +3,6 @@ import * as React from "react";
 import { useSearchParams } from "react-router-dom";
 import Film from "../features/stream/components/film";
 import { useAddHistory } from "../features/history/useHistory";
-import AppLayout from "../layouts/layout-main";
 import PlaylistSection from "../features/playlist/components/playlist";
 import Thoughts from "../features/thoughts/components/thoughts";
 import { useSimilarFilms } from "../features/recommendations/hooks/useSimilarFilms";
@@ -33,7 +32,7 @@ const WatchPlaylist: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-6 p-4 bg-emerald-50 min-h-screen text-emerald-950 font-freckle">
+      <div className="flex flex-col gap-6 p-4  min-h-screen text-emerald-950 font-freckle">
         {uuid ? (
           <>
             {/* Film */}

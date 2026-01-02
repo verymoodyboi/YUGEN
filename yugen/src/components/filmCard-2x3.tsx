@@ -13,6 +13,7 @@ import BookMarkIconheck from "../YugenAssits/fn_icons/Bookmark added.svg";
 import Edit_icon from "../YugenAssits/fn_icons/Edit_Film.svg";
 import { motion, useAnimation } from "framer-motion";
 import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
+import tempPoster from "../YugenAssits/Cover_Placeholder.png";
 
 // Icons
 import { FiEdit, FiEye, FiStar } from "react-icons/fi";
@@ -27,18 +28,28 @@ interface FilmCardProps {
 const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
   const { userInfo, getAccessToken } = useAuth();
   const controls = useAnimation();
-
+  const posterUrl = film.poster_path
+    ? supabase.storage.from("posters").getPublicUrl(film.poster_path).data
+        .publicUrl +
+      (film.updated_at ? `?v=${new Date(film.updated_at).getTime()}` : "")
+    : tempPoster;
   const { watchlisted, handleToggleWatchlist, uploader } = useFilm(
     film.film_uuid,
     film.uploader_id
   );
+
   const [openThesis, setOpenThesis] = React.useState(false);
   const [openEdit, setOpenEdit] = React.useState(false);
   const [showModal, setShowModal] = React.useState(false);
 
   const [openRating, setOpenRating] = React.useState(false);
   const navigate = useNavigate();
-
+  const PFPurl = uploader?.pfp
+    ? supabase.storage.from("pfps").getPublicUrl(uploader?.pfp).data.publicUrl +
+      (uploader?.updated_at
+        ? `?v=${new Date(uploader?.updated_at).getTime()}`
+        : "")
+    : tempPFP;
   const isMobile = React.useMemo(() => {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(max-width: 768px)").matches;
@@ -99,13 +110,15 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
     >
       {/* Poster */}
       <img
-        src={
-          supabase.storage.from("posters").getPublicUrl(film.poster_path).data
-            .publicUrl +
-          (film.updated_at ? `?v=${new Date(film.updated_at).getTime()}` : "")
-        }
+        src={posterUrl}
         alt="Film thumbnail"
         className="w-full aspect-[2/3] object-cover border-b-2 border-emerald-950"
+        onError={(e) => {
+          const img = e.currentTarget;
+          if (img.src !== tempPoster) {
+            img.src = tempPoster;
+          }
+        }}
       />
 
       {/* Watchlist Icon */}
@@ -217,20 +230,17 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
             navigate(`/@?username=${encodeURIComponent(uploader?.username)}`);
           }}
         >
-          {uploader.pfp ? (
-            <img
-              src={
-                uploader?.pfp
-                  ? supabase.storage.from("pfps").getPublicUrl(uploader.pfp)
-                      .data.publicUrl + `?v=${Date.now()}`
-                  : tempPFP
+          <img
+            src={PFPurl}
+            onError={(e) => {
+              const img = e.currentTarget;
+              if (img.src !== tempPFP) {
+                img.src = tempPFP;
               }
-              alt="User avatar"
-              className="w-5 h-5 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-5 h-5 rounded-full bg-emerald-700" />
-          )}
+            }}
+            alt="User avatar"
+            className="w-5 h-5 rounded-full object-cover"
+          />
 
           <span className="text-[11px]">
             {uploader.username && uploader.username.length > 9
@@ -379,7 +389,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
                           className="w-5 h-5 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="w-5 h-5 rounded-full bg-emerald-700" />
+                        tempPFP
                       )}
                       <span className="text-[11px]">
                         {uploader.username.length > 9

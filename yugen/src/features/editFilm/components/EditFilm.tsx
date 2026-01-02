@@ -18,6 +18,10 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useEditFilmApi from "../hooks/useEditFilm";
 import { useGenresWithFilms } from "../../genres/useGenres";
+import { useUpload } from "../../upload/hooks/useUpload";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
+
 registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
 const crewRoles = ["Director", "DP", "Editor", "Producer", "Writer"];
@@ -68,6 +72,22 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     submitEdit,
     deleteFilmByUuid,
   } = useEditFilmApi();
+  const {
+    crewList,
+    cast,
+
+    crewSearchInput,
+    crewSearchResults,
+    crewLoading,
+    actorSearchInput,
+    actorSearchResults,
+    actorLoading,
+
+    setCrewList,
+    setCast,
+    setCrewSearchInput,
+    setActorSearchInput,
+  } = useUpload();
 
   // Delete film modal state
   const [openDelete, setOpenDelete] = useState(false);
@@ -278,60 +298,11 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
         : []
   );
   const [country, setCountry] = useState(filmInfo.country || "");
-  const [crewList, setCrewList] = useState<any[]>(() => {
-    try {
-      if (Array.isArray(filmInfo.crew)) return filmInfo.crew;
-      if (typeof filmInfo.crew === "string") return JSON.parse(filmInfo.crew);
-      return [];
-    } catch (e) {
-      console.error("Failed to parse crew:", e);
-      return [];
-    }
-  });
-  const [cast, setCast] = useState<any[]>(() => {
-    try {
-      if (Array.isArray(filmInfo.cast)) return filmInfo.cast;
-      if (typeof filmInfo.cast === "string") return JSON.parse(filmInfo.cast);
-      return [];
-    } catch (e) {
-      console.error("Failed to parse cast:", e);
-      return [];
-    }
-  });
 
   const [crewName, setCrewName] = useState("");
   const [crewRole, setCrewRole] = useState("");
   const [actor, setActor] = useState("");
   const [character, setCharacter] = useState("");
-
-  const handleAddCrew = () => {
-    if (!crewRole || !crewName) {
-      toast.warn("Please select a role and enter a name.");
-      return;
-    }
-    if (crewList?.some((m) => m.role === crewRole)) {
-      toast.warn("Role already added.");
-      return;
-    }
-    setCrewList((prev) => [
-      ...prev,
-      { role: crewRole, name: crewName, pfp: crewPFP },
-    ]);
-    setCrewName("");
-    setCrewRole("");
-    setCrewPFP("");
-  };
-
-  const handleAddCast = () => {
-    if (!character || !actor) {
-      toast.warn("Please enter a character and an actor.");
-      return;
-    }
-    setCast((prev) => [...prev, { character, actor, pfp: actorPFP }]);
-    setCharacter("");
-    setActor("");
-    setActorPFP("");
-  };
 
   // Submit update (calls the hook's submitEdit, which calls service)
   const handleSubmit = async (e: React.FormEvent) => {
@@ -416,70 +387,11 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   };
 
   // simple autocomplete UI for users
-  const UserAutocomplete = ({
-    value,
-    onChange,
-    placeholder,
-    loading,
-  }: {
-    value: string;
-    onChange: (val: string, pfp?: string | undefined) => void;
-    placeholder?: string;
-    loading?: boolean;
-  }) => {
-    const [open, setOpen] = useState(false);
-    return (
-      <div className="relative w-full">
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => {
-            const val = e.target.value;
-            onChange(val);
-            setSearchInput(val); // <- use the hook's setter so the hook's effect runs
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => {
-            // small delay so click on result registers
-            setTimeout(() => setOpen(false), 150);
-          }}
-          placeholder={placeholder}
-          className="w-full rounded-md border-2 border-emerald-950 bg-emerald-50 px-3 py-2 text-emerald-950 focus:outline-none"
-        />
-        {loading && (
-          <div className="absolute right-2 top-2">
-            <div className="w-3 h-3 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin" />
-          </div>
-        )}
+  const posterUrl = filmInfo.poster_path
+    ? supabase.storage.from("posters").getPublicUrl(filmInfo.poster_path).data
+        .publicUrl
+    : tempPoster;
 
-        {open && searchResults.length > 0 && (
-          <ul className="absolute z-50 mt-2 w-full max-h-44 overflow-y-auto bg-emerald-50 border-2 border-emerald-950 rounded-md shadow-md">
-            {searchResults.map((opt, i) => (
-              <li
-                key={i}
-                onMouseDown={() => {
-                  onChange(opt.username, opt.pfp);
-                  setOpen(false);
-                  setSearchInput("");
-                }}
-                className="flex items-center gap-3 px-3 py-2 hover:bg-emerald-100 cursor-pointer"
-              >
-                <img
-                  src={getPublic("pfps", opt.pfp) || "/default-avatar.png"}
-                  alt={opt.username}
-                  className="w-8 h-8 rounded-full object-cover border border-emerald-950"
-                />
-                <span className="text-emerald-950 font-freckle">
-                  {opt.username}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    );
-  };
   return (
     <div className="w-screen h-screen overflow-auto bg-emerald-50 text-emerald-950 p-6">
       <div className="max-w-[1200px] mx-auto rounded-2xl p-4">
@@ -582,11 +494,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                       />
                     ) : (
                       <img
-                        src={
-                          getPublic("posters", filmInfo.poster_path) ||
-                          "/placeholder.jpg"
-                        }
-                        alt="current poster"
+                        src={posterUrl}
+                        alt="Film thumbnail"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          if (img.src !== tempPoster) {
+                            img.src = tempPoster;
+                          }
+                        }}
                         className="object-cover w-full h-full"
                       />
                     )}
@@ -675,160 +590,251 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                 </div>
               )}
 
-              {/* Crew */}
-              <div className="mt-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-freckle font-semibold">
-                    Crew info (optional)
-                  </h3>
-                </div>
+              <div className="pt-2 border-t border-emerald-950/20">
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center mb-3">
+                  <select
+                    value={crewRole}
+                    onChange={(e) => setCrewRole(e.target.value)}
+                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50 w-full sm:w-auto"
+                  >
+                    <option value="">Select role</option>
+                    {crewRoles
+                      .filter((role) => !crewList.some((m) => m.role === role))
+                      .map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                  </select>
 
-                <div className="flex gap-2 items-start mt-2">
-                  <div className="w-36">
-                    <select
-                      value={crewRole}
-                      onChange={(e) => setCrewRole(e.target.value)}
-                      className="w-full rounded-md border-2 border-emerald-950 bg-emerald-50 px-2 py-2"
-                    >
-                      <option value="">Select role</option>
-                      {crewRoles
-                        .filter((r) => !crewList.some((m) => m.role === r))
-                        .map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-
-                  <div className="flex-1">
-                    <UserAutocomplete
+                  <div className="relative flex-1 w-full">
+                    <input
                       value={crewName}
-                      onChange={(val: string, pfp?: string) => {
-                        setCrewName("@" + val);
-                        if (pfp) setCrewPFP(pfp);
+                      onChange={(e) => {
+                        setCrewName(e.target.value);
+                        setCrewSearchInput(e.target.value);
                       }}
                       placeholder="Start typing a username..."
-                      loading={loadingUsers}
+                      className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
                     />
+                    {crewSearchInput.trim() !== "" && (
+                      <div className="absolute left-0 right-0 mt-1 bg-emerald-50 border-2 border-emerald-950 rounded-lg max-h-56 overflow-y-auto z-40">
+                        {crewLoading ? (
+                          <div className="p-2 text-center">
+                            <div className="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin mx-auto" />
+                          </div>
+                        ) : (
+                          crewSearchResults.map((opt: any) => (
+                            <div
+                              key={opt.username}
+                              onClick={() => {
+                                setCrewName("@" + opt.username);
+                                setCrewPFP(opt.pfp || tempPFP);
+                                setCrewSearchInput("");
+                                setCrewSearchResults([]);
+                              }}
+                              className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
+                            >
+                              <img
+                                src={
+                                  opt.pfp
+                                    ? supabase.storage
+                                        .from("pfps")
+                                        .getPublicUrl(opt.pfp).data.publicUrl
+                                    : tempPFP
+                                }
+                                alt={opt.username}
+                                className="w-8 h-8 rounded-full object-cover border"
+                              />
+                              <span>@{opt.username}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <button
-                      type="button"
-                      onClick={handleAddCrew}
-                      className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 border-2 border-emerald-950"
-                    >
-                      Add
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      if (!crewName || !crewRole) {
+                        toast.warn("Please select a role and enter a name.");
+                        return;
+                      }
+                      if (crewList.some((m) => m.role === crewRole)) {
+                        toast.warn("Role already added.");
+                        return;
+                      }
+                      setCrewList((prev) => [
+                        ...prev,
+                        { role: crewRole, name: crewName, pfp: crewPFP },
+                      ]);
+                      setCrewName("");
+                      setCrewRole("");
+                      setCrewPFP("");
+                    }}
+                    type="button"
+                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 w-full sm:w-auto"
+                  >
+                    Add
+                  </button>
                 </div>
 
-                <div className="mt-3 space-y-2">
+                {/* crew list */}
+                <div className="space-y-2">
                   {crewList.map((member, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between gap-3 bg-emerald-50 border-2 border-emerald-950 p-2 rounded-md"
+                      className="flex items-center justify-between bg-emerald-100 p-3 rounded-lg border-2 border-emerald-950"
                     >
                       <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            getPublic("pfps", member.pfp) ||
-                            "/default-avatar.png"
-                          }
-                          alt={member.name}
-                          className="w-8 h-8 rounded-full object-cover border"
-                        />
-                        <div>
-                          <div className="font-semibold">{member.role}</div>
-                          <div className="text-sm">{member.name}</div>
+                        <strong>{member.role}:</strong>
+                        <div className="flex items-center gap-2">
+                          {member.name.includes("@") && (
+                            <img
+                              src={
+                                member.pfp
+                                  ? supabase.storage
+                                      .from("pfps")
+                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  : tempPFP
+                              }
+                              alt={member.name}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          )}
+
+                          <span>{member.name}</span>
                         </div>
                       </div>
-
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCrewList((prev) =>
-                              prev.filter((_, i) => i !== idx)
-                            )
-                          }
-                          className="px-3 py-1 rounded-md border-2 border-red-400 text-red-600"
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      <button
+                        onClick={() =>
+                          setCrewList((prev) =>
+                            prev.filter((_, i) => i !== idx)
+                          )
+                        }
+                        className="px-3 py-1 rounded-md border-2 border-red-500 text-red-600"
+                      >
+                        Remove
+                      </button>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Cast */}
-              <div className="mt-6">
-                <h3 className="font-freckle font-semibold mb-2">Cast</h3>
-                <div className="flex gap-2">
+              <div className="pt-4 border-t border-emerald-950/20">
+                <h4 className="font-semibold mb-2">Cast info (optional)</h4>
+
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center mb-3">
                   <input
                     value={character}
                     onChange={(e) => setCharacter(e.target.value)}
                     placeholder="Character"
-                    className="rounded-md border-2 border-emerald-950 bg-emerald-50 px-3 py-2 flex-1"
+                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50 w-full sm:w-auto"
                   />
-                  <div className="w-60">
-                    <UserAutocomplete
+
+                  <div className="relative flex-1 w-full">
+                    <input
                       value={actor}
-                      onChange={(val: string, pfp?: string) => {
-                        setActor("@" + val);
-                        if (pfp) setActorPFP(pfp);
+                      onChange={(e) => {
+                        setActor(e.target.value);
+                        setActorSearchInput(e.target.value);
                       }}
-                      placeholder="Actor username..."
-                      loading={loadingUsers}
+                      placeholder="Start typing a username..."
+                      className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
                     />
+                    {actorSearchInput.trim() !== "" && (
+                      <div className="absolute left-0 right-0 mt-1 bg-emerald-50 border-2 border-emerald-950 rounded-lg max-h-56 overflow-y-auto z-40">
+                        {actorLoading ? (
+                          <div className="p-2 text-center">
+                            <div className="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin mx-auto" />
+                          </div>
+                        ) : (
+                          actorSearchResults.map((opt: any) => (
+                            <div
+                              key={opt.username}
+                              onClick={() => {
+                                setActor("@" + opt.username);
+                                setActorPFP(opt.pfp || tempPFP);
+                                setActorSearchInput("");
+                                setActorSearchResults([]);
+                              }}
+                              className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
+                            >
+                              <img
+                                src={
+                                  opt.pfp
+                                    ? supabase.storage
+                                        .from("pfps")
+                                        .getPublicUrl(opt.pfp).data.publicUrl
+                                    : tempPFP
+                                }
+                                alt={opt.username}
+                                className="w-8 h-8 rounded-full object-cover border"
+                              />
+                              <span>@{opt.username}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <button
-                      type="button"
-                      onClick={handleAddCast}
-                      className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 border-2 border-emerald-950"
-                    >
-                      Add
-                    </button>
-                  </div>
+
+                  <button
+                    onClick={() => {
+                      if (!character || !actor) {
+                        toast.warn(
+                          "Please select a character and enter an actor."
+                        );
+                        return;
+                      }
+                      setCast((prev) => [
+                        ...prev,
+                        { character, actor, pfp: actorPFP },
+                      ]);
+                      setCharacter("");
+                      setActor("");
+                      setActorPFP("");
+                    }}
+                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 w-full sm:w-auto"
+                    type="button"
+                  >
+                    Add
+                  </button>
                 </div>
 
-                <div className="mt-3 space-y-2">
+                <div className="space-y-2">
                   {cast.map((member, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between gap-3 bg-emerald-50 border-2 border-emerald-950 p-2 rounded-md"
+                      className="flex items-center justify-between bg-emerald-100 p-3 rounded-lg border-2 border-emerald-950"
                     >
                       <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            getPublic("pfps", member.pfp) ||
-                            "/default-avatar.png"
-                          }
-                          alt={member.actor}
-                          className="w-8 h-8 rounded-full object-cover border"
-                        />
-                        <div>
-                          <div className="font-semibold">
-                            {member.character}
-                          </div>
-                          <div className="text-sm">@{member.actor}</div>
+                        <strong>{member.character}:</strong>
+                        <div className="flex items-center gap-2">
+                          {member.actor.includes("@") && (
+                            <img
+                              src={
+                                member.pfp
+                                  ? supabase.storage
+                                      .from("pfps")
+                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  : tempPFP
+                              }
+                              alt={member.actor}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          )}
+                          <span>{member.actor}</span>
                         </div>
                       </div>
-
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCast((prev) => prev.filter((_, i) => i !== idx))
-                          }
-                          className="px-3 py-1 rounded-md border-2 border-red-400 text-red-600"
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      <button
+                        onClick={() =>
+                          setCast((prev) => prev.filter((_, i) => i !== idx))
+                        }
+                        className="px-3 py-1 rounded-md border-2 border-red-500 text-red-600"
+                      >
+                        Remove
+                      </button>
                     </div>
                   ))}
                 </div>

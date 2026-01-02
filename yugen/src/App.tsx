@@ -31,7 +31,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage.tsx";
 import WaitingComfirmation from "./pages/waitingEmailComfirmationPage.tsx";
 import AppLayout from "./layouts/layout-main.tsx";
+import AppLayout2 from "./layouts/layout-secondery.tsx";
 import Legal from "./pages/legal/termsAndPoliciesPage.tsx";
+
 function Yugen() {
   return (
     <div>
@@ -39,28 +41,27 @@ function Yugen() {
         <Router>
           <Routes>
             <Route path="/about" element={<LandingPage />} />
-            <Route path="/terms" element={<Legal />} />
-
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/SignUpPage" element={<SignUpPage />} />
-            <Route path="/googleSignUp" element={<SignUpGoogle />} />
-            <Route
-              path="/profile-customization"
-              element={<ProfileCustomization />}
-            />
-            <Route
-              path="/reset-password"
-              element={
-                <Wrapper>
-                  <ResetPassword />
-                </Wrapper>
-              }
-            />
-            <Route
-              path="/pending-email-confirmation"
-              element={<WaitingComfirmation />}
-            />
-
+            <Route element={<AppLayout2 />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/SignUpPage" element={<SignUpPage />} />
+              <Route path="/googleSignUp" element={<SignUpGoogle />} />
+              <Route
+                path="/profile-customization"
+                element={<ProfileCustomization />}
+              />
+              <Route
+                path="/reset-password"
+                element={
+                  <Wrapper>
+                    <ResetPassword />
+                  </Wrapper>
+                }
+              />
+              <Route
+                path="/pending-email-confirmation"
+                element={<WaitingComfirmation />}
+              />
+            </Route>
             <Route element={<AppLayout />}>
               <Route
                 path="/"
@@ -70,6 +71,8 @@ function Yugen() {
                   </Wrapper>
                 }
               />
+              <Route path="/terms" element={<Legal />} />
+
               <Route
                 path="/watchlist"
                 element={

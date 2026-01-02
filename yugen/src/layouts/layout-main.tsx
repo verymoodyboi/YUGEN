@@ -11,7 +11,10 @@ export default function AppLayout() {
   const [openContact, setOpenContact] = useState(false);
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-emerald-50 text-emerald-950 overflow-x-hidden">
+    <div
+      className="h-screen w-screen flex flex-col text-emerald-950 overflow-x-hidden pb-20 lg:pb-0"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
       {/* Header */}
       <header className="h-[80px] min-h-[80px] w-full border-b-3 border-emerald-950 border-solid flex items-center px-4">
         <AccHub />
@@ -30,7 +33,15 @@ export default function AppLayout() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 min-h-0 h-full p-4 overflow-y-auto">
+        <main
+          className="flex-1 min-h-0 h-full p-4 overflow-y-auto"
+          style={{
+            backgroundImage: 'url("/Background.png")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
           <Outlet />
         </main>
       </div>

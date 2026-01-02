@@ -57,6 +57,25 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
     );
   }
   console.log("FilmPath being passed:", filmData?.film_path);
+  const castArray = (() => {
+    try {
+      if (Array.isArray(filmData?.cast)) return filmData.cast;
+      if (typeof filmData?.cast === "string") return JSON.parse(filmData.cast);
+      return [];
+    } catch {
+      return [];
+    }
+  })();
+
+  const crewArray = (() => {
+    try {
+      if (Array.isArray(filmData?.crew)) return filmData.crew;
+      if (typeof filmData?.crew === "string") return JSON.parse(filmData.crew);
+      return [];
+    } catch {
+      return [];
+    }
+  })();
 
   return (
     <div className="flex flex-col gap-4 w-full overFlow-y-scrol">
@@ -66,11 +85,11 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
           <div className="flex items-center gap-4 p-2">
             <img
               src={
-                filmData?.uploader?.pfp
+                filmData?.uploader?.pfp_path
                   ? supabase.storage
                       .from("pfps")
-                      .getPublicUrl(filmData?.uploader?.pfp).data.publicUrl +
-                    `?v=${Date.now()}`
+                      .getPublicUrl(filmData?.uploader?.pfp_path).data
+                      .publicUrl + `?v=${Date.now()}`
                   : tempPFP
               }
               alt="pfp"
@@ -216,13 +235,13 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               </div>
               {expanded === "cast" && (
                 <div className="p-2 text-emerald-950">
-                  {filmData.cast && filmData.cast.length > 0 ? (
-                    filmData.cast.map((member: any, idx: number) => (
+                  {castArray.length > 0 ? (
+                    castArray.map((member: any, idx: number) => (
                       <div
                         key={idx}
                         className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
                       >
-                        {member.actor.includes("@") && (
+                        {member.actor?.includes("@") && (
                           <img
                             src={
                               member?.pfp
@@ -236,14 +255,12 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                             className="w-8 h-8 rounded-full object-cover"
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (username === member.actor.replace(/^@/, ""))
-                                navigate("/profile");
-                              else
-                                navigate(
-                                  `/@?username=${encodeURIComponent(
-                                    member.actor.replace(/^@/, "")
-                                  )}`
-                                );
+                              const uname = member.actor.replace(/^@/, "");
+                              navigate(
+                                username === uname
+                                  ? "/profile"
+                                  : `/@?username=${encodeURIComponent(uname)}`
+                              );
                             }}
                           />
                         )}
@@ -253,7 +270,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-emerald-950/70"> Not available</div>
+                    <div className="text-emerald-950/70">Not available</div>
                   )}
                 </div>
               )}
@@ -269,13 +286,13 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               </div>
               {expanded === "crew" && (
                 <div className="p-2 text-emerald-950">
-                  {filmData.crew && filmData.crew.length > 0 ? (
-                    filmData.crew.map((member: any, idx: number) => (
+                  {crewArray.length > 0 ? (
+                    crewArray.map((member: any, idx: number) => (
                       <div
                         key={idx}
                         className="flex items-center gap-2 border-b border-emerald-950 py-1 last:border-none"
                       >
-                        {member.name.includes("@") && (
+                        {member.name?.includes("@") && (
                           <img
                             src={
                               member?.pfp
@@ -289,25 +306,22 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                             className="w-8 h-8 rounded-full object-cover"
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (username === member.name.replace(/^@/, ""))
-                                navigate("/profile");
-                              else
-                                navigate(
-                                  `/@?username=${encodeURIComponent(
-                                    member.name.replace(/^@/, "")
-                                  )}`
-                                );
+                              const uname = member.name.replace(/^@/, "");
+                              navigate(
+                                username === uname
+                                  ? "/profile"
+                                  : `/@?username=${encodeURIComponent(uname)}`
+                              );
                             }}
                           />
                         )}
-
                         <span>
                           {member.role}: {member.name}
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-emerald-950/70"> Not available</div>
+                    <div className="text-emerald-950/70">Not available</div>
                   )}
                 </div>
               )}

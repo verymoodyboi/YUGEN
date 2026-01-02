@@ -19,6 +19,7 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
   const navigationLinks: NavLink[] = [
     { title: "Home", path: "/login" },
     { title: "Login", path: "/login" },
+    { title: "Terms and Conditions", path: "/terms" },
   ];
 
   const socialLinks: SocialLink[] = [

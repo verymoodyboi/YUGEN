@@ -14,6 +14,7 @@ import { useEditProfile } from "../hooks/useEditProfile";
 import { ImageCropper } from "../../../util/image-cropping/components/image-cropper";
 import { Crop } from "react-image-crop";
 import { useToast } from "../../../components/toaster";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 
 interface Props {
   onSubmitSuccess?: () => void;
@@ -171,7 +172,10 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
       LI: linkedin,
     });
   };
-
+  const PFPurl = user?.pfp
+    ? supabase.storage.from("pfps").getPublicUrl(user?.pfp).data.publicUrl +
+      (user?.updated_at ? `?v=${new Date(user?.updated_at).getTime()}` : "")
+    : tempPFP;
   return (
     <div className="h-[90%] no-scrollbar max-w-3xl mx-auto bg-emerald-50 border-4 border-emerald-950 overflow-y-scroll rounded-3xl p-6 shadow-xl">
       <h1 className="text-3xl font-bold mb-4">Edit Profile</h1>
@@ -206,10 +210,13 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
                 />
               ) : user?.pfp_path ? (
                 <img
-                  src={
-                    supabase.storage.from("pfps").getPublicUrl(user.pfp_path)
-                      .data.publicUrl
-                  }
+                  src={PFPurl}
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (img.src !== tempPFP) {
+                      img.src = tempPFP;
+                    }
+                  }}
                   alt="pfp"
                   className="w-20 h-20 rounded-full border-2 border-emerald-950 object-cover shadow"
                 />

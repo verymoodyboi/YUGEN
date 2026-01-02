@@ -181,6 +181,12 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                   <img
                     src={displayPfp}
                     alt={user?.username ?? "user"}
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      if (img.src !== tempPFP) {
+                        img.src = tempPFP;
+                      }
+                    }}
                     className="w-8 h-8 rounded-full border border-emerald-950 cursor-pointer"
                   />
                   <span className="font-bold">
@@ -344,7 +350,13 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                             >
                               <div className="flex items-center gap-2">
                                 <img
-                                  src={rUrl || "/default-pfp.png"}
+                                  src={rUrl}
+                                  onError={(e) => {
+                                    const img = e.currentTarget;
+                                    if (img.src !== tempPFP) {
+                                      img.src = tempPFP;
+                                    }
+                                  }}
                                   alt={rUser?.username ?? "user"}
                                   className="w-6 h-6 rounded-full border border-emerald-950 cursor-pointer"
                                 />

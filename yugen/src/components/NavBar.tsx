@@ -83,7 +83,7 @@ function NavBar() {
                         transform transition-transform duration-300 ease-in-out pointer-events-auto
                         ${animateOpen ? "translate-y-0" : "-translate-y-full"}`}
           >
-            <div className="w-full h-[10vh] flex justify-center items-center">
+            <div className="w-full h-[10vh] flex justify-center items-center z-10000000000">
               <SearchBar
                 onSearch={() => {
                   // Close drawer on search

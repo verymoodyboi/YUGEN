@@ -94,21 +94,26 @@ const UserProfile: React.FC = () => {
         </div>
       </>
     );
-
+  const PFPurl = user?.pfp_path
+    ? supabase.storage.from("pfps").getPublicUrl(user?.pfp_path).data
+        .publicUrl +
+      (user?.updated_at ? `?v=${new Date(user?.updated_at).getTime()}` : "")
+    : tempPFP;
   return (
     <>
-      <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-4 flex flex-col gap-6">
+      <div className="min-h-screen  text-emerald-950 font-freckle p-4 flex flex-col gap-6">
         {/* HEADER */}
         <div className="flex flex-wrap gap-2 items-start justify-between w-full max-w-full overflow-x-hidden">
           {/* Profile Info */}
           <div className="flex gap-4 items-center">
             <img
-              src={
-                user?.pfp_path
-                  ? supabase.storage.from("pfps").getPublicUrl(user.pfp_path)
-                      .data.publicUrl + `?v=${Date.now()}`
-                  : tempPFP
-              }
+              src={PFPurl}
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (img.src !== tempPFP) {
+                  img.src = tempPFP;
+                }
+              }}
               alt="pfp"
               className="w-24 h-24 rounded-full border-4 border-emerald-950 object-cover"
             />
@@ -197,7 +202,7 @@ const UserProfile: React.FC = () => {
                       onClick={() => navigate("/UploadFilmPage")}
                       onMouseEnter={() => setIsHover(true)}
                       onMouseLeave={() => setIsHover(false)}
-                      className="h-15 w-15 cursor-pointer rounded-lg transition-transform duration-300 ease-in-out"
+                      className="h-12 w-12 cursor-pointer rounded-lg transition-transform duration-300 ease-in-out"
                       alt="upload_button"
                     />
                   </Tooltip>

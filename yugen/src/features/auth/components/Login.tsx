@@ -7,11 +7,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CheckIcon from "@mui/icons-material/Check";
 import logo from "../../../YugenAssits/Transparent long.png";
-
 import { useToast } from "../../../components/toaster.tsx";
 import { Transition } from "@headlessui/react";
 
 function LoginForm() {
+  const frontEndOrigin = import.meta.env.FRONTEND_ORIGIN;
   const toast = useToast();
   const [openReset, setOpenReset] = useState(false);
   const [isDone, setIsDone] = useState(false);
@@ -25,7 +25,7 @@ function LoginForm() {
     }
     setIsDone(true);
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "https://try-yugen/reset-password",
+      redirectTo: `${frontEndOrigin}/reset-password`,
     });
   };
 
@@ -73,7 +73,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-emerald-50 text-center p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen  text-center p-6">
       <form
         onSubmit={handleSubmit}
         className="bg-emerald-50 rounded-3xl shadow-xl p-8 max-w-md w-full border-4 border-emerald-950"
