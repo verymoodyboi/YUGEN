@@ -355,8 +355,8 @@ const UploadForm: React.FC = () => {
 
   if (isDone) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-emerald-50 p-6">
-        <div className="max-w-lg w-full text-center rounded-2xl border-4 border-emerald-950 bg-emerald-50 p-8 shadow-2xl">
+      <div className="min-h-screen flex items-center justify-center  p-6">
+        <div className="max-w-lg w-full text-center rounded-2xl border-4 border-emerald-950  p-8 shadow-2xl">
           <svg
             className="mx-auto mb-4 w-24 h-24 text-emerald-950"
             viewBox="0 0 24 24"
@@ -396,7 +396,7 @@ const UploadForm: React.FC = () => {
 
   if (isSubmit) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-emerald-50 p-6">
+      <div className="min-h-screen flex flex-col items-center justify-center  p-6">
         <div className="flex flex-col items-center justify-center text-center">
           <img
             src={uploading_animation}
@@ -414,8 +414,7 @@ const UploadForm: React.FC = () => {
   // Main form render with Tailwind
   return (
     <>
-      <AccHub />
-      <div className="w-[100%] h[100%] mx-auto rounded-3xl  bg-emerald-50  p-6 overflow-y-auto text-emerald-950 font-freckle">
+      <div className="w-[100%] h[100%] mx-auto rounded-3xl    p-6 overflow-y-auto text-emerald-950 font-freckle">
         {/* Stepper */}
         <div className="flex items-center justify-between mb-6">
           {steps.map((s, i) => {
