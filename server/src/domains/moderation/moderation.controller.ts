@@ -12,7 +12,7 @@ const WEBHOOK_SECRET = process.env.SIGHTENGINE_WEBHOOK_SECRET;
 export async function moderationCallback(req: Request, res: Response) {
   console.log("🚀 [CALLBACK RECEIVED]");
   console.log("Headers:", req.headers);
-
+  res.status(200).json({ ok: true });
   // Basic webhook secret verification
   const querySecret = (req.query?.secret as string) || null;
   const headerSecret = (req.headers["x-webhook-secret"] as string) || null;

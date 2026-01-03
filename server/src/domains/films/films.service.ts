@@ -28,16 +28,36 @@ export async function uploadFilm(req: Request) {
     throw new Error("Missing required files");
   }
 
+  // 1) Generate UUID immediately (used for filenames / DB)
   const filmUuid = crypto.randomUUID();
+  const filmKey = `${filmUuid}.mp4`;
+  const posterKey = `${filmUuid}.jpg`;
 
-  // Read buffers immediately
-  const filmStream = fs.createReadStream(filmFile.path);
-  const posterStream = fs.createReadStream(posterFile.path);
+  // 2) Upload originals first (request lifetime - make upload as quick as possible)
+  // Read as streams/buffers. Using stream is fine; Supabase JS accepts Buffer or stream in Node env.
+const filmBuffer = await fs.promises.readFile(filmFile.path);
+const posterBuffer = await fs.promises.readFile(posterFile.path);
 
-  const duration = await getDuration(filmFile.path);
+  const [filmUpload, posterUpload] = await Promise.all([
+    supabase.storage
+      .from("original_film_files")
+      .upload(filmKey, filmBuffer, {
+        contentType: filmFile.mimetype,
+        upsert: true,
+      }),
+    supabase.storage
+      .from("posters")
+      .upload(posterKey, posterBuffer, {
+        contentType: posterFile.mimetype,
+        upsert: true,
+      }),
+  ]);
 
-  // 1️⃣ Insert DB row
-  const { error } = await supabase.from("films").insert([
+  if (filmUpload.error) throw filmUpload.error;
+  if (posterUpload.error) throw posterUpload.error;
+
+  // 3) Insert films row (initial minimal values; we will update more during processing)
+  const { error: insertFilmErr } = await supabase.from("films").insert([
     {
       film_uuid: filmUuid,
       film_title: Title,
@@ -47,47 +67,54 @@ export async function uploadFilm(req: Request) {
       country: Country,
       crew: Crew ? JSON.parse(Crew) : null,
       cast: Cast ? JSON.parse(Cast) : null,
-      film_path: `${filmUuid}.mp4`,
-      poster_path: `${filmUuid}.jpg`,
-      film_duration: duration,
+      film_path: filmKey,
+      poster_path: posterKey,
+      // duration/embedding/transcode state will be filled by the worker
+      film_duration: null,
       moderation_status: "queued",
+      release_date: new Date().toISOString(),
     },
   ]);
 
-  if (error) throw error;
+  if (insertFilmErr) {
+    // Attempt to remove uploaded files if DB insert failed (best-effort)
+    try {
+      await Promise.all([
+        supabase.storage.from("original_film_files").remove([filmKey]),
+        supabase.storage.from("posters").remove([posterKey]),
+      ]);
+    } catch (_) {}
+    throw insertFilmErr;
+  }
 
-  // 2️⃣ Upload originals (FAST, streaming, async I/O)
-  await Promise.all([
-    supabase.storage
-      .from("original_film_files")
-      .upload(`${filmUuid}.mp4`, filmStream, {
-        contentType: filmFile.mimetype,
-        upsert: true,
-      }),
-
-    supabase.storage
-      .from("posters")
-      .upload(`${filmUuid}.jpg`, posterStream, {
-        contentType: posterFile.mimetype,
-        upsert: true,
-      }),
-  ]);
-
-  // 3️⃣ Enqueue processing job
-  await supabase.from("jobs").insert([
-    {
-      type: "PROCESS_FILM",
-      payload: {
-        filmUuid,
-        filmKey: `${filmUuid}.mp4`,
-        posterKey: `${filmUuid}.jpg`,
+  // 4) Insert job row (queued). Keep job payload minimal and idempotent.
+  const { data: jobInsertResp, error: jobInsertErr } = await supabase
+    .from("jobs")
+    .insert([
+      {
+        type: "PROCESS_FILM",
+        status: "queued",
+        payload: {
+          filmUuid,
+          filmKey,
+          posterKey,
+        },
+        created_at: new Date().toISOString(),
       },
-    },
-  ]);
+    ])
+    .select("*")
+    .single();
 
-  // 4️⃣ Respond immediately
-  return { success: true, film_uuid: filmUuid };
+  if (jobInsertErr) {
+    // Log but don't rollback film upload necessarily — you may decide to clean up
+    console.error("Failed inserting job:", jobInsertErr);
+    throw jobInsertErr;
+  }
+
+  // 5) Respond immediately (request returns quickly)
+  return { success: true, film_uuid: filmUuid, job_id: jobInsertResp?.id ?? null };
 }
+
 
 // Edit film
 export async function editFilm(req: Request) {

@@ -35,7 +35,7 @@ function SideMenu({
     <h2 className="text-2xl title text-emerald-50  mb-2">{children}</h2>
   );
   const navigationLinks: NavLink[] = [
-    { title: "Terms and Conditions", path: "/Yugen-Privacy-Policy-1.pdf" },
+    { title: "Terms and Conditions", path: "/terms" },
   ];
   const MenuButton = ({
     label,

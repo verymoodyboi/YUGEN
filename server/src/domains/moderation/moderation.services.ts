@@ -4,7 +4,7 @@ import supabase from "../../lib/supabase.js";
 
 const SIGHTENGINE_USER = process.env.SIGHTENGINE_USER!;
 const SIGHTENGINE_SECRET = process.env.SIGHTENGINE_SECRET!;
-const CALLBACK_URL = 'http://46.101.247.144/api/moderation/callback'; // e.g. https://your-tunnel/.../api/moderation/callback?secret=...
+const CALLBACK_URL = 'https://try-yugen.com/api/moderation/callback'; // e.g. https://your-tunnel/.../api/moderation/callback?secret=...
 const WEBHOOK_SECRET = process.env.SIGHTENGINE_WEBHOOK_SECRET!;
 
 /**
