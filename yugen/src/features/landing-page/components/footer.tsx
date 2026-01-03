@@ -20,6 +20,7 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
     { title: "Home", path: "/login" },
     { title: "Login", path: "/login" },
     { title: "Terms and Conditions", path: "/terms" },
+{ title: "Privacy Policy", path: "/Yugen-Privacy-Policy-1.pdf" },
   ];
 
   const socialLinks: SocialLink[] = [
