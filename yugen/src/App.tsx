@@ -33,7 +33,7 @@ import WaitingComfirmation from "./pages/waitingEmailComfirmationPage.tsx";
 import AppLayout from "./layouts/layout-main.tsx";
 import AppLayout2 from "./layouts/layout-secondery.tsx";
 import Legal from "./pages/legal/termsAndPoliciesPage.tsx";
-
+import PrivacyPolicyPage from "./pages/legal/privacyPolicyPage.tsx";
 function Yugen() {
   return (
     <div>
@@ -72,7 +72,7 @@ function Yugen() {
                 }
               />
               <Route path="/terms" element={<Legal />} />
-
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route
                 path="/watchlist"
                 element={

@@ -196,10 +196,12 @@ export async function handleModerationCallback(payload: any) {
   try {
     // payload can be { request: { id }, media: { id, uri }, data: { status, frames } } or older shapes
 const requestId =
-  payload?.request?.id ??
-  payload?.request_id ??
-  payload?.requestId ??
-  null;
+  typeof payload?.request === "string"
+    ? payload.request
+    : payload?.request?.id ??
+      payload?.request_id ??
+      payload?.requestId ??
+      null;
     const media = payload?.media ?? null;
     // `data` or `summary` may contain the frames and status
     const data = payload?.data ?? payload?.summary ?? payload ?? null;

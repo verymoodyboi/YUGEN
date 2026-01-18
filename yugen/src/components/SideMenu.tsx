@@ -37,7 +37,7 @@ function SideMenu({
   );
   const navigationLinks: NavLink[] = [
     { title: "Terms and Conditions", path: "/terms" },
-{ title: "Privacy Policy", path: "/Yugen-Privacy-Policy-1.pdf" },
+{ title: "Privacy Policy", path: "/yugen-privacy-policy.html" },
   ];
   const MenuButton = ({
     label,
