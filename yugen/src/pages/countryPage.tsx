@@ -145,10 +145,7 @@ const CountryPage: React.FC = () => {
             }`}
           >
             <img
-              src={getPosterUrl(
-                currentFilm.poster_path,
-                currentFilm.updated_at
-              )}
+              src={`https://posters.try-yugen.com/${currentFilm.poster_path}`}
               alt=""
               className="w-full h-full object-cover object-center"
             />
@@ -159,19 +156,14 @@ const CountryPage: React.FC = () => {
                        rounded-xl shadow-md flex items-center gap-3 border border-emerald-900/10 cursor-pointer"
                 onClick={() =>
                   navigate(
-                    `/@?username=${encodeURIComponent(uploader.username)}`
+                    `/@?username=${encodeURIComponent(uploader.username)}`,
                   )
                 }
               >
                 <img
                   src={
                     uploader?.pfp_path
-                      ? supabase.storage
-                          .from("pfps")
-                          .getPublicUrl(uploader?.pfp_path).data.publicUrl +
-                        (uploader?.updated_at
-                          ? `?v=${new Date(uploader?.updated_at).getTime()}`
-                          : "")
+                      ? `https://pfps.try-yugen.com/${uploader.pfp_path}?t=${Date.now()}`
                       : tempPFP
                   }
                   onError={(e) => {
@@ -193,7 +185,8 @@ const CountryPage: React.FC = () => {
               <button
                 onClick={() =>
                   setCurrentIndex(
-                    (i) => (i - 1 + featuredFilms.length) % featuredFilms.length
+                    (i) =>
+                      (i - 1 + featuredFilms.length) % featuredFilms.length,
                   )
                 }
                 className="bg-white/90 backdrop-blur border border-emerald-900/10 

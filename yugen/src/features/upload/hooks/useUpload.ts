@@ -1,15 +1,25 @@
-// src/features/upload/hooks/useUpload.ts
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
-import { uploadFilm } from "../services";
+import {
+  initializeUpload,
+  processUpload,
+  uploadToR2WithProgress,
+} from "../services";
 import { searchMentions } from "../../search/services";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../components/toaster";
+import { useUploadProgress } from "../uploadContext";
+import { deleteFilm } from "../../editFilm/services";
+import { sliceFirst49MB } from "../util/sliceForMod";
+
 export const useUpload = () => {
-  const toast= useToast()
-  const { getAccessToken } = useAuth();
-const {userInfo}=useAuth()
-  // core film upload states
+  const { uploadProgress, setUploadProgress } = useUploadProgress();
+
+  const toast = useToast();
+  const { getAccessToken, userInfo } = useAuth();
+  const navigate = useNavigate();
+
+
   const [filmFile, setFilmFile] = useState<File | null>(null);
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
@@ -18,13 +28,21 @@ const {userInfo}=useAuth()
   const [genres, setGenres] = useState<string[]>([]);
   const [crewList, setCrewList] = useState<any[]>([]);
   const [cast, setCast] = useState<any[]>([]);
+
   const [isValidFilm, setIsValidFilm] = useState(false);
   const [isSubmit, setIsSubmit] = useState(false);
   const [isDone, setIsDone] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // === Mention search ===
+  const [pendingFilmId, setPendingFilmId] = useState<string | null>(null);
+  const [pendingUploadUrl, setPendingUploadUrl] = useState<string | null>(null);
+  const [pendingPosterUploadUrl, setPendingPosterUploadUrl] = useState<string | null>(null);
+const [pendingModerationUploadUrl, setPendingModerationUploadUrl] =useState<string | null>(null);
+  const [uploadStage, setUploadStage] = useState<
+    "init" | "uploading-film" | "uploading-poster" | "finalizing" | null
+  >(null);
+
+ 
   const [crewSearchInput, setCrewSearchInput] = useState("");
   const [crewSearchResults, setCrewSearchResults] = useState<any[]>([]);
   const [crewLoading, setCrewLoading] = useState(false);
@@ -32,8 +50,7 @@ const {userInfo}=useAuth()
   const [actorSearchInput, setActorSearchInput] = useState("");
   const [actorSearchResults, setActorSearchResults] = useState<any[]>([]);
   const [actorLoading, setActorLoading] = useState(false);
-const navigate=useNavigate()
-  // Debounced mention searches
+
   useEffect(() => {
     const delay = setTimeout(async () => {
       if (!crewSearchInput.trim()) {
@@ -45,8 +62,7 @@ const navigate=useNavigate()
         const token = await getAccessToken();
         const results = await searchMentions(token, crewSearchInput);
         setCrewSearchResults(results);
-      } catch (err) {
-        console.error("Crew search error:", err);
+      } catch {
         setCrewSearchResults([]);
       } finally {
         setCrewLoading(false);
@@ -55,6 +71,7 @@ const navigate=useNavigate()
     return () => clearTimeout(delay);
   }, [crewSearchInput, getAccessToken]);
 
+ 
   useEffect(() => {
     const delay = setTimeout(async () => {
       if (!actorSearchInput.trim()) {
@@ -66,8 +83,7 @@ const navigate=useNavigate()
         const token = await getAccessToken();
         const results = await searchMentions(token, actorSearchInput);
         setActorSearchResults(results);
-      } catch (err) {
-        console.error("Actor search error:", err);
+      } catch {
         setActorSearchResults([]);
       } finally {
         setActorLoading(false);
@@ -76,49 +92,161 @@ const navigate=useNavigate()
     return () => clearTimeout(delay);
   }, [actorSearchInput, getAccessToken]);
 
-  // === Submit film upload ===
   const handleSubmit = async () => {
-          // setTimeout(() => {
-          //    navigate('/profile?to=uploads')
-          // }, 5000); 
-    if (!filmFile || !posterFile || !title || !thesis || genres.length === 0) {
+    if (!filmFile || !title || !thesis || genres.length === 0) {
       toast.warn("Please fill all required fields before uploading");
       return;
     }
 
     setIsSubmit(true);
     setUploadProgress(0);
+    setErrorMsg(null);
+
     try {
       const token = await getAccessToken();
-      const formData = new FormData();
-      formData.append("Title", title);
-      formData.append("Thesis", thesis);
-formData.append("Genres", JSON.stringify(genres));
-      formData.append("Country", country);
-      formData.append("Crew", JSON.stringify(crewList));
-      formData.append("Cast", JSON.stringify(cast));
-      formData.append("uplouderUsername", userInfo?.username);
-      if (filmFile) formData.append("Film", filmFile);
-      if (posterFile) formData.append("Poster", posterFile);
 
-      await uploadFilm(token, formData, setUploadProgress);
-           setIsDone(true);
-    //            setTimeout(() => {
-    //   navigate('/profile?to=uploads');
-    // }, 10000);
+      setUploadStage("init");
+      const init = await initializeUpload(token, {
+        title,
+        thesis,
+        genres,
+        country,
+        crew: crewList,
+        cast,
+        filmMime: filmFile.type,
+        posterMime: posterFile?.type ?? null,
+      });
+
+    const {
+  uploadUrl,
+  posterUploadUrl,
+  moderationUploadUrl,
+} = init;
 
 
-      toast.success("Upload complete!");
-    } catch (error) {
-      console.error("Upload failed:", error);
-      setErrorMsg("Upload failed! Please try again.");
-    } finally {
+      const filmId = init.filmId;
+      setPendingFilmId(filmId);
+      setPendingUploadUrl(uploadUrl ?? null);
+      setPendingPosterUploadUrl(posterUploadUrl ?? null);
+setPendingModerationUploadUrl(moderationUploadUrl ?? null);
+
+      setUploadStage("uploading-film");
+      await uploadToR2WithProgress(uploadUrl, filmFile, (p) =>
+        setUploadProgress(Math.round(p * 0.70))
+      );
+
+      if (posterFile && posterUploadUrl) {
+        setUploadStage("uploading-poster");
+        await uploadToR2WithProgress(posterUploadUrl, posterFile, (p) =>
+          setUploadProgress(70 + Math.round(p * 0.15))
+        );
+      }
+      console.log(pendingModerationUploadUrl)
+      if (moderationUploadUrl && filmFile) {
+  const moderationSlice = await sliceFirst49MB(filmFile);
+console.log("Moderation slice size:", moderationSlice.size); 
+
+  await uploadToR2WithProgress(
+    moderationUploadUrl,
+    moderationSlice,
+    (p) =>
+          setUploadProgress(85 + Math.round(p * 0.15))
+  );
+}
+
+
+      setUploadStage("finalizing");
+      await processUpload(token, filmId);
+
+      // success
+      setIsDone(true);
+      setPendingFilmId(null);
+      setPendingUploadUrl(null);
+      setPendingPosterUploadUrl(null);
+      setUploadStage(null);
       setIsSubmit(false);
+      setUploadProgress(100);
+      toast.success("Upload complete!");
+    } catch (err) {
+      console.error("Upload error:", err);
+
+      try {
+        const filmId = pendingFilmId;
+        const token = await getAccessToken();
+
+        // If we are *not* in the middle of uploading to R2, remove the backend film record to avoid orphan records.
+     if (filmId) {
+  await deleteFilm(token, filmId);
+  setPendingFilmId(null);
+  setPendingUploadUrl(null);
+  setPendingPosterUploadUrl(null);
+  setPendingModerationUploadUrl(null);
+  console.log("Cleanup: deleted film", filmId);
+}
+      } catch (cleanupErr) {
+        console.error("Cleanup failed:", cleanupErr);
+      }
+
+      if (uploadStage === "uploading-film" || uploadStage === "uploading-poster") {
+        setErrorMsg("Upload interrupted (network or R2 error). You can try again.");
+      } else {
+        setErrorMsg("Upload failed. Please try again.");
+      }
+
+      toast.error("Upload failed");
+      setIsSubmit(false);
+      setUploadStage(null);
+    }
+  };
+
+  
+  const retryUpload = async () => {
+    if (!pendingFilmId || !pendingUploadUrl) {
+      toast.warn("Nothing to retry — please start a fresh upload.");
+      return;
+    }
+
+    setIsSubmit(true);
+    setUploadProgress(0);
+    setErrorMsg(null);
+
+    try {
+      const token = await getAccessToken();
+
+      setUploadStage("uploading-film");
+      if (!filmFile) throw new Error("Original film file not present in memory to retry upload.");
+      await uploadToR2WithProgress(pendingUploadUrl, filmFile, (p) =>
+        setUploadProgress(Math.round(p * 0.7))
+      );
+
+      if (pendingPosterUploadUrl && posterFile) {
+        setUploadStage("uploading-poster");
+        await uploadToR2WithProgress(pendingPosterUploadUrl, posterFile, (p) =>
+          setUploadProgress(80 + Math.round(p * 0.2))
+        );
+      }
+
+      setUploadStage("finalizing");
+      await processUpload(token, pendingFilmId);
+
+      setIsDone(true);
+      setPendingFilmId(null);
+      setPendingUploadUrl(null);
+      setPendingPosterUploadUrl(null);
+      setUploadStage(null);
+      setIsSubmit(false);
+      setUploadProgress(100);
+      toast.success("Upload complete (retry)!");
+    } catch (err) {
+      console.error("Retry failed:", err);
+      setErrorMsg("Retry failed. Please try again.");
+      setIsSubmit(false);
+      setUploadStage(null);
+      toast.error("Retry failed");
     }
   };
 
   return {
-    // core states
     filmFile,
     posterFile,
     title,
@@ -133,7 +261,6 @@ formData.append("Genres", JSON.stringify(genres));
     uploadProgress,
     errorMsg,
 
-    // search
     crewSearchInput,
     crewSearchResults,
     crewLoading,
@@ -141,7 +268,6 @@ formData.append("Genres", JSON.stringify(genres));
     actorSearchResults,
     actorLoading,
 
-    // setters
     setFilmFile,
     setPosterFile,
     setTitle,
@@ -156,7 +282,7 @@ formData.append("Genres", JSON.stringify(genres));
     setErrorMsg,
     setIsDone,
 
-    // actions
     handleSubmit,
+    retryUpload,
   };
 };

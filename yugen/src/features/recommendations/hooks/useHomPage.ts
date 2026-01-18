@@ -7,16 +7,13 @@ import {
 } from "../services";
 
 export function useRecommendations(userId?: string) {
-  // ---------------------------
-  // STATE
-  // ---------------------------
+
   const [hottest, setHottest] = useState<any[]>([]);
   const [fresh, setFresh] = useState<any[]>([]);
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [watchlist, setWatchlist] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
 
-  // keep offsets for each section
   const offsets = useRef({
     hottest: 0,
     fresh: 0,
@@ -24,15 +21,12 @@ export function useRecommendations(userId?: string) {
     watchlist: 0,
   });
 
-  // refs for last-item observers
   const hottestRef = useRef<HTMLDivElement | null>(null);
   const freshRef = useRef<HTMLDivElement | null>(null);
   const subsRef = useRef<HTMLDivElement | null>(null);
   const watchlistRef = useRef<HTMLDivElement | null>(null);
 
-  // ---------------------------
-  // INITIAL LOAD
-  // ---------------------------
+
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -57,9 +51,6 @@ export function useRecommendations(userId?: string) {
     load();
   }, [userId]);
 
-  // ---------------------------
-  // LOAD MORE HANDLERS
-  // ---------------------------
   const loadMore = {
     hottest: async () => {
       const more = await fetchHotThisWeek(offsets.current.hottest);
@@ -78,15 +69,12 @@ export function useRecommendations(userId?: string) {
       setSubscriptions((prev) => [...prev, ...more]);
     },
     watchlist: async () => {
-      // you did not give a watchlist service → so we DO NOT create one.
-      // we simply do nothing.
+
       return;
     },
   };
 
-  // ---------------------------
-  // OBSERVER
-  // ---------------------------
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {

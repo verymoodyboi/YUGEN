@@ -1,4 +1,3 @@
-// src/features/search/components/SearchBar.tsx
 import { useNavigate } from "react-router-dom";
 import supabase from "../../../lib/supabaseClient";
 import { useSearchBar } from "../hooks/useSearchBar";
@@ -64,15 +63,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
               <img
                 src={
                   option.type === "film"
-                    ? supabase.storage
-                        .from("posters")
-                        .getPublicUrl(option.poster).data.publicUrl
-                    : option.type === "user"
-                      ? supabase.storage.from("pfps").getPublicUrl(option.pfp)
-                          .data.publicUrl
-                      : supabase.storage
-                          .from("challenge_covers")
-                          .getPublicUrl(option.cover).data.publicUrl
+                    ? `https://posters.try-yugen.com/${option.poster}`
+                    : `https://pfps.try-yugen.com/${option.pfp}?t=${Date.now()}`
                 }
                 alt={option.title || option.username || option.challenge_name}
                 onError={(e) => {

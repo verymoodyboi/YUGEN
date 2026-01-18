@@ -1,16 +1,13 @@
 import React from "react";
 
-// === Tab components ===
 import AcceptedFilmsTab from "./acceptedFilmsTab";
 import PendingFilmsTab from "./pendingFilmsTab";
 import EditChallengeTab from "./editChallengeTab";
 
 interface ChallengeTabsProps {
-  /** Current tab index */
   tabIndex: number;
   setTabIndex: (index: number) => void;
 
-  /** Shared data */
   challenge: any;
   challengeFilms: any[];
   pendingFilms: any[];
@@ -19,7 +16,6 @@ interface ChallengeTabsProps {
   userVote: string | null;
   userInfo: any;
 
-  /** Handlers */
   handleVote: (filmId: string) => void;
   handleRemoveFilm: (filmId: string) => void;
   handleAcceptFilm: (filmId: string) => void;
@@ -27,13 +23,11 @@ interface ChallengeTabsProps {
   handleRemoveRule: (index: number) => void;
   handleSaveChallenge: () => void;
 
-  /** UI state helpers */
   setSelectedDeadline: (val: string | null) => void;
   selectedDeadline: string | null;
   newRule: string;
   setNewRule: (val: string) => void;
 
-  /** Extra controls for child tabs */
   setOpenPodiumDialog: (val: boolean) => void;
   navigate: (path: string) => void;
   getAccessToken: () => Promise<string>;
@@ -65,7 +59,6 @@ const ChallengeTabs: React.FC<ChallengeTabsProps> = ({
 }) => {
   return (
     <div className="bg-emerald-50 text-emerald-950 font-freckle p-2 rounded-lg">
-      {/* === Tab Navigation Buttons === */}
       <div className="flex space-x-2 border-b border-emerald-900 pb-2 mb-4">
         {["Accepted Films", "Pending Films", "Edit Challenge"].map(
           (label, index) => (
@@ -80,11 +73,10 @@ const ChallengeTabs: React.FC<ChallengeTabsProps> = ({
             >
               {label}
             </button>
-          )
+          ),
         )}
       </div>
 
-      {/* === Tab Content === */}
       <div className="mt-4">
         {tabIndex === 0 && (
           <AcceptedFilmsTab

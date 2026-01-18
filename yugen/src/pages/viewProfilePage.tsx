@@ -20,13 +20,14 @@ import { useViewProfile } from "../features/profile/hooks/useViewProfile";
 import Loading from "../components/loading_kickflip";
 import { useAuth } from "../contexts/AuthContext";
 import { Tooltip } from "@mui/material";
+import AuthActionGuard from "../components/clickWrapper";
 
 const AccProfile: React.FC = () => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username");
-  if (username == userInfo.username) {
+  if (username == userInfo?.username) {
     navigate("/profile");
   }
   const paramTab = searchParams.get("tab");
@@ -80,10 +81,7 @@ const AccProfile: React.FC = () => {
         <div className="flex flex-wrap gap-2 items-start justify-between w-full max-w-full overflow-x-hidden">
           <div className="flex gap-4 items-center">
             <img
-              src={
-                supabase.storage.from("pfps").getPublicUrl(user?.pfp_path || "")
-                  .data.publicUrl
-              }
+              src={`https://pfps.try-yugen.com/${user.pfp_path}?t=${Date.now()}`}
               alt="pfp"
               className="w-24 h-24 rounded-full border-4 border-emerald-950 object-cover"
             />
@@ -164,8 +162,9 @@ const AccProfile: React.FC = () => {
                 </div>
               )}
               {/* Subscribe / Notify */}
-              {isSubscribed !== null && (
-                <div className="mt-3 flex gap-3">
+
+              <div className="mt-3 flex gap-3">
+                <AuthActionGuard>
                   <button
                     onClick={handleSubscribe}
                     className={`px-4 py-2 rounded-full border-2 font-bold transition hover:scale-105 ${
@@ -176,19 +175,20 @@ const AccProfile: React.FC = () => {
                   >
                     {isSubscribed ? "Subscribed" : "Subscribe"}
                   </button>
-
-                  {isSubscribed && (
-                    <Tooltip title="Notification">
+                </AuthActionGuard>
+                {isSubscribed && (
+                  <Tooltip title="Notification">
+                    <AuthActionGuard>
                       <button
                         onClick={handleNotify}
                         className="px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-bold hover:scale-105"
                       >
                         {isNotify ? <FiBell /> : <FiBellOff />}
                       </button>
-                    </Tooltip>
-                  )}
-                </div>
-              )}
+                    </AuthActionGuard>
+                  </Tooltip>
+                )}
+              </div>
             </div>
           </div>
         </div>

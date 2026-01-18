@@ -49,10 +49,10 @@ const GenrePage: React.FC = () => {
           {mainPoster && (
             <>
               <div
-                className="absolute inset-0 bg-cover bg-center opacity-70"
+                className=" inset-0 bg-cover bg-center opacity-70"
                 style={{ backgroundImage: `url(${mainPoster})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/80 via-emerald-950/50 to-transparent" />
+              <div className=" inset-0 bg-gradient-to-r from-emerald-950/80 via-emerald-950/50 to-transparent" />
             </>
           )}
 

@@ -8,7 +8,7 @@ import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import PlaylistCard from "../features/playlist/components/PlaylistCard";
 import CustomLoading from "../SmallComponents/CutomsLoading";
-import EditProfile from "../features/profile/components/EditProfile";
+import EditProfile from "../features/profile/components/editProfile";
 import { Dialog, Transition } from "@headlessui/react";
 import UploadFilmCard from "../features/profile/components/uploadedFilmsCard";
 import { useSearchParams } from "react-router-dom";
@@ -51,7 +51,7 @@ const UserProfile: React.FC = () => {
       : "library";
 
   const [value, setValue] = useState<"library" | "info" | "uploads">(
-    initialTab
+    initialTab,
   );
 
   const [openEdit, setOpenEdit] = useState(false);
@@ -95,9 +95,7 @@ const UserProfile: React.FC = () => {
       </>
     );
   const PFPurl = user?.pfp_path
-    ? supabase.storage.from("pfps").getPublicUrl(user?.pfp_path).data
-        .publicUrl +
-      (user?.updated_at ? `?v=${new Date(user?.updated_at).getTime()}` : "")
+    ? `https://pfps.try-yugen.com/${user.pfp_path}?t=${Date.now()}`
     : tempPFP;
   return (
     <>

@@ -5,7 +5,6 @@ import { ImageCropper } from "../../../util/image-cropping/components/image-crop
 import countries from "../../../Data/countries.json";
 
 const SignupGoogle: React.FC = () => {
-  // Simulated Google user — replace with your real Google OAuth data
   const googleUser = {
     email: "user@gmail.com",
     name: "Jane Doe",
@@ -27,7 +26,7 @@ const SignupGoogle: React.FC = () => {
     bio,
     setFname,
     setLname,
-    setRawPreview, // ✅ Add this line
+    setRawPreview,
 
     setRegion,
     setGender,
@@ -99,7 +98,7 @@ const SignupGoogle: React.FC = () => {
 
         <form
           onSubmit={(e) => {
-            e.preventDefault(); // ← this stops the browser from reloading
+            e.preventDefault();
             handleSubmit();
           }}
           className="space-y-6"

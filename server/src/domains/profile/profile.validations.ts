@@ -13,6 +13,8 @@ export const editProfileSchema = Joi.object({
   Bio: Joi.string().max(500).allow('', null).optional(),
   Gender: Joi.string().allow('', null).optional(),
   Region: Joi.allow('', null).optional(),
+    pfpContentType: Joi.any().optional(),
+
 }).unknown(true);
 
 

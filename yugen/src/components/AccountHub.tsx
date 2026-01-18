@@ -1,4 +1,3 @@
-// src/L2/AccountHub.tsx
 import "../App.css";
 import { useState, useEffect, useRef } from "react";
 import supabase from "../lib/supabaseClient";
@@ -12,6 +11,7 @@ import upload_button_gif from "../YugenAssits/upload-button/Upload button modifi
 import { Tooltip } from "@mui/material";
 import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
 import { createPortal } from "react-dom";
+import AuthActionGuard from "./clickWrapper";
 
 function AccHub() {
   const { userInfo } = useAuth();
@@ -31,13 +31,8 @@ function AccHub() {
   };
 
   const PFPurl = userInfo?.pfp_path
-    ? supabase.storage.from("pfps").getPublicUrl(userInfo?.pfp_path).data
-        .publicUrl +
-      (userInfo?.updated_at
-        ? `?v=${new Date(userInfo?.updated_at).getTime()}`
-        : "")
+    ? `https://pfps.try-yugen.com/${userInfo.pfp_path}?t=${Date.now()}`
     : tempPFP;
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -51,18 +46,18 @@ function AccHub() {
 
   return (
     <div className="absolute top-2 right-5 flex items-center justify-between h-[60px] w-35 rounded-full border-3 border-solid border-emerald-950/100 bg-emerald-50  backdrop-blur-md p-2 gap-0.5">
-      {/* upload  */}
       <Tooltip title="Upload">
-        <img
-          src={isHover ? upload_button_gif : upload_button_static}
-          onClick={() => navigate("/UploadFilmPage")}
-          onMouseEnter={() => setIsHover(true)}
-          onMouseLeave={() => setIsHover(false)}
-          className="h-[60px] w-auto cursor-pointer rounded-lg transition-transform duration-300 ease-in-out "
-          alt="upload_button"
-        />
+        <AuthActionGuard>
+          <img
+            src={isHover ? upload_button_gif : upload_button_static}
+            onClick={() => navigate("/UploadFilmPage")}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+            className="h-[60px] w-auto cursor-pointer rounded-lg transition-transform duration-300 ease-in-out "
+            alt="upload_button"
+          />
+        </AuthActionGuard>
       </Tooltip>
-      {/* Avatar */}
       <img
         src={PFPurl}
         onError={(e) => {
@@ -75,7 +70,6 @@ function AccHub() {
         onClick={toggleMenu}
         className="h-[50px] w-auto rounded-full cursor-pointer border-2 border-emerald-950  transition-transform duration-300 ease-in-out hover:scale-105"
       />
-      {/* Dropdown Menu */}
 
       {menuOpen &&
         createPortal(
@@ -114,7 +108,7 @@ function AccHub() {
               Logout
             </button>{" "}
           </div>,
-          document.body
+          document.body,
         )}
     </div>
   );

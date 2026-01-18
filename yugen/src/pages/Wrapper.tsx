@@ -3,136 +3,75 @@ import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import Loading from "../components/loading_kickflip";
-import supabase from "../lib/supabaseClient";
-import { api } from "../lib/api";
 
 type AuthStatus =
   | "loading"
-  | "checking"
   | "unauthenticated"
-  | "signupGoogle"
-  | "emailUnverified"
-  | "firstLogin"
+  | "pendingGoogleSignup"
+  | "pendingConfirmation"
+  | "firstTimer"
   | "authenticated";
 
 function Wrapper({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const { getAccessToken } = useAuth();
-  /* ------------------------------------------------------------------ */
-  /* STEP 1: BASIC AUTH CHECK (NO PROVIDER LOGIC)                        */
-  /* ------------------------------------------------------------------ */
+
   useEffect(() => {
     let mounted = true;
 
-    const checkAuth = async () => {
-      setStatus("checking");
-
+    const checkUser = async () => {
       try {
         const token = await getAccessToken();
+
         if (!token) {
           if (mounted) setStatus("unauthenticated");
           return;
         }
 
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const { data } = await axios.get(
+          "http://localhost:8080/api/auth/status",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
 
-        if (!user) {
-          if (mounted) setStatus("unauthenticated");
-          return;
-        }
-
-        /**
-         * At this point:
-         * - User is authenticated at Supabase level
-         * - All provider / verification logic is backend-owned
-         */
-        if (mounted) setStatus("authenticated");
+        if (mounted) setStatus(data.status);
       } catch {
         if (mounted) setStatus("unauthenticated");
       }
     };
 
-    checkAuth();
+    checkUser();
 
     return () => {
       mounted = false;
     };
   }, [getAccessToken]);
 
-  /* ------------------------------------------------------------------ */
-  /* STEP 2: BACKEND-DRIVEN STATE CHECKS (AUTHENTICATED ONLY)            */
-  /* ------------------------------------------------------------------ */
-  useEffect(() => {
-    if (status !== "authenticated") return;
+  // ⏳ Loading
+  if (status === "loading") return <Loading />;
 
-    let mounted = true;
-
-    const checkBackendState = async () => {
-      try {
-        const token = await getAccessToken();
-        if (!token) return;
-
-        const res = await api.get("/tools/checkFirstTimer", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        /**
-         * Backend response decides everything
-         */
-        if (mounted) {
-          if (res.data?.requires_email_verification) {
-            setStatus("emailUnverified");
-            return;
-          }
-
-          if (res.data?.requires_google_signup) {
-            setStatus("signupGoogle");
-            return;
-          }
-
-          if (res.data?.first_timer === true) {
-            setStatus("firstLogin");
-            return;
-          }
-        }
-      } catch {
-        /* silent */
-      }
-    };
-
-    checkBackendState();
-
-    return () => {
-      mounted = false;
-    };
-  }, [status, getAccessToken]);
-
-  /* ------------------------------------------------------------------ */
-  /* HARD GUARDS                                                         */
-  /* ------------------------------------------------------------------ */
-
-  if (status === "loading" || status === "checking") {
-    return <Loading />;
-  }
-
+  // 🚫 Not logged in
   if (status === "unauthenticated") {
-    return <Navigate to="/about" replace />;
+    return <Navigate to="/login" replace />;
   }
 
-  if (status === "emailUnverified") {
-    return <Navigate to="/pending-email-confirmation" replace />;
-  }
-
-  if (status === "signupGoogle") {
+  // 🔐 Google auth but no public.users row
+  if (status === "pendingGoogleSignup") {
     return <Navigate to="/googleSignUp" replace />;
   }
 
-  if (status === "firstLogin") {
-    return <Navigate to="/profile-customization" replace />;
+  // 📧 Email not confirmed
+  if (status === "pendingConfirmation") {
+    return <Navigate to="/pending-email-confirmation" replace />;
   }
 
+  // 👋 First-time onboarding
+  if (status === "firstTimer") {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // ✅ Fully authenticated
   return <>{children}</>;
 }
 

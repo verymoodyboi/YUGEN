@@ -22,6 +22,7 @@ import { useFilms } from "../hooks/useFilm";
 import Loading from "../../../components/loading_kickflip";
 import { Tooltip } from "@mui/material";
 import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+import AuthActionGuard from "../../../components/clickWrapper";
 
 interface Props {
   filmId: string;
@@ -81,15 +82,11 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
     <div className="flex flex-col gap-4 w-full overFlow-y-scrol">
       {filmData && (
         <>
-          {/* Uploader Section */}
           <div className="flex items-center gap-4 p-2">
             <img
               src={
                 filmData?.uploader?.pfp_path
-                  ? supabase.storage
-                      .from("pfps")
-                      .getPublicUrl(filmData?.uploader?.pfp_path).data
-                      .publicUrl + `?v=${Date.now()}`
+                  ? `https://pfps.try-yugen.com/${filmData?.uploader.pfp_path}?t=${Date.now()}`
                   : tempPFP
               }
               alt="pfp"
@@ -100,8 +97,8 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                 } else {
                   navigate(
                     `/@?username=${encodeURIComponent(
-                      filmData?.uploader?.username
-                    )}`
+                      filmData?.uploader?.username,
+                    )}`,
                   );
                 }
               }}
@@ -117,7 +114,6 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
             </div>
           </div>
 
-          {/* Video */}
           {filmData?.film_path && (
             <VideoPlayer
               filmPath={filmData.film_path}
@@ -133,18 +129,15 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               <span className="inline-block font-freckle text-sm text-emerald-950/70">
                 {(() => {
                   try {
-                    // If it's a JSON string, parse it
                     const parsed =
                       typeof filmData.film_genre === "string"
                         ? JSON.parse(filmData.film_genre)
                         : filmData.film_genre;
 
-                    // If it's now an array, join it
                     return Array.isArray(parsed)
                       ? parsed.join(", ")
                       : parsed || "No genre";
                   } catch {
-                    // fallback if parsing fails
                     return filmData.film_genre || "No genre";
                   }
                 })()}
@@ -168,38 +161,43 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
             </div>
           </div>
 
-          {/* Spacing between top info and action+accordions */}
           <div className="h-4" />
 
-          {/* Actions on TOP */}
           <div className="flex gap-4 p-2 justify-start text-emerald-950">
             <Tooltip title="Report">
-              <button
-                onClick={() => setIsReportOpen(true)}
-                className="hover:scale-110 transition"
-              >
-                <FiFlag size={26} />
-              </button>
+              <AuthActionGuard>
+                <button
+                  onClick={() => setIsReportOpen(true)}
+                  className="hover:scale-110 transition"
+                >
+                  <FiFlag size={26} />
+                </button>
+              </AuthActionGuard>
             </Tooltip>
+
             <Tooltip title="Add to plalist">
-              <button
-                onClick={() => setIsPlaylistOpen(true)}
-                className="hover:scale-110 transition"
-              >
-                <FiPlusSquare size={26} />
-              </button>
+              <AuthActionGuard>
+                <button
+                  onClick={() => setIsPlaylistOpen(true)}
+                  className="hover:scale-110 transition"
+                >
+                  <FiPlusSquare size={26} />
+                </button>
+              </AuthActionGuard>
             </Tooltip>
             <Tooltip title="Add to Watchlist">
-              <button
-                onClick={handleWatchlist}
-                className="hover:scale-110 transition"
-              >
-                {watchlisted ? (
-                  <FiCheckSquare size={26} />
-                ) : (
-                  <FiBookmark size={26} />
-                )}
-              </button>
+              <AuthActionGuard>
+                <button
+                  onClick={handleWatchlist}
+                  className="hover:scale-110 transition"
+                >
+                  {watchlisted ? (
+                    <FiCheckSquare size={26} />
+                  ) : (
+                    <FiBookmark size={26} />
+                  )}
+                </button>
+              </AuthActionGuard>
             </Tooltip>
           </div>
 
@@ -225,7 +223,6 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               )}
             </div>
 
-            {/* Cast */}
             <div
               className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer hover:scale-101 "
               onClick={() => setExpanded(expanded === "cast" ? false : "cast")}
@@ -259,7 +256,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                               navigate(
                                 username === uname
                                   ? "/profile"
-                                  : `/@?username=${encodeURIComponent(uname)}`
+                                  : `/@?username=${encodeURIComponent(uname)}`,
                               );
                             }}
                           />
@@ -276,7 +273,6 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
               )}
             </div>
 
-            {/* Crew */}
             <div
               className="border-2 border-emerald-950 bg-emerald-50 rounded-xl cursor-pointer hover:scale-101 transition"
               onClick={() => setExpanded(expanded === "crew" ? false : "crew")}
@@ -310,7 +306,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                               navigate(
                                 username === uname
                                   ? "/profile"
-                                  : `/@?username=${encodeURIComponent(uname)}`
+                                  : `/@?username=${encodeURIComponent(uname)}`,
                               );
                             }}
                           />
@@ -328,9 +324,6 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
             </div>
           </div>
 
-          {/* Thoughts */}
-
-          {/* Report Dialog */}
           <Transition show={isReportOpen} as={Fragment}>
             <Dialog
               onClose={() => setIsReportOpen(false)}
@@ -360,16 +353,12 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
             </Dialog>
           </Transition>
 
-          {/* Playlist Dialog */}
-          {/* Playlist Dialog */}
           <Transition show={isPlaylistOpen}>
             <Dialog
               onClose={() => setIsPlaylistOpen(false)}
               className="relative z-50"
             >
-              {/* Backdrop */}
               <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-                {/* Panel */}
                 <Dialog.Panel
                   className="
           relative w-full max-w-md p-6 font-freckle
@@ -377,7 +366,6 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
           shadow-[6px_6px_0_#064e3b]
         "
                 >
-                  {/* Close Button */}
                   <button
                     onClick={() => setIsPlaylistOpen(false)}
                     className="absolute top-3 right-3 text-emerald-950 hover:scale-110 transition"
@@ -389,8 +377,6 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                     Add to playlist
                   </h2>
 
-                  {/* Playlist list */}
-                  {/* Playlist list */}
                   <div
                     className="
     flex flex-col gap-3
@@ -420,7 +406,6 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                     ))}
                   </div>
 
-                  {/* Done button */}
                   <button
                     onClick={() => setIsPlaylistOpen(false)}
                     className="

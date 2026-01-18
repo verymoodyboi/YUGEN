@@ -6,7 +6,7 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import supabase from "../lib/supabaseClient"; // still needed for session/token
+import supabase from "../lib/supabaseClient";
 import { api } from "../lib/api";
 import { Session } from "@supabase/supabase-js";
 
@@ -80,14 +80,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [getAccessToken]);
 
   useEffect(() => {
-    loadProfile(); // initial load
+    loadProfile();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         console.log("Auth state change:", _event);
         setSession(session);
         loadProfile();
-      }
+      },
     );
 
     return () => {

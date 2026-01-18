@@ -23,18 +23,15 @@ const NewPlaylist: React.FC<NewPlaylistProps> = ({
   const { getAccessToken } = useAuth();
   const { creating, handleCreatePlaylist } = usePlaylist();
 
-  // 🔥 Animation / close handling
   const [visible, setVisible] = React.useState(false);
   const modalRef = React.useRef<HTMLDivElement>(null);
 
-  // Trigger animation when opened
   React.useEffect(() => {
     if (isOpen) {
       setTimeout(() => setVisible(true), 10);
     }
   }, [isOpen]);
 
-  //  Close on outside click
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
@@ -65,7 +62,6 @@ const NewPlaylist: React.FC<NewPlaylistProps> = ({
         setPlaylistName("");
         setIsPublic(false);
 
-        // close with animation
         setVisible(false);
         setTimeout(() => {
           onClose();

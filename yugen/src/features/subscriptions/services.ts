@@ -1,4 +1,3 @@
-// src/features/subs/services/subsServices.ts
 import { api } from "../../lib/api";
 
 export interface Subscription {
@@ -48,7 +47,6 @@ export async function subscribeToArtist(artistId: string, token: string) {
   return { isSubscribed: true, notify: true };
 }
 
-// ✅ Unsubscribe from an artist
 export async function unsubscribeFromArtist(artistId: string, token: string) {
   await api.delete("/subs", {
     data: { artistId },

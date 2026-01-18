@@ -10,6 +10,7 @@ import genres_icon from "../YugenAssits/menu_icons/Genres.svg";
 import surprise_icon from "../YugenAssits/menu_icons/Random.svg";
 import report_icon from "../YugenAssits/menu_icons/Report.svg";
 import contact_icon from "../YugenAssits/menu_icons/Contact.svg";
+import AuthActionGuard from "./clickWrapper";
 
 type SideMenuProps = {
   mode?: "desktop" | "mobile";
@@ -74,7 +75,6 @@ function SideMenu({
 
   const MenuContent = (
     <div className="no-scrollbar w-full h-full bg-emerald-950 border-emerald-950  flex flex-col gap-4 p-6 overflow-y-auto ">
-      {/* Library */}
       <SectionTitle>Your Library</SectionTitle>
       <MenuButton
         label="Watchlist"
@@ -113,7 +113,6 @@ function SideMenu({
         }}
       />
 
-      {/* Explore */}
       <SectionTitle>Explore</SectionTitle>
       <MenuButton
         label="Yūgen map"
@@ -139,7 +138,6 @@ function SideMenu({
           navigate("/genres");
         }}
       />
-      {/* Community */}
       <SectionTitle>Community</SectionTitle>
       <MenuButton
         disabled
@@ -152,7 +150,6 @@ function SideMenu({
       />
       <MenuButton label="Clubs" badge="Soon!" disabled />
 
-      {/* Help */}
       <SectionTitle>Help</SectionTitle>
 
       <MenuButton
@@ -160,11 +157,13 @@ function SideMenu({
         icon={contact_icon}
         onClick={onOpenContact}
       />
-      <MenuButton
-        label="Technical Report"
-        icon={report_icon}
-        onClick={onOpenReport}
-      />
+      <AuthActionGuard>
+        <MenuButton
+          label="Technical Report"
+          icon={report_icon}
+          onClick={onOpenReport}
+        />
+      </AuthActionGuard>
       <nav className="flex flex-col space-y-3 flex-1 md:items-center">
         <h3 className="text-emerald-50 title text-md">More</h3>
         {navigationLinks.map((link) => (
@@ -180,10 +179,8 @@ function SideMenu({
     </div>
   );
 
-  // Desktop
   if (mode === "desktop") return <>{MenuContent}</>;
 
-  // Mobile
   return (
     <>
       {!open && (
@@ -208,12 +205,11 @@ function SideMenu({
         </button>
       )}
 
-      {/* Always-mounted mobile drawer */}
       <div
         className={`fixed inset-0 z-[9999] bg-black/40 backdrop-blur-[1px] transition-opacity duration-300 ease-in-out
     ${open ? "opacity-100 visible" : "opacity-0 pointer-events-none"}`}
         onClick={(e) => {
-          if (e.target === e.currentTarget) setOpen(false); // close on outside click
+          if (e.target === e.currentTarget) setOpen(false);
         }}
       >
         <div

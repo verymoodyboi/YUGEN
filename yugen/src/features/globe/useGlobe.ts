@@ -1,4 +1,3 @@
-// src/features/globe/useGlobe.ts
 import { useState, useCallback } from "react";
 import {
   fetchFilmsByCountry,
@@ -64,7 +63,6 @@ const handleCountryClick = useCallback(async (countryName: string) => {
   }
 }, []);
 
-  // Load more films when scrolling
   const loadMoreFilms = useCallback(async () => {
     if (!selectedCountry) return;
     setLoadingMore(true);
@@ -86,7 +84,6 @@ const handleCountryClick = useCallback(async (countryName: string) => {
     }
   }, [selectedCountry, filmOffset]);
 
-  // Load more users (artists)
   const loadMoreUsers = useCallback(async () => {
     if (!selectedCountry) return;
     setLoadingMore(true);

@@ -13,19 +13,14 @@ interface Playlist {
 export function usePlaylist() {
   const { getAccessToken } = useAuth();
 
-  // MY PLAYLISTS
   const [myPlaylists, setMyPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // SAVED PLAYLISTS
   const [savedPlaylists, setSavedPlaylists] = useState<Playlist[]>([]);
   const [savedLoading, setSavedLoading] = useState(true);
 
   const [creating, setCreating] = useState(false);
 
-  // ---------------------------
-  // Fetch MY playlists
-  // ---------------------------
   const fetchMyPlaylists = useCallback(async () => {
     setLoading(true);
     try {
@@ -40,9 +35,7 @@ export function usePlaylist() {
     }
   }, [getAccessToken]);
 
-  // ---------------------------
-  // Fetch SAVED playlists
-  // ---------------------------
+ 
   const fetchMySavedPlaylists = useCallback(async () => {
     setSavedLoading(true);
     try {
@@ -57,9 +50,7 @@ export function usePlaylist() {
     }
   }, [getAccessToken]);
 
-  // ---------------------------
-  // Create playlist
-  // ---------------------------
+
   const handleCreatePlaylist = useCallback(
     async (playlistName: string, isPublic: boolean) => {
       if (!playlistName.trim()) return false;
@@ -81,10 +72,6 @@ export function usePlaylist() {
     },
     [getAccessToken, fetchMyPlaylists]
   );
-
-  // ---------------------------
-  // Local updates
-  // ---------------------------
   const handleLocalPlaylistUpdate = (playlist_uuid: string, updates: any) => {
     setMyPlaylists((prev) =>
       prev.map((p) =>
@@ -100,11 +87,9 @@ export function usePlaylist() {
   };
 
   return {
-    // my playlists
     myPlaylists,
     loading,
 
-    // saved playlists
     savedPlaylists,
     savedLoading,
 

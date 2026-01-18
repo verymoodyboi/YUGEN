@@ -2,7 +2,7 @@
 import { claimNextJob } from "../domains/jobs/claimJob.js";
 import { processFilmJob } from "../domains/jobs/process.services.js";
 
-const POLL_INTERVAL_MS = 3000;
+const POLL_INTERVAL_MS = 30;
 
 async function runWorker() {
   console.log("🎬 Film worker started");

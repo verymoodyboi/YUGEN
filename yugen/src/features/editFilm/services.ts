@@ -29,7 +29,6 @@ export const editFilm = async (formData: FormData, token: string) => {
 
 
 export const searchMentions = async (q: string, token: string) => {
-  // returns axios response (caller can read response.data)
   const encoded = encodeURIComponent(q);
   return api.get(
     `search/mentions/?q=${encoded}`,

@@ -17,6 +17,7 @@ import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useToast } from "../../../components/toaster";
+import AuthActionGuard from "../../../components/clickWrapper";
 
 const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
   const { userInfo } = useAuth();
@@ -51,7 +52,7 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
     }
     navigate(
       `/watchplaylist?uuid=${playlist.playlist_films?.[0]?.films?.film_uuid}&list_id=${playlist.playlist_uuid}`,
-      { state: { playlist } }
+      { state: { playlist } },
     );
   };
 
@@ -77,7 +78,6 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
         onClick={handleCardClick}
         className="rounded-xl w-60 bg-emerald-50 border-2 border-emerald-950 shadow-md overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] mt-2 ml-2"
       >
-        {/* Posters */}
         <div className="flex w-full aspect-[6/3] border-b-2 border-emerald-950">
           {posters.length > 0 ? (
             posters.map((pf: any, idx: number) => (
@@ -117,14 +117,12 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
               >
                 <LocalMoviesIcon className="text-4xl text-emerald-950/70" />
               </div>
-            )
+            ),
           )}
         </div>
 
-        {/* Content */}
         <div className="p-3 flex justify-between items-start">
           <div className="text-left flex flex-col gap-1 max-w-[140px]">
-            {/* Playlist name */}
             <div className="flex items-center gap-1 min-w-0">
               <PlaylistPlayIcon fontSize="small" className="shrink-0" />
 
@@ -172,7 +170,6 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
               )}
             </div>
 
-            {/* Username */}
             <p
               className="
       text-sm text-emerald-950/70
@@ -184,8 +181,8 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
                 e.stopPropagation();
                 navigate(
                   `/@?username=${encodeURIComponent(
-                    playlist.creator?.username
-                  )}`
+                    playlist.creator?.username,
+                  )}`,
                 );
               }}
             >
@@ -201,9 +198,7 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
           </div>
         </div>
 
-        {/* Bottom section */}
         <div className="ignore-click flex items-center justify-between bg-emerald-50 border-t-2 border-emerald-950 h-16 px-3">
-          {/* LEFT: Visibility status */}
           <div className="flex items-center gap-2 text-emerald-950">
             {isPublic ? (
               <>
@@ -218,10 +213,8 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
             )}
           </div>
 
-          {/* RIGHT: Actions */}
           {ownsPlaylist ? (
             <div className="flex items-center gap-3">
-              {/* Public toggle */}
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -232,7 +225,6 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
                 <div className="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-emerald-950 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-emerald-50 after:h-4 after:w-4 after:rounded-full after:transition-all peer-checked:after:translate-x-full" />
               </label>
 
-              {/* Delete */}
               <button
                 type="button"
                 onClick={(e) => {
@@ -245,33 +237,33 @@ const PlaylistCard = ({ playlist, onLocalChange, onLocalDelete }: any) => {
               </button>
             </div>
           ) : (
-            /* SAVE PLAYLIST (not mine) */
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleSaved();
-              }}
-              className="flex items-center gap-1 text-xs px-3 py-1.5
+            <AuthActionGuard>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleSaved();
+                }}
+                className="flex items-center gap-1 text-xs px-3 py-1.5
                  border-2 border-emerald-950 rounded-full
                  hover:bg-emerald-950 hover:text-emerald-50 transition"
-            >
-              {isSaved ? (
-                <>
-                  {" "}
-                  <BookmarkAddedIcon fontSize="small" /> Unsave{" "}
-                </>
-              ) : (
-                <>
-                  {" "}
-                  <BookmarkAddIcon fontSize="small" /> Save{" "}
-                </>
-              )}
-            </button>
+              >
+                {isSaved ? (
+                  <>
+                    {" "}
+                    <BookmarkAddedIcon fontSize="small" /> Unsave{" "}
+                  </>
+                ) : (
+                  <>
+                    {" "}
+                    <BookmarkAddIcon fontSize="small" /> Save{" "}
+                  </>
+                )}
+              </button>
+            </AuthActionGuard>
           )}
         </div>
       </div>
 
-      {/* Confirm Delete Popup */}
       {showConfirmDelete && (
         <div
           className={`fixed inset-0 flex items-center justify-center z-50 transition-all duration-300 ease-out

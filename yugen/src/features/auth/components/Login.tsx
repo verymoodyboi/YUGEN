@@ -41,7 +41,7 @@ function LoginForm() {
 
       if (error.message.includes("Email not confirmed")) {
         return navigate(
-          `/pending-email-confirmation?email=${encodeURIComponent(email)}`
+          `/pending-email-confirmation?email=${encodeURIComponent(email)}`,
         );
       } else {
         return toast.warn("Invalid email or password!");
@@ -54,7 +54,7 @@ function LoginForm() {
       } = await supabase.auth.getUser();
       if (!user?.email_confirmed_at) {
         return navigate(
-          `/pending-email-confirmation?email=${encodeURIComponent(email)}`
+          `/pending-email-confirmation?email=${encodeURIComponent(email)}`,
         );
       }
       navigate("/");
@@ -73,7 +73,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen  text-center p-6">
+    <div className="flex flex-col items-center justify-center h-[90vh]  text-center p-6">
       <form
         onSubmit={handleSubmit}
         className="bg-emerald-50 rounded-3xl shadow-xl p-8 max-w-md w-full border-4 border-emerald-950"
@@ -91,10 +91,16 @@ function LoginForm() {
             className="underline text-emerald-950 hover:text-emerald-700"
           >
             Signup
+          </Link>{" "}
+          or{" "}
+          <Link
+            to="/"
+            className="underline text-emerald-950 hover:text-emerald-700"
+          >
+            continue as guest
           </Link>
         </p>
 
-        {/* Email */}
         <input
           type="email"
           placeholder="Email"
@@ -103,7 +109,6 @@ function LoginForm() {
           className="w-full px-4 py-3 mb-4 border-2 border-emerald-950 text-emerald-950 bg-emerald-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 font-freckle"
         />
 
-        {/* Password */}
         <input
           type="password"
           placeholder="Password"
@@ -112,7 +117,6 @@ function LoginForm() {
           className="w-full px-4 py-3 mb-6 border-2 border-emerald-950 text-emerald-950 bg-emerald-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 font-freckle"
         />
 
-        {/* Login Button */}
         <button
           type="submit"
           className="w-full py-3 mb-4 rounded-xl font-freckle text-emerald-50 bg-emerald-950 hover:bg-emerald-800 transition-all"
@@ -120,7 +124,6 @@ function LoginForm() {
           Login
         </button>
 
-        {/* Google Button */}
         <button
           type="button"
           onClick={handleGoogleSignIn}
@@ -130,7 +133,6 @@ function LoginForm() {
           Sign in with Google
         </button>
 
-        {/* Forgot password */}
         <button
           type="button"
           onClick={() => setOpenReset(true)}
@@ -140,9 +142,6 @@ function LoginForm() {
         </button>
       </form>
 
-      {/* Reset Modal */}
-      {/* Reset Modal */}
-      {/* Reset Modal */}
       {openReset && (
         <Transition
           show={openReset}
@@ -168,7 +167,6 @@ function LoginForm() {
         "
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Content */}
               {isDone ? (
                 <>
                   <CheckIcon

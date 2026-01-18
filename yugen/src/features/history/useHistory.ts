@@ -1,4 +1,3 @@
-// src/hooks/useHistory.ts
 import { useState, useEffect, useRef } from "react";
 import { historyService, HistoryItem } from "./services";
 import { useAuth } from "../../contexts/AuthContext";

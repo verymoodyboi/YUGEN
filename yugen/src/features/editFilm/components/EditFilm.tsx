@@ -16,9 +16,9 @@ import supabase from "../../../lib/supabaseClient";
 import { useAuth } from "../../../contexts/AuthContext";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import useEditFilmApi from "../hooks/useEditFilm";
-import { useGenresWithFilms } from "../../genres/useGenres";
-import { useUpload } from "../../upload/hooks/useUpload";
+import useEditFilmApi from "../../../features/editFilm/hooks/useEditFilm";
+import { useGenresWithFilms } from "../../../features/genres/useGenres";
+import { useUpload } from "../../../features/upload/hooks/useUpload";
 import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
 
@@ -54,14 +54,12 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   const genreOptions = React.useMemo(
     () =>
       Array.isArray(allGenres)
-        ? allGenres.map((g: any) => g.genre || g.name || g.id) // support flexible schema
+        ? allGenres.map((g: any) => g.genre || g.name || g.id)
         : [],
-    [allGenres]
+    [allGenres],
   );
-  // Auth (still available in this component because some non-API parts might use it)
   const { getAccessToken } = useAuth();
 
-  // Use the refactored hook that contains API calls and mention search state
   const {
     searchInput,
     setSearchInput,
@@ -89,7 +87,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     setActorSearchInput,
   } = useUpload();
 
-  // Delete film modal state
   const [openDelete, setOpenDelete] = useState(false);
 
   const handleDelete = async () => {
@@ -105,7 +102,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     }
   };
 
-  // Mentions search (for crew/cast)
   const [crewPFP, setCrewPFP] = useState<string>("");
   const [actorPFP, setActorPFP] = useState<string>("");
 
@@ -115,11 +111,11 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
 
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(
-    null
+    null,
   );
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [croppedPreviewUrl, setCroppedPreviewUrl] = useState<string | null>(
-    null
+    null,
   );
 
   const [crop, setCrop] = useState<any>(null);
@@ -129,7 +125,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    // cleanup object URLs on unmount
     return () => {
       if (originalPreviewUrl) URL.revokeObjectURL(originalPreviewUrl);
       if (croppedPreviewUrl) URL.revokeObjectURL(croppedPreviewUrl);
@@ -147,7 +142,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       { unit: "px", width: MinWidth, height: MinHeight },
       aspectRatio,
       naturalWidth,
-      naturalHeight
+      naturalHeight,
     );
     setCrop(newCrop);
   };
@@ -159,7 +154,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     if (!ctx) return;
 
     const pxRatio = window.devicePixelRatio || 1;
-    // compute cropping in original image pixels
     const scaleX = imgEl.naturalWidth / imgEl.width;
     const scaleY = imgEl.naturalHeight / imgEl.height;
     const sx = Math.round(cropArg.x * scaleX);
@@ -167,18 +161,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     const sw = Math.round(cropArg.width * scaleX);
     const sh = Math.round(cropArg.height * scaleY);
 
-    // set canvas to the size of the cropped area (consider pixel ratio)
     canvas.width = Math.floor(sw * pxRatio);
     canvas.height = Math.floor(sh * pxRatio);
 
-    // use setTransform for crisp scaling
     ctx.setTransform(pxRatio, 0, 0, pxRatio, 0, 0);
     ctx.imageSmoothingQuality = "high";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // draw the cropped portion to canvas
     ctx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, sw, sh);
 
-    // produce blob and file
     return new Promise<File | null>((resolve) => {
       canvas.toBlob(
         (blob) => {
@@ -189,7 +179,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
           const file = new File([blob], "poster_cropped.png", {
             type: "image/png",
           });
-          // revoke old cropped URL
           if (croppedPreviewUrl) {
             try {
               URL.revokeObjectURL(croppedPreviewUrl);
@@ -201,7 +190,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
           resolve(file);
         },
         "image/png",
-        0.95
+        0.95,
       );
     });
   };
@@ -213,7 +202,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       toast.warn("Only JPEG or PNG images allowed!");
       return;
     }
-    // revoke old original preview
     if (originalPreviewUrl) {
       try {
         URL.revokeObjectURL(originalPreviewUrl);
@@ -222,9 +210,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     const path = URL.createObjectURL(file);
     setPosterFile(file);
     setOriginalPreviewUrl(path);
-    // open crop modal
     setIsModalOpen(true);
-    // reset any previous cropped file (user will crop again)
     if (croppedPreviewUrl) {
       try {
         URL.revokeObjectURL(croppedPreviewUrl);
@@ -254,19 +240,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // show modal (already used)
   const showModal = () => setIsModalOpen(true);
 
-  // Save button in cropper
   const handleOk = async () => {
     if (imgRef.current && crop && canvasRef.current) {
       await applyCropAndSetFile(imgRef.current, crop);
     }
-    setIsModalOpen(false);
   };
 
-  // Original file in-state -> crop on change (mirror prior behavior)
-  // In some original code the onClose applied crop; keep original behavior: apply crop when modal closes too
   const handleCancel = async () => {
     if (imgRef.current && crop && canvasRef.current) {
       await applyCropAndSetFile(imgRef.current, crop);
@@ -275,19 +256,16 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   };
 
   useEffect(() => {
-    // whenever crop changes and we have an image element and canvas, produce a preview immediately (mirrors old code)
     const apply = async () => {
       if (imgRef.current && crop && canvasRef.current) {
         await applyCropAndSetFile(imgRef.current, crop);
       }
     };
     apply();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [crop]);
 
-  // Film data states
   const [title, setTitle] = useState(
-    filmInfo.film_title || filmInfo.title || ""
+    filmInfo.film_title || filmInfo.title || "",
   );
   const [thesis, setThesis] = useState(filmInfo.thesis || "");
   const [genres, setGenres] = useState<string[]>(
@@ -295,7 +273,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       ? filmInfo.film_genre
       : typeof filmInfo.film_genre === "string"
         ? filmInfo.film_genre.split(",").map((g) => g.trim())
-        : []
+        : [],
   );
   const [country, setCountry] = useState(filmInfo.country || "");
 
@@ -304,20 +282,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   const [actor, setActor] = useState("");
   const [character, setCharacter] = useState("");
 
-  // Submit update (calls the hook's submitEdit, which calls service)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // preserve original behavior: call onDone early (original code did this)
-    if (onDone) {
-      onDone();
-    }
 
     if (!title || !thesis || !genres || genres.length === 0) {
       toast.warn("Please fill the title, thesis, and at least one genre.");
       return false;
     }
 
-    // Title validation
     if (title.length > 100) {
       toast.warn("Title cannot exceed 100 characters");
       return false;
@@ -327,12 +299,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       return false;
     }
     if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(title)) {
-      // disallow emojis and unusual symbols
       toast.warn("Title cannot contain emojis or special characters");
       return false;
     }
 
-    // Thesis validation
     if (thesis.length > 1000) {
       toast.warn("Thesis cannot exceed 1000 characters");
       return false;
@@ -360,7 +330,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       formData.append("Cast", JSON.stringify(cast));
       formData.append("uplouderUsername", userInfo.username);
 
-      // prefer the cropped file if present; otherwise fall back to original selected file
       if (croppedFile) formData.append("Poster", croppedFile);
       else if (posterFile) formData.append("Poster", posterFile);
 
@@ -374,7 +343,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     }
   };
 
-  // Helper to get public url
   const getPublic = (bucket: string, path?: string | null) => {
     try {
       if (!path) return "";
@@ -386,20 +354,24 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     }
   };
 
-  // simple autocomplete UI for users
   const posterUrl = filmInfo.poster_path
-    ? supabase.storage.from("posters").getPublicUrl(filmInfo.poster_path).data
-        .publicUrl
+    ? `https://posters.try-yugen.com/${filmInfo.poster_path}`
     : tempPoster;
 
   return (
-    <div className="w-screen h-screen overflow-auto bg-emerald-50 text-emerald-950 p-6">
+    <div
+      className="w-screen h-screen overflow-auto bg-emerald-50 text-emerald-950 p-6"
+      style={{
+        backgroundImage: 'url("/Background.png")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="max-w-[1200px] mx-auto rounded-2xl p-4">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* LEFT COLUMN */}
             <div className="flex-1 min-w-0">
-              {/* Genres */}
               <div>
                 <label className="block mb-2 font-freckle font-semibold">
                   Genres
@@ -415,7 +387,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                           setGenres((prev) =>
                             prev.includes(g)
                               ? prev.filter((x) => x !== g)
-                              : [...prev, g]
+                              : [...prev, g],
                           )
                         }
                         className={`px-3 py-1 rounded-md border-2 font-freckle text-sm transition ${
@@ -431,7 +403,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                 </div>
               </div>
 
-              {/* Country */}
               <div className="mt-4">
                 <label className="block mb-2 font-freckle font-semibold">
                   Country
@@ -450,88 +421,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                 </select>
               </div>
 
-              {/* Poster Image */}
-              <div className="mt-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-freckle font-semibold">
-                    Poster Image (optional)
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md border-2 border-emerald-950 bg-emerald-50 cursor-pointer">
-                      <CloudUploadIcon />
-                      Change Poster
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg, image/png"
-                        className="hidden"
-                        onChange={handleFileChange}
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleRemoveFile}
-                      className="px-3 py-2 rounded-md border-2 border-red-400 text-red-600 bg-emerald-50"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center gap-4">
-                  <div className="w-[200px] h-[300px] rounded-sm overflow-hidden border-2 border-emerald-950 bg-emerald-50 flex items-center justify-center">
-                    {croppedPreviewUrl ? (
-                      <img
-                        src={croppedPreviewUrl}
-                        alt="poster preview"
-                        className="object-cover w-full h-full"
-                      />
-                    ) : originalPreviewUrl ? (
-                      <img
-                        src={originalPreviewUrl}
-                        alt="poster preview"
-                        className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <img
-                        src={posterUrl}
-                        alt="Film thumbnail"
-                        onError={(e) => {
-                          const img = e.currentTarget;
-                          if (img.src !== tempPoster) {
-                            img.src = tempPoster;
-                          }
-                        }}
-                        className="object-cover w-full h-full"
-                      />
-                    )}
-                  </div>
-
-                  <div className="flex-1 text-sm">
-                    <p className="text-emerald-950/80">
-                      Recommended aspect ratio: 2:3 (200x300 minimum). Use JPEG
-                      or PNG.
-                    </p>
-                    <p className="text-emerald-950/60 mt-2">
-                      After selecting an image you can crop it to the
-                      appropriate aspect ratio.
-                    </p>
-                    {posterFile && (
-                      <div className="mt-3">
-                        <button
-                          type="button"
-                          onClick={() => setIsModalOpen(true)}
-                          className="px-3 py-2 rounded-md border-2 border-emerald-950 bg-emerald-50"
-                        >
-                          Open cropper
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Poster Crop Modal */}
               {isModalOpen && (
                 <div
                   className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
@@ -555,7 +444,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                             minHeight={MinHeight}
                             onChange={(pixelCrop) => setCrop(pixelCrop)}
                           >
-                            {/* eslint-disable-next-line jsx-a11y/alt-text */}
                             <img
                               ref={imgRef}
                               src={originalPreviewUrl}
@@ -578,11 +466,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                             onClick={handleCancel}
                             className="px-4 py-2 rounded-md border-2 border-emerald-950 bg-emerald-50"
                           >
-                            Cancel
+                            Close
                           </button>
                         </div>
 
-                        {/* hidden canvas used for export */}
                         <canvas ref={canvasRef} style={{ display: "none" }} />
                       </>
                     )}
@@ -679,7 +566,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                   </button>
                 </div>
 
-                {/* crew list */}
                 <div className="space-y-2">
                   {crewList.map((member, idx) => (
                     <div
@@ -709,7 +595,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                       <button
                         onClick={() =>
                           setCrewList((prev) =>
-                            prev.filter((_, i) => i !== idx)
+                            prev.filter((_, i) => i !== idx),
                           )
                         }
                         className="px-3 py-1 rounded-md border-2 border-red-500 text-red-600"
@@ -783,7 +669,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                     onClick={() => {
                       if (!character || !actor) {
                         toast.warn(
-                          "Please select a character and enter an actor."
+                          "Please select a character and enter an actor.",
                         );
                         return;
                       }
@@ -841,11 +727,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
               </div>
             </div>
 
-            {/* RIGHT COLUMN */}
             <div className="w-full lg:w-[400px] flex-shrink-0">
               <div className="w-full bg-emerald-50 border-2 border-emerald-950 rounded-md overflow-hidden">
                 <ReactPlayer
-                  url={getPublic("films", filmInfo.film_path) || ""}
+                  url={`https://cdn.try-yugen.com/${filmInfo.film_path}`}
                   controls
                   width="100%"
                   height="225px"
@@ -877,7 +762,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex flex-wrap gap-3">
             <button
               type="submit"
@@ -909,7 +793,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
         </form>
       </div>
 
-      {/* Delete confirmation modal */}
       {openDelete && (
         <div
           className="fixed inset-0 z-60 bg-black/60 flex items-center justify-center p-4"
@@ -963,9 +846,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       )}
     </div>
   );
-  // NOTE: The original file ended after UserAutocomplete. To preserve layout/style/logic exactly,
-  // keep the rest of the component exactly as-is (no JSX changes were requested).
-  // If your original file had a render/return block below, paste it here unchanged.
 };
 
 export default EditFilm;

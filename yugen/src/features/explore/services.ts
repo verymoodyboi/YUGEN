@@ -1,4 +1,3 @@
-// src/services/explore.services.ts
 import { api } from "../../lib/api";
 
 export const fetchRandomFilms = async (limit = 1000) => {

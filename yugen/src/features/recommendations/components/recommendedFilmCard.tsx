@@ -21,12 +21,9 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
   const navigate = useNavigate();
   const { userInfo } = useAuth();
   const posterUrl = film.poster_path
-    ? supabase.storage.from("posters").getPublicUrl(film.poster_path).data
-        .publicUrl +
-      (film.updated_at ? `?v=${new Date(film.updated_at).getTime()}` : "")
+    ? `https://posters.try-yugen.com/${film.poster_path}`
     : tempPoster;
 
-  // scroll refs
   const titleContainerRef = React.useRef<HTMLDivElement | null>(null);
   const titleTextRef = React.useRef<HTMLSpanElement | null>(null);
   const genreContainerRef = React.useRef<HTMLDivElement | null>(null);
@@ -43,7 +40,7 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
         titleTextRef.current,
         titleContainerRef.current,
         genreTextRef.current,
-        genreContainerRef.current
+        genreContainerRef.current,
       );
     }
 
@@ -52,20 +49,15 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
     };
   }, [isMobile]);
 
-  // always pass both ids
   const { uploader } = useFilm(film.film_uuid, film.uploader_id);
   const PFPurl = uploader?.pfp
-    ? supabase.storage.from("pfps").getPublicUrl(uploader?.pfp).data.publicUrl +
-      (uploader?.updated_at
-        ? `?v=${new Date(uploader?.updated_at).getTime()}`
-        : "")
+    ? `https://pfps.try-yugen.com/${uploader.pfp}?t=${Date.now()}`
     : tempPFP;
   const handleClick = () => {
     if (onClick) onClick();
     else navigate(`/watch?uuid=${film.film_uuid}`);
   };
 
-  // safe genres
   const genresText = (() => {
     try {
       const genres =
@@ -89,7 +81,7 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
             titleTextRef.current,
             titleContainerRef.current,
             genreTextRef.current,
-            genreContainerRef.current
+            genreContainerRef.current,
           );
         }
       }}
@@ -104,7 +96,6 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
         ${selected ? "bg-emerald-100" : ""}`}
     >
       <div className="flex items-start gap-4">
-        {/* Poster */}
         <img
           src={posterUrl}
           alt="Film thumbnail"
@@ -117,9 +108,7 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
           className="w-20 h-28 object-cover rounded-md border border-emerald-950 flex-shrink-0"
         />
 
-        {/* Film info */}
         <div className="flex-1 flex flex-col">
-          {/* Title */}
           <div
             ref={titleContainerRef}
             className="overflow-hidden whitespace-nowrap
@@ -133,7 +122,6 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
             </span>
           </div>
 
-          {/* Genres */}
           <div
             ref={genreContainerRef}
             className="overflow-hidden whitespace-nowrap
@@ -147,7 +135,6 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
             </span>
           </div>
 
-          {/* Views + Rating UNDER genres */}
           <div className="flex items-center gap-4 mt-1 text-xs text-emerald-950/80">
             <div className="flex items-center gap-1">
               <FiEye size={14} />
@@ -160,14 +147,13 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
             </div>
           </div>
 
-          {/* Uploader */}
           {uploader?.username ? (
             <div
               className="flex items-center gap-1 mt-2 w-32 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(
-                  `/@?username=${encodeURIComponent(uploader.username)}`
+                  `/@?username=${encodeURIComponent(uploader.username)}`,
                 );
               }}
             >

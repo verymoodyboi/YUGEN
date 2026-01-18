@@ -1,5 +1,3 @@
-// src/pages/SignUpForm.tsx
-
 import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
@@ -8,11 +6,10 @@ import "react-image-crop/dist/ReactCrop.css";
 import { useSignup } from "../hooks/useSignUp";
 import countries from "../../../Data/countries.json";
 import { ImageCropper } from "../../../util/image-cropping/components/image-cropper";
-// Helper: checks email / username via your backend endpoints (same as original)
 
 function getCroppedFileFromImage(
   img: HTMLImageElement,
-  crop: Crop
+  crop: Crop,
 ): Promise<File> {
   return new Promise((resolve, reject) => {
     if (!crop || !img) return reject("Missing crop or image");
@@ -21,7 +18,6 @@ function getCroppedFileFromImage(
     const scaleX = img.naturalWidth / img.width;
     const scaleY = img.naturalHeight / img.height;
 
-    // Canvas size equals crop pixel dimensions (use devicePixelRatio for crispness)
     const pxRatio = window.devicePixelRatio || 1;
     canvas.width = Math.floor((crop.width ?? 0) * scaleX * pxRatio);
     canvas.height = Math.floor((crop.height ?? 0) * scaleY * pxRatio);
@@ -32,7 +28,6 @@ function getCroppedFileFromImage(
     ctx.scale(pxRatio, pxRatio);
     ctx.imageSmoothingQuality = "high";
 
-    // Crop source coordinates
     const sx = (crop.x ?? 0) * scaleX;
     const sy = (crop.y ?? 0) * scaleY;
     const sWidth = (crop.width ?? 0) * scaleX;
@@ -66,7 +61,7 @@ function getCroppedFileFromImage(
         resolve(file);
       },
       "image/png",
-      0.95
+      0.95,
     );
   });
 }
@@ -112,9 +107,6 @@ const SignUpForm: React.FC = () => {
     handleUsernameChange,
   } = signup;
 
-  // Save socials after signup (mirrors original pre-socials endpoint)
-
-  // Small UI: vintage step indicator
   const StepPill: React.FC<{
     i: number;
     label: string;
@@ -166,7 +158,6 @@ const SignUpForm: React.FC = () => {
     max-w-[80vw]
   "
       >
-        {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl title font-bold">Create your account</h1>
 
@@ -179,7 +170,6 @@ const SignUpForm: React.FC = () => {
           </p>
         </div>
 
-        {/* Stepper */}
         <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between mb-6">
           {steps.map((s, i) => (
             <StepPill
@@ -192,15 +182,13 @@ const SignUpForm: React.FC = () => {
           ))}
         </div>
 
-        {/* Content */}
         <form
           onSubmit={(e) => {
-            e.preventDefault(); // ← this stops the browser from reloading
+            e.preventDefault();
             handleSubmit();
           }}
           className="space-y-6"
         >
-          {/* Name */}
           {activeStep === 0 && (
             <div>
               <label className="block mb-1">First Name</label>
@@ -220,7 +208,6 @@ const SignUpForm: React.FC = () => {
             </div>
           )}
 
-          {/* Additional Info */}
           {activeStep === 1 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -268,7 +255,6 @@ const SignUpForm: React.FC = () => {
             </div>
           )}
 
-          {/* Credentials */}
           {activeStep === 2 && (
             <div className="space-y-4">
               <div>
@@ -306,7 +292,6 @@ const SignUpForm: React.FC = () => {
             </div>
           )}
 
-          {/* Profile */}
           {activeStep === 3 && (
             <div className="space-y-4">
               <div>
@@ -361,7 +346,6 @@ const SignUpForm: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Show cropper only if cropping */}
                   {rawPreview && (
                     <div className="mt-4">
                       <ImageCropper
@@ -378,7 +362,6 @@ const SignUpForm: React.FC = () => {
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex items-center justify-between gap-3">
             <div>
               {activeStep > 0 && (
@@ -418,7 +401,6 @@ const SignUpForm: React.FC = () => {
           </div>
         </form>
 
-        {/* link to login */}
         <div className="mt-6 text-sm">
           Already have an account?{" "}
           <Link to="/login" className="text-emerald-950 underline">

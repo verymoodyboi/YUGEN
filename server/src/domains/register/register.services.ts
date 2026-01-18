@@ -1,16 +1,57 @@
 
+
 import supabase from '../../lib/supabase.js';
 import supabaseA from '../../lib/anonSupabase.js';
 import  logger from '../../lib/logger.js';
 
-export async function registerUser(body: any, file?: Express.Multer.File) {
-  const { FName, LName, UserName, Bio, Email, Password, BirthDate, Gender, Region } = body;
+
+
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { r2 } from '../../lib/r2.js';
+
+export async function generateR2SignedPutUrl({
+  key,
+  contentType,
+}: {
+  key: string;
+  contentType: string;
+}) {
+  const command = new PutObjectCommand({
+    Bucket: 'pfps',
+    Key: key,
+    ContentType: contentType,
+  });
+
+  const signedUrl = await getSignedUrl(r2, command, {
+    expiresIn: 60 * 5, 
+  });
+
+  return signedUrl;
+}
+
+
+
+
+
+export async function registerUser(body: any) {
+  const {
+    FName,
+    LName,
+    UserName,
+    Bio,
+    Email,
+    Password,
+    BirthDate,
+    Gender,
+    Region,
+    pfpContentType, 
+  } = body;
 
   const joinDate = new Date().toISOString().split("T")[0];
-  const pfpFileName = `${Email}-pfp.jpg`;
+  const pfpKey = `pfps/${Email}-pfp.jpg`;
 
-  // Auth Sign Up (correct for trigger & metadata)
-  const { data: dataSupa, error: errorSupa } = await supabaseA.auth.signUp({
+  const { data, error } = await supabaseA.auth.signUp({
     email: Email,
     password: Password,
     options: {
@@ -21,98 +62,89 @@ export async function registerUser(body: any, file?: Express.Multer.File) {
         bio: Bio,
         gender: Gender ?? "prefer not to say",
         region: Region,
-        birthdate: BirthDate,
-   
-        pfp_path: pfpFileName,
+        age: BirthDate,
+        pfp_path: pfpKey,
         join_date: joinDate,
       },
     },
   });
 
-  if (errorSupa) {
-    logger.error("Supabase signUp error", { errorSupa });
-    throw new Error("Sign up failed: " + errorSupa.message);
+  if (error) {
+    logger.error("Supabase signUp error", { error });
+    throw new Error(error.message);
   }
 
-  const userId = dataSupa.user?.id;
-  if (!userId) {
-    throw new Error("User creation failed — no ID returned");
+  if (!data.user?.id) {
+    throw new Error("User creation failed");
   }
 
-  // Upload profile picture
-  if (file) {
-    const { error: uploadError } = await supabase
-      .storage
-      .from("pfps")
-      .upload(pfpFileName, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true,
-      });
+  const uploadUrl = pfpContentType
+    ? await generateR2SignedPutUrl({
+        key: pfpKey,
+        contentType: pfpContentType,
+      })
+    : null;
 
-    if (uploadError) {
-      logger.error("Upload error", { uploadError });
-      throw new Error("Failed to upload profile picture");
-    }
-  } else {
-    logger.warn("No PFP file uploaded with registraton");
-  }
-
-  return { success: true, message: "Registration successful!" };
+  return {
+    success: true,
+    uploadUrl,   
+    pfpKey,
+  };
 }
 
 
-export async function registerGoogleUser(
-  body: any,
-  file?: Express.Multer.File
-) {
-  const { FName, LName, UserName, Bio, Email, BirthDate, Gender, Region, auth_id } = body;
-  const date = new Date().toISOString().split('T')[0];
+export async function registerGoogleUser(body: any) {
+  const {
+    FName,
+    LName,
+    UserName,
+    Bio,
+    Email,
+    BirthDate,
+    Gender,
+    Region,
+    auth_id,
+    pfpContentType,
+  } = body;
 
   if (!auth_id) {
-    throw new Error('Missing auth_id from Google sign-in');
+    throw new Error("Missing auth_id");
   }
 
-  // Upload PFP if provided
-  if (file) {
-    const { error: uploadError } = await supabase.storage
-      .from('pfps')
-      .upload(`${Email}-pfp.jpg`, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true,
-      });
+  const joinDate = new Date().toISOString().split("T")[0];
+  const pfpKey = `pfps/${Email}-pfp.jpg`;
 
-    if (uploadError) {
-      logger.error('Upload error', { uploadError });
-      throw new Error('Failed to upload profile picture');
-    }
-  } else {
-    logger.warn('No PFP file uploaded for Google signup');
-  }
-
-  // Insert into users table
-  const { error: dbError } = await supabase.from('users').insert([
+  const { error } = await supabase.from("users").insert([
     {
       auth_id,
       username: UserName,
       f_name: FName,
       l_name: LName,
-      age: BirthDate,
-  
       bio: Bio,
       email: Email,
-      pfp_path: `${Email}-pfp.jpg`,
-      join_date: date,
+      age: BirthDate,
       gender: Gender,
       region: Region,
+      pfp_path: pfpKey,
+      join_date: joinDate,
     },
   ]);
 
-  if (dbError) {
-    logger.error('Error inserting user', { dbError });
-    throw new Error('Database error while creating user');
+  if (error) {
+    logger.error("Insert user error", { error });
+    throw new Error("Failed to create user");
   }
 
-  return { success: true, message: 'Registration successful!' };
+  const uploadUrl = pfpContentType
+    ? await generateR2SignedPutUrl({
+        key: pfpKey,
+        contentType: pfpContentType,
+      })
+    : null;
+
+  return {
+    success: true,
+    uploadUrl,
+    pfpKey,
+  };
 }
-
-

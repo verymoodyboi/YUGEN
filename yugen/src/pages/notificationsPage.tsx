@@ -91,7 +91,7 @@ const NotificationsPage: React.FC = () => {
                             .map((g: any) =>
                               g === "docuentry"
                                 ? "Documentary"
-                                : g.charAt(0).toUpperCase() + g.slice(1)
+                                : g.charAt(0).toUpperCase() + g.slice(1),
                             )
                             .join(", ")
                         : "No genre"}
@@ -107,9 +107,7 @@ const NotificationsPage: React.FC = () => {
                     <img
                       src={
                         film.uploader_pfp
-                          ? supabase.storage
-                              .from("pfps")
-                              .getPublicUrl(film.uploader_pfp).data.publicUrl
+                          ? `https://pfps.try-yugen.com/${filmData?.uploader.pfp_path}?t=${Date.now()}`
                           : tempPFP
                       }
                       onError={(e) => {

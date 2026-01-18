@@ -4,7 +4,7 @@ import { Crop } from "react-image-crop";
 
 /** 🔹 Check username availability */
 export async function checkUsernameAvailable(
-  username: string
+  username: string,
 ): Promise<boolean> {
   if (!username) return false;
   try {
@@ -33,7 +33,7 @@ export async function checkEmailAvailable(email: string): Promise<boolean> {
 /** 🔹 Convert crop + image element into circular PNG File */
 export function getCroppedFileFromImage(
   img: HTMLImageElement,
-  crop: Crop
+  crop: Crop,
 ): Promise<File> {
   return new Promise((resolve, reject) => {
     if (!crop || !img) return reject("Missing crop or image");
@@ -84,14 +84,27 @@ export function getCroppedFileFromImage(
         resolve(file);
       },
       "image/png",
-      0.95
+      0.95,
     );
   });
 }
 
-/** 🔹 Register user */
 export async function registerUser(formData: FormData) {
   return api.post("/register", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+}
+
+export async function uploadToR2(uploadUrl: string, file: File) {
+  const res = await fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: {
+      "Content-Type": file.type,
+    },
+  });
+  console.log(uploadUrl);
+  if (!res.ok) {
+    throw new Error("Failed to upload file to storage");
+  }
 }

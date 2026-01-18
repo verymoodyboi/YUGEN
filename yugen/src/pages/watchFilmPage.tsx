@@ -9,6 +9,7 @@ import { useSimilarFilms } from "../features/recommendations/hooks/useSimilarFil
 import SimilarFilmCard from "../features/recommendations/components/recommendedFilmCard";
 import CustomLoading from "../SmallComponents/CutomsLoading";
 import Loading from "../components/loading_kickflip";
+import AuthActionGuard from "../components/clickWrapper";
 
 const Watch: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -17,7 +18,7 @@ const Watch: React.FC = () => {
   useAddHistory(uuid || undefined);
 
   const [activeTab, setActiveTab] = React.useState<"thoughts" | "recommended">(
-    "thoughts"
+    "thoughts",
   );
 
   const { films: similarFilms, isLoading } = useSimilarFilms(uuid || undefined);
@@ -54,7 +55,11 @@ const Watch: React.FC = () => {
             </div>
 
             <div className="mt-4">
-              {activeTab === "thoughts" && <Thoughts filmId={uuid} />}
+              {activeTab === "thoughts" && (
+                <AuthActionGuard>
+                  <Thoughts filmId={uuid} />
+                </AuthActionGuard>
+              )}
 
               {activeTab === "recommended" && (
                 <div className="space-y-4">

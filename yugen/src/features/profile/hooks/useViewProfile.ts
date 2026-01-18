@@ -18,7 +18,6 @@ export function useViewProfile(username: string | null) {
   const [isNotify, setIsNotify] = useState<boolean>(false);
   const [myPlaylists, setMyPlaylists] = useState<any[]>([]);
 
-  // === Fetch account ===
   useEffect(() => {
     const fetchAccount = async () => {
       if (!username) return;
@@ -39,7 +38,6 @@ export function useViewProfile(username: string | null) {
     fetchAccount();
   }, [username]);
 
-  // === Subscription check ===
 
 useEffect(() => {
   const loadSubscriptionStatus = async () => {
@@ -60,7 +58,6 @@ useEffect(() => {
   };
   loadSubscriptionStatus();
 }, [user?.auth_id, userInfo?.auth_id]);
-  // === Subscribe / Unsubscribe ===
 const handleSubscribe = async () => {
   if (!user?.auth_id) return;
   try {

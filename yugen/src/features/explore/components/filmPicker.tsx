@@ -8,6 +8,7 @@ import { useRandomFilm } from "../hooks/useRandomFilm";
 import { useNavigate } from "react-router-dom";
 import { useFilm } from "../../stream/hooks/useFilmCard";
 import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
 
 const SLOT_W = 180;
 const SLOT_H = 270;
@@ -23,13 +24,12 @@ const FilmPicker: React.FC<any> = () => {
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [isRolling, setIsRolling] = useState(false);
   const [selectedGlobalIndex, setSelectedGlobalIndex] = useState<number | null>(
-    null
+    null,
   );
   const [disabledRoll, setDisabledRoll] = useState(false);
   const [hoveringCenter, setHoveringCenter] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // create a long filmstrip visually using repetition of fetched films
   const visibleFilms = useMemo(() => {
     if (!films?.length) return [];
     const repeats = 10;
@@ -112,7 +112,7 @@ const FilmPicker: React.FC<any> = () => {
       : null;
   const { uploader } = useFilm(
     selectedFilm?.film_uuid,
-    selectedFilm?.uploader_id
+    selectedFilm?.uploader_id,
   );
   const hasSelectedFilm = selectedFilm !== null;
 
@@ -122,7 +122,6 @@ const FilmPicker: React.FC<any> = () => {
         ref={containerRef}
         className="relative w-full overflow-hidden rounded-2xl border-4 border-emerald-950 bg-emerald-950/50 shadow-[inset_0_20px_30px_rgba(0,0,0,0.3),0_6px_20px_rgba(0,0,0,0.2)] h-[342px]"
       >
-        {/* film strips on the side */}
         <div className="absolute left-0 top-0 h-full w-[60px] bg-emerald-950 border-r-4 border-emerald-950 z-100 flex flex-col justify-between py-3 px-3 z-10">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
@@ -142,10 +141,8 @@ const FilmPicker: React.FC<any> = () => {
         <div className="absolute left-0 top-0 h-full w-[160px] bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-transparent z-20 pointer-events-none" />
         <div className="absolute right-0 top-0 h-full w-[160px] bg-gradient-to-l from-emerald-950 via-emerald-950/90 to-transparent z-20 pointer-events-none" />
 
-        {/* center highlight frame */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none w-[180px] h-[270px] border-5  border-emerald-50 rounded-md" />
 
-        {/* question mark before roll */}
         <motion.div
           key="question-mark"
           initial={{ opacity: 0.7 }}
@@ -156,7 +153,6 @@ const FilmPicker: React.FC<any> = () => {
           <span className="text-7xl text-emerald-950 select-none">?</span>
         </motion.div>
 
-        {/* film strip */}
         <motion.div
           animate={controls}
           initial={{ x: 0 }}
@@ -174,12 +170,9 @@ const FilmPicker: React.FC<any> = () => {
                   ? "none"
                   : "brightness(25%) grayscale(60%) blur(0.6px)";
 
-            const posterUrl =
-              supabase.storage.from("posters").getPublicUrl(film.poster_path)
-                .data.publicUrl +
-              (film.updated_at
-                ? `?v=${new Date(film.updated_at).getTime()}`
-                : "");
+            const posterUrl = film.poster_path
+              ? `https://posters.try-yugen.com/${film.poster_path}`
+              : tempPoster;
 
             return (
               <div
@@ -196,7 +189,6 @@ const FilmPicker: React.FC<any> = () => {
                     draggable={false}
                   />
 
-                  {/* hover overlay on selected film */}
                   {isCenter && hoveringCenter && !isRolling && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -222,7 +214,6 @@ const FilmPicker: React.FC<any> = () => {
           })}
         </motion.div>
 
-        {/* hover capture zone */}
         <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-40"
           style={{ width: SLOT_W, height: SLOT_H }}
@@ -232,7 +223,6 @@ const FilmPicker: React.FC<any> = () => {
         />
       </div>
 
-      {/* Controls */}
       <div className="mt-6 flex items-center gap-4">
         <button
           onClick={() => roll()}
@@ -255,7 +245,6 @@ const FilmPicker: React.FC<any> = () => {
         </button>
       </div>
 
-      {/* Film Modal */}
       {showModal && selectedFilm && (
         <div className="fixed inset-0 z-500 flex items-center justify-center">
           <div
@@ -317,8 +306,8 @@ const FilmPicker: React.FC<any> = () => {
                         e.stopPropagation();
                         navigate(
                           `/@?username=${encodeURIComponent(
-                            uploader?.username
-                          )}`
+                            uploader?.username,
+                          )}`,
                         );
                       }}
                     >
@@ -326,10 +315,7 @@ const FilmPicker: React.FC<any> = () => {
                         <img
                           src={
                             uploader.pfp
-                              ? supabase.storage
-                                  .from("pfps")
-                                  .getPublicUrl(uploader.pfp).data.publicUrl +
-                                `?v=${Date.now()}`
+                              ? `https://pfps.try-yugen.com/${uploader.pfp}?t=${Date.now()}`
                               : tempPFP
                           }
                           alt="User avatar"
@@ -361,8 +347,8 @@ const FilmPicker: React.FC<any> = () => {
                       onClick={() => {
                         navigate(
                           `/watch?uuid=${encodeURIComponent(
-                            selectedFilm.film_uuid
-                          )}`
+                            selectedFilm.film_uuid,
+                          )}`,
                         );
                       }}
                       className="px-5 py-2 rounded-lg bg-emerald-950 text-emerald-50 border-4 border-emerald-950 hover:scale-105 transition-transform"

@@ -159,7 +159,6 @@ export async function updateName(req: Request, res: Response) {
   }
 }
 
-//saving playlists
 export async function toggleSavePlaylist(req: Request, res: Response) {
   try {
     const userId = req.user?.id;

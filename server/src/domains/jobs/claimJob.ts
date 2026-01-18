@@ -1,23 +1,21 @@
-// src/domains/jobs/claimJob.ts
 import supabase from "../../lib/supabase.js";
 
-/**
- * Atomically claim one queued job.
- * Uses UPDATE ... WHERE status='queued' ... RETURNING *
- */
 export async function claimNextJob() {
+  const now = new Date().toISOString();
+
   const { data, error } = await supabase
     .from("jobs")
     .update({
       status: "processing",
-      run_at: new Date().toISOString(),
+      locked_at: now,
     })
     .eq("status", "queued")
+    .lte("run_at", now) 
     .order("created_at", { ascending: true })
     .limit(1)
     .select("*")
     .maybeSingle();
 
   if (error) throw error;
-  return data; // null if no jobs
+  return data;
 }

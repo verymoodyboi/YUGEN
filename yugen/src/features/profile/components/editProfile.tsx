@@ -26,7 +26,6 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
   const { userInfo: user } = useAuth();
   const { handleSubmit, loading } = useEditProfile(onSubmitSuccess);
 
-  // form state
   const [fname, setfname] = useState("");
   const [lname, setlname] = useState("");
   const [username, setusername] = useState("");
@@ -40,12 +39,10 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
   const [YT, setYT] = useState("");
   const [linkedin, setLinkedin] = useState("");
 
-  // cropper logic
   const [rawPreview, setRawPreview] = useState<string | null>(null);
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // populate user info
   useEffect(() => {
     if (!user) return;
     setfname(user.f_name || "");
@@ -64,7 +61,6 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
     setLinkedin(user.linkedin || "");
   }, [user]);
 
-  // ========== CROPPER HANDLING ==========
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -74,7 +70,7 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
 
   const createCroppedFile = (
     image: HTMLImageElement,
-    crop: Crop
+    crop: Crop,
   ): Promise<File> => {
     return new Promise((resolve, reject) => {
       if (!crop.width || !crop.height) return reject("Invalid crop");
@@ -96,7 +92,7 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
         0,
         0,
         crop.width,
-        crop.height
+        crop.height,
       );
 
       canvas.toBlob((blob) => {
@@ -117,7 +113,6 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
       toast.error("Failed to crop image");
     }
   };
-  // ======================================
 
   const getPlatform = (url: string) => {
     if (url.includes("instagram.com")) return "instagram";
@@ -166,22 +161,20 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
     formData.append("Bio", bio);
     if (croppedFile instanceof File) formData.append("PFP", croppedFile);
 
-    await handleSubmit(formData, {
-      Insta: insta,
-      YT: YT,
-      LI: linkedin,
-    });
+    await handleSubmit(
+      formData,
+      { Insta: insta, YT, LI: linkedin },
+      croppedFile ?? undefined,
+    );
   };
-  const PFPurl = user?.pfp
-    ? supabase.storage.from("pfps").getPublicUrl(user?.pfp).data.publicUrl +
-      (user?.updated_at ? `?v=${new Date(user?.updated_at).getTime()}` : "")
+  const PFPurl = user?.pfp_path
+    ? `https://pfps.try-yugen.com/${user?.pfp_path}?t=${Date.now()}`
     : tempPFP;
   return (
     <div className="h-[90%] no-scrollbar max-w-3xl mx-auto bg-emerald-50 border-4 border-emerald-950 overflow-y-scroll rounded-3xl p-6 shadow-xl">
       <h1 className="text-3xl font-bold mb-4">Edit Profile</h1>
 
       <form onSubmit={onFormSubmit} className="space-y-6">
-        {/* PFP Upload */}
         <div>
           <label className="block mb-1 font-semibold">Profile Picture</label>
           <div className="p-3 border-2 border-dashed border-emerald-950 rounded-lg bg-emerald-50">
@@ -235,7 +228,6 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
           </div>
         </div>
 
-        {/* Basic Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block mb-1">First Name</label>
@@ -290,7 +282,6 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
           </div>
         </div>
 
-        {/* Bio */}
         <div>
           <label className="block mb-1">Bio</label>
           <textarea
@@ -301,7 +292,6 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
           />
         </div>
 
-        {/* Socials */}
         <div>
           <label className="block mb-2 font-semibold">Social Links</label>
           <div className="flex gap-2 mb-3">
@@ -349,7 +339,6 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
           ))}
         </div>
 
-        {/* Buttons */}
         <div className="flex items-center justify-center gap-4">
           <button
             type="submit"

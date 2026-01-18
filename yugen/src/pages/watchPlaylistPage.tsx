@@ -8,6 +8,7 @@ import Thoughts from "../features/thoughts/components/thoughts";
 import { useSimilarFilms } from "../features/recommendations/hooks/useSimilarFilms";
 import SimilarFilmCard from "../features/recommendations/components/recommendedFilmCard";
 import Loading from "../components/loading_kickflip";
+import AuthActionGuard from "../components/clickWrapper";
 
 const WatchPlaylist: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -76,7 +77,9 @@ const WatchPlaylist: React.FC = () => {
             {/* Tab content */}
             <div className="mt-4">
               {activeTab === "thoughts" ? (
-                <Thoughts filmId={uuid} />
+                <AuthActionGuard>
+                  <Thoughts filmId={uuid} />
+                </AuthActionGuard>
               ) : activeTab === "playlist" ? (
                 <PlaylistSection
                   playlistId={playlistId}

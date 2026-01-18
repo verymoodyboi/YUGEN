@@ -1,4 +1,3 @@
-// src/features/admin/flagged_films/services.ts
 import { api } from "../../../lib/api";
 
 export interface FlaggedFilm {

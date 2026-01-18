@@ -7,6 +7,7 @@ import { api } from "../../../lib/api";
 import { getCroppedFileFromImage } from "../../../util/image-cropping/services";
 import { checkUsernameAvailable,checkEmailAvailable } from "../../../util/availability-validation/services";
 import { useToast } from "../../../components/toaster";
+  import { uploadToR2 } from "../services";
 
 export function useSignup() {
   const navigate = useNavigate();
@@ -194,40 +195,52 @@ if (step === 3) {
   };
 
 
-  const handleSubmit = async () => {
-    const ok =
-      (await validateStep(0)) &&
-      (await validateStep(1)) &&
-      (await validateStep(2)) &&
-      (await validateStep(3));
-    if (!ok) return;
 
-    setIsRegistering(true);
-    try {
-      const formData = new FormData();
-      formData.append("FName", fname);
-      formData.append("LName", lname);
-      formData.append("UserName", username);
-      formData.append("Bio", bio);
-      formData.append("Email", email);
-      formData.append("Password", password);
-      formData.append("BirthDate", bday);
-      formData.append("Region", region);
-      formData.append("Gender", gender);
-      if (croppedFile) formData.append("PFP", croppedFile);
+const handleSubmit = async () => {
+  const ok =
+    (await validateStep(0)) &&
+    (await validateStep(1)) &&
+    (await validateStep(2)) &&
+    (await validateStep(3));
+  if (!ok) return;
 
-      await api.post("/register", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+  if (!croppedFile) {
+    toast.warn("Profile picture required");
+    return;
+  }
 
-      toast.success("Registration successful!");
-      navigate(`/profile-customization?username=${username}`);
-    } catch (err) {
-      toast.error("Registration failed");
-    } finally {
-      setIsRegistering(false);
+  setIsRegistering(true);
+  try {
+    // 1️⃣ Register + get signed URL
+    const { data } = await api.post("/register", {
+      FName: fname,
+      LName: lname,
+      UserName: username,
+      Bio: bio,
+      Email: email,
+      Password: password,
+      BirthDate: bday,
+      Region: region,
+      Gender: gender,
+      pfpContentType: croppedFile.type,
+    });
+
+    const { uploadUrl } = data;
+
+    // 2️⃣ Upload directly to R2
+    if (uploadUrl) {
+      await uploadToR2(uploadUrl, croppedFile);
     }
-  };
+
+    toast.success("Registration successful!");
+    navigate(`/profile-customization?username=${username}`);
+  } catch (err) {
+    toast.error("Registration failed");
+  } finally {
+    setIsRegistering(false);
+  }
+};
+
 const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   setEmail(e.target.value);
   setEmailValidated(false);

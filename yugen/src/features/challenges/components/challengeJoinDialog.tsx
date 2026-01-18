@@ -36,7 +36,7 @@ const JoinChallengeDialog: React.FC<JoinChallengeDialogProps> = ({
 
     const loadFilms = async () => {
       setLoadingFilms(true);
-      const films = await fetchUserFilms(getAccessToken); // ✅ pass getAccessToken
+      const films = await fetchUserFilms(getAccessToken);
       setUserFilms(films || []);
       setLoadingFilms(false);
     };
@@ -48,7 +48,7 @@ const JoinChallengeDialog: React.FC<JoinChallengeDialogProps> = ({
   const onSubmitFilm = async () => {
     if (!selectedFilm || !challengeID || !user) return;
 
-    await handleSubmitFilm(challengeID, selectedFilm.film_uuid, getAccessToken); // ✅ pass getAccessToken
+    await handleSubmitFilm(challengeID, selectedFilm.film_uuid, getAccessToken);
     setSelectedFilm(null);
     setChooseDialog(false);
     setJoin(false);
@@ -76,7 +76,6 @@ const JoinChallengeDialog: React.FC<JoinChallengeDialogProps> = ({
 
   return (
     <>
-      {/* === JOIN DIALOG === */}
       {join && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
@@ -116,7 +115,6 @@ const JoinChallengeDialog: React.FC<JoinChallengeDialogProps> = ({
         </div>
       )}
 
-      {/* === CHOOSE FILM DIALOG === */}
       {chooseDialog && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"

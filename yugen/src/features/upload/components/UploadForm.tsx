@@ -71,7 +71,6 @@ const UploadForm: React.FC = () => {
   const [actorPFP, setActorPFP] = useState<string>("");
   const [character, setCharacter] = useState<string>("");
 
-  // Poster crop states (kept same logic)
   const MinWidth = 200;
   const MinHeight = 300;
   const aspectRatio = 2 / 3;
@@ -102,7 +101,7 @@ const UploadForm: React.FC = () => {
       { unit: "px", width: MinWidth, height: MinHeight },
       aspectRatio,
       naturalWidth,
-      naturalHeight
+      naturalHeight,
     );
 
     setCrop(newCrop);
@@ -111,7 +110,7 @@ const UploadForm: React.FC = () => {
   const setCroppedPFP = (
     img: HTMLImageElement,
     canvas: HTMLCanvasElement,
-    cropParam: any
+    cropParam: any,
   ) => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -144,7 +143,6 @@ const UploadForm: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  // Film file validation (kept exact logic)
   const handleFilmFileChange = (file: File | null) => {
     if (!file) {
       setFilmFile(null);
@@ -178,9 +176,8 @@ const UploadForm: React.FC = () => {
     video.src = URL.createObjectURL(file);
   };
 
-  // poster input handlers (kept logic)
   const handlePosterFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -218,7 +215,6 @@ const UploadForm: React.FC = () => {
     if (imgRef.current && canvasRef.current && crop) {
       setCroppedPFP(imgRef.current, canvasRef.current, crop);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [crop]);
 
   const handleNext = async () => {
@@ -249,7 +245,6 @@ const UploadForm: React.FC = () => {
         return false;
       }
 
-      // Title validation
       if (title.length > 100) {
         toast.warn("Title cannot exceed 100 characters");
         return false;
@@ -259,12 +254,10 @@ const UploadForm: React.FC = () => {
         return false;
       }
       if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(title)) {
-        // disallow emojis and unusual symbols
         toast.warn("Title cannot contain emojis or special characters");
         return false;
       }
 
-      // Thesis validation
       if (thesis.length > 1000) {
         toast.warn("Thesis cannot exceed 1000 characters");
         return false;
@@ -295,20 +288,18 @@ const UploadForm: React.FC = () => {
   const genreOptions = React.useMemo(
     () =>
       Array.isArray(allGenres)
-        ? allGenres.map((g: any) => g.genre || g.name || g.id) // support flexible schema
+        ? allGenres.map((g: any) => g.genre || g.name || g.id)
         : [],
-    [allGenres]
+    [allGenres],
   );
   const [openReport, setOpenReport] = useState(false);
 
-  // UI: Error / Done / Uploading states preserved but implemented with Tailwind
   if (errorMsg) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-emerald-50 p-6">
         <div className="max-w-lg w-full text-center rounded-2xl border-4 border-emerald-950 bg-emerald-50 p-8 shadow-2xl">
           <FuzzyText baseIntensity={0.2}>Unexpected Error</FuzzyText>
 
-          {/* Try again button */}
           <button
             onClick={() => setErrorMsg(null)}
             className="mt-6 mr-6 inline-flex items-center justify-center gap-2 px-6 py-2 
@@ -319,7 +310,6 @@ const UploadForm: React.FC = () => {
             Try Again
           </button>
 
-          {/* Report issue button */}
           <button
             onClick={() => setOpenReport(true)}
             className="mt-4 inline-flex items-center justify-center gap-2 px-6 py-2 
@@ -407,15 +397,24 @@ const UploadForm: React.FC = () => {
             Prepare for take off!
           </p>
         </div>
+
+        <div className="mt-1 w-full h-2 bg-emerald-100 rounded">
+          <div
+            className="h-full bg-emerald-950 rounded transition-all"
+            style={{ width: `${uploadProgress}%` }}
+          />
+        </div>
+        <p className="text-sm text-emerald-950 font-semibold mt-1">
+          Your upload is {uploadProgress}% completed, please do not leave this
+          tab before upload is done!
+        </p>
       </div>
     );
   }
 
-  // Main form render with Tailwind
   return (
     <>
       <div className="w-[100%] h[100%] mx-auto rounded-3xl    p-6 overflow-y-auto text-emerald-950 font-freckle">
-        {/* Stepper */}
         <div className="flex items-center justify-between mb-6">
           {steps.map((s, i) => {
             const active = i === activeStep;
@@ -450,9 +449,7 @@ const UploadForm: React.FC = () => {
           })}
         </div>
 
-        {/* Form Area */}
         <div className="space-y-6">
-          {/* --- Step 0: Upload --- */}
           {activeStep === 0 && (
             <div className="space-y-4">
               <label className="block font-semibold">Upload a film:</label>
@@ -512,7 +509,6 @@ const UploadForm: React.FC = () => {
                   </label>
                 </div>
 
-                {/* Poster crop modal */}
                 {isModalOpen && (
                   <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -559,7 +555,7 @@ const UploadForm: React.FC = () => {
                                   setCroppedPFP(
                                     imgRef.current as HTMLImageElement,
                                     canvasRef.current as HTMLCanvasElement,
-                                    crop
+                                    crop,
                                   );
                                 }
                                 setIsModalOpen(false);
@@ -581,7 +577,6 @@ const UploadForm: React.FC = () => {
                   </div>
                 )}
 
-                {/* Poster preview / canvas */}
                 {!crop && !posterPath && (
                   <div className="w-48 h-72 bg-emerald-100 rounded-md border-2 border-emerald-950 flex items-center justify-center">
                     <div className="text-sm text-emerald-900">
@@ -616,7 +611,6 @@ const UploadForm: React.FC = () => {
             </div>
           )}
 
-          {/* --- Step 1: Details --- */}
           {activeStep === 1 && (
             <div className="space-y-4">
               <div>
@@ -650,7 +644,7 @@ const UploadForm: React.FC = () => {
                           setGenres((prev) =>
                             selected
                               ? prev.filter((x) => x !== g)
-                              : [...prev, g]
+                              : [...prev, g],
                           )
                         }
                         className={`px-3 py-1 rounded-full border-2 ${
@@ -668,12 +662,11 @@ const UploadForm: React.FC = () => {
             </div>
           )}
 
-          {/* --- Step 2: Additional details --- */}
           {activeStep === 2 && (
             <div className="space-y-4">
               <div>
                 <label className="block mb-1 font-semibold">
-                  Country (optional)
+                  Country (required)
                 </label>
                 <select
                   value={country}
@@ -778,7 +771,6 @@ const UploadForm: React.FC = () => {
                   </button>
                 </div>
 
-                {/* crew list */}
                 <div className="space-y-2">
                   {crewList.map((member, idx) => (
                     <div
@@ -808,7 +800,7 @@ const UploadForm: React.FC = () => {
                       <button
                         onClick={() =>
                           setCrewList((prev) =>
-                            prev.filter((_, i) => i !== idx)
+                            prev.filter((_, i) => i !== idx),
                           )
                         }
                         className="px-3 py-1 rounded-md border-2 border-red-500 text-red-600"
@@ -882,7 +874,7 @@ const UploadForm: React.FC = () => {
                     onClick={() => {
                       if (!character || !actor) {
                         toast.warn(
-                          "Please select a character and enter an actor."
+                          "Please select a character and enter an actor.",
                         );
                         return;
                       }
@@ -941,7 +933,6 @@ const UploadForm: React.FC = () => {
             </div>
           )}
 
-          {/* Navigation Buttons */}
           <div className="flex items-center gap-4 mt-4">
             <button
               onClick={handleBack}

@@ -49,7 +49,6 @@ const { data: likedFilms, error: likedError } = await supabase
   if (likedError) throw likedError;
   if (!likedFilms || likedFilms.length === 0) return [];
 
-  // Parse embeddings safely
   const embeddings = likedFilms
     .map((f) => {
       let emb = f.films?.embedding;
@@ -68,13 +67,11 @@ const { data: likedFilms, error: likedError } = await supabase
 
   if (embeddings.length === 0) return [];
 
-  // Average embedding
   const size = embeddings[0].length;
   const avgEmbedding = Array(size).fill(0);
   embeddings.forEach((emb) => emb.forEach((val, i) => (avgEmbedding[i] += val)));
   for (let i = 0; i < size; i++) avgEmbedding[i] /= embeddings.length;
 
-  // RPC call
   const { data: recs, error: recError } = await supabase.rpc("match_films_personalized", {
     query_embedding: avgEmbedding,
     match_count: limit,
@@ -91,7 +88,6 @@ const { data: likedFilms, error: likedError } = await supabase
 
 export async function getFilmsByGenre(genre: string, offset: number, limit: number): Promise<Film[]> {
   const cached = genreCache[genre];
-  // logger.info(cached)
   if (!cached) return [];
   return cached.films;
 }
@@ -196,17 +192,10 @@ type FilmRow = {
   avg_rating?: number | null;
 };
 
-/**
- * Fetch similar films using pgvector similarity operator <=>.
- * Steps:
- *  - Ensure target film embedding exists (generate & save if missing)
- *  - Query top 100 similar films by vector distance
- *  - Blend in basic filtering to exclude self and null embeddings
- */
+
 export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
   if (!filmUuid) return [];
 
-  // 1️ Get target film embedding
   const { data: film, error: filmErr } = await supabase
     .from("films")
     .select("film_uuid, film_title, thesis, embedding")
@@ -223,7 +212,6 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
 
   let targetEmbedding = film.embedding;
 
-  // 2️⃣ Generate embedding if missing
   if (!Array.isArray(targetEmbedding) || !targetEmbedding.length) {
     const text = `${film.film_title ?? ""} ${film.thesis ?? ""}`.trim();
     const gen = await generateEmbedding(text);
@@ -239,8 +227,6 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
     // logger.info(" Generated and saved missing embedding", { filmUuid });
   }
 
-  // 3️⃣ Query Postgres directly using pgvector operator (<=>)
-  // This uses raw SQL since Supabase JS doesn't natively expose <=> operator.
   const { data, error } = await supabase.rpc("match_similar_films", {
     query_embedding: targetEmbedding,
     exclude_uuid: filmUuid,
@@ -251,6 +237,5 @@ export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
     return [];
   }
 
-  // logger.info(` Found ${data?.length ?? 0} similar films using pgvector`);
   return data ?? [];
 }

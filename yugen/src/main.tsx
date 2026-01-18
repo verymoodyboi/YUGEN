@@ -6,6 +6,8 @@ import { AuthProvider } from "./contexts/AuthContext.tsx";
 import App from "./App.tsx";
 import "./App.css";
 import { ToastProvider } from "./components/toaster.tsx";
+import { UploadProvider } from "./features/upload/uploadContext.tsx";
+
 const queryClient = new QueryClient();
 // window.addEventListener("unhandledrejection", (event) => {
 //   console.error("Unhandled rejection:", event.reason);
@@ -21,7 +23,9 @@ createRoot(document.getElementById("root")!).render(
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <App />
+          <UploadProvider>
+            <App />
+          </UploadProvider>
         </ToastProvider>
       </QueryClientProvider>
     </AuthProvider>

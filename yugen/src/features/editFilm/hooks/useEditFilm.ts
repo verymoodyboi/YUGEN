@@ -1,23 +1,8 @@
-// useEditFilmApi.ts
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../contexts/AuthContext";
 import * as services from "../services";
 
-/**
- * Hook that manages:
- *  - debounced mention search (searchInput -> searchResults)
- *  - edit film submission wrapper (submitEdit)
- *  - delete film wrapper (deleteFilmByUuid)
- *
- * Exposes:
- *  - searchInput, setSearchInput
- *  - searchResults, loadingUsers
- *  - isSaving, setIsSaving
- *  - submitEdit(formData) -> Promise<void>
- *  - deleteFilmByUuid(film_uuid) -> Promise<void>
- *
- * This hook keeps API calls out of the component.
- */
+
 
 export const useEditFilmApi = () => {
   const { getAccessToken } = useAuth();
@@ -26,7 +11,6 @@ export const useEditFilmApi = () => {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // debounce effect for searching mentions
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       const fetchUsers = async () => {
@@ -55,7 +39,6 @@ export const useEditFilmApi = () => {
     }, 300);
 
     return () => clearTimeout(delayDebounce);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchInput]);
 
   const submitEdit = async (formData: FormData) => {

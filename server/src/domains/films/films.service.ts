@@ -14,7 +14,248 @@ import { spawnSync } from 'child_process';
 import { title } from 'process';
 
 
-// Upload film
+import { PutObjectCommand,DeleteObjectCommand  } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { r2 } from '../../lib/r2.js';
+
+export async function generateR2SignedPutUrl(params: {
+  key: string;
+  contentType: string;
+  expiresIn?: number;
+  bucket:string
+}) {
+  const command = new PutObjectCommand({
+    Bucket: params.bucket,
+    Key: params.key,
+    ContentType: params.contentType,
+  });
+
+  return getSignedUrl(r2, command, {
+    expiresIn: params.expiresIn ?? 600, // seconds
+  });
+}
+
+export async function deleteFromR2(bucket: string, key: string) {
+  if (!key) return;
+
+  try {
+    await r2.send(
+      new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      })
+    );
+  } catch (err) {
+    console.warn(`R2 delete failed (${bucket}/${key})`, err);
+  }
+}
+export async function initializeUpload(req: Request) {
+  const {
+    title,
+    thesis,
+    country,
+    crew,
+    cast,
+    genres,
+    filmMime,
+    posterMime,
+  } = req.body;
+
+  const uploaderId = req.user!.id;
+
+  const filmUuid = crypto.randomUUID();
+
+  const filmExt = filmMime?.split("/")[1] ?? "mp4";
+  const posterExt = posterMime?.split("/")[1] ?? "jpg";
+
+  const filmKey = `${filmUuid}.${filmExt}`;
+  const posterKey = `${filmUuid}.${posterExt}`;
+  const moderationKey = `${filmUuid}.${filmExt}`; 
+
+  const { error } = await supabase.from("films").insert([{
+    film_uuid: filmUuid,
+    film_title: title,
+    thesis,
+    film_genre: genres,
+    uploader_id: uploaderId,
+    country,
+    crew: crew ?? null,
+    cast: cast ?? null,
+    film_path: filmKey,
+    poster_path: posterKey,
+    moderation_status: "uploading",
+  }]);
+
+  if (error) throw error;
+
+  const filmUploadUrl = await generateR2SignedPutUrl({
+    bucket: "films",
+    key: filmKey,
+    contentType: filmMime,
+    expiresIn: 60 * 10,
+  });
+
+  const posterUploadUrl = await generateR2SignedPutUrl({
+    bucket: "posters",
+    key: posterKey,
+    contentType: posterMime,
+    expiresIn: 60 * 10,
+  });
+
+  const moderationUploadUrl = await generateR2SignedPutUrl({
+    bucket: "moderation",
+    key: moderationKey,
+    contentType: filmMime,
+    expiresIn: 60 * 10,
+  });
+
+  return {
+    film_uuid: filmUuid,
+    filmUploadUrl,
+    posterUploadUrl,
+    moderationUploadUrl,
+    filmKey,
+    posterKey,
+  };
+}
+
+
+
+
+
+export async function deleteFilmService(
+  film_uuid: string,
+  userId: string
+) {
+  // 1️⃣ Fetch film (ownership enforced)
+  const { data: film, error } = await supabase
+    .from("films")
+    .select("film_path, poster_path")
+    .eq("film_uuid", film_uuid)
+    .eq("uploader_id", userId)
+    .single();
+
+  if (error || !film) {
+    throw new Error("Film not found or unauthorized");
+  }
+
+  const { film_path, poster_path } = film;
+
+  const moderation_path = film_path
+    ? film_path.replace(/\.(\w+)$/, "_moderation.$1")
+    : null;
+
+  const { error: deleteError } = await supabase
+    .from("films")
+    .delete()
+    .eq("film_uuid", film_uuid)
+    .eq("uploader_id", userId);
+
+  if (deleteError) throw deleteError;
+
+  await Promise.all([
+    deleteFromR2("films", film_path),
+    deleteFromR2("posters", poster_path),
+    deleteFromR2("moderation", moderation_path),
+  ]);
+
+  return { success: true };
+}
+
+
+
+
+
+
+export async function processUpload(req: Request) {
+  const { filmUuid } = req.body;
+
+  //  Mark film uploaded
+  await supabase.from("films").update({
+    moderation_status: "queued",
+  }).eq("film_uuid", filmUuid);
+
+  //  Enqueue job
+  const { data, error } = await supabase
+    .from("jobs")
+    .insert([{
+      type: "PROCESS_FILM",
+      status: "queued",
+      payload: { filmUuid },
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return { jobId: data.id };
+}
+
+
+
+
+
+
+
+export async function retryUpload(req: Request) {
+  const { filmUuid } = req.body;
+  const userId = req.user!.id;
+
+  if (!filmUuid) {
+    throw new Error("filmUuid is required");
+  }
+
+  const { data: film, error } = await supabase
+    .from("films")
+    .select("film_path, poster_path, uploader_id")
+    .eq("film_uuid", filmUuid)
+    .single();
+
+  if (error || !film) {
+    throw new Error("Film not found");
+  }
+
+  if (film.uploader_id !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const filmExt = film.film_path.split(".").pop() ?? "mp4";
+  const posterExt = film.poster_path?.split(".").pop() ?? "jpg";
+
+  const filmMime = `video/${filmExt}`;
+  const posterMime = `image/${posterExt}`;
+
+  const uploadUrl = await generateR2SignedPutUrl({
+    bucket: "films",
+    key: film.film_path,
+    contentType: filmMime,
+    expiresIn: 60 * 10,
+  });
+
+  const poster_uploadUrl = film.poster_path
+    ? await generateR2SignedPutUrl({
+        bucket: "posters",
+        key: film.poster_path,
+        contentType: posterMime,
+        expiresIn: 60 * 10,
+      })
+    : null;
+
+  await supabase
+    .from("films")
+    .update({
+      moderation_status: "uploading",
+      processing_progress: 0,
+      processing_step: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("film_uuid", filmUuid);
+
+  return {
+    uploadUrl,
+    poster_uploadUrl,
+  };
+}
 
 export async function uploadFilm(req: Request) {
   const { Title, Thesis, Country, Crew, Cast } = req.body;
@@ -28,13 +269,10 @@ export async function uploadFilm(req: Request) {
     throw new Error("Missing required files");
   }
 
-  // 1) Generate UUID immediately (used for filenames / DB)
   const filmUuid = crypto.randomUUID();
   const filmKey = `${filmUuid}.mp4`;
   const posterKey = `${filmUuid}.jpg`;
 
-  // 2) Upload originals first (request lifetime - make upload as quick as possible)
-  // Read as streams/buffers. Using stream is fine; Supabase JS accepts Buffer or stream in Node env.
 const filmBuffer = await fs.promises.readFile(filmFile.path);
 const posterBuffer = await fs.promises.readFile(posterFile.path);
 
@@ -56,7 +294,6 @@ const posterBuffer = await fs.promises.readFile(posterFile.path);
   if (filmUpload.error) throw filmUpload.error;
   if (posterUpload.error) throw posterUpload.error;
 
-  // 3) Insert films row (initial minimal values; we will update more during processing)
   const { error: insertFilmErr } = await supabase.from("films").insert([
     {
       film_uuid: filmUuid,
@@ -69,7 +306,6 @@ const posterBuffer = await fs.promises.readFile(posterFile.path);
       cast: Cast ? JSON.parse(Cast) : null,
       film_path: filmKey,
       poster_path: posterKey,
-      // duration/embedding/transcode state will be filled by the worker
       film_duration: null,
       moderation_status: "queued",
       release_date: new Date().toISOString(),
@@ -77,7 +313,6 @@ const posterBuffer = await fs.promises.readFile(posterFile.path);
   ]);
 
   if (insertFilmErr) {
-    // Attempt to remove uploaded files if DB insert failed (best-effort)
     try {
       await Promise.all([
         supabase.storage.from("original_film_files").remove([filmKey]),
@@ -87,7 +322,6 @@ const posterBuffer = await fs.promises.readFile(posterFile.path);
     throw insertFilmErr;
   }
 
-  // 4) Insert job row (queued). Keep job payload minimal and idempotent.
   const { data: jobInsertResp, error: jobInsertErr } = await supabase
     .from("jobs")
     .insert([
@@ -106,12 +340,10 @@ const posterBuffer = await fs.promises.readFile(posterFile.path);
     .single();
 
   if (jobInsertErr) {
-    // Log but don't rollback film upload necessarily — you may decide to clean up
     console.error("Failed inserting job:", jobInsertErr);
     throw jobInsertErr;
   }
 
-  // 5) Respond immediately (request returns quickly)
   return { success: true, film_uuid: filmUuid, job_id: jobInsertResp?.id ?? null };
 }
 

@@ -11,6 +11,7 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 
 interface Uploader {
   auth_id?: string;
@@ -55,9 +56,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
   const navigate = useNavigate();
   if (!open) return null;
 
-  // -------------------------
-  // STATE
-  // -------------------------
   const [activeTab, setActiveTab] = useState<"films" | "artists">("films");
   const [displayedFilms, setDisplayedFilms] = useState<FilmWithUploader[]>([]);
   const [displayedUsers, setDisplayedUsers] = useState<any[]>([]);
@@ -69,9 +67,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLDivElement | null>(null);
 
-  // -------------------------
-  // DATA NORMALIZATION
-  // -------------------------
   const normalizedUsers = Array.isArray(users) ? users : users?.data || [];
 
   const getPosterUrl = (path?: string, updatedAt?: string) => {
@@ -90,9 +85,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
   const getUploader = (film: any): Uploader | null =>
     film?.uploader || film?.users || film?.uploader_data || null;
 
-  // -------------------------
-  // PAGINATION
-  // -------------------------
   useEffect(() => {
     setDisplayedFilms(films.slice(0, 12));
   }, [films]);
@@ -101,9 +93,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
     setDisplayedUsers(normalizedUsers.slice(0, 9));
   }, [normalizedUsers]);
 
-  // -------------------------
-  // FEATURED ROTATION
-  // -------------------------
   const featuredFilms = films.slice(0, 8);
   const currentFilm = featuredFilms[currentIndex];
   const uploader = getUploader(currentFilm);
@@ -136,9 +125,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
     };
   }, []);
 
-  // -------------------------
-  // SCROLL LOADING
-  // -------------------------
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     const nearBottom = scrollTop + clientHeight >= scrollHeight - 40;
@@ -147,9 +133,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
     activeTab === "films" ? loadMoreFilms() : loadMoreUsers();
   };
 
-  // -------------------------
-  // SMALL UI COMPONENT
-  // -------------------------
   const Stat = ({ icon, label }: { icon: any; label: any }) => (
     <div className="flex items-center gap-2 text-emerald-900/80 text-sm">
       <span className="text-base">{icon}</span>
@@ -157,9 +140,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
     </div>
   );
 
-  // -------------------------
-  // MAIN RENDER
-  // -------------------------
   return (
     <div
       onClick={onClose}
@@ -170,9 +150,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
         className="relative w-full max-w-6xl bg-white rounded-2xl 
                  border border-emerald-900/20 shadow-xl overflow-hidden"
       >
-        {/* ---------------------------------- */}
-        {/* 1. TOP HEADER (C + B aesthetic) */}
-        {/* ---------------------------------- */}
         <div className="px-8 pb-4 pt-6 border-b border-emerald-900/15 bg-white sticky top-0 z-10">
           <h1 className="font-freckle text-4xl tracking-tight text-emerald-950">
             {countryName}
@@ -190,14 +167,10 @@ const CountryModal: React.FC<CountryModalProps> = ({
           </div>
         </div>
 
-        {/* ---------------------------------- */}
-        {/* 2. FEATURED SECTION */}
-        {/* ---------------------------------- */}
         <div
           ref={headerRef}
           className="relative border-b border-emerald-900/15 bg-emerald-50/40"
         >
-          {/* Banner */}
           <div
             className={`relative w-full h-[260px] overflow-hidden transition-all duration-500 
             ${fading ? "opacity-0 scale-[0.98]" : "opacity-100 scale-100"}`}
@@ -206,26 +179,22 @@ const CountryModal: React.FC<CountryModalProps> = ({
               <img
                 src={getPosterUrl(
                   currentFilm.poster_path,
-                  currentFilm.updated_at
+                  currentFilm.updated_at,
                 )}
                 alt=""
                 className="w-full h-full object-cover object-center"
               />
             )}
 
-            {/* Film info overlay */}
-            {/* Film info overlay */}
             {currentFilm && (
               <div
                 className="absolute top-4 left-4 bg-black/50 backdrop-blur-sm text-white 
                px-4 py-3 rounded-lg flex flex-col gap-1 max-w-[300px]"
               >
-                {/* Title */}
                 <div className="font-freckle text-xl leading-tight">
                   {currentFilm.film_title}
                 </div>
 
-                {/* Rating & Views */}
                 <div className="flex items-center gap-4 text-sm opacity-90">
                   <div className="flex items-center gap-1">
                     ★ {currentFilm.avg_rating ?? "—"}
@@ -236,7 +205,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
                   </div>
                 </div>
 
-                {/* Thesis (XS only) */}
                 {currentFilm.thesis && (
                   <div className="text-xs mt-1 opacity-90 block">
                     {currentFilm.thesis.length > 100
@@ -247,24 +215,27 @@ const CountryModal: React.FC<CountryModalProps> = ({
               </div>
             )}
 
-            {/* Fade gradient bottom */}
             <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent" />
           </div>
 
-          {/* Simplified uploader capsule */}
           {uploader && (
             <div
               className="absolute left-8 bottom-6 bg-white/90 backdrop-blur px-4 py-3 
                        rounded-xl shadow-md flex items-center gap-3 border border-emerald-900/10"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(
-                  `/@?username=${encodeURIComponent(uploader.username)}`
-                );
+                if (uploader.username)
+                  navigate(
+                    `/@?username=${encodeURIComponent(uploader.username)}`,
+                  );
               }}
             >
               <img
-                src={getPfpUrl(uploader.pfp_path)}
+                src={
+                  uploader.pfp_path
+                    ? `https://pfps.try-yugen.com/${uploader.pfp_path}`
+                    : tempPFP
+                }
                 className="w-12 h-12 rounded-full object-cover border border-emerald-900/20"
               />
               <div className="font-freckle text-lg text-emerald-950">
@@ -273,14 +244,14 @@ const CountryModal: React.FC<CountryModalProps> = ({
             </div>
           )}
 
-          {/* Rotation controls — now extra interactive */}
           <div className="absolute right-8 bottom-6 flex gap-3">
             <button
               onClick={() => {
                 setFading(true);
                 setTimeout(() => {
                   setCurrentIndex(
-                    (i) => (i - 1 + featuredFilms.length) % featuredFilms.length
+                    (i) =>
+                      (i - 1 + featuredFilms.length) % featuredFilms.length,
                   );
                   setFading(false);
                 }, 200);
@@ -311,9 +282,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
           </div>
         </div>
 
-        {/* ---------------------------------- */}
-        {/* 3. TABS */}
-        {/* ---------------------------------- */}
         <div className="flex border-b border-emerald-900/15 bg-white sticky top-0 z-10">
           {["films", "artists"].map((t) => (
             <button
@@ -333,9 +301,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
           ))}
         </div>
 
-        {/* ---------------------------------- */}
-        {/* 4. CONTENT GRID */}
-        {/* ---------------------------------- */}
         <div ref={scrollRef} onScroll={handleScroll} className="p-8 bg-white">
           {loading ? (
             <div className="text-center py-10 text-emerald-900">Loading…</div>
@@ -364,7 +329,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
           )}
         </div>
 
-        {/* CLOSE BUTTON (more interactive) */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur 

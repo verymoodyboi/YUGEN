@@ -1,4 +1,3 @@
-// src/features/explore/explore.services.t
 import supabase from "../../lib/supabase.js";
 import { Film } from "./explore.types.js";
 export const getRandomFilms = async (limit = 50) => {

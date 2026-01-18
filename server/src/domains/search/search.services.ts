@@ -11,19 +11,16 @@ export async function advancedSearch(params: AdvancedSearchParams) {
     throw new Error("Missing query parameter");
   }
 
-  // Generate embedding
   const searchVector = await generateEmbedding(searchInput);
 
-  // Call Supabase RPC
   const { data, error } = await supabase.rpc("match_films", {
     query_embedding: searchVector,
     match_threshold: 0.7,
-    match_count: offset + limit, // fetch enough rows
+    match_count: offset + limit, 
   });
 
   if (error) throw new Error(`Supabase RPC error: ${error.message}`);
 
-  // Normalize and apply offset
   return (data ?? [])
     .slice(offset, offset + limit)
     .map((film: any) => ({
@@ -116,7 +113,6 @@ export async function searchPlaylists(query: any) {
 export async function combinedSearch(q: string) {
   if (!q?.trim()) return [];
 
-  // Parallel queries for speed
   const [filmsRes, matchRes, accountsRes] = await Promise.all([
     supabase
       .from("films")
@@ -128,7 +124,6 @@ export async function combinedSearch(q: string) {
       .order("popularity", { ascending: false })
       .limit(10),
 
-    // Semantic search via embeddings
     supabase.rpc("match_films", {
       query_embedding: await generateEmbedding(q),
       match_threshold: 0.8,
@@ -145,16 +140,14 @@ export async function combinedSearch(q: string) {
    
   ]);
 
-  // Handle potential RPC errors gracefully
-  if (filmsRes.error) console.error("❌ film search error:", filmsRes.error);
-  if (matchRes.error) console.error("❌ match_films error:", matchRes.error);
-  if (accountsRes.error) console.error("❌ accounts search error:", accountsRes.error);
+  if (filmsRes.error) console.error("film search error:", filmsRes.error);
+  if (matchRes.error) console.error("match_films error:", matchRes.error);
+  if (accountsRes.error) console.error("accounts search error:", accountsRes.error);
 
   const films = filmsRes.data ?? [];
   const matched = matchRes.data ?? [];
   const accounts = accountsRes.data ?? [];
 
-  // Merge traditional + semantic film results, prioritize title matches
   const seen = new Set<string>();
   const allFilms = [...films, ...matched].filter((f) => {
     if (seen.has(f.film_uuid)) return false;

@@ -16,8 +16,6 @@ import WatchlistPage from "./pages/myWatchlistPage.tsx";
 import WatchPlaylist from "./pages/watchPlaylistPage.tsx";
 import HistoryPage from "./pages/historyPage.tsx";
 import GenrePage from "./pages/genrePage.tsx";
-import ChallengePage from "./pages/challengePage.tsx";
-import ExploreChallengesPage from "./pages/challengesPage.tsx";
 import NotificationsPage from "./pages/notificationsPage.tsx";
 import SettingsPage from "./pages/settingsPage.tsx";
 import ErrorBoundary from "./pages/errorPage.tsx";
@@ -33,7 +31,7 @@ import WaitingComfirmation from "./pages/waitingEmailComfirmationPage.tsx";
 import AppLayout from "./layouts/layout-main.tsx";
 import AppLayout2 from "./layouts/layout-secondery.tsx";
 import Legal from "./pages/legal/termsAndPoliciesPage.tsx";
-
+import PrivacyPolicyPage from "./pages/legal/privacyPolicyPage.tsx";
 function Yugen() {
   return (
     <div>
@@ -45,10 +43,7 @@ function Yugen() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/SignUpPage" element={<SignUpPage />} />
               <Route path="/googleSignUp" element={<SignUpGoogle />} />
-              <Route
-                path="/profile-customization"
-                element={<ProfileCustomization />}
-              />
+              <Route path="/onboarding" element={<ProfileCustomization />} />
               <Route
                 path="/reset-password"
                 element={
@@ -63,15 +58,9 @@ function Yugen() {
               />
             </Route>
             <Route element={<AppLayout />}>
-              <Route
-                path="/"
-                element={
-                  <Wrapper>
-                    <HomePage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/" element={<HomePage />} />
               <Route path="/terms" element={<Legal />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
 
               <Route
                 path="/watchlist"
@@ -99,55 +88,13 @@ function Yugen() {
                 }
               />
 
-              <Route
-                path="/search"
-                element={
-                  <Wrapper>
-                    <SearchPage />
-                  </Wrapper>
-                }
-              />
-              <Route
-                path="/watch"
-                element={
-                  <Wrapper>
-                    <Watch />
-                  </Wrapper>
-                }
-              />
-              <Route
-                path="/watchplaylist"
-                element={
-                  <Wrapper>
-                    <WatchPlaylist />
-                  </Wrapper>
-                }
-              />
-              <Route
-                path="/random"
-                element={
-                  <Wrapper>
-                    <FilmRollPickerPage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/watch" element={<Watch />} />
+              <Route path="/watchplaylist" element={<WatchPlaylist />} />
+              <Route path="/random" element={<FilmRollPickerPage />} />
 
-              <Route
-                path="/globe"
-                element={
-                  <Wrapper>
-                    <FilmGlobePage />
-                  </Wrapper>
-                }
-              />
-              <Route
-                path="/country"
-                element={
-                  <Wrapper>
-                    <CountryPage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/globe" element={<FilmGlobePage />} />
+              <Route path="/country" element={<CountryPage />} />
               <Route
                 path="/settings"
                 element={
@@ -175,23 +122,9 @@ function Yugen() {
                 }
               />
 
-              <Route
-                path="/genre"
-                element={
-                  <Wrapper>
-                    <GenrePage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/genre" element={<GenrePage />} />
 
-              <Route
-                path="/genres"
-                element={
-                  <Wrapper>
-                    <GenresPage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/genres" element={<GenresPage />} />
 
               <Route
                 path="/notifications"
@@ -202,14 +135,7 @@ function Yugen() {
                 }
               />
 
-              <Route
-                path="/@"
-                element={
-                  <Wrapper>
-                    <AccountProfile />
-                  </Wrapper>
-                }
-              />
+              <Route path="/@" element={<AccountProfile />} />
               <Route
                 path="/Profile"
                 element={

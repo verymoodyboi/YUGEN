@@ -10,14 +10,12 @@ const uploadMemory = multer({ storage: multer.memoryStorage() });
 
 router.post(
   '/',
-  uploadMemory.single('PFP'),
   validate(registerSchema),
   registerController.register
 );
 
 router.post(
   '/google',
-  uploadMemory.single('PFP'),
   validate(registerGoogleSchema),
   registerController.registerGoogle
 );

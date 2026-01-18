@@ -33,23 +33,34 @@ const {userType}=req.body
 }
 
 
+
 export async function editProfile(req: Request, res: Response) {
   try {
     const { error } = editProfileSchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.details.map(d => d.message) });
+    if (error) {
+      return res.status(400).json({
+        error: error.details.map((d) => d.message),
+      });
+    }
 
     const authId = req.user?.id;
-    if (!authId) return res.status(401).json({ error: 'Unauthorized' });
+    if (!authId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+console.log("REQ BODY EDIT PROFILE:", req.body);
 
-    await service.editProfile(authId, req.body, req.file);
-    res.json({ message: 'Profile updated successfully!' });
+    const result = await service.editProfile(authId, req.body);
+
+    res.json({
+      message: "Profile updated successfully!",
+      uploadUrl: result.uploadUrl ?? null,
+    });
   } catch (err: any) {
-    console.error('Error editing profile:', err);
+    console.error("Error editing profile:", err);
     res.status(500).json({ error: err.message });
-    console.log("BODY:", req.body);
-console.log("FILE:", req.file?.originalname);
   }
 }
+
 
 export async function preRegisterSocials(req: Request, res: Response) {
   const { error } = preRegisterSocialsSchema.validate(req.body);

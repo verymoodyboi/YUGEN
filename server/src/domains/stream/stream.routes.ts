@@ -5,8 +5,8 @@ import { filmIdParamSchema, incrementViewParamSchema, clickParamSchema } from '.
 import { validate } from '../../middlewares/validate.js';
 const router = Router();
 
-router.get('/:filmId', requireAuth,validate(filmIdParamSchema), streamController.getFilm);
-router.post('/:id/increment-view', requireAuth, streamController.incrementView);
-router.post('/:film_uuid/click', requireAuth, streamController.clickFilm);
+router.get('/:filmId', validate(filmIdParamSchema), streamController.getFilm);
+router.post('/:id/increment-view',  streamController.incrementView);
+router.post('/:film_uuid/click',  streamController.clickFilm);
 
 export default router;

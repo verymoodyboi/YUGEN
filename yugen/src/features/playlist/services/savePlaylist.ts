@@ -1,4 +1,4 @@
-import {api} from "../../../lib/api"; // your axios instance or fetch wrapper
+import {api} from "../../../lib/api";
 
 export async function checkPlaylistSaved(playlist_uuid: string, token: string) {
   const res = await api.get("/playlists/saved/check", {

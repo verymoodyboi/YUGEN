@@ -1,6 +1,10 @@
 import supabase from '../../lib/supabase.js';
 import type { UpdateSocialsDTO, EditProfileDTO } from './profile.types.js';
 import { preRegisterSocialsSchema } from './profile.validations.js';
+import { r2 } from '../../lib/r2.js';
+import { PutObjectCommand,DeleteObjectCommand  } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { generateR2SignedPutUrl } from '../register/register.services.js';
 
 export async function updateSocials(authId: string, socials: UpdateSocialsDTO) {
   const { error } = await supabase
@@ -17,40 +21,51 @@ export async function updateSocials(authId: string, socials: UpdateSocialsDTO) {
   return true;
 }
 
-export async function editProfile(authId: string, dto: EditProfileDTO, file?: Express.Multer.File) {
-  // Handle new PFP upload only if a file was provided
-  if (file) {
-    // remove old picture
-    await supabase.storage.from('pfps').remove([`${authId}.jpg`]);
+export async function editProfile(
+  authId: string,
+  body: {
+    FName: string;
+    LName: string;
+    UserName: string;
+    Bio: string;
+    Gender: string;
+    Region: string;
+    pfpContentType?: string;
+  }
+) {
+  let uploadUrl: string | null = null;
+  let pfpPath: string | null = null;
 
-    const { error: uploadError } = await supabase.storage
-      .from('pfps')
-      .upload(`${authId}.jpg`, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true,
-      });
+  if (body.pfpContentType) {
+    pfpPath = `pfps/${authId}.jpg`;
 
-    if (uploadError) throw new Error(uploadError.message);
+    uploadUrl = await generateR2SignedPutUrl({
+      key: pfpPath,
+      contentType: body.pfpContentType,
+    });
   }
 
-  // Update text fields (and only include pfp_path if new file uploaded)
-  const { error: updateError } = await supabase
-    .from('users')
+  const { error } = await supabase
+    .from("users")
     .update({
-      username: dto.UserName,
-      f_name: dto.FName,
-      l_name: dto.LName,
-      bio: dto.Bio,
-      gender: dto.Gender,
-      region: dto.Region,
-      ...(file ? { pfp_path: `${authId}.jpg` } : {}), 
+      username: body.UserName,
+      f_name: body.FName,
+      l_name: body.LName,
+      bio: body.Bio,
+      gender: body.Gender,
+      region: body.Region,
+      ...(pfpPath ? { pfp_path: pfpPath } : {}),
     })
-    .eq('auth_id', authId);
+    .eq("auth_id", authId);
 
-  if (updateError) throw new Error(updateError.message);
+  if (error) throw new Error(error.message);
 
-  return true;
+  return {
+    success: true,
+    uploadUrl,
+  };
 }
+
 
 
 export async function preRegisterSocials(body: { Username: string; Insta?: string; YT?: string; LI?: string }) {

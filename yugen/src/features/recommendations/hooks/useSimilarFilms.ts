@@ -1,4 +1,3 @@
-// src/features/recommendations/hooks/useSimilarFilms.ts
 import { useEffect, useState } from "react";
 import { getSimilarFilms } from "../services";
 

@@ -59,7 +59,6 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
             </p>
           </div>
 
-          {/* Navigation */}
           <nav className="flex flex-col space-y-3 flex-1 md:items-center">
             <h3 className="text-emerald-50 title text-xl">Navigate</h3>
             {navigationLinks.map((link) => (
@@ -85,7 +84,6 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
             </p>
           </nav>
 
-          {/* Social Icons */}
           <div className="flex flex-col space-y-4 flex-1 md:items-end">
             <h3 className="text-emerald-50 title text-xl">Follow Us</h3>
             <div className="flex space-x-3">
@@ -105,7 +103,6 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
           </div>
         </div>
 
-        {/* Footer Text */}
         <div className="mt-12 pt-6 border-t border-emerald-800 w-full">
           <p className="text-sm text-emerald-100/60">
             © {new Date().getFullYear()} Yugen, INC. All rights reserved.

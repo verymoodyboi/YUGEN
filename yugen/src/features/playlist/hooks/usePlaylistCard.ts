@@ -10,7 +10,6 @@ export function usePlaylistCard(playlist: any) {
   const [isPublic, setIsPublic] = useState<boolean>();
   const [isSaved, setIsSaved] = useState<boolean>();
 
-  // ✅ Check public
   const fetchPublicStatus = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -21,7 +20,6 @@ export function usePlaylistCard(playlist: any) {
     }
   }, [playlist.playlist_uuid, getAccessToken]);
 
-  // ✅ Toggle public
   const handleTogglePublic = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -32,7 +30,6 @@ export function usePlaylistCard(playlist: any) {
     }
   }, [playlist.playlist_uuid, getAccessToken]);
 
-  // ✅ Check saved
   const fetchSavedStatus = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -43,7 +40,6 @@ export function usePlaylistCard(playlist: any) {
     }
   }, [playlist.playlist_uuid, getAccessToken]);
 
-  // ✅ Toggle save/unsave
   const handleToggleSaved = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -54,7 +50,6 @@ export function usePlaylistCard(playlist: any) {
     }
   }, [playlist.playlist_uuid, getAccessToken]);
 
-  // ✅ Delete playlist
   const handleDeletePlaylist = useCallback(async () => {
     try {
       const token = await getAccessToken();
@@ -64,7 +59,6 @@ export function usePlaylistCard(playlist: any) {
     }
   }, [playlist.playlist_uuid, getAccessToken]);
 
-  // ✅ Update name
   const handleUpdateName = useCallback(async (newName: string) => {
     try {
       const token = await getAccessToken();
@@ -74,11 +68,10 @@ export function usePlaylistCard(playlist: any) {
     }
   }, [playlist.playlist_uuid, getAccessToken]);
 
-  // 🔄 Effects
   useEffect(() => {
     if (playlist?.playlist_uuid) {
       fetchPublicStatus();
-      fetchSavedStatus(); // check save status on mount
+      fetchSavedStatus(); 
     }
   }, [playlist?.playlist_uuid, fetchPublicStatus, fetchSavedStatus]);
 
@@ -88,6 +81,6 @@ export function usePlaylistCard(playlist: any) {
     handleDeletePlaylist,
     handleUpdateName,
     isSaved,
-    handleToggleSaved, // NEW
+    handleToggleSaved, 
   };
 }

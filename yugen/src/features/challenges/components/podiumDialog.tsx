@@ -31,35 +31,31 @@ const PodiumDialog: React.FC<PodiumDialogProps> = ({
 
   const maxPodium = challenge?.podium ?? 3;
 
-  // === Filter accepted films based on search ===
   const filteredFilms = useMemo(() => {
     return challengeFilms.filter((film: any) =>
-      film.film_title.toLowerCase().includes(searchTerm.toLowerCase())
+      film.film_title.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [challengeFilms, searchTerm]);
 
-  // === Add film to first empty slot ===
   const handleSelectFilm = (film: any) => {
     const exists = podiumFilms.find(
-      (p) => p.films?.film_uuid === film.film_uuid
+      (p) => p.films?.film_uuid === film.film_uuid,
     );
-    if (exists) return; // prevent duplicates
+    if (exists) return;
 
     const nextEmptyRank = Array.from({ length: maxPodium })
       .map((_, i) => i + 1)
       .find((rank) => !podiumFilms.find((p) => p.rank === rank));
 
-    if (!nextEmptyRank) return; // all slots full
+    if (!nextEmptyRank) return;
 
     setPodiumFilms((prev) => [...prev, { rank: nextEmptyRank, films: film }]);
   };
 
-  // === Remove film from a slot ===
   const handleRemoveFilm = (rank: number) => {
     setPodiumFilms((prev) => prev.filter((p) => p.rank !== rank));
   };
 
-  // === Save podium to backend ===
   const { savePodium } = useChallenge();
 
   const handleSavePodium = async () => {
@@ -82,7 +78,6 @@ const PodiumDialog: React.FC<PodiumDialogProps> = ({
         className="bg-emerald-50 border-2 border-emerald-950 rounded-xl shadow-lg w-full max-w-3xl p-6 space-y-4 overflow-y-auto max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* === Header === */}
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-emerald-950">
             Announce Winners
@@ -98,8 +93,6 @@ const PodiumDialog: React.FC<PodiumDialogProps> = ({
         <p className="text-emerald-800">
           Select the top {maxPodium} films to assign podium ranks.
         </p>
-
-        {/* === Podium Slots === */}
         <div className="flex justify-center gap-6 mt-4 flex-wrap">
           {Array.from({ length: maxPodium }).map((_, index) => {
             const rank = index + 1;
@@ -144,7 +137,6 @@ const PodiumDialog: React.FC<PodiumDialogProps> = ({
           })}
         </div>
 
-        {/* === Search Bar === */}
         <div className="mt-6 border-t border-emerald-900 pt-4">
           <h3 className="text-lg font-semibold text-emerald-950 mb-2">
             Select from accepted films
@@ -158,7 +150,6 @@ const PodiumDialog: React.FC<PodiumDialogProps> = ({
             className="w-full px-3 py-2 mb-4 border border-emerald-900 rounded bg-emerald-50 text-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-700"
           />
 
-          {/* === Film Grid === */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-64 overflow-y-auto">
             {filteredFilms.length > 0 ? (
               filteredFilms.map((film: any) => (
@@ -189,7 +180,6 @@ const PodiumDialog: React.FC<PodiumDialogProps> = ({
           </div>
         </div>
 
-        {/* === Save Button === */}
         <div className="flex justify-end mt-6">
           <button
             onClick={handleSavePodium}

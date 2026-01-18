@@ -1,4 +1,3 @@
-// src/features/academic/services.ts
 import { api } from "../../lib/api";
 
 export const fetchAcademicApplication = async (token: string, username: string) => {

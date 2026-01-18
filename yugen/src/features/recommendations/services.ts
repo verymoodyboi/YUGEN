@@ -1,8 +1,6 @@
 import { api } from "../../lib/api";
 
-// --------------------------------------------------
-// HOT THIS WEEK
-// --------------------------------------------------
+
 export const fetchHotThisWeek = async (offset = 0, limit = 10) => {
   const res = await api.get("/recommendations/hotThisWeek", {
     params: { offset, limit },
@@ -10,9 +8,6 @@ export const fetchHotThisWeek = async (offset = 0, limit = 10) => {
   return res.data;
 };
 
-// --------------------------------------------------
-// PERSONALIZED (logged-in user)
-// --------------------------------------------------
 export const fetchRecommended = async (
   user_id: string,
   offset = 0,
@@ -24,9 +19,7 @@ export const fetchRecommended = async (
   return res.data;
 };
 
-// --------------------------------------------------
-// FILMS BY GENRE
-// --------------------------------------------------
+
 export const fetchFilmsByGenre = async (
   genre: string,
   offset = 0,
@@ -38,17 +31,13 @@ export const fetchFilmsByGenre = async (
   return res.data;
 };
 
-// --------------------------------------------------
-// GENRES LIST
-// --------------------------------------------------
+
 export const fetchAllGenres = async () => {
   const res = await api.get("/recommendations/genres");
   return res.data;
 };
 
-// --------------------------------------------------
-// HOME PAGE RECOMMENDATIONS (Hottest / Fresh / Subscriptions / Watchlist)
-// --------------------------------------------------
+
 export async function getHomeRecommendations(userId?: string) {
   try {
     const response = await api.get("/recommendations/home", {
@@ -64,7 +53,7 @@ export async function getHomeRecommendations(userId?: string) {
       }
     );
   } catch (error) {
-    console.error("❌ Failed to load recommendations:", error);
+    console.error(" Failed to load recommendations:", error);
     return {
       hottest: [],
       fresh: [],
@@ -74,9 +63,7 @@ export async function getHomeRecommendations(userId?: string) {
   }
 }
 
-// --------------------------------------------------
-// SIMILAR FILMS
-// --------------------------------------------------
+
 export async function getSimilarFilms(filmId: string) {
   try {
     const res = await api.get("/recommendations/similar", {
@@ -92,9 +79,7 @@ export async function getSimilarFilms(filmId: string) {
   }
 }
 
-// --------------------------------------------------
-// PROFILE LATEST FILMS (infinite scroll)
-// --------------------------------------------------
+
 export async function fetchLatestUserFilms({
   pageParam = 0,
   uploaderID,
@@ -108,9 +93,6 @@ export async function fetchLatestUserFilms({
   return res.data;
 }
 
-// --------------------------------------------------
-// PROFILE FILMS (normal paginated)
-// --------------------------------------------------
 export async function fetchProfileFilms({
   offset = 0,
   limit = 10,
@@ -126,9 +108,7 @@ export async function fetchProfileFilms({
   return res.data;
 }
 
-// --------------------------------------------------
-// DEFAULT EXPORT IF NEEDED
-// --------------------------------------------------
+
 export default {
   fetchHotThisWeek,
   fetchRecommended,

@@ -1,4 +1,3 @@
-// PlaylistItem.tsx
 import React from "react";
 import supabase from "../../../lib/supabaseClient";
 import { FiEye, FiStar } from "react-icons/fi";
@@ -8,7 +7,7 @@ import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
 import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 
 interface PlaylistItemProps {
-  pf: any; // same shape as playlistFilms entries from backend
+  pf: any;
   selected: boolean;
   onClick: () => void;
 }
@@ -20,7 +19,6 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
 }) => {
   const film = pf.films || pf;
 
-  // --- Get uploader info using your existing hook ---
   const { uploader } = useFilm(undefined, film.uploader_id);
 
   const posterUrl = film.poster_path
@@ -43,7 +41,6 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
       }`}
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        {/* Poster */}
         <img
           src={posterUrl}
           alt="Film thumbnail"
@@ -56,21 +53,19 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
           className="w-20 h-28 object-cover rounded-md border border-emerald-950 flex-shrink-0"
         />
 
-        {/* Film info */}
         <div className="flex-1 flex flex-col min-w-0">
           <h3 className="font-freckle text-xl truncate">{film.film_title}</h3>
           <p className="text-sm text-emerald-950/70 truncate">
             {film.film_genre || "No genre"}
           </p>
 
-          {/* Uploader info under genre */}
           {uploader?.username && (
             <div
               className="flex items-center gap-1 mt-1 w-full sm:w-32 flex-shrink-0"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(
-                  `/@?username=${encodeURIComponent(uploader?.username)}`
+                  `/@?username=${encodeURIComponent(uploader?.username)}`,
                 );
               }}
             >
@@ -95,7 +90,6 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
           )}
         </div>
 
-        {/* Views & Rating */}
         <div className="flex sm:flex-col items-start sm:items-end gap-2 text-sm text-emerald-950 flex-shrink-0 mt-2 sm:mt-0">
           <div className="flex items-center gap-1">
             <FiEye size={16} /> <span>{film.view_count ?? 0}</span>

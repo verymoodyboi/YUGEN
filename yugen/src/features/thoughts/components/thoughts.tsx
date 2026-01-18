@@ -16,6 +16,7 @@ import { useReply } from "../hooks/useReply";
 import { FiFlag, FiCheck } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+import AuthActionGuard from "../../../components/clickWrapper";
 
 interface ThoughtsProps {
   filmId: number;
@@ -38,7 +39,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
   } = useThoughts(filmId, refreshKey);
   const toast = useToast();
   const navigate = useNavigate();
-  // Flag modal state
   const [flagModalOpen, setFlagModalOpen] = useState(false);
   const [flagTargetId, setFlagTargetId] = useState<number | null>(null);
   const [flagTargetType, setFlagTargetType] = useState<
@@ -99,7 +99,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
     <div className="w-full max-w-3xl mx-auto border-4 border-emerald-950 rounded-xl bg-emerald-50 p-4 mt-6 shadow-lg">
       <h2 className="font-freckle text-2xl text-emerald-950 mb-4">Thoughts</h2>
 
-      {/* New Thought Form */}
       <div className="mb-6">
         <div className="flex items-center gap-1 mb-2">
           {[...Array(10)].map((_, i) => (
@@ -127,22 +126,23 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
           onChange={(e) => setNewComment(e.target.value)}
           rows={3}
         />
-        <button
-          onClick={hasUserThought ? undefined : onShareThought}
-          disabled={hasUserThought}
-          className={`mt-2 px-4 py-2 rounded-md font-freckle transition-transform ${
-            hasUserThought
-              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-              : "bg-emerald-950 text-emerald-50 hover:scale-105"
-          }`}
-        >
-          {hasUserThought
-            ? "You already shared your thoughts here!"
-            : "Share Thought"}
-        </button>
+        <AuthActionGuard>
+          <button
+            onClick={hasUserThought ? undefined : onShareThought}
+            disabled={hasUserThought}
+            className={`mt-2 px-4 py-2 rounded-md font-freckle transition-transform ${
+              hasUserThought
+                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                : "bg-emerald-950 text-emerald-50 hover:scale-105"
+            }`}
+          >
+            {hasUserThought
+              ? "You already shared your thoughts here!"
+              : "Share Thought"}
+          </button>
+        </AuthActionGuard>
       </div>
 
-      {/* Thoughts List */}
       {!Array.isArray(thoughts) || thoughts.length === 0 ? (
         <p className="text-emerald-950">No thoughts yet. Be the first!</p>
       ) : (
@@ -154,8 +154,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
             const pfpPath = user?.pfp_path ?? "";
             const publicUrl =
               pfpPath && typeof pfpPath === "string"
-                ? supabase.storage.from("pfps").getPublicUrl(pfpPath).data
-                    ?.publicUrl
+                ? `https://pfps.try-yugen.com/${pfpPath}?t=${Date.now()}`
                 : tempPFP;
             const displayPfp = publicUrl || "/default-pfp.png";
 
@@ -168,13 +167,12 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                     : "border-emerald-950"
                 }`}
               >
-                {/* Author */}
                 <div
                   className="flex items-center gap-3 mb-2"
                   onClick={(e) => {
                     e.stopPropagation();
                     navigate(
-                      `/@?username=${encodeURIComponent(user?.username)}`
+                      `/@?username=${encodeURIComponent(user?.username)}`,
                     );
                   }}
                 >
@@ -199,7 +197,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                   </span>
                 </div>
 
-                {/* Rating */}
                 <div className="flex items-center space-x-1 mb-2">
                   {[...Array(10)].map((_, i) => (
                     <span
@@ -217,60 +214,62 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
 
                 {thought?.comment && <p className="mb-2">{thought.comment}</p>}
 
-                {/* Actions */}
                 <div className="flex items-center gap-2 text-sm">
-                  <button
-                    onClick={() =>
-                      handleVote(
-                        "upvote",
-                        { thoughtId: tid },
-                        `thought-up-${tid}`
-                      )
-                    }
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
-                      activeIcon[`thought-up-${tid}`]
-                        ? "bg-emerald-950 text-emerald-50"
-                        : "text-emerald-950"
-                    }`}
-                  >
-                    <FiThumbsUp className="stroke-[2.5]" />{" "}
-                    {thought?.upvotes ?? 0}
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      handleVote(
-                        "downvote",
-                        { thoughtId: tid },
-                        `thought-down-${tid}`
-                      )
-                    }
-                    className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
-                      activeIcon[`thought-down-${tid}`]
-                        ? "bg-emerald-950 text-emerald-50"
-                        : "text-emerald-950"
-                    }`}
-                  >
-                    <FiThumbsDown className="stroke-[2.5]" />{" "}
-                    {thought?.downvotes ?? 0}
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setReplyToID(tid);
-                      setReplyToUsername(user?.username ?? "");
-                      setOpen(true);
-                    }}
-                    className="flex items-center gap-1 px-2 py-1 rounded-full text-emerald-950 hover:scale-105 transition-transform"
-                  >
-                    <FiMessageSquare className="stroke-[2.5]" /> Reply
-                  </button>
-
+                  <AuthActionGuard>
+                    <button
+                      onClick={() =>
+                        handleVote(
+                          "upvote",
+                          { thoughtId: tid },
+                          `thought-up-${tid}`,
+                        )
+                      }
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
+                        activeIcon[`thought-up-${tid}`]
+                          ? "bg-emerald-950 text-emerald-50"
+                          : "text-emerald-950"
+                      }`}
+                    >
+                      <FiThumbsUp className="stroke-[2.5]" />{" "}
+                      {thought?.upvotes ?? 0}
+                    </button>
+                  </AuthActionGuard>
+                  <AuthActionGuard>
+                    <button
+                      onClick={() =>
+                        handleVote(
+                          "downvote",
+                          { thoughtId: tid },
+                          `thought-down-${tid}`,
+                        )
+                      }
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
+                        activeIcon[`thought-down-${tid}`]
+                          ? "bg-emerald-950 text-emerald-50"
+                          : "text-emerald-950"
+                      }`}
+                    >
+                      <FiThumbsDown className="stroke-[2.5]" />{" "}
+                      {thought?.downvotes ?? 0}
+                    </button>
+                  </AuthActionGuard>
+                  <AuthActionGuard>
+                    <button
+                      onClick={() => {
+                        setReplyToID(tid);
+                        setReplyToUsername(user?.username ?? "");
+                        setOpen(true);
+                      }}
+                      className="flex items-center gap-1 px-2 py-1 rounded-full text-emerald-950 hover:scale-105 transition-transform"
+                    >
+                      <FiMessageSquare className="stroke-[2.5]" /> Reply
+                    </button>
+                  </AuthActionGuard>
                   {user?.username && user?.username === userInfo?.username && (
                     <button
                       onClick={() => {
                         setConfirmMessage(
-                          "Are you sure you want to delete this thought? This action cannot be undone."
+                          "Are you sure you want to delete this thought? This action cannot be undone.",
                         );
                         setConfirmAction(() => () => handleDelete(tid));
                         setConfirmOpen(true);
@@ -282,36 +281,37 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                     </button>
                   )}
                   {user?.username && user?.username === userInfo?.username && (
-                    <button
-                      disabled={flaggedItems[`thought-${tid}`]} // disable if already flagged
-                      onClick={() => {
-                        setFlagTargetId(tid);
-                        setFlagTargetType("thought");
-                        setFlagModalOpen(true);
-                      }}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
-                        flaggedItems[`thought-${tid}`]
-                          ? "bg-red-800 text-white cursor-not-allowed"
-                          : "text-emerald-950"
-                      }`}
-                    >
-                      {flaggedItems[`thought-${tid}`] ? (
-                        <>
-                          <FiFlag className="stroke-[2.5]" />
-                          <FiCheck className="stroke-[2.5]" />
-                        </>
-                      ) : (
-                        <>
-                          {" "}
-                          <FiFlag className="stroke-[2.5]" />{" "}
-                          <span className="hidden sm:inline">Flag</span>
-                        </>
-                      )}
-                    </button>
+                    <AuthActionGuard>
+                      <button
+                        disabled={flaggedItems[`thought-${tid}`]}
+                        onClick={() => {
+                          setFlagTargetId(tid);
+                          setFlagTargetType("thought");
+                          setFlagModalOpen(true);
+                        }}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
+                          flaggedItems[`thought-${tid}`]
+                            ? "bg-red-800 text-white cursor-not-allowed"
+                            : "text-emerald-950"
+                        }`}
+                      >
+                        {flaggedItems[`thought-${tid}`] ? (
+                          <>
+                            <FiFlag className="stroke-[2.5]" />
+                            <FiCheck className="stroke-[2.5]" />
+                          </>
+                        ) : (
+                          <>
+                            {" "}
+                            <FiFlag className="stroke-[2.5]" />{" "}
+                            <span className="hidden sm:inline">Flag</span>
+                          </>
+                        )}
+                      </button>
+                    </AuthActionGuard>
                   )}
                 </div>
 
-                {/* Replies toggle */}
                 <button
                   onClick={() => toggleReplies(tid)}
                   className="mt-2 text-emerald-950 font-freckle hover:scale-105 transition-transform"
@@ -325,7 +325,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                       })`}
                 </button>
 
-                {/* Replies List */}
                 {repliesVisible[tid] && (
                   <div className="mt-2 ml-6 flex flex-col gap-2">
                     {Array.isArray(thought?.replies) &&
@@ -337,9 +336,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                           const rPfpPath = rUser?.pfp_path ?? "";
                           const rUrl =
                             rPfpPath && typeof rPfpPath === "string"
-                              ? supabase.storage
-                                  .from("pfps")
-                                  .getPublicUrl(rPfpPath).data?.publicUrl
+                              ? `https://pfps.try-yugen.com/${rPfpPath}?t=${Date.now()}`
                               : tempPFP;
 
                           return (
@@ -366,7 +363,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                                 <span className="ml-auto text-xs italic">
                                   {reply?.created_at
                                     ? new Date(
-                                        reply.created_at
+                                        reply.created_at,
                                       ).toLocaleDateString()
                                     : ""}
                                 </span>
@@ -380,7 +377,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                                     replyVote(
                                       "upvote",
                                       { replyId: rid },
-                                      `reply-up-${rid}`
+                                      `reply-up-${rid}`,
                                     )
                                   }
                                   className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
@@ -398,7 +395,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                                     replyVote(
                                       "downvote",
                                       { replyId: rid },
-                                      `reply-down-${rid}`
+                                      `reply-down-${rid}`,
                                     )
                                   }
                                   className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
@@ -416,10 +413,10 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                                     <button
                                       onClick={() => {
                                         setConfirmMessage(
-                                          "Are you sure you want to delete this reply? This action cannot be undone."
+                                          "Are you sure you want to delete this reply? This action cannot be undone.",
                                         );
                                         setConfirmAction(
-                                          () => () => replyDelete(rid)
+                                          () => () => replyDelete(rid),
                                         );
                                         setConfirmOpen(true);
                                       }}
@@ -436,12 +433,12 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                                     <button
                                       onClick={() => {
                                         setFlagTargetReply(rid);
-                                        setFlagReason("spam"); // default
+                                        setFlagReason("spam");
                                         setFlagOpen(true);
                                       }}
                                       disabled={
                                         replyFlags[`reply-flag-${rid}`] === true
-                                      } // disable if already flagged locally/server
+                                      }
                                       className={`flex items-center gap-1 px-2 py-1 rounded-full transition-transform hover:scale-105 ${
                                         replyFlags[`reply-flag-${rid}`]
                                           ? "bg-gray-300 text-gray-600 cursor-not-allowed"
@@ -487,7 +484,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
         </div>
       )}
 
-      {/* Reply Form Modal */}
       <Dialog
         fullScreen
         open={open}
@@ -522,7 +518,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
         </div>
       </Dialog>
 
-      {/* Tailwind Flag Modal */}
       {flagModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-red-200 shadow-[6px_6px_0_#064e3b]">
@@ -565,7 +560,6 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
           </div>
         </div>
       )}
-      {/* Flag modal (tailwind) */}
       {flagOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md bg-white  rounded-lg p-6 shadow-lg">
@@ -599,11 +593,9 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                 onClick={async () => {
                   if (!flagTargetReply) return;
                   try {
-                    // call hook's flag method
                     await handleFlagReply(flagTargetReply, flagReason);
                     setFlagOpen(false);
                   } catch (err) {
-                    // hook already handles toasts; keep here for safety
                     console.error("Flag modal error:", err);
                   }
                 }}

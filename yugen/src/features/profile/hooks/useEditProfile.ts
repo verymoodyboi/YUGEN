@@ -2,8 +2,8 @@ import { useState } from "react";
 import { addUserType, editProfile, updateSocials } from "../services";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/toaster";
+  import { uploadToR2 } from "../../register/services";
 
-/* ================== VALIDATION HELPERS ================== */
 const hasLineBreaks = (v: string) => /[\r\n]/.test(v);
 const containsEmoji = (v: string) =>
   /[\p{Extended_Pictographic}]/u.test(v);
@@ -64,38 +64,54 @@ function validateProfileForm(
 
   return true;
 }
-/* ======================================================== */
 
 export function useEditProfile(onSuccess?: () => void) {
   const { getAccessToken } = useAuth();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
 
-  // --- main profile update (profile + socials) ---
-  const handleSubmit = async (
-    formData: FormData,
-    socials: { Insta?: string; YT?: string; LI?: string }
-  ) => {
-    if (!validateProfileForm(formData, toast)) return;
 
-    setLoading(true);
-    try {
-      const token = await getAccessToken();
+const handleSubmit = async (
+  formData: FormData,
+  socials: { Insta?: string; YT?: string; LI?: string },
+  croppedFile?: File
+) => {
+  if (!validateProfileForm(formData, toast)) return;
 
-      await updateSocials(socials, token);
-      await editProfile(formData, token);
+  setLoading(true);
+  try {
+    const token = await getAccessToken();
 
-      toast.success("Profile updated successfully!");
-      onSuccess?.();
-    } catch (err) {
-      console.error("Profile update failed:", err);
-      toast.error("Error updating profile");
-    } finally {
-      setLoading(false);
+    await updateSocials(socials, token);
+
+    const payload = {
+      FName: formData.get("FName") as string,
+      LName: formData.get("LName") as string,
+      UserName: formData.get("UserName") as string,
+      Bio: formData.get("Bio") as string,
+      Gender: formData.get("Gender") as string,
+      Region: formData.get("Region") as string,
+      
+  ...(croppedFile ? { pfpContentType: croppedFile.type } : {}),    };
+console.log("PROFILE PAYLOAD TO API:", payload);
+
+    const { uploadUrl } = await editProfile(payload, token);
+
+    if (uploadUrl && croppedFile) {
+      alert("yes")
+      await uploadToR2(uploadUrl, croppedFile);
     }
-  };
 
-  // --- socials-only update ---
+    toast.success("Profile updated successfully!");
+    onSuccess?.();
+  } catch (err) {
+    console.error("Profile update failed:", err);
+    toast.error("Error updating profile");
+  } finally {
+    setLoading(false);
+  }
+};
+
   const handleUpdateSocials = async (
     socials: { Insta?: string; YT?: string; LI?: string }
   ) => {

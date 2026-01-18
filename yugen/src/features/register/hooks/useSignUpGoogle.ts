@@ -6,6 +6,7 @@ import { getCroppedFileFromImage } from "../../../util/image-cropping/services";
 import { checkUsernameAvailable } from "../../../util/availability-validation/services";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/toaster";
+import { uploadToR2 } from "../services";
 
 export function useSignupGoogle(googleUser: { email: string; name: string }) {
     const {user}= useAuth()
@@ -136,39 +137,51 @@ async function validateStep(step = activeStep) {
     }
   };
 
-  const handleSubmit = async () => {
-    const ok =
-      (await validateStep(0)) &&
-      (await validateStep(1)) &&
-      (await validateStep(2));
-    if (!ok) return;
 
-    setIsRegistering(true);
-    try {
-      const formData = new FormData();
-      formData.append("FName", fname);
-      formData.append("LName", lname);
-      formData.append("UserName", username);
-      formData.append("Bio", bio);
-      formData.append("Email", user.email);
-      formData.append("BirthDate", bday);
-      formData.append("Region", region);
-      formData.append("Gender", gender);
-      formData.append("auth_id",user.id)
-      if (croppedFile) formData.append("PFP", croppedFile);
+const handleSubmit = async () => {
+  const ok =
+    (await validateStep(0)) &&
+    (await validateStep(1)) &&
+    (await validateStep(2));
+  if (!ok) return;
 
-      await api.post("/register/google", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+  if (!croppedFile) {
+    toast.warn("Profile picture required");
+    return;
+  }
 
-      toast.success("Google registration successful!");
-      navigate(`/profile-customization?username=${username}`);
-    } catch (err) {
-      toast.error("Google registration failed");
-    } finally {
-      setIsRegistering(false);
+  setIsRegistering(true);
+  try {
+    // 1️⃣ Register Google user
+    const { data } = await api.post("/register/google", {
+      FName: fname,
+      LName: lname,
+      UserName: username,
+      Bio: bio,
+      Email: user.email,
+      BirthDate: bday,
+      Region: region,
+      Gender: gender,
+      auth_id: user.id,
+      pfpContentType: croppedFile.type,
+    });
+
+    const { uploadUrl } = data;
+
+    //  Upload to R2
+    if (uploadUrl) {
+      await uploadToR2(uploadUrl, croppedFile);
     }
-  };
+
+    toast.success("Google registration successful!");
+    navigate(`/profile-customization?username=${username}`);
+  } catch (err) {
+    toast.error("Google registration failed");
+  } finally {
+    setIsRegistering(false);
+  }
+};
+
 
   return {
     steps,

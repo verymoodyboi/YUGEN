@@ -3,7 +3,7 @@ import { api } from "../../lib/api";
 
 export async function updateSocials(
   socials: { Insta?: string; YT?: string; LI?: string },
-  token: string
+  token: any
 ) {
   const res = await api.post("/profile/socials", socials, {
     headers: { Authorization: `Bearer ${token}` },
@@ -11,20 +11,37 @@ export async function updateSocials(
   return res.data;
 }
 
-export async function editProfile(formData: FormData, token: string) {
-  const res = await api.post("/profile/edit", formData, {
+// src/features/profile/services/profileServices.ts
+
+export async function editProfile(
+  payload: {
+    FName: string;
+    LName: string;
+    UserName: string;
+    Bio: string;
+    Gender: string;
+    Region: string;
+    pfpContentType?: string;
+  },
+  token: string
+) {
+  const res = await api.post("/profile/edit", payload, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "multipart/form-data",
     },
   });
-  return res.data;
+
+  return res.data as {
+    message: string;
+    uploadUrl?: string | null;
+  };
 }
+
 
 
 export async function addUserType(
   userType:string,
-  token: string
+  token: any
 ) {
   const res = await api.post("/profile/type", {userType}, {
     headers: { Authorization: `Bearer ${token}` },

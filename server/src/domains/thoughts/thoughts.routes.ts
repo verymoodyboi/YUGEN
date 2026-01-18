@@ -4,7 +4,7 @@ import * as controller from './thoughts.controller.js';
 
 const router = Router();
 
-router.get('/:filmId', requireAuth, controller.getThoughts);
+router.get('/:filmId', controller.getThoughts);
 router.post('/add', requireAuth, controller.addThought);
 router.post('/delete', requireAuth, controller.deleteThought);
 router.post('/upvote', requireAuth, controller.upvote);

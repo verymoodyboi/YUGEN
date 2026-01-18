@@ -124,7 +124,6 @@ const HeroSection: React.FC = () => {
         </div>
       ))}
       <div className="relative z-10 flex flex-col items-center justify-center">
-        {/* Main Logo */}
         <div
           style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
           className="transition-transform duration-150 ease-out"
@@ -136,7 +135,6 @@ const HeroSection: React.FC = () => {
           />
         </div>
 
-        {/* Title */}
         <div className="mt-10 ml-10 mr-10 text-center">
           <p className="text-3xl font-freckle text-emerald-950 tracking-tight">
             Don’t consume, but{" "}
@@ -146,13 +144,11 @@ const HeroSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Subtitle */}
         <p className="m-3 text-emerald-950/70 text-lg italic text-center">
           Discover unique stories told by filmmakers around the world, and share
           your stories with the world.
         </p>
 
-        {/* CTA Button */}
         <div className="m-6 flex space-x-4">
           <button
             onClick={() => navigate("/login")}
@@ -163,8 +159,6 @@ const HeroSection: React.FC = () => {
             Start Exploring
           </button>
         </div>
-
-        {/* Background Grain */}
       </div>
       <div className="absolute inset-0 pointer-events-none opacity-[0.07] bg-[url('/grain.png')] bg-repeat"></div>
     </section>
