@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import Loading from "../components/loading_kickflip";
 import { api } from "../lib/api";
@@ -10,7 +9,6 @@ type AuthStatus =
   | "unauthenticated"
   | "pendingGoogleSignup"
   | "pendingConfirmation"
-  | "firstTimer"
   | "authenticated";
 
 function Wrapper({ children }: { children: React.ReactNode }) {
@@ -29,12 +27,9 @@ function Wrapper({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const { data } = await api.get(
-          "/auth/status",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
+        const { data } = await api.get("/auth/status", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         if (mounted) setStatus(data.status);
       } catch {
@@ -49,30 +44,25 @@ function Wrapper({ children }: { children: React.ReactNode }) {
     };
   }, [getAccessToken]);
 
-  // ⏳ Loading
+  //  Loading
   if (status === "loading") return <Loading />;
 
-  // 🚫 Not logged in
+  //  Not logged in
   if (status === "unauthenticated") {
     return <Navigate to="/login" replace />;
   }
 
-  // 🔐 Google auth but no public.users row
+  //  Google auth but no public.users row
   if (status === "pendingGoogleSignup") {
     return <Navigate to="/googleSignUp" replace />;
   }
 
-  // 📧 Email not confirmed
+  //  Email not confirmed
   if (status === "pendingConfirmation") {
     return <Navigate to="/pending-email-confirmation" replace />;
   }
 
-  // 👋 First-time onboarding
-  if (status === "firstTimer") {
-    return <Navigate to="/onboarding" replace />;
-  }
-
-  // ✅ Fully authenticated
+  //  Fully authenticated
   return <>{children}</>;
 }
 

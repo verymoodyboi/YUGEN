@@ -144,7 +144,6 @@ export async function checkPosterForModeration(filmUuid: string, posterUrl: stri
   } catch (err: any) {
     console.error("Poster moderation check failed:", err?.response?.data || err?.message || err);
 
-    // Fallback: mark film for manual review
     try {
       await supabase
         .from("films")
@@ -172,6 +171,24 @@ export async function checkPosterForModeration(filmUuid: string, posterUrl: stri
   }
 }
 
+
+
+async function resolveFinalApprovalStatus(uploader_id: string) {
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("user_type")
+    .eq("auth_id", uploader_id)
+    .single();
+
+  if (error) {
+    console.error("Failed to fetch uploader user_type:", error);
+    return "quality_control"; 
+  }
+
+  return user?.user_type === "verified" ? "approved" : "quality_control";
+}
+
+
 export async function handleModerationCallback(payload: any) {
   try {
 const requestId =
@@ -190,7 +207,7 @@ const requestId =
 
     const { data: filmRows, error: selectErr } = await supabase
       .from("films")
-      .select("film_uuid, moderation_status, poster_moderation_status")
+      .select("film_uuid, moderation_status, poster_moderation_status, uploader_id")
       .or(`moderation_request_id.eq.${requestId},moderation_media_id.eq.${media?.id ?? ""}`)
       .limit(1);
 
@@ -337,12 +354,15 @@ const requestId =
     }
 
     if (posterStatus === "approved") {
-      await supabase
-        .from("films")
-        .update({
-          moderation_status: "approved",
-        })
-        .eq("film_uuid", film.film_uuid);
+      const finalStatus = await resolveFinalApprovalStatus(film.uploader_id);
+
+  await supabase
+    .from("films")
+    .update({
+      moderation_status: finalStatus,
+    })
+    .eq("film_uuid", film.film_uuid);
+
 
       console.log(`Film ${film.film_uuid} fully approved (video + poster)`);
       return;
@@ -391,3 +411,4 @@ const requestId =
     throw err;
   }
 }
+

@@ -23,8 +23,8 @@ const memUpload = multer({ storage: multer.memoryStorage() });
 
 router.post(
   "/initialize-upload",
- 
-requireAuth,  initializeUploadController
+requireAuth,
+  initializeUploadController
 );
 
 router.post(

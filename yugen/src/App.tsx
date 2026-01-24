@@ -32,6 +32,9 @@ import AppLayout from "./layouts/layout-main.tsx";
 import AppLayout2 from "./layouts/layout-secondery.tsx";
 import Legal from "./pages/legal/termsAndPoliciesPage.tsx";
 import PrivacyPolicyPage from "./pages/legal/privacyPolicyPage.tsx";
+import ManageUploadsPage from "./pages/admin/QAPage.tsx";
+import AdminWrapper from "./pages/adminWrapper.tsx";
+
 function Yugen() {
   return (
     <div>
@@ -145,11 +148,19 @@ function Yugen() {
                 }
               />
               <Route
-                path="/flagged"
+                path="admin/flagged"
                 element={
-                  <Wrapper>
+                  <AdminWrapper>
                     <FlaggedFilmsPage />
-                  </Wrapper>
+                  </AdminWrapper>
+                }
+              />
+              <Route
+                path="admin/QA"
+                element={
+                  <AdminWrapper>
+                    <ManageUploadsPage />
+                  </AdminWrapper>
                 }
               />
             </Route>

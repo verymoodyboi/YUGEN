@@ -23,16 +23,19 @@ const UploadFilmCard: React.FC<UploadFilmCardProps> = ({ film }) => {
   );
   const isUploading = ["uploading"].includes(film.moderation_status);
   const isUploadError = film.moderation_status === "upload_error";
+  const isQualityControl = film.moderation_status === "quality_control";
 
   const cardClass = isUploadError
     ? "bg-red-100 border-red-700"
     : isUploading
       ? "bg-blue-50 border-blue-600 animate-pulse"
-      : isFlagged
-        ? "bg-red-50 border-red-700 hover:bg-red-100"
-        : isUnderReview
-          ? "bg-yellow-50 border-yellow-600 hover:bg-yellow-100"
-          : "bg-emerald-50 border-emerald-950 hover:bg-emerald-100";
+      : isQualityControl
+        ? "bg-blue-100 border-blue-700 hover:bg-blue-200"
+        : isFlagged
+          ? "bg-red-50 border-red-700 hover:bg-red-100"
+          : isUnderReview
+            ? "bg-yellow-50 border-yellow-600 hover:bg-yellow-100"
+            : "bg-emerald-50 border-emerald-950 hover:bg-emerald-100";
 
   return (
     <div
@@ -94,7 +97,12 @@ const UploadFilmCard: React.FC<UploadFilmCardProps> = ({ film }) => {
             patience!
           </p>
         )}
-
+        {isQualityControl && (
+          <p className="text-sm text-blue-800 font-semibold mt-1">
+            This film has passed automated checks and is currently under manual
+            quality control by our moderation team.
+          </p>
+        )}
         {isUnderReview && (
           <p className="text-sm text-yellow-800 font-semibold mt-1">
             This film is being scanned for inappropriate content. It may take a

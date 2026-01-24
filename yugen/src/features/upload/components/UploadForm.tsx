@@ -21,12 +21,16 @@ import { useGenresWithFilms } from "../../genres/useGenres";
 import { useToast } from "../../../components/toaster";
 import uploading_animation from "../../../YugenAssits/upload-button/Yugen Upload.gif";
 import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+import { useAuth } from "../../../contexts/AuthContext";
 
 registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
 const steps = ["Upload", "Details", "more details"];
 
 const UploadForm: React.FC = () => {
+  const { userInfo } = useAuth();
+  const [hasStartedUpload, setHasStartedUpload] = useState(false);
+
   const toast = useToast();
   const {
     filmFile,
@@ -332,6 +336,34 @@ const UploadForm: React.FC = () => {
             </div>
           )}
         </div>
+      </div>
+    );
+  }
+  if (userInfo?.films_count === 0 && !hasStartedUpload) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+        <img
+          src={uploading_animation}
+          className="h-[220px] mb-6 rounded-lg"
+          alt="Become a filmmaker"
+        />
+
+        <h2 className="text-3xl font-semibold mb-2 text-emerald-950">
+          Become a storyteller on Yūgen
+        </h2>
+
+        <p className="max-w-md mb-6 text-emerald-950/80">
+          Upload your first film and join a growing community of storytellers,
+          artists, and independent creators.
+        </p>
+
+        <button
+          onClick={() => setHasStartedUpload(true)}
+          className="px-8 py-3 rounded-full bg-emerald-950 text-emerald-50
+                   hover:scale-105 active:scale-95 transition-all"
+        >
+          Upload your first film
+        </button>
       </div>
     );
   }

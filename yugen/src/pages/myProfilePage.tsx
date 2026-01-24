@@ -12,8 +12,8 @@ import EditProfile from "../features/profile/components/editProfile";
 import { Dialog, Transition } from "@headlessui/react";
 import UploadFilmCard from "../features/profile/components/uploadedFilmsCard";
 import { useSearchParams } from "react-router-dom";
-import upload_button_static from "../YugenAssits/upload-button/Regular.png";
-import upload_button_gif from "../YugenAssits/upload-button/Upload button modified REPEAT.gif";
+import upload_button_static from "../YugenAssits/upload-button/upload_button.png";
+import upload_button_gif from "../YugenAssits/upload-button/upload_button.gif";
 import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
 
 import {
@@ -74,7 +74,7 @@ const UserProfile: React.FC = () => {
     handleLocalPlaylistUpdate,
     playlistsLoading,
     myUploads,
-    myUploadsData, // ✅ fixed
+    myUploadsData,
     fetchNextUploadsPage,
     hasNextUploadsPage,
     uploadsLoading,

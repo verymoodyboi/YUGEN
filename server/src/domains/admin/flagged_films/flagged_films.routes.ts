@@ -4,15 +4,17 @@ import {
   recoverFilmController,
   deleteFilmController,
 } from "./flagged_films.controller.js";
+import { requireAuth } from "../../../middlewares/requireAuth.js";
+import { requireAdmin } from "../../../middlewares/requireAdmin.js";
 
 const router = express.Router();
 
 
-router.get("/", getAllFlaggedFilmsController);
+router.get("/",requireAuth,requireAdmin, getAllFlaggedFilmsController);
 
-router.post("/recover/:film_uuid", recoverFilmController);
+router.post("/recover/:film_uuid",requireAuth,requireAdmin, recoverFilmController);
 
 
-router.delete("/:film_uuid", deleteFilmController);
+router.delete("/:film_uuid",requireAuth,requireAdmin, deleteFilmController);
 
 export default router;
