@@ -1,10 +1,11 @@
-// src/pages/admin/FlaggedFilmsPage.tsx
 import React from "react";
 import AppLayout from "../../layouts/layout-main";
 import { useFlaggedFilms } from "../../features/admin/flagged_films/useFlaggedFilms";
 import CustomLoading from "../../SmallComponents/CutomsLoading";
 import { FiAlertCircle, FiTrash2, FiRotateCcw } from "react-icons/fi";
 import supabase from "../../lib/supabaseClient";
+import tempPoster from "../../YugenAssits/Cover_Placeholder.png";
+import Loading from "../../components/loading_kickflip";
 
 const FlaggedFilmsPage: React.FC = () => {
   const {
@@ -19,7 +20,7 @@ const FlaggedFilmsPage: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-6 flex flex-col gap-6">
+      <div className="min-h-screen  text-emerald-950 font-freckle p-6 flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <FiAlertCircle /> Flagged Films
@@ -27,7 +28,7 @@ const FlaggedFilmsPage: React.FC = () => {
         </div>
 
         {isLoading ? (
-          <CustomLoading />
+          <Loading />
         ) : isError ? (
           <p className="text-red-600">Failed to load flagged films.</p>
         ) : flaggedFilms.length === 0 ? (
@@ -45,9 +46,9 @@ const FlaggedFilmsPage: React.FC = () => {
                   <div>
                     <img
                       src={
-                        supabase.storage
-                          .from("posters")
-                          .getPublicUrl(film?.poster_path).data.publicUrl
+                        film?.poster_path
+                          ? `https://posters.try-yugen.com/${film?.poster_path}`
+                          : tempPoster
                       }
                       alt={film?.film_title || "Film Cover"}
                       className="w-150 h-100 object-cover rounded-lg border-2 border-emerald-950"

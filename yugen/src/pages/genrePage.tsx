@@ -1,7 +1,5 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
-import AppLayout from "../layouts/layout-main";
-import supabase from "../lib/supabaseClient";
 import { useFilmsByGenre } from "../features/recommendations/hooks/useFilmsByGenre";
 import { useGenresWithFilms } from "../features/genres/useGenres";
 import FilmCard from "../components/filmCard-2x3";
@@ -16,13 +14,12 @@ const GenrePage: React.FC = () => {
 
   const genreInfo = React.useMemo(
     () => genres?.find((g) => g.genre === genreName),
-    [genres, genreName]
+    [genres, genreName],
   );
 
   const mainPoster =
     films.length > 0
-      ? supabase.storage.from("posters").getPublicUrl(films[0].poster_path).data
-          .publicUrl
+      ? `https://posters.try-yugen.com/${films[0].poster_path}`
       : undefined;
 
   const topFilm = films[0];

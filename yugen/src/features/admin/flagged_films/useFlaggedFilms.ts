@@ -14,7 +14,7 @@ export function useFlaggedFilms() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["flagged_films"] }),
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useMutation({ 
     mutationFn: deleteFilm,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["flagged_films"] }),
   });

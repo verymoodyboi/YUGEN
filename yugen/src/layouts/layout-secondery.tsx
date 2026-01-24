@@ -52,7 +52,7 @@ const AppLayout2: React.FC = () => {
           }}
         >
           <img
-            src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
+            src="https://assets.try-yugen.com/yugen_logo_dark.svg"
             alt=""
             className="min-w-[100px] min-h-[100px] object-contain"
           />

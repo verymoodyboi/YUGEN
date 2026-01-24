@@ -36,7 +36,7 @@ function NavBar() {
   return (
     <div className="absolute -top-2 left-1 w-[115px] h-[8vh] z-50">
       <PillNav
-        logo="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
+        logo="https://assets.try-yugen.com/yugen_logo_dark.svg"
         logoAlt="Company Logo"
         items={[
           {

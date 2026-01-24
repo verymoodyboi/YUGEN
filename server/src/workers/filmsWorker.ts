@@ -2,7 +2,7 @@
 import { claimNextJob } from "../domains/jobs/claimJob.js";
 import { processFilmJob } from "../domains/jobs/process.services.js";
 
-const POLL_INTERVAL_MS = 30;
+const POLL_INTERVAL_MS = 500; // was 30 — this is much healthier
 
 async function runWorker() {
   console.log("🎬 Film worker started");
@@ -12,7 +12,6 @@ async function runWorker() {
       const job = await claimNextJob();
 
       if (!job) {
-        // No jobs → sleep
         await sleep(POLL_INTERVAL_MS);
         continue;
       }
@@ -21,7 +20,6 @@ async function runWorker() {
       await processFilmJob(job);
     } catch (err) {
       console.error("❌ Worker error:", err);
-      // avoid tight crash loop
       await sleep(5000);
     }
   }

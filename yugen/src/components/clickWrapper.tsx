@@ -16,17 +16,24 @@ const AuthActionGuard: React.FC<AuthActionGuardProps> = ({ children }) => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
 
-  const isAuthenticated = status === "authenticated";
-
   const handleClick = (event: MouseEvent<any>) => {
-    if (!isAuthenticated) {
+    // 🔹 Google-authenticated but not signed up
+    if (status === "signupGoogle") {
+      event.preventDefault();
+      event.stopPropagation();
+      navigate("/googleSignUp");
+      return;
+    }
+
+    // 🔹 Not authenticated
+    if (status !== "authenticated") {
       event.preventDefault();
       event.stopPropagation();
       setShowModal(true);
       return;
     }
 
-    // Call original child onClick if it exists
+    // ✅ Fully authenticated → allow original click
     children.props.onClick?.(event);
   };
 
@@ -55,10 +62,10 @@ const AuthActionGuard: React.FC<AuthActionGuardProps> = ({ children }) => {
               </button>
 
               <h2 className="text-2xl font-bold text-center text-emerald-950">
-                Opps looks like you are logged out!
+                Oops, looks like you’re logged out!
               </h2>
               <p className="text-emerald-950/80 text-center">
-                Please login to do continue.
+                Please log in to continue.
               </p>
 
               <div className="flex justify-center gap-4 mt-4">

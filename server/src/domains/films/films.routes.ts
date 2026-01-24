@@ -23,13 +23,13 @@ const memUpload = multer({ storage: multer.memoryStorage() });
 
 router.post(
   "/initialize-upload",
- 
+requireAuth,
   initializeUploadController
 );
 
 router.post(
   "/process-upload",
- 
+ requireAuth,
   processUploadController
 );
 
@@ -39,7 +39,7 @@ router.post(
 // Upload film
 router.post(
   "/upload",
- 
+ requireAuth,
   upload.fields([{ name: "Film" }, { name: "Poster" }]),
   validate(uploadFilmSchema),
   uploadFilmController 
@@ -50,13 +50,13 @@ router.post(
 
 router.post(
   "/retry-upload",
- 
+ requireAuth,
   retryUploadController
 );
 // Edit film
 router.post(
   '/edit',
- 
+ requireAuth,
   memUpload.single('Poster'),
   validate(editFilmSchema),
   editFilmController

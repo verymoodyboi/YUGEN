@@ -117,7 +117,7 @@ const HeroSection: React.FC = () => {
           }}
         >
           <img
-            src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
+            src="https://assets.try-yugen.com/yugen_logo_dark.svg"
             alt="floating icon"
             className="min-w-[100px] min-h-[100px] object-contain "
           />
@@ -131,7 +131,7 @@ const HeroSection: React.FC = () => {
           <img
             alt="Yugen Logo"
             className="w-50 h-auto"
-            src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
+            src="https://assets.try-yugen.com/Kickflip!.gif"
           />
         </div>
 
