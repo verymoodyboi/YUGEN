@@ -41,7 +41,7 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
           <div className="flex flex-col space-y-4 flex-1">
             <div className="flex items-center space-x-3">
               <img
-                src={footer_logo}
+                src="https://assets.try-yugen.com/yugen_logo_light.svg"
                 alt="Yugen Logo"
                 className="w-[80px] h-[80px] object-contain rounded-full  p-0.5 overflow-visible"
                 style={{ objectPosition: "center" }}

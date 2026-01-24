@@ -21,7 +21,7 @@ const GenrePage: React.FC = () => {
 
   const mainPoster =
     films.length > 0
-      ? supabase.storage.from("posters").getPublicUrl(films[0].poster_path).data
+      ?  `https://posters.try-yugen.com/${films[0].poster_path}`
           .publicUrl
       : undefined;
 

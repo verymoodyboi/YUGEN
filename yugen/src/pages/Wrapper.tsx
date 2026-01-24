@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import Loading from "../components/loading_kickflip";
+import { api } from "../lib/api";
 
 type AuthStatus =
   | "loading"
@@ -28,8 +29,8 @@ function Wrapper({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const { data } = await axios.get(
-          "http://localhost:8080/api/auth/status",
+        const { data } = await api.get(
+          "/auth/status",
           {
             headers: { Authorization: `Bearer ${token}` },
           },

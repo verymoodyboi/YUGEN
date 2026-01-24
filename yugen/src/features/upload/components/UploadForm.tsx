@@ -262,14 +262,7 @@ const UploadForm: React.FC = () => {
         toast.warn("Thesis cannot exceed 1000 characters");
         return false;
       }
-      if (/\r|\n/.test(thesis)) {
-        toast.warn("Thesis cannot contain line breaks");
-        return false;
-      }
-      if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(thesis)) {
-        toast.warn("Thesis cannot contain emojis or special characters");
-        return false;
-      }
+     
 
       return true;
     }
