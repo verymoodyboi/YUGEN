@@ -755,9 +755,7 @@ const UploadForm: React.FC = () => {
                               <img
                                 src={
                                   opt.pfp
-                                    ? supabase.storage
-                                        .from("pfps")
-                                        .getPublicUrl(opt.pfp).data.publicUrl
+                                    ? `https://pfps.try-yugen.com/${opt.pfp}?t=${Date.now()}`
                                     : tempPFP
                                 }
                                 alt={opt.username}
@@ -809,9 +807,7 @@ const UploadForm: React.FC = () => {
                             <img
                               src={
                                 member.pfp
-                                  ? supabase.storage
-                                      .from("pfps")
-                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  ?  `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
                                   : tempPFP
                               }
                               alt={member.name}
