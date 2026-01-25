@@ -36,37 +36,17 @@ export async function generateR2SignedPutUrl({
 
 export async function registerUser(body: any) {
   const {
-    FName,
-    LName,
-    UserName,
-    Bio,
+
     Email,
     Password,
-    BirthDate,
-    Gender,
-    Region,
-    pfpContentType, 
+
   } = body;
 
-  const joinDate = new Date().toISOString().split("T")[0];
-  const pfpKey = `pfps/${Email}-pfp.jpg`;
+
 
   const { data, error } = await supabaseA.auth.signUp({
     email: Email,
     password: Password,
-    options: {
-      data: {
-        username: UserName,
-        f_name: FName,
-        l_name: LName,
-        bio: Bio,
-        gender: Gender ?? "prefer not to say",
-        region: Region,
-        age: BirthDate,
-        pfp_path: pfpKey,
-        join_date: joinDate,
-      },
-    },
   });
 
   if (error) {
@@ -78,17 +58,10 @@ export async function registerUser(body: any) {
     throw new Error("User creation failed");
   }
 
-  const uploadUrl = pfpContentType
-    ? await generateR2SignedPutUrl({
-        key: pfpKey,
-        contentType: pfpContentType,
-      })
-    : null;
+
 
   return {
     success: true,
-    uploadUrl,   
-    pfpKey,
   };
 }
 

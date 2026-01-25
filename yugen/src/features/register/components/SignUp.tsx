@@ -1,72 +1,9 @@
-import React, { useRef, useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
-import ReactCrop, { Crop } from "react-image-crop";
+import React from "react";
+import { Link } from "react-router-dom";
 import "react-image-crop/dist/ReactCrop.css";
 import { useSignup } from "../hooks/useSignUp";
-import countries from "../../../Data/countries.json";
-import { ImageCropper } from "../../../util/image-cropping/components/image-cropper";
 
-function getCroppedFileFromImage(
-  img: HTMLImageElement,
-  crop: Crop,
-): Promise<File> {
-  return new Promise((resolve, reject) => {
-    if (!crop || !img) return reject("Missing crop or image");
-
-    const canvas = document.createElement("canvas");
-    const scaleX = img.naturalWidth / img.width;
-    const scaleY = img.naturalHeight / img.height;
-
-    const pxRatio = window.devicePixelRatio || 1;
-    canvas.width = Math.floor((crop.width ?? 0) * scaleX * pxRatio);
-    canvas.height = Math.floor((crop.height ?? 0) * scaleY * pxRatio);
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return reject("No 2d context");
-
-    ctx.scale(pxRatio, pxRatio);
-    ctx.imageSmoothingQuality = "high";
-
-    const sx = (crop.x ?? 0) * scaleX;
-    const sy = (crop.y ?? 0) * scaleY;
-    const sWidth = (crop.width ?? 0) * scaleX;
-    const sHeight = (crop.height ?? 0) * scaleY;
-
-    ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
-
-    // Circular mask
-    const circCanvas = document.createElement("canvas");
-    circCanvas.width = canvas.width;
-    circCanvas.height = canvas.height;
-    const cctx = circCanvas.getContext("2d");
-    if (!cctx) return reject("No circ 2d context");
-
-    cctx.save();
-    cctx.beginPath();
-    const r = Math.min(circCanvas.width, circCanvas.height) / 2;
-    cctx.arc(circCanvas.width / 2, circCanvas.height / 2, r, 0, 2 * Math.PI);
-    cctx.closePath();
-    cctx.clip();
-
-    cctx.drawImage(canvas, 0, 0);
-    cctx.restore();
-
-    circCanvas.toBlob(
-      (blob) => {
-        if (!blob) return reject("Failed to blob");
-        const file = new File([blob], `pfp-${Date.now()}.png`, {
-          type: "image/png",
-        });
-        resolve(file);
-      },
-      "image/png",
-      0.95,
-    );
-  });
-}
-
-const steps = ["Name", "Additional Info", "Credentials", "Profile"];
+// const steps = ["Credentials"];
 
 const SignUpForm: React.FC = () => {
   const signup = useSignup();
@@ -76,35 +13,17 @@ const SignUpForm: React.FC = () => {
     activeStep,
     handleNext,
     handleBack,
-    fname,
-    lname,
-    region,
-    gender,
-    bday,
+
     email,
     password,
     confirmPassword,
-    username,
-    bio,
-    setFname,
-    setLname,
-    setRegion,
-    setGender,
-    setBday,
-    setEmail,
+
     setPassword,
     setConfirmPassword,
-    setUsername,
-    setBio,
-    rawPreview,
-    croppedFile,
-    handleFileChange,
-    confirmCrop,
-    fileInputRef,
+
     isRegistering,
     handleSubmit,
     handleEmailChange,
-    handleUsernameChange,
   } = signup;
 
   const StepPill: React.FC<{
@@ -139,18 +58,8 @@ const SignUpForm: React.FC = () => {
       </div>
     </div>
   );
-  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center  text-emerald-950 font-freckle p-6">
-      <div className="fixed top-0 left-4 z-50 flex items-center gap-2">
-        <img
-          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
-          alt="Yugen Logo"
-          className="w-20 h-20 object-contain cursor-pointer"
-          onClick={() => navigate("/")}
-        />
-      </div>
-
       <div
         className="
     w-full max-h-[65vh] max-w-3xl bg-emerald-50 border-4 border-emerald-950 
@@ -190,72 +99,6 @@ const SignUpForm: React.FC = () => {
           className="space-y-6"
         >
           {activeStep === 0 && (
-            <div>
-              <label className="block mb-1">First Name</label>
-              <input
-                value={fname}
-                onChange={(e) => setFname(e.target.value)}
-                className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-950/30 transition shadow-sm"
-                placeholder="First name"
-              />
-              <label className="block mt-4 mb-1">Last Name</label>
-              <input
-                value={lname}
-                onChange={(e) => setLname(e.target.value)}
-                className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-950/30 transition shadow-sm"
-                placeholder="Last name"
-              />
-            </div>
-          )}
-
-          {activeStep === 1 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-1">Region</label>
-                <select
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
-                  className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
-                >
-                  <option value="">Select country...</option>
-                  {countries.map((c: any) => (
-                    <option key={c.code} value={c.name}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block mb-1">Gender</label>
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2 focus:outline-none"
-                >
-                  <option value="">Select gender...</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block mb-1">Birth Date</label>
-                <input
-                  type="date"
-                  value={bday}
-                  onChange={(e) => setBday(e.target.value)}
-                  className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2 focus:outline-none"
-                />
-                <p className="text-xs mt-1 opacity-70">
-                  You must be 13+ to register
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeStep === 2 && (
             <div className="space-y-4">
               <div>
                 <label className="block mb-1">Email</label>
@@ -287,76 +130,6 @@ const SignUpForm: React.FC = () => {
                     className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2 focus:outline-none"
                     placeholder="Repeat password"
                   />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeStep === 3 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block mb-1">Username</label>
-                <input
-                  value={username}
-                  onChange={handleUsernameChange}
-                  className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2 focus:outline-none"
-                  placeholder="your_handle"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1">Bio</label>
-                <textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  rows={3}
-                  className="w-full rounded-lg border-2 border-emerald-950 bg-emerald-50 px-3 py-2 focus:outline-none"
-                  placeholder="Tell people about you (min 10 chars)"
-                />
-              </div>
-
-              <div>
-                <label className="block mb-1">Profile picture (circle)</label>
-
-                <div className="p-3 border-2 border-dashed border-emerald-950 rounded-lg bg-emerald-50">
-                  <div className="flex items-center gap-3">
-                    <label
-                      htmlFor="pfp"
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-emerald-950 hover:bg-emerald-100 transition cursor-pointer"
-                    >
-                      Upload PFP
-                      <input
-                        id="pfp"
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleFileChange}
-                      />
-                    </label>
-
-                    {croppedFile && (
-                      <div className="ml-auto">
-                        <img
-                          src={URL.createObjectURL(croppedFile)}
-                          alt="pfp"
-                          className="w-20 h-20 rounded-full border-2 border-emerald-950 object-cover shadow"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  {rawPreview && (
-                    <div className="mt-4">
-                      <ImageCropper
-                        src={rawPreview}
-                        onCropConfirm={confirmCrop}
-                        onCancel={() =>
-                          handleFileChange({ target: { files: null } } as any)
-                        }
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

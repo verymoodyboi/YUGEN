@@ -5,12 +5,7 @@ import { ImageCropper } from "../../../util/image-cropping/components/image-crop
 import countries from "../../../Data/countries.json";
 
 const SignupGoogle: React.FC = () => {
-  const googleUser = {
-    email: "user@gmail.com",
-    name: "Jane Doe",
-  };
-
-  const signup = useSignupGoogle(googleUser);
+  const signup = useSignupGoogle();
 
   const {
     steps,
@@ -40,7 +35,6 @@ const SignupGoogle: React.FC = () => {
     fileInputRef,
     isRegistering,
     handleSubmit,
-    email,
   } = signup;
 
   const StepPill: React.FC<{

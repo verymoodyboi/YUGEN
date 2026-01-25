@@ -762,9 +762,7 @@ const UploadForm: React.FC = () => {
                               <img
                                 src={
                                   opt.pfp
-                                    ? supabase.storage
-                                        .from("pfps")
-                                        .getPublicUrl(opt.pfp).data.publicUrl
+                                    ? `https://pfps.try-yugen.com/${opt.pfp}?t=${Date.now()}`
                                     : tempPFP
                                 }
                                 alt={opt.username}

@@ -8,7 +8,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/toaster";
 import { uploadToR2 } from "../services";
 
-export function useSignupGoogle(googleUser: { email: string; name: string }) {
+export function useSignupGoogle() {
     const {user}= useAuth()
   const navigate = useNavigate();
 const toast=useToast()
@@ -16,8 +16,8 @@ const toast=useToast()
   const [activeStep, setActiveStep] = useState(0);
 
   // Google-provided fields
-  const [fname, setFname] = useState(googleUser.name.split(" ")[0] || "");
-  const [lname, setLname] = useState(googleUser.name.split(" ")[1] || "");
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
 
   // Form fields
   const [region, setRegion] = useState("");
@@ -174,7 +174,7 @@ const handleSubmit = async () => {
     }
 
     toast.success("Google registration successful!");
-    navigate(`/profile-customization?username=${username}`);
+    navigate("/");
   } catch (err) {
     toast.error("Google registration failed");
   } finally {
