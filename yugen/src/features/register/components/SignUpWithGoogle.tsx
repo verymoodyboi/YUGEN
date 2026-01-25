@@ -62,15 +62,6 @@ const SignupGoogle: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center text-emerald-950 font-freckle p-6">
-      <div className="fixed top-0 left-4 z-50 flex items-center gap-2">
-        <img
-          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
-          alt="Yugen Logo"
-          className="w-20 h-20 object-contain cursor-pointer"
-          onClick={() => navigate("/")}
-        />
-      </div>
-
       <div className="w-full max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl p-6 h-[600px] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl title font-bold">
