@@ -65,14 +65,14 @@ router.post(
 // Delete film
 // router.post(
 //   '/delete',
-//  
+//  requireAuth,
 //   validate(deleteFilmSchema),
 //   deleteFilmController
 // );
 
 router.post(
   '/delete',
- 
+ requireAuth,
   // validate(deleteFilmSchema),
   deleteFilmController
 );

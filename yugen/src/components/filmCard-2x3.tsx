@@ -293,7 +293,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
       {showModal &&
         createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center"
+            className="w-[90vw] fixed inset-0 z-50 flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             <div
