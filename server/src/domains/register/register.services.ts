@@ -47,6 +47,10 @@ export async function registerUser(body: any) {
   const { data, error } = await supabaseA.auth.signUp({
     email: Email,
     password: Password,
+      options: {
+    emailRedirectTo: `https://try-yugen.com/googleSignUp`,
+  },
+
   });
 
   if (error) {

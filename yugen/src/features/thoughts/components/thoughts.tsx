@@ -280,7 +280,7 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                       <span className="hidden sm:inline">Delete</span>
                     </button>
                   )}
-                  {user?.username && user?.username === userInfo?.username && (
+                  {user?.username && user?.username !== userInfo?.username && (
                     <AuthActionGuard>
                       <button
                         disabled={flaggedItems[`thought-${tid}`]}
@@ -360,18 +360,11 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                                 <span className="font-bold">
                                   @{rUser?.username ?? "unknown"}
                                 </span>
-                                <span className="ml-auto text-xs italic">
-                                  {reply?.created_at
-                                    ? new Date(
-                                        reply.created_at,
-                                      ).toLocaleDateString()
-                                    : ""}
-                                </span>
                               </div>
 
                               <p className="mt-1">{reply?.comment}</p>
 
-                              <div className="flex items-center gap-3 text-sm mt-1">
+                              <div className="flex items-center gap-1 text-sm mt-1">
                                 <button
                                   onClick={() =>
                                     replyVote(
@@ -456,6 +449,13 @@ const Thoughts: React.FC<ThoughtsProps> = ({ filmId, refreshKey }) => {
                                       </span>
                                     </button>
                                   )}
+                                <span className="ml-auto text-xs italic">
+                                  {reply?.created_at
+                                    ? new Date(
+                                        reply.created_at,
+                                      ).toLocaleDateString()
+                                    : ""}
+                                </span>
                               </div>
                             </div>
                           );

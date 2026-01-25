@@ -257,13 +257,6 @@ const SignupGoogle: React.FC = () => {
             </div>
           </div>
         </form>
-
-        <div className="mt-6 text-sm">
-          Already have an account?{" "}
-          <Link to="/LoginPage" className="text-emerald-950 underline">
-            Login
-          </Link>
-        </div>
       </div>
     </div>
   );
