@@ -192,10 +192,12 @@ async function resolveFinalApprovalStatus(uploader_id: string) {
 export async function handleModerationCallback(payload: any) {
   try {
 const requestId =
-  payload?.request?.id ??
-  payload?.request_id ??
-  payload?.requestId ??
-  null;
+  typeof payload?.request === "string"
+    ? payload.request
+    : payload?.request?.id ??
+      payload?.request_id ??
+      payload?.requestId ??
+      null;
     const media = payload?.media ?? null;
     const data = payload?.data ?? payload?.summary ?? payload ?? null;
 

@@ -17,8 +17,8 @@ export async function requireAdmin(
 
     const { data, error } = await supabase
       .from("users")
-      .select("is_admin")
-      .eq("id", userId)
+      .select("role")
+      .eq("auth_id", userId)
       .single();
 
     if (error) {
@@ -27,7 +27,7 @@ export async function requireAdmin(
       return;
     }
 
-    if (!data?.is_admin) {
+    if (data?.role!="admin") {
       res.status(403).json({ error: "Admin access only" });
       return;
     }

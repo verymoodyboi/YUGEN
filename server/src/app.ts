@@ -37,7 +37,8 @@ import { register } from 'module';
 
 const app: Application = express();
 const allowedOrigins = [
-  "http://try-yugen.com", // temp production url
+  "https://try-yugen.com", 
+  "http://try-yugen.com",
   "http://localhost:5174",  
   "http://localhost:5173",            // for local dev
 ];
@@ -52,6 +53,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.set("trust proxy", 1);
 
 // Rate limiting
 app.use(rateLimiter);

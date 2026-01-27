@@ -3,9 +3,9 @@ import {
   getPendingUploadsController,
   acceptUploadController,
   rejectUploadController,
-} from "./QA.controller";
-import { requireAuth } from "../../../middlewares/requireAuth";
-import { requireAdmin } from "../../../middlewares/requireAdmin";
+} from "./QA.controller.js";
+import { requireAuth } from "../../../middlewares/requireAuth.js";
+import { requireAdmin } from "../../../middlewares/requireAdmin.js";
 
 const router = express.Router();
 
