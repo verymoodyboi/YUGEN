@@ -13,5 +13,5 @@ COPY . .
 
 RUN npm run build
 
-CMD ["sh", "-c", "node dist/server.js & node dist/workers/filmsWorker.js"]
+CMD ["sh", "-c", "node dist/server.js"]
 
