@@ -4,7 +4,7 @@ import { api } from "../../lib/api";
 
 
 
-export const deleteFilm = async (film_uuid: string, token: string) => {
+export const deleteFilm = async (film_uuid: string, token: any) => {
   return api.post(
     "films/delete",
     { film_uuid },

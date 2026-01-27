@@ -62,7 +62,6 @@ export async function initializeUpload(req: Request) {
   } = req.body;
 
   const uploaderId = req.user!.id;
-
   const filmUuid = crypto.randomUUID();
 
   const filmExt = filmMime?.split("/")[1] ?? "mp4";
@@ -70,21 +69,27 @@ export async function initializeUpload(req: Request) {
 
   const filmKey = `${filmUuid}.${filmExt}`;
   const posterKey = `${filmUuid}.${posterExt}`;
-  const moderationKey = `${filmUuid}.${filmExt}`; 
 
-  const { error } = await supabase.from("films").insert([{
-    film_uuid: filmUuid,
-    film_title: title,
-    thesis,
-    film_genre: genres,
-    uploader_id: uploaderId,
-    country,
-    crew: crew ?? null,
-    cast: cast ?? null,
-    film_path: filmKey,
-    poster_path: posterKey,
-    moderation_status: "uploading",
-  }]);
+  // 4 JPEG moderation frames
+  const moderationKeys = Array.from({ length: 4 }, (_, i) =>
+    `${filmUuid}/key_${i + 1}.jpeg`
+  );
+
+  const { error } = await supabase.from("films").insert([
+    {
+      film_uuid: filmUuid,
+      film_title: title,
+      thesis,
+      film_genre: genres,
+      uploader_id: uploaderId,
+      country,
+      crew: crew ?? null,
+      cast: cast ?? null,
+      film_path: filmKey,
+      poster_path: posterKey,
+      moderation_status: "uploading",
+    },
+  ]);
 
   if (error) throw error;
 
@@ -102,22 +107,27 @@ export async function initializeUpload(req: Request) {
     expiresIn: 60 * 10,
   });
 
-  const moderationUploadUrl = await generateR2SignedPutUrl({
-    bucket: "moderation",
-    key: moderationKey,
-    contentType: filmMime,
-    expiresIn: 60 * 10,
-  });
+  const moderationUploadUrls = await Promise.all(
+    moderationKeys.map((key) =>
+      generateR2SignedPutUrl({
+        bucket: "moderation",
+        key,
+        contentType: "image/jpeg",
+        expiresIn: 60 * 10,
+      })
+    )
+  );
 
   return {
     film_uuid: filmUuid,
     filmUploadUrl,
     posterUploadUrl,
-    moderationUploadUrl,
+    moderationUploadUrls,
     filmKey,
     posterKey,
   };
 }
+
 
 
 

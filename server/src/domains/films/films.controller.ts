@@ -18,7 +18,6 @@ export async function retryUploadController(req: Request, res: Response) {
 }
 
 
-
 export async function initializeUploadController(
   req: Request,
   res: Response
@@ -31,7 +30,7 @@ export async function initializeUploadController(
       filmId: result.film_uuid,
       uploadUrl: result.filmUploadUrl,
       posterUploadUrl: result.posterUploadUrl,
-      moderationUploadUrl: result.moderationUploadUrl
+      moderationUploadUrls: result.moderationUploadUrls,
     });
   } catch (err) {
     logger.error("Initialize upload failed:", err);

@@ -11,6 +11,7 @@ import { useToast } from "../../../components/toaster";
 import { useUploadProgress } from "../uploadContext";
 import { deleteFilm } from "../../editFilm/services";
 import { sliceFirst49MB } from "../util/sliceForMod";
+import { uploadModerationSnapshots } from "../util/uploadModFrame";
 
 export const useUpload = () => {
   const { uploadProgress, setUploadProgress } = useUploadProgress();
@@ -37,8 +38,9 @@ export const useUpload = () => {
   const [pendingFilmId, setPendingFilmId] = useState<string | null>(null);
   const [pendingUploadUrl, setPendingUploadUrl] = useState<string | null>(null);
   const [pendingPosterUploadUrl, setPendingPosterUploadUrl] = useState<string | null>(null);
-const [pendingModerationUploadUrl, setPendingModerationUploadUrl] =useState<string | null>(null);
-  const [uploadStage, setUploadStage] = useState<
+const [pendingModerationUploadUrls, setPendingModerationUploadUrls] =
+  useState<string[] | null>(null);
+    const [uploadStage, setUploadStage] = useState<
     "init" | "uploading-film" | "uploading-poster" | "finalizing" | null
   >(null);
 
@@ -116,11 +118,12 @@ const [pendingModerationUploadUrl, setPendingModerationUploadUrl] =useState<stri
         filmMime: filmFile.type,
         posterMime: posterFile?.type ?? null,
       });
+console.log("INIT RESPONSE", init);
 
-    const {
+const {
   uploadUrl,
   posterUploadUrl,
-  moderationUploadUrl,
+  moderationUploadUrls,
 } = init;
 
 
@@ -128,7 +131,7 @@ const [pendingModerationUploadUrl, setPendingModerationUploadUrl] =useState<stri
       setPendingFilmId(filmId);
       setPendingUploadUrl(uploadUrl ?? null);
       setPendingPosterUploadUrl(posterUploadUrl ?? null);
-setPendingModerationUploadUrl(moderationUploadUrl ?? null);
+setPendingModerationUploadUrls(moderationUploadUrls ?? null);
 
       setUploadStage("uploading-film");
       await uploadToR2WithProgress(uploadUrl, filmFile, (p) =>
@@ -141,18 +144,19 @@ setPendingModerationUploadUrl(moderationUploadUrl ?? null);
           setUploadProgress(70 + Math.round(p * 0.15))
         );
       }
-      console.log(pendingModerationUploadUrl)
-      if (moderationUploadUrl && filmFile) {
-  const moderationSlice = await sliceFirst49MB(filmFile);
-console.log("Moderation slice size:", moderationSlice.size); 
-
-  await uploadToR2WithProgress(
-    moderationUploadUrl,
-    moderationSlice,
-    (p) =>
-          setUploadProgress(85 + Math.round(p * 0.15))
-  );
+try {
+  if (moderationUploadUrls?.length === 4 && filmFile) {
+    await uploadModerationSnapshots(
+      filmFile,
+      moderationUploadUrls,
+      (p) => setUploadProgress(85 + Math.round(p * 0.15))
+    );
+  }
+} catch (e) {
+  console.warn("Moderation snapshot upload failed", e);
+  // allow film upload to continue
 }
+
 
 
       setUploadStage("finalizing");
@@ -176,11 +180,11 @@ console.log("Moderation slice size:", moderationSlice.size);
 
         // If we are *not* in the middle of uploading to R2, remove the backend film record to avoid orphan records.
      if (filmId) {
-  await deleteFilm(token, filmId);
+  await deleteFilm(filmId, token);
   setPendingFilmId(null);
   setPendingUploadUrl(null);
   setPendingPosterUploadUrl(null);
-  setPendingModerationUploadUrl(null);
+  setPendingModerationUploadUrls(null);
   console.log("Cleanup: deleted film", filmId);
 }
       } catch (cleanupErr) {
