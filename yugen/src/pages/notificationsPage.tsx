@@ -59,12 +59,7 @@ const NotificationsPage: React.FC = () => {
                 <img
                   src={
                     film.poster_path
-                      ? supabase.storage
-                          .from("posters")
-                          .getPublicUrl(film.poster_path).data.publicUrl +
-                        (film.updated_at
-                          ? `?v=${new Date(film.updated_at).getTime()}`
-                          : "")
+                      ? `https://posters.try-yugen.com/${film.poster_path}`
                       : tempPoster
                   }
                   onError={(e) => {
@@ -107,7 +102,7 @@ const NotificationsPage: React.FC = () => {
                     <img
                       src={
                         film.uploader_pfp
-                          ? `https://pfps.try-yugen.com/${filmData?.uploader.pfp_path}?t=${Date.now()}`
+                          ? `https://pfps.try-yugen.com/${film?.uploader_pfp}?t=${Date.now()}`
                           : tempPFP
                       }
                       onError={(e) => {

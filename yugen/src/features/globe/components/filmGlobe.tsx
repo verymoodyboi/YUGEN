@@ -97,7 +97,7 @@ const FilmGlobe: React.FC = () => {
         ref={globeRef}
         width={dimensions.width}
         height={dimensions.height}
-        globeImageUrl="earth.png"
+        globeImageUrl="earth.jpg"
         backgroundImageUrl="galaxy.png"
         polygonsData={countries.filter((d) => d.properties.ISO_A3 !== "ATA")}
         polygonAltitude={(d) => (d === hoverD ? 0.06 : 0.01)}
