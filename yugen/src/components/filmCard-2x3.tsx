@@ -296,13 +296,10 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
             className="fixed inset-0 z-50 flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className="absolute inset-0 bg-black/40"
-              onClick={() => setShowModal(false)}
-            />
+            <div onClick={() => setShowModal(false)} />
 
             <div
-              className="relative bg-emerald-50 rounded-2xl p-6 border-4 border-emerald-950 shadow-[12px_12px_0_0_#064e3b] max-h-[90vh] hidden-scrollbar overflow-y-auto"
+              className="relative bg-emerald-50 rounded-2xl p-6 border-4 border-emerald-950 shadow-[12px_12px_0_0_#064e3b] max-h-[90vh] w-[80vw] hidden-scrollbar overflow-y-auto"
               onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing
             >
               <button

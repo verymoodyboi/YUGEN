@@ -107,7 +107,7 @@ const NotificationsPage: React.FC = () => {
                     <img
                       src={
                         film.uploader_pfp
-                          ? `https://pfps.try-yugen.com/${filmData?.uploader.pfp_path}?t=${Date.now()}`
+                          ? `https://pfps.try-yugen.com/${film?.uploader.pfp}?t=${Date.now()}`
                           : tempPFP
                       }
                       onError={(e) => {
