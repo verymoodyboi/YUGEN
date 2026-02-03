@@ -246,7 +246,7 @@ const FilmPicker: React.FC<any> = () => {
       </div>
 
       {showModal && selectedFilm && (
-        <div className="fixed inset-0 z-500 flex items-center justify-center">
+        <div className="fixed inset-0 z-10000 flex items-center justify-center">
           <div
             className="absolute inset-0 bg-black/40"
             onClick={() => setShowModal(false)}
@@ -270,12 +270,9 @@ const FilmPicker: React.FC<any> = () => {
                 <div className="flex-shrink-0 rounded-md overflow-hidden border-4 border-emerald-950 w-[288px] h-[432px]">
                   <img
                     src={
-                      supabase.storage
-                        .from("posters")
-                        .getPublicUrl(selectedFilm.poster_path).data.publicUrl +
-                      (selectedFilm.updated_at
-                        ? `?v=${new Date(selectedFilm.updated_at).getTime()}`
-                        : "")
+                       selectedFilm.poster_path
+              ? `https://posters.try-yugen.com/${selectedFilm.poster_path}`
+              : tempPoster
                     }
                     alt={selectedFilm.film_title}
                     className="w-full h-full object-cover"

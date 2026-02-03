@@ -141,6 +141,16 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                     return filmData.film_genre || "No genre";
                   }
                 })()}
+       {filmData.release_date && (
+                  <>
+                    <span>•</span>
+                    <span>
+                      {new Date(filmData.release_date).toLocaleDateString(
+                        "en-GB",
+                      )}
+                    </span>
+                  </>
+                )}
               </span>
             </div>
 
