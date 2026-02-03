@@ -141,7 +141,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                     return filmData.film_genre || "No genre";
                   }
                 })()}
-                {filmData.release_date && (
+       {filmData.release_date && (
                   <>
                     <span>•</span>
                     <span>
@@ -252,10 +252,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                           <img
                             src={
                               member?.pfp
-                                ? supabase.storage
-                                    .from("pfps")
-                                    .getPublicUrl(member?.pfp).data.publicUrl +
-                                  `?v=${Date.now()}`
+                               ?  `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
                                 : tempPFP
                             }
                             alt={member.actor}
@@ -302,10 +299,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                           <img
                             src={
                               member?.pfp
-                                ? supabase.storage
-                                    .from("pfps")
-                                    .getPublicUrl(member?.pfp).data.publicUrl +
-                                  `?v=${Date.now()}`
+                                ? `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
                                 : tempPFP
                             }
                             alt={member.name}
