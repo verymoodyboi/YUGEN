@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import supabase from "../../../lib/supabaseClient";
-import CustomLoading from "../../../SmallComponents/CutomsLoading";
 import "react-toastify/dist/ReactToastify.css";
-import ShinyText from "../../../SmallComponents/ShinyText";
 import FuzzyText from "../../../SmallComponents/FuzzyText";
-import Shuffle from "../../../SmallComponents/Shuffle";
 import TechnicalReportForm from "../../report/components/TechReport";
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -14,8 +11,7 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import countries from "../../../Data/countries.json";
 import ReactCrop, { makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import ErrorImg from "../../../YugenAssits/Icons/ErrorImg.png";
-import AccHub from "../../../components/AccountHub";
+
 import { useUpload } from "../hooks/useUpload";
 import { useGenresWithFilms } from "../../genres/useGenres";
 import { useToast } from "../../../components/toaster";
@@ -25,7 +21,6 @@ import { useAuth } from "../../../contexts/AuthContext";
 import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
 
 registerPlugin(FilePondPluginFileValidateSize);
-
 registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
 const steps = ["Upload", "Details", "more details"];
@@ -161,15 +156,6 @@ const UploadForm: React.FC = () => {
     video.preload = "metadata";
 
     video.onloadedmetadata = () => {
-      const height = video.videoHeight;
-
-      if (height < 1080) {
-        toast.error("Film must be at least 1080p.");
-        setFilmFile(null);
-        setIsValidFilm(false);
-        return;
-      }
-
       setFilmFile(file);
       setIsValidFilm(true);
     };
@@ -193,6 +179,7 @@ const UploadForm: React.FC = () => {
       toast.warn("Only JPEG or PNG images allowed!");
       return;
     }
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
     const img = new Image();
     img.onload = () => {
@@ -200,7 +187,11 @@ const UploadForm: React.FC = () => {
         toast.warn(`Poster must be at least ${MinWidth}x${MinHeight} pixels`);
         return;
       }
-
+      if (file.size > MAX_FILE_SIZE) {
+        toast.console.warn();
+        ("Poster file size must be under 12MB");
+        return;
+      }
       const path = URL.createObjectURL(file);
       setPosterFile(file);
       setPosterPath(path);
@@ -248,7 +239,7 @@ const UploadForm: React.FC = () => {
 
     if (s === 1) {
       if (!title || !thesis || !genres || genres.length === 0) {
-        toast.warn("Please fill the title, thesis, and at least one genre.");
+        toast.warn("Please fill the title, thesis, and at least one genre");
         return false;
       }
 
@@ -485,13 +476,9 @@ const UploadForm: React.FC = () => {
                 <FilePond
                   name="File"
                   allowMultiple={false}
-                    maxFileSize="5GB"
-  labelMaxFileSizeExceeded="Max file size is 5GB"
-                  acceptedFileTypes={[
-                    "video/mp4",
-                    "video/quicktime", // .mov
-                    "video/x-msvideo", // .avi
-                  ]}
+                  maxFileSize="5GB"
+                  labelMaxFileSizeExceeded="Max file size is 5GB"
+                  acceptedFileTypes={["video/mp4"]}
                   files={filmFile ? [filmFile] : []}
                   onupdatefiles={(fileItems: any[]) => {
                     const file = fileItems[0]?.file || null;
@@ -753,7 +740,6 @@ const UploadForm: React.FC = () => {
                                 setCrewName("@" + opt.username);
                                 setCrewPFP(opt.pfp);
                                 setCrewSearchInput("");
-                                setCrewSearchResults([]);
                               }}
                               className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
                             >
@@ -873,7 +859,6 @@ const UploadForm: React.FC = () => {
                                 setActor("@" + opt.username);
                                 setActorPFP(opt.pfp);
                                 setActorSearchInput("");
-                                setActorSearchResults([]);
                               }}
                               className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
                             >
