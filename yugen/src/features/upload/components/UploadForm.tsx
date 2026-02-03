@@ -239,7 +239,7 @@ const UploadForm: React.FC = () => {
 
     if (s === 1) {
       if (!title || !thesis || !genres || genres.length === 0) {
-        toast.warn("Please fill the title, thesis, and at least one genre.");
+        toast.warn("Please fill the title, thesis, and at least one genre");
         return false;
       }
 
