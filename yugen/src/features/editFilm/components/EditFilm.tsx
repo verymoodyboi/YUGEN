@@ -518,16 +518,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                                 setCrewName("@" + opt.username);
                                 setCrewPFP(opt.pfp || tempPFP);
                                 setCrewSearchInput("");
-                                setCrewSearchResults([]);
+                              
                               }}
                               className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
                             >
                               <img
                                 src={
                                   opt.pfp
-                                    ? supabase.storage
-                                        .from("pfps")
-                                        .getPublicUrl(opt.pfp).data.publicUrl
+                                    ?  `https://pfps.try-yugen.com/${opt.pfp}?t=${Date.now()}`
                                     : tempPFP
                                 }
                                 alt={opt.username}
@@ -579,9 +577,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                             <img
                               src={
                                 member.pfp
-                                  ? supabase.storage
-                                      .from("pfps")
-                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  ? `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
                                   : tempPFP
                               }
                               alt={member.name}
@@ -642,7 +638,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                                 setActor("@" + opt.username);
                                 setActorPFP(opt.pfp || tempPFP);
                                 setActorSearchInput("");
-                                setActorSearchResults([]);
+                               
                               }}
                               className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
                             >

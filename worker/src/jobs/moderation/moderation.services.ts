@@ -576,7 +576,7 @@ export async function submitFramesForModeration(
       await supabase
         .from("films")
         .update({
-          moderation_status: "passed",
+          moderation_status: "quality_control",
           moderation_result: results.map((r) => ({ url: r.url, score: r.score })),
           moderation_checked_at: new Date().toISOString(),
         })

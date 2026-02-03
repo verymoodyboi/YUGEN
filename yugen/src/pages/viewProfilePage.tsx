@@ -76,7 +76,7 @@ const AccProfile: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-4 flex flex-col gap-6">
+      <div className="min-h-screen  text-emerald-950 font-freckle p-4 flex flex-col gap-6">
         {/* HEADER */}
         <div className="flex flex-wrap gap-2 items-start justify-between w-full max-w-full overflow-x-hidden">
           <div className="flex gap-4 items-center">

@@ -73,7 +73,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-[90vh]  text-center p-6">
+    <div className="flex flex-col items-center justify-center h-[90vh]  text-center p-6 mt-3">
       <form
         onSubmit={handleSubmit}
         className="bg-emerald-50 rounded-3xl shadow-xl p-8 max-w-md w-full border-4 border-emerald-950"

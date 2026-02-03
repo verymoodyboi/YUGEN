@@ -251,7 +251,7 @@ const UploadForm: React.FC = () => {
         toast.warn("Title cannot contain line breaks");
         return false;
       }
-      if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(title)) {
+      if (/[^\p{L}\p{N}\s.,!?'"\-()/]/u.test(title)) {
         toast.warn("Title cannot contain emojis or special characters");
         return false;
       }
@@ -260,14 +260,7 @@ const UploadForm: React.FC = () => {
         toast.warn("Thesis cannot exceed 1000 characters");
         return false;
       }
-      if (/\r|\n/.test(thesis)) {
-        toast.warn("Thesis cannot contain line breaks");
-        return false;
-      }
-      if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(thesis)) {
-        toast.warn("Thesis cannot contain emojis or special characters");
-        return false;
-      }
+     
 
       return true;
     }
@@ -805,9 +798,7 @@ const UploadForm: React.FC = () => {
                             <img
                               src={
                                 member.pfp
-                                  ? supabase.storage
-                                      .from("pfps")
-                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  ?  `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
                                   : tempPFP
                               }
                               alt={member.name}

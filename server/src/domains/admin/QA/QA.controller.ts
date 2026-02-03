@@ -3,7 +3,7 @@ import {
   getPendingUploads,
   acceptUpload,
   rejectUpload,
-} from "./QA.services";
+} from "./QA.services.js";
 
 export async function getPendingUploadsController(
   req: Request,

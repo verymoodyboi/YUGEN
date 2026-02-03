@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -37,6 +38,7 @@ function SideMenu({
   );
   const navigationLinks: NavLink[] = [
     { title: "Terms and Conditions", path: "/terms" },
+{ title: "Privacy Policy", path: "/yugen-privacy-policy.html" },
   ];
   const MenuButton = ({
     label,
