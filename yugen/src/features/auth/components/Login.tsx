@@ -93,12 +93,15 @@ function LoginForm() {
             Signup
           </Link>{" "}
           or{" "}
-          <Link
-            to="/"
+          <p
+            onClick={async () => {
+              const error = await supabase.auth.signOut();
+              if (!error) navigate("/");
+            }}
             className="underline text-emerald-950 hover:text-emerald-700"
           >
-            continue as guest
-          </Link>
+            continue ad a guest.
+          </p>
         </p>
 
         <input
