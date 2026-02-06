@@ -84,7 +84,8 @@
     "three": "^0.176.0",
     "usehooks-ts": "^3.1.1",
     "vanta": "^0.5.24",
-    "video.js": "^7.21.6"
+    "video.js": "^7.21.6",
+    "xmlbuilder2": "^4.0.3"
   },
   "proxy": "http://localhost:3001",
   "devDependencies": {
