@@ -20,6 +20,7 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
     { title: "Home", path: "/login" },
     { title: "Login", path: "/login" },
     { title: "Terms and Conditions", path: "/terms" },
+{ title: "Privacy Policy", path: "/yugen-privacy-policy.html" },
   ];
 
   const socialLinks: SocialLink[] = [
@@ -40,14 +41,14 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
           <div className="flex flex-col space-y-4 flex-1">
             <div className="flex items-center space-x-3">
               <img
-                src={footer_logo}
+                src="https://assets.try-yugen.com/yugen_logo_light.svg"
                 alt="Yugen Logo"
                 className="w-[80px] h-[80px] object-contain rounded-full  p-0.5 overflow-visible"
                 style={{ objectPosition: "center" }}
               />
 
               <span className="text-xl title text-emerald-50 tracking-wide">
-                Yugen, INC
+                Yūgen Studios
               </span>
             </div>
 
@@ -105,7 +106,7 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
 
         <div className="mt-12 pt-6 border-t border-emerald-800 w-full">
           <p className="text-sm text-emerald-100/60">
-            © {new Date().getFullYear()} Yugen, INC. All rights reserved.
+            © https://try-yugen.com All rights reserved.
           </p>
         </div>
       </div>
@@ -133,7 +134,7 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
             </h2>
             <ul className="space-y-2 text-emerald-950 dark:text-emerald-50">
               <li>
-                <strong>Email:</strong> support@yugen.film
+                <strong>Email:</strong> support@try-yugen.com
               </li>
               <li>
                 <strong>Address:</strong> All over the world.

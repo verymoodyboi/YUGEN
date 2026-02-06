@@ -73,7 +73,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-[90vh]  text-center p-6">
+    <div className="flex flex-col items-center justify-center h-[90vh]  text-center p-6 mt-3">
       <form
         onSubmit={handleSubmit}
         className="bg-emerald-50 rounded-3xl shadow-xl p-8 max-w-md w-full border-4 border-emerald-950"
@@ -130,7 +130,7 @@ function LoginForm() {
           className="w-full py-3 flex items-center justify-center gap-2 rounded-xl font-freckle text-emerald-950 border-2 border-emerald-950 bg-emerald-50 hover:bg-emerald-100 transition-all"
         >
           <GoogleIcon />
-          Sign in with Google
+          Continue with Google
         </button>
 
         <button

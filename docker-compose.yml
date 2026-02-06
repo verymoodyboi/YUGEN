@@ -2,17 +2,15 @@ version: "3.9"
 
 services:
   backend:
-    build: ./server
-    container_name: vod-backend-dev
-    working_dir: /usr/src/app
-    volumes:
-      - ./server:/usr/src/app
-      - backend_node_modules:/usr/src/app/node_modules
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: vod-backend
     ports:
       - "8080:3000"
     env_file:
       - ./server/.env
-    command: sh -c "npm install && npm run dev"
+    restart: unless-stopped
 
   worker:
     build:
@@ -28,18 +26,36 @@ services:
     restart: unless-stopped
     
   frontend:
-    image: node:20-alpine
-    container_name: vod-frontend-dev
-    working_dir: /app
-    volumes:
-      - ./yugen:/app
-      - frontend_node_modules:/app/node_modules
-    command: sh -c "npm install && npm run dev -- --host"
+    build:
+      context: ./yugen
+      dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    container_name: vod-frontend
     ports:
-      - "5173:5173"
-    env_file:
-      - ./.env
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./acme:/var/www/acme
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    depends_on:
+      - backend
+    restart: unless-stopped
 
-volumes:
-  backend_node_modules:
-  frontend_node_modules:
+  certbot:
+    image: certbot/certbot:latest
+    container_name: vod-certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    entrypoint: >
+      sh -c "trap exit TERM;
+             while :; do
+               certbot renew --webroot -w /var/www/certbot;
+               sleep 12h;
+             done"
+    restart: unless-stopped
+
