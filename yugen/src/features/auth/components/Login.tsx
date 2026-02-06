@@ -130,7 +130,7 @@ function LoginForm() {
           className="w-full py-3 flex items-center justify-center gap-2 rounded-xl font-freckle text-emerald-950 border-2 border-emerald-950 bg-emerald-50 hover:bg-emerald-100 transition-all"
         >
           <GoogleIcon />
-          Sign in with Google
+          Continue with Google
         </button>
 
         <button
