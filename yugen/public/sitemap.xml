@@ -1,15 +1,15 @@
-<?xml version="1.0"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.try-yugen.com/</loc>
     <lastmod>2026-02-06T23:26:20.385Z</lastmod>
   </url>
   <url>
-    <loc>https://www.try-yugen.comabout</loc>
+    <loc>https://www.try-yugen.com/about</loc>
     <lastmod>2026-02-06T23:26:20.386Z</lastmod>
   </url>
   <url>
-    <loc>https://www.try-yugen.comlogin</loc>
+    <loc>https://www.try-yugen.com/login</loc>
     <lastmod>2026-02-06T23:26:20.386Z</lastmod>
   </url>
 </urlset>
+
