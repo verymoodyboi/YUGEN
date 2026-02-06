@@ -12,7 +12,12 @@ export default function AppLayout() {
 
   return (
     <div
-      className="h-screen w-screen flex flex-col text-emerald-950 overflow-x-hidden pb-20 lg:pb-0"
+      className="    min-h-[100svh] lg:h-screen
+    w-full
+    flex flex-col
+    text-emerald-950
+    overflow-x-hidden
+    pb-20 lg:pb-0"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {/* Header */}
@@ -34,7 +39,7 @@ export default function AppLayout() {
 
         {/* Main Content */}
         <main
-          className="flex-1 min-h-0 h-full p-4 overflow-y-auto"
+          className="flex-1 min-h-0 min-h-[100svh] lg:min-h-0 p-4 h-full  p-4 overflow-y-auto"
           style={{
             backgroundImage: 'url("/Background.png")',
             backgroundSize: "cover",
