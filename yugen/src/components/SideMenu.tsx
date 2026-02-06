@@ -36,7 +36,8 @@ function SideMenu({
     <h2 className="text-2xl title text-emerald-50  mb-2">{children}</h2>
   );
   const navigationLinks: NavLink[] = [
-    { title: "Terms and Conditions", path: "/terms" },
+    { title: "About", path: "/about" },
+    { title: "Privacy Policy", path: "/privacy-policy" },
   ];
   const MenuButton = ({
     label,
