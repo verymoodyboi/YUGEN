@@ -140,6 +140,15 @@ function LoginForm() {
         >
           Forgot password?
         </button>
+        <p className="mt-4 text-xs text-emerald-950/60 font-freckle">
+          By signing up, you agree to our{" "}
+          <Link
+            to="/privacy-policy"
+            className="underline hover:text-emerald-700 transition"
+          >
+            Privacy Policy
+          </Link>
+        </p>
       </form>
 
       {openReset && (
