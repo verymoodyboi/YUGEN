@@ -96,11 +96,11 @@ function LoginForm() {
           <p
             onClick={async () => {
               const error = await supabase.auth.signOut();
-              if (!error) navigate("/");
+              navigate("/");
             }}
             className="underline text-emerald-950 hover:text-emerald-700"
           >
-            continue ad a guest.
+            continue as a guest.
           </p>
         </p>
 
