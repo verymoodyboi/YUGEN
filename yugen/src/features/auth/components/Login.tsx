@@ -145,12 +145,14 @@ function LoginForm() {
         </button>
         <p className="mt-4 text-xs text-emerald-950/60 font-freckle">
           By signing up, you agree to our{" "}
-          <Link
-            to="/yugen-privacy-policy.html"
-            className="underline hover:text-emerald-700 transition"
-          >
-            Privacy Policy
-          </Link>
+        <a
+  href="/yugen-privacy-policy.html"
+  className="underline hover:text-emerald-700 transition"
+  target="_blank" // optional: open in new tab
+  rel="noopener noreferrer"
+>
+  Privacy Policy
+</a>
         </p>
       </form>
 
