@@ -98,7 +98,7 @@ function LoginForm() {
               const error = await supabase.auth.signOut();
               navigate("/");
             }}
-            className="underline text-emerald-950 hover:text-emerald-700"
+            className="underline text-emerald-950 hover:text-emerald-700 cursor-pointer"
           >
             continue as a guest.
           </p>
@@ -146,7 +146,7 @@ function LoginForm() {
         <p className="mt-4 text-xs text-emerald-950/60 font-freckle">
           By signing up, you agree to our{" "}
           <Link
-            to="/privacy-policy"
+            to="/yugen-privacy-policy.html"
             className="underline hover:text-emerald-700 transition"
           >
             Privacy Policy
