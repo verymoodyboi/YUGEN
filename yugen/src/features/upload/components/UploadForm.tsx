@@ -476,7 +476,7 @@ const UploadForm: React.FC = () => {
                 <FilePond
                   name="File"
                   allowMultiple={false}
-                  maxFileSize="5GB"
+                 // maxFileSize="50GB"
                   labelMaxFileSizeExceeded="Max file size is 5GB"
                   acceptedFileTypes={["video/mp4"]}
                   files={filmFile ? [filmFile] : []}
