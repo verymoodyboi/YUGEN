@@ -27,7 +27,6 @@ interface FilmCardProps {
 
 const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
   const poster_path = `https://posters.try-yugen.com/${film.poster_path}`;
-  console.log(poster_path);
   const { userInfo, getAccessToken } = useAuth();
   const controls = useAnimation();
   const posterUrl = film.poster_path ? poster_path : tempPoster;

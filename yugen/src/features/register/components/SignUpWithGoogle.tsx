@@ -23,6 +23,9 @@ const SignupGoogle: React.FC = () => {
     setLname,
     setRawPreview,
 
+    selectedUniversity,
+    setSelectedUniversity,
+    universities,
     setRegion,
     setGender,
     setBday,
@@ -148,6 +151,51 @@ const SignupGoogle: React.FC = () => {
                 <p className="text-xs mt-1 opacity-70">
                   You must be 13+ to register
                 </p>
+              </div>
+              <label className="block font-semibold">
+                A student? select your academic institute:{" "}
+              </label>
+              <p className="text-xs mt-1 opacity-70">(Optional) </p>
+              <div className="relative w-full mb-22">
+                <input
+                  type="text"
+                  placeholder="Type to search your university..."
+                  value={selectedUniversity}
+                  onChange={(e) => setSelectedUniversity(e.target.value)}
+                  className="w-full rounded-lg border-2 border-emerald-950 p-2"
+                />
+
+                {selectedUniversity && (
+                  <ul className="absolute left-0 top-full z-20 w-full max-h-48 overflow-y-auto bg-emerald-50 border-2 border-emerald-950 rounded-b-lg">
+                    {universities
+                      .map((u) => {
+                        const search = selectedUniversity.toLowerCase();
+                        const name = u.name.toLowerCase();
+                        const domainMatch = u.domains?.some((d: string) =>
+                          d.toLowerCase().includes(search),
+                        );
+
+                        let rank = -1;
+                        if (name === search) rank = 0;
+                        else if (name.includes(search)) rank = 1;
+                        else if (domainMatch) rank = 2;
+
+                        return { ...u, rank };
+                      })
+                      .filter((u) => u.rank >= 0)
+                      .sort((a, b) => a.rank - b.rank)
+                      .slice(0, 10)
+                      .map((u) => (
+                        <li
+                          key={u.name}
+                          className="px-3 py-2 hover:bg-emerald-100 cursor-pointer"
+                          onClick={() => setSelectedUniversity(u.name)}
+                        >
+                          {u.name} ({u.country})
+                        </li>
+                      ))}
+                  </ul>
+                )}
               </div>
             </div>
           )}

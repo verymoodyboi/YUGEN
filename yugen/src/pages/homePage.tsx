@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useAuth } from "../contexts/AuthContext";
-import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import { useRecommendations } from "../features/recommendations/hooks/useHomPage";
 import Loading from "../components/loading_kickflip";
@@ -12,19 +11,20 @@ const HomePage: React.FC = () => {
     fresh,
     subscriptions,
     watchlist,
+    community,
     isLoading,
-
     hottestRef,
     freshRef,
     subsRef,
     watchlistRef,
+    communityRef,
   } = useRecommendations(userInfo?.auth_id);
 
   const renderSection = (
     title: string,
     films: any[],
     ref: React.Ref<HTMLDivElement>,
-    subtitle?: string
+    subtitle?: string,
   ) => {
     if (!films?.length) return null;
 
@@ -59,31 +59,37 @@ const HomePage: React.FC = () => {
     <>
       <div className="space-y-10 px-4 py-6">
         {renderSection(
+          `Top in ${userInfo?.region}`,
+          community,
+          communityRef,
+          "Discover talented storytellers around you",
+        )}
+        {renderSection(
           "Hottest Picks",
           hottest,
           hottestRef,
-          "Audience favorites at the moment"
+          "Audience favorites at the moment",
         )}
 
         {renderSection(
           "Fresh Out of the Oven",
           fresh,
           freshRef,
-          "Newest trending releases"
+          "Newest trending releases",
         )}
 
         {renderSection(
           "From Your Subscriptions",
           subscriptions,
           subsRef,
-          "Films by filmmakers you follow"
+          "Films by filmmakers you follow",
         )}
 
         {renderSection(
           "From Your Watchlist",
           watchlist,
           watchlistRef,
-          "Films on your watchlist"
+          "Films on your watchlist",
         )}
 
         {isLoading && (

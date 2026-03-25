@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -11,8 +10,11 @@ import genres_icon from "../YugenAssits/menu_icons/Genres.svg";
 import surprise_icon from "../YugenAssits/menu_icons/Random.svg";
 import report_icon from "../YugenAssits/menu_icons/Report.svg";
 import contact_icon from "../YugenAssits/menu_icons/Contact.svg";
-import AuthActionGuard from "./clickWrapper";
+import send_icon from "../YugenAssits/menu_icons/send_temp.png";
 
+import AuthActionGuard from "./clickWrapper";
+import { Send } from "lucide-react";
+import { send } from "process";
 type SideMenuProps = {
   mode?: "desktop" | "mobile";
   onOpenReport?: () => void;
@@ -114,8 +116,7 @@ function SideMenu({
           setOpen(false);
         }}
       />
-
-      <SectionTitle>Explore</SectionTitle>
+      <SectionTitle>Community</SectionTitle>
       <MenuButton
         label="Yūgen map"
         icon={map_icon}
@@ -124,6 +125,15 @@ function SideMenu({
           setOpen(false);
         }}
       />
+      <MenuButton
+        label="Pokes"
+        icon={send_icon}
+        onClick={() => {
+          navigate("/Pokes");
+          setOpen(false);
+        }}
+      />
+      <SectionTitle>Explore</SectionTitle>
 
       <MenuButton
         label="Surprise me"
@@ -140,17 +150,6 @@ function SideMenu({
           navigate("/genres");
         }}
       />
-      <SectionTitle>Community</SectionTitle>
-      <MenuButton
-        disabled
-        badge="Soon!"
-        label="Challenges"
-        onClick={() => {
-          navigate("/challenges");
-          setOpen(false);
-        }}
-      />
-      <MenuButton label="Clubs" badge="Soon!" disabled />
 
       <SectionTitle>Help</SectionTitle>
 

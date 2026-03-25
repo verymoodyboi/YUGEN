@@ -74,20 +74,20 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
     setMyPlaylists((prev) => prev.filter((p) => p.playlist_uuid !== playlist_uuid));
   };
 
-  const challengesQuery = useInfiniteQuery({
-    queryKey: ["userChallenges", uploaderID],
-    queryFn: ({ pageParam = 0 }) =>
-      fetchUserChallenges({ pageParam, auth_id: uploaderID! }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) =>
-      !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
-    enabled: !!uploaderID,
-  });
+  // const challengesQuery = useInfiniteQuery({
+  //   queryKey: ["userChallenges", uploaderID],
+  //   queryFn: ({ pageParam = 0 }) =>
+  //     fetchUserChallenges({ pageParam, auth_id: uploaderID! }),
+  //   initialPageParam: 0,
+  //   getNextPageParam: (lastPage, allPages) =>
+  //     !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
+  //   enabled: !!uploaderID,
+  // });
 
-  const userChallengesData = challengesQuery.data;
-  const userChallengesLoading = challengesQuery.isLoading;
-  const userChallengesError = challengesQuery.isError;
-  const userChallenges = userChallengesData?.pages.flat() ?? [];
+  // const userChallengesData = challengesQuery.data;
+  // const userChallengesLoading = challengesQuery.isLoading;
+  // const userChallengesError = challengesQuery.isError;
+  // const userChallenges = userChallengesData?.pages.flat() ?? [];
 
   return {
     data,
@@ -110,9 +110,9 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
     handleLocalPlaylistDelete,
     handleLocalPlaylistUpdate,
 
-    userChallengesData,
-    userChallengesLoading,
-    userChallengesError,
-    userChallenges,
+    // userChallengesData,
+    // userChallengesLoading,
+    // userChallengesError,
+    // userChallenges,
   };
 }

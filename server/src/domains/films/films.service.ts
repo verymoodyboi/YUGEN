@@ -6,7 +6,6 @@ import type { Request } from 'express';
 
 import supabase from '../../lib/supabase.js';
 import { generateEmbedding,concatenateInfo } from '../../lib/embedding.js';
-import { transcodeToFile, getDuration } from '../../lib/ffmpeg.js';
 import logger from '../../lib/logger.js';
 import type { FilmInsert, FilmUpdate } from './films.types.js';
 import * as moderationService from '../moderation/moderation.services.js';

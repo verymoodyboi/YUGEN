@@ -9,6 +9,7 @@ import  logger from '../../lib/logger.js';
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from '../../lib/r2.js';
+import { University } from 'lucide-react';
 
 export async function generateR2SignedPutUrl({
   key,
@@ -81,6 +82,7 @@ export async function registerGoogleUser(body: any) {
     Region,
     auth_id,
     pfpContentType,
+    university
   } = body;
 
   if (!auth_id) {
@@ -103,6 +105,7 @@ export async function registerGoogleUser(body: any) {
       region: Region,
       pfp_path: pfpKey,
       join_date: joinDate,
+      university:university?university:""
     },
   ]);
 

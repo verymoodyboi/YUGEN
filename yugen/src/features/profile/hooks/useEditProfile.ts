@@ -19,6 +19,8 @@ function validateProfileForm(
   const region = formData.get("Region") as string;
   const gender = formData.get("Gender") as string;
   const bio = formData.get("Bio") as string;
+  const conactEmail = formData.get("contactEmail") as string;
+  const contactNumber = formData.get("contactNumber") as string;
 
   if (
     isEmpty(fname) ||
@@ -28,7 +30,7 @@ function validateProfileForm(
     isEmpty(gender) ||
     isEmpty(bio)
   ) {
-    toast.error("All fields except socials are required.");
+    toast.error("All fields except socials and contacts are required.");
     return false;
   }
 
@@ -91,6 +93,10 @@ const handleSubmit = async (
       Bio: formData.get("Bio") as string,
       Gender: formData.get("Gender") as string,
       Region: formData.get("Region") as string,
+         contactEmail : formData.get("contactEmail") as string,
+         contactNumber : formData.get("contactNumber") as string,
+
+
       
   ...(croppedFile ? { pfpContentType: croppedFile.type } : {}),    };
 console.log("PROFILE PAYLOAD TO API:", payload);

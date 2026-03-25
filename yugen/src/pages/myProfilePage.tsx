@@ -260,7 +260,7 @@ const UserProfile: React.FC = () => {
         {/* TAB CONTENT */}
         {value === "library" && (
           <div className="flex flex-col gap-6">
-            {films.length > 0 && (
+            {films.length > 0 ? (
               <div
                 onScroll={handleScroll}
                 className="flex overflow-x-auto pb-2 gap-3 no-scrollbar max-h-100"
@@ -288,6 +288,10 @@ const UserProfile: React.FC = () => {
                   )}
                 </div>
               </div>
+            ) : (
+              <p className="text-emerald-900">
+                Start sharing to see your work here.
+              </p>
             )}
 
             {myPlaylists.length > 0 && (

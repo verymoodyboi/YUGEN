@@ -13,43 +13,49 @@ export function useRecommendations(userId?: string) {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [watchlist, setWatchlist] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
+const [community, setCommunity] = useState<any[]>([]);
 
-  const offsets = useRef({
-    hottest: 0,
-    fresh: 0,
-    subscriptions: 0,
-    watchlist: 0,
-  });
+const offsets = useRef({
+  hottest: 0,
+  fresh: 0,
+  subscriptions: 0,
+  watchlist: 0,
+  community: 0,
+});
 
   const hottestRef = useRef<HTMLDivElement | null>(null);
   const freshRef = useRef<HTMLDivElement | null>(null);
   const subsRef = useRef<HTMLDivElement | null>(null);
   const watchlistRef = useRef<HTMLDivElement | null>(null);
+const communityRef = useRef<HTMLDivElement | null>(null);
 
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
+useEffect(() => {
+  async function load() {
+    setLoading(true);
 
-      const res = await getHomeRecommendations(userId);
+    const res = await getHomeRecommendations(userId);
 
-      setHottest(res.hottest || []);
-      setFresh(res.fresh || []);
-      setSubscriptions(res.subscriptions || []);
-      setWatchlist(res.watchlist || []);
+    setHottest(res.hottest || []);
+    setFresh(res.fresh || []);
+    setSubscriptions(res.subscriptions || []);
+    setWatchlist(res.watchlist || []);
+    setCommunity(res.community || []);
 
-      offsets.current = {
-        hottest: res.hottest?.length || 0,
-        fresh: res.fresh?.length || 0,
-        subscriptions: res.subscriptions?.length || 0,
-        watchlist: res.watchlist?.length || 0,
-      };
+    offsets.current = {
+      hottest: res.hottest?.length || 0,
+      fresh: res.fresh?.length || 0,
+      subscriptions: res.subscriptions?.length || 0,
+      watchlist: res.watchlist?.length || 0,
+      community: res.community?.length || 0,
+    };
 
-      setLoading(false);
-    }
+    setLoading(false);
+  }
 
-    load();
-  }, [userId]);
+  load();
+}, [userId]);
+
 
   const loadMore = {
     hottest: async () => {
@@ -71,7 +77,12 @@ export function useRecommendations(userId?: string) {
     watchlist: async () => {
 
       return;
+
     },
+    community: async () => {
+  return;
+},
+
   };
 
 
@@ -94,12 +105,13 @@ export function useRecommendations(userId?: string) {
       }
     );
 
-    const targets = [
-      { ref: hottestRef, id: "hottest" },
-      { ref: freshRef, id: "fresh" },
-      { ref: subsRef, id: "subscriptions" },
-      { ref: watchlistRef, id: "watchlist" },
-    ];
+ const targets = [
+  { ref: hottestRef, id: "hottest" },
+  { ref: freshRef, id: "fresh" },
+  { ref: subsRef, id: "subscriptions" },
+  { ref: watchlistRef, id: "watchlist" },
+  { ref: communityRef, id: "community" },
+];
 
     targets.forEach(({ ref, id }) => {
       if (ref.current) {
@@ -111,15 +123,18 @@ export function useRecommendations(userId?: string) {
     return () => observer.disconnect();
   }, [userId]);
 
-  return {
-    hottest,
-    fresh,
-    subscriptions,
-    watchlist,
-    isLoading,
-    hottestRef,
-    freshRef,
-    subsRef,
-    watchlistRef,
-  };
+return {
+  hottest,
+  fresh,
+  subscriptions,
+  watchlist,
+  community,
+  isLoading,
+  hottestRef,
+  freshRef,
+  subsRef,
+  watchlistRef,
+  communityRef,
+};
+
 }

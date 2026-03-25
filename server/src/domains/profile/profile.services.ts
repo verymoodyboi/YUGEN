@@ -1,9 +1,5 @@
 import supabase from '../../lib/supabase.js';
 import type { UpdateSocialsDTO, EditProfileDTO } from './profile.types.js';
-import { preRegisterSocialsSchema } from './profile.validations.js';
-import { r2 } from '../../lib/r2.js';
-import { PutObjectCommand,DeleteObjectCommand  } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { generateR2SignedPutUrl } from '../register/register.services.js';
 
 export async function updateSocials(authId: string, socials: UpdateSocialsDTO) {
@@ -31,6 +27,8 @@ export async function editProfile(
     Gender: string;
     Region: string;
     pfpContentType?: string;
+    contactEmail:string;
+    contactNumber:string;
   }
 ) {
   let uploadUrl: string | null = null;
@@ -54,6 +52,8 @@ export async function editProfile(
       bio: body.Bio,
       gender: body.Gender,
       region: body.Region,
+      contact_email:body.contactEmail,
+      contact_number:body.contactNumber,
       ...(pfpPath ? { pfp_path: pfpPath } : {}),
     })
     .eq("auth_id", authId);
@@ -96,6 +96,60 @@ export async function addUserType(userType:string,authId:string) {
    user_type:userType
     })
     .eq('auth_id', authId);
+
+  if (error) throw new Error(error.message);
+
+  return true;
+}
+
+
+
+export async function addSchool(authId: string, school: string) {
+  const { error } = await supabase
+    .from("users")
+    .update({ university:school })
+    .eq("auth_id", authId);
+
+  if (error) throw new Error(error.message);
+
+  return true;
+}
+
+
+
+export async function getContactInfo(authId: string) {
+  const { data, error } = await supabase
+    .from("users")
+    .select("contact_email, contact_number")
+    .eq("auth_id", authId)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export async function updateContactInfo(
+  authId: string,
+  body: {
+    contactEmail?: string;
+    contactNumber?: string;
+  }
+) {
+  const updateData: any = {};
+
+  if (body.contactEmail !== undefined) {
+    updateData.contact_email = body.contactEmail;
+  }
+
+  if (body.contactNumber !== undefined) {
+    updateData.contact_number = body.contactNumber;
+  }
+
+  const { error } = await supabase
+    .from("users")
+    .update(updateData)
+    .eq("auth_id", authId);
 
   if (error) throw new Error(error.message);
 

@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { University } from 'lucide-react';
 
 export const registerSchema = Joi.object({
 
@@ -17,4 +18,6 @@ export const registerGoogleSchema = Joi.object({
   Gender: Joi.string().required(),
   Region: Joi.string().required(),
   auth_id: Joi.string().required(),
+    university: Joi.any().optional(),
+
 });

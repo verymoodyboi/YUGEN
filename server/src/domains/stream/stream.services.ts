@@ -76,9 +76,8 @@ export async function incrementView(filmId: string) {
 }
 
 
-export async function logClick(filmId: string, userId: string) {
+export async function logClick(filmId: string, userId?: string) {
   const { error } = await supabase.from('click_through_films').insert({
-    auth_id: userId,
     film_uuid: filmId,
   });
 

@@ -231,10 +231,13 @@ const CountryPage: React.FC = () => {
 
       {/* Content */}
       <div className="p-8 grid gap-8">
-        {loading ? (
+        {loading && (
           <div className="text-center py-10 text-emerald-900">Loading…</div>
-        ) : activeTab === "films" ? (
-          displayedFilms.length ? (
+        )}
+
+        {!loading &&
+          activeTab === "films" &&
+          (displayedFilms.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8 place-items-center">
               {displayedFilms.map((film) => (
                 <FilmCard key={film.film_uuid} film={film} />
@@ -244,18 +247,21 @@ const CountryPage: React.FC = () => {
             <div className="text-center py-10 text-emerald-900">
               No films available.
             </div>
-          )
-        ) : displayedUsers.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-8 place-items-center">
-            {displayedUsers.map((u) => (
-              <AccountCard key={u.username} account={u} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-10 text-emerald-900">
-            No artists available.
-          </div>
-        )}
+          ))}
+
+        {!loading &&
+          activeTab === "artists" &&
+          (displayedUsers.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-8 place-items-center">
+              {displayedUsers.map((u) => (
+                <AccountCard key={u.username} account={u} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-emerald-900">
+              No artists available.
+            </div>
+          ))}
       </div>
     </div>
   );

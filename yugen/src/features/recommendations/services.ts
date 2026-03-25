@@ -50,15 +50,17 @@ export async function getHomeRecommendations(userId?: string) {
         fresh: [],
         subscriptions: [],
         watchlist: [],
+        community: [],
       }
     );
   } catch (error) {
-    console.error(" Failed to load recommendations:", error);
+    console.error("Failed to load recommendations:", error);
     return {
       hottest: [],
       fresh: [],
       subscriptions: [],
       watchlist: [],
+      community: [],
     };
   }
 }

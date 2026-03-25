@@ -18,6 +18,8 @@ import reportRouter from './domains/report/report.routes.js';
 import academictRouter from './domains/academic/academic.routes.js';
 import thoughtstRouter from './domains/thoughts/thoughts.routes.js';
 import subsRouter from './domains/subscriptions/subscriptions.routes.js';
+import pokesRouter from './domains/pokes/pokes.routes.js'
+
 import historyRouter from './domains/history/history.routes.js';
 import playlistsRouter from './domains/playlists/playlists.routes.js';
 import watchlistRouter from './domains/watchlist/watchlist.routes.js';
@@ -40,7 +42,7 @@ const allowedOrigins = [
   "https://try-yugen.com", 
   "http://try-yugen.com",
   "http://localhost:5174",  
-  "http://localhost:5173",            // for local dev
+  "http://localhost:5173",
 ];
 // Security middlewares
 app.use(helmet());
@@ -80,6 +82,8 @@ app.use('/api/report', reportRouter);
 app.use('/api/academic', academictRouter);
 app.use('/api/thoughts', thoughtstRouter);
 app.use('/api/subs', subsRouter);
+app.use('/api/pokes', pokesRouter);
+
 app.use('/api/history', historyRouter);
 app.use('/api/playlists', playlistsRouter);
 app.use('/api/watchlist', watchlistRouter);

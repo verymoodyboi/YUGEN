@@ -17,7 +17,6 @@ const AuthActionGuard: React.FC<AuthActionGuardProps> = ({ children }) => {
   const [showModal, setShowModal] = useState(false);
 
   const handleClick = (event: MouseEvent<any>) => {
-    // 🔹 Google-authenticated but not signed up
     if (status === "signupGoogle") {
       event.preventDefault();
       event.stopPropagation();
@@ -25,7 +24,6 @@ const AuthActionGuard: React.FC<AuthActionGuardProps> = ({ children }) => {
       return;
     }
 
-    // 🔹 Not authenticated
     if (status !== "authenticated") {
       event.preventDefault();
       event.stopPropagation();
@@ -33,7 +31,6 @@ const AuthActionGuard: React.FC<AuthActionGuardProps> = ({ children }) => {
       return;
     }
 
-    // ✅ Fully authenticated → allow original click
     children.props.onClick?.(event);
   };
 
@@ -52,7 +49,7 @@ const AuthActionGuard: React.FC<AuthActionGuardProps> = ({ children }) => {
 
       {showModal &&
         ReactDOM.createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-filter: blur(var(--blur-sm)) bg-opacity-40">
             <div className="relative flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b] animate-modal-in w-full max-w-md mx-4">
               <button
                 onClick={handleBack}
@@ -91,4 +88,3 @@ const AuthActionGuard: React.FC<AuthActionGuardProps> = ({ children }) => {
 };
 
 export default AuthActionGuard;
-

@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import supabase from "../lib/supabaseClient";
 import "react-toastify/dist/ReactToastify.css";
-import EditProfile from "../features/profile/components/EditProfile";
+import EditProfile from "../features/profile/components/editProfile";
 import { useSearchParams } from "react-router-dom";
 import AppLayout from "../layouts/layout-main";
 import LockIcon from "@mui/icons-material/Lock";

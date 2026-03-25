@@ -34,6 +34,7 @@ import Legal from "./pages/legal/termsAndPoliciesPage.tsx";
 import PrivacyPolicyPage from "./pages/legal/privacyPolicyPage.tsx";
 import ManageUploadsPage from "./pages/admin/QAPage.tsx";
 import AdminWrapper from "./pages/adminWrapper.tsx";
+import PokesPage from "./pages/pokesPage.tsx";
 
 function Yugen() {
   return (
@@ -78,6 +79,15 @@ function Yugen() {
                 element={
                   <Wrapper>
                     <HistoryPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
+                path="/pokes"
+                element={
+                  <Wrapper>
+                    <PokesPage />
                   </Wrapper>
                 }
               />

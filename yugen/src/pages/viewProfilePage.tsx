@@ -10,21 +10,35 @@ import {
   FiBell,
   FiBellOff,
 } from "react-icons/fi";
-import SchoolIcon from "@mui/icons-material/School";
-import supabase from "../lib/supabaseClient";
-import AppLayout from "../layouts/layout-main";
+import { Send, CheckCircle, Sparkles, UserCheck, X } from "lucide-react";
+
+import { FiCheck } from "react-icons/fi";
+
+import { usePokes } from "../features/pokes/usePokes";
 import FilmCard from "../components/filmCard-2x3";
 import PlaylistCard from "../features/playlist/components/PlaylistCard";
-import CustomLoading from "../SmallComponents/CutomsLoading";
 import { useViewProfile } from "../features/profile/hooks/useViewProfile";
 import Loading from "../components/loading_kickflip";
 import { useAuth } from "../contexts/AuthContext";
 import { Tooltip } from "@mui/material";
 import AuthActionGuard from "../components/clickWrapper";
+import ContactInfoGuard from "../features/pokes/components/contactWrapper";
 
 const AccProfile: React.FC = () => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();
+  const { getAccessToken } = useAuth();
+  const {
+    sent,
+    received,
+    loading: pokesLoading,
+    processing: pokeProcessing,
+    getPokeStatus,
+    handleSendPoke,
+    handleAcceptPoke,
+    handleDeletePoke,
+  } = usePokes(getAccessToken);
+  const [openContactModal, setOpenContactModal] = useState(false);
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username");
   if (username == userInfo?.username) {
@@ -64,6 +78,9 @@ const AccProfile: React.FC = () => {
     const threshold = target.scrollWidth - 200;
     if (scrollRight >= threshold && hasNextPage) await fetchNextPage();
   };
+  const pokeStatus = user?.auth_id
+    ? getPokeStatus(user.auth_id)
+    : { status: "none", pokeId: null };
 
   if (loading)
     return (
@@ -163,30 +180,143 @@ const AccProfile: React.FC = () => {
               )}
               {/* Subscribe / Notify */}
 
-              <div className="mt-3 flex gap-3">
-                <AuthActionGuard>
-                  <button
-                    onClick={handleSubscribe}
-                    className={`px-4 py-2 rounded-full border-2 font-bold transition hover:scale-105 ${
-                      isSubscribed
-                        ? "bg-emerald-950 text-emerald-50 border-emerald-950"
-                        : "bg-emerald-50 text-emerald-950 border-emerald-950"
-                    }`}
-                  >
-                    {isSubscribed ? "Subscribed" : "Subscribe"}
-                  </button>
-                </AuthActionGuard>
+              <div className="mt-3 flex flex-col gap-3 mb-2">
+                {/* ROW 1 — Subscribe + Notify */}
+                <div className="flex gap-3">
+                  <AuthActionGuard>
+                    <button
+                      onClick={handleSubscribe}
+                      className={`px-4 py-2 rounded-full border-2 font-bold transition hover:scale-105 flex items-center gap-2 ${
+                        isSubscribed
+                          ? "bg-emerald-950 text-emerald-50 border-emerald-950"
+                          : "bg-emerald-50 text-emerald-950 border-emerald-950"
+                      }`}
+                    >
+                      {isSubscribed ? (
+                        <>
+                          <FiCheck />
+                          Subscribed
+                        </>
+                      ) : (
+                        "Subscribe"
+                      )}
+                    </button>
+                  </AuthActionGuard>
+
+                  {isSubscribed && (
+                    <Tooltip title="Notification">
+                      <AuthActionGuard>
+                        <button
+                          onClick={handleNotify}
+                          className="px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-bold hover:scale-105 transition"
+                        >
+                          {isNotify ? <FiBell /> : <FiBellOff />}
+                        </button>
+                      </AuthActionGuard>
+                    </Tooltip>
+                  )}
+                </div>
+
+                {/* ROW 2 — Poke */}
                 {isSubscribed && (
-                  <Tooltip title="Notification">
-                    <AuthActionGuard>
+                  <Tooltip
+                    title={
+                      pokeStatus.status === "sent"
+                        ? "Poke sent — waiting for them"
+                        : pokeStatus.status === "received"
+                          ? "They poked you — accept to connect"
+                          : pokeStatus.status === "accepted"
+                            ? "You're connected"
+                            : "Send a poke"
+                    }
+                  >
+                    <ContactInfoGuard>
                       <button
-                        onClick={handleNotify}
-                        className="px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-bold hover:scale-105"
+                        type="button"
+                        onClick={async () => {
+                          if (!user?.auth_id) return;
+
+                          switch (pokeStatus.status) {
+                            case "none":
+                              await handleSendPoke(user.auth_id);
+                              break;
+
+                            case "received":
+                              if (pokeStatus.pokeId)
+                                await handleAcceptPoke(pokeStatus.pokeId);
+                              break;
+
+                            case "accepted":
+                            case "sent":
+                              if (pokeStatus.pokeId)
+                                await handleDeletePoke(pokeStatus.pokeId);
+                              break;
+                          }
+                        }}
+                        className={`
+            px-4 py-2 rounded-full border-2 font-bold 
+            transition-all duration-200 
+            hover:scale-105 
+            flex items-center gap-2
+            ${
+              pokeStatus.status === "accepted"
+                ? "bg-emerald-100 text-emerald-900 border-emerald-700 shadow-[0_0_10px_rgba(16,185,129,0.25)]"
+                : pokeStatus.status === "received"
+                  ? "bg-yellow-50 text-emerald-900 border-yellow-400"
+                  : pokeStatus.status === "sent"
+                    ? "bg-emerald-50 text-emerald-900 border-emerald-400"
+                    : "bg-emerald-50 text-emerald-950 border-emerald-950 hover:bg-emerald-100"
+            }
+          `}
                       >
-                        {isNotify ? <FiBell /> : <FiBellOff />}
+                        {pokeStatus.status === "none" && (
+                          <>
+                            <Send size={16} />
+                            Poke
+                          </>
+                        )}
+
+                        {pokeStatus.status === "sent" && (
+                          <>
+                            <CheckCircle size={16} />
+                            Sent
+                          </>
+                        )}
+
+                        {pokeStatus.status === "received" && (
+                          <>
+                            <Sparkles size={16} />
+                            Accept
+                          </>
+                        )}
+
+                        {pokeStatus.status === "accepted" && (
+                          <>
+                            <UserCheck size={16} />
+                            Matched
+                          </>
+                        )}
                       </button>
-                    </AuthActionGuard>
+                    </ContactInfoGuard>
                   </Tooltip>
+                )}
+
+                {/* ROW 3 — Contact (only when matched) */}
+                {isSubscribed && pokeStatus.status === "accepted" && user && (
+                  <button
+                    type="button"
+                    onClick={() => setOpenContactModal(true)}
+                    className="
+        px-4 py-2 rounded-full border-2 border-emerald-950 
+        bg-emerald-100 text-emerald-950 font-bold
+        shadow-[0_0_10px_rgba(16,185,129,0.25)]
+        hover:scale-105 transition
+        flex items-center gap-2
+      "
+                  >
+                    <Send size={16} />
+                    Contact @{user.username}
+                  </button>
                 )}
               </div>
             </div>
@@ -220,7 +350,7 @@ const AccProfile: React.FC = () => {
         {/* LIBRARY TAB */}
         {tab === "library" && (
           <div className="flex flex-col gap-6">
-            {films.length > 0 && (
+            {films.length > 0 ? (
               <div>
                 <h2 className="text-2xl mb-2">Films by @{user?.username}</h2>
 
@@ -242,7 +372,7 @@ const AccProfile: React.FC = () => {
                     {isFetchingNextPage && (
                       <div
                         className="flex-shrink-0 flex items-center justify-center 
-            w-46 h-90 rounded-xl"
+                  w-46 h-90 rounded-xl"
                       >
                         <Loading />
                       </div>
@@ -250,6 +380,10 @@ const AccProfile: React.FC = () => {
                   </div>
                 </div>
               </div>
+            ) : (
+              <p className="text-emerald-900">
+                {user?.username} hasn`t shared anything yet.
+              </p>
             )}
 
             {myPlaylists.length > 0 && (
@@ -399,6 +533,53 @@ const AccProfile: React.FC = () => {
           </div>
         )}
       </div>
+      {openContactModal && user && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            className="
+        w-[90%] max-w-md
+        p-6 border-2 border-emerald-950
+        rounded-lg bg-emerald-50 text-emerald-950
+        shadow-[4px_4px_0_0_#064e3b]
+        relative
+      "
+          >
+            {/* Close */}
+            <button
+              onClick={() => setOpenContactModal(false)}
+              className="absolute top-3 right-3 text-emerald-950 hover:scale-110 transition"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-lg font-bold mb-3">
+              Contact @{user.username} now
+            </h2>
+
+            <p className="text-sm mb-4 font-semibold text-emerald-800">
+              You’re matched — reach out and create something together.
+            </p>
+
+            <div className="space-y-3 text-sm">
+              {user.contact_email && (
+                <div className="p-3 border border-emerald-900 rounded-md bg-white">
+                  <span className="font-semibold">Email:</span>
+                  <br />
+                  {user.contact_email}
+                </div>
+              )}
+
+              {user.contact_number && (
+                <div className="p-3 border border-emerald-900 rounded-md bg-white">
+                  <span className="font-semibold">Phone:</span>
+                  <br />
+                  {user.contact_number}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

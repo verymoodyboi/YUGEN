@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Crop } from "react-image-crop";
 import { api } from "../../../lib/api";
@@ -7,6 +7,7 @@ import { checkUsernameAvailable } from "../../../util/availability-validation/se
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/toaster";
 import { uploadToR2 } from "../services";
+import { University } from "lucide-react";
 
 export function useSignupGoogle() {
     const {user}= useAuth()
@@ -44,6 +45,19 @@ const toast=useToast()
     const age = new Date().getFullYear() - year;
     return age >= 13;
   };
+
+
+
+    const [universities, setUniversities] = useState<any[]>([]);
+    const [selectedUniversity, setSelectedUniversity] = useState("");
+  
+    useEffect(() => {
+      // Load universities JSON
+      fetch("/world_universities_and_domains.json")
+        .then((res) => res.json())
+        .then((data) => setUniversities(data))
+        .catch((err) => console.error("Failed to load universities:", err));
+    }, []);
 
 async function validateStep(step = activeStep) {
   if (step === 0) {
@@ -152,7 +166,6 @@ const handleSubmit = async () => {
 
   setIsRegistering(true);
   try {
-    // 1️⃣ Register Google user
     const { data } = await api.post("/register/google", {
       FName: fname,
       LName: lname,
@@ -164,6 +177,7 @@ const handleSubmit = async () => {
       Gender: gender,
       auth_id: user.id,
       pfpContentType: croppedFile.type,
+      university:selectedUniversity,
     });
 
     const { uploadUrl } = data;
@@ -173,10 +187,10 @@ const handleSubmit = async () => {
       await uploadToR2(uploadUrl, croppedFile);
     }
 
-    toast.success("Google registration successful!");
+    toast.success("Account created successfully!");
     navigate("/");
   } catch (err) {
-    toast.error("Google registration failed");
+    toast.error("Account creation failed! Please try again later.");
   } finally {
     setIsRegistering(false);
   }
@@ -207,11 +221,13 @@ const handleSubmit = async () => {
     croppedFile,
     handleFileChange,
       setRawPreview, 
-
+universities,
     confirmCrop,
     fileInputRef,
     isRegistering,
     handleSubmit,
+    selectedUniversity,
+    setSelectedUniversity,
    
   };
 }

@@ -23,7 +23,9 @@ export async function getUserProfile(username: string) {
       linkedin,
       watchlist_count,
       role,
-      auth_id
+      auth_id,
+      contact_email,
+      contact_number
     `)
     .eq("username", username)
     .single();

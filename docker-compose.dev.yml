@@ -1,0 +1,41 @@
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: vod-backend-dev
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    command: npm run dev
+    env_file:
+      - ./server/.env
+    networks:
+      - vod-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./yugen
+      dockerfile: Dockerfile.dev
+    container_name: vod-frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./yugen:/app
+      - /app/node_modules
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_API_BASE_URL=http://localhost:8080/api
+    depends_on:
+      - backend
+    networks:
+      - vod-network
+    restart: unless-stopped
+
+networks:
+  vod-network:
+    driver: bridge

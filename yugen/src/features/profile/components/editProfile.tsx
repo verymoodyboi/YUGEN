@@ -20,6 +20,11 @@ interface Props {
   onSubmitSuccess?: () => void;
   onCancel?: () => void;
 }
+interface CountryCode {
+  name: string;
+  dial_code: string;
+  code: string;
+}
 
 const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
   const toast = useToast();
@@ -29,6 +34,45 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
   const [fname, setfname] = useState("");
   const [lname, setlname] = useState("");
   const [username, setusername] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+
+  const [countryCode, setCountryCode] = useState("+965");
+  useEffect(() => {
+    const loadCountries = async () => {
+      try {
+        const res = await fetch(
+          "https://assets.try-yugen.com/CountryCodes.json",
+        );
+        const data = await res.json();
+        setCountries(data);
+      } catch {
+        toast.error("Failed to load country codes");
+      } finally {
+        setLoadingCountries(false);
+      }
+    };
+
+    loadCountries();
+  }, [toast]);
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [universities, setUniversities] = useState<any[]>([]);
+  const [selectedUniversity, setSelectedUniversity] = useState("");
+
+  useEffect(() => {
+    // Load universities JSON
+    fetch("/world_universities_and_domains.json")
+      .then((res) => res.json())
+      .then((data) => setUniversities(data))
+      .catch((err) => console.error("Failed to load universities:", err));
+  }, []);
+
+  const [countries, setCountries] = useState<CountryCode[]>([]);
+  const [loadingCountries, setLoadingCountries] = useState(true);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^[0-9]{6,15}$/;
+
   const [bio, setbio] = useState("");
   const [gender, setGender] = useState("");
   const [region, setregion] = useState("");
@@ -47,6 +91,7 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
     if (!user) return;
     setfname(user.f_name || "");
     setlname(user.l_name || "");
+
     setusername(user.username || "");
     setbio(user.bio || "");
     setGender(user.gender || "");
@@ -59,6 +104,18 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
     setInsta(user.instagram || "");
     setYT(user.youtube || "");
     setLinkedin(user.linkedin || "");
+    setContactEmail(user.contact_email || "");
+    setSelectedUniversity(user.university || "");
+    if (user.contact_number) {
+      const match = user.contact_number.match(/\((\+\d+)\)\s*(\d+)/);
+
+      if (match) {
+        setCountryCode(match[1]);
+        setContactNumber(match[2]);
+      } else {
+        setContactNumber(user.contact_number);
+      }
+    }
   }, [user]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,8 +216,31 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
     formData.append("LName", lname);
     formData.append("UserName", username.toLowerCase());
     formData.append("Bio", bio);
+    formData.append("contactEmail", contactEmail);
+    formData.append(
+      "contactNumber",
+      contactNumber ? `(${countryCode}) ${contactNumber}` : "",
+    );
     if (croppedFile instanceof File) formData.append("PFP", croppedFile);
 
+    setEmailError("");
+    setPhoneError("");
+
+    let valid = true;
+
+    if (contactEmail && !emailRegex.test(contactEmail)) {
+      setEmailError("Invalid email format");
+      valid = false;
+      toast.warn(emailError);
+    }
+
+    if (contactNumber && !phoneRegex.test(contactNumber)) {
+      setPhoneError("Phone must be 6–15 digits");
+      valid = false;
+      toast.warn(phoneError);
+    }
+
+    if (!valid) return;
     await handleSubmit(
       formData,
       { Insta: insta, YT, LI: linkedin },
@@ -338,7 +418,115 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
             </div>
           ))}
         </div>
+        <div>
+          <label className="block mb-2 font-semibold">Contact Info</label>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-bold text-emerald-950 flex items-center gap-2">
+                Contact Email
+              </label>
+
+              <input
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value.toLowerCase())}
+                placeholder="your@email.com"
+                className={`w-full p-2 rounded-lg border-2 bg-emerald-50 focus:outline-none focus:ring-2 ${
+                  emailError
+                    ? "border-red-500 focus:ring-red-400"
+                    : "border-emerald-950 focus:ring-emerald-400"
+                }`}
+              />
+
+              {emailError && (
+                <span className="text-xs text-red-500">{emailError}</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-bold text-emerald-950 flex items-center gap-2">
+                WhatsApp
+              </label>
+
+              <div className="flex gap-2">
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  disabled={loadingCountries}
+                  className="p-2 rounded-lg border-2 border-emerald-950 bg-emerald-50 max-w-[120px]"
+                >
+                  {countries.map((c) => (
+                    <option key={c.code} value={c.dial_code}>
+                      {c.dial_code}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  value={contactNumber}
+                  onChange={(e) =>
+                    setContactNumber(e.target.value.replace(/\D/g, ""))
+                  }
+                  placeholder="51579287"
+                  className={`flex-1 p-2 rounded-lg border-2 bg-emerald-50 focus:outline-none focus:ring-2 ${
+                    phoneError
+                      ? "border-red-500 focus:ring-red-400"
+                      : "border-emerald-950 focus:ring-emerald-400"
+                  }`}
+                />
+              </div>
+
+              {phoneError && (
+                <span className="text-xs text-red-500">{phoneError}</span>
+              )}
+            </div>
+          </div>
+        </div>
+        <label className="block mb-2 font-semibold">
+          A student? select your academic institute{" "}
+        </label>
+
+        <div className="relative w-full mb-52">
+          <input
+            type="text"
+            placeholder="Type to search your university..."
+            value={selectedUniversity}
+            onChange={(e) => setSelectedUniversity(e.target.value)}
+            className="w-full rounded-lg border-2 border-emerald-950 p-2"
+          />
+
+          {selectedUniversity && (
+            <ul className="absolute left-0 top-full z-20 w-full max-h-48 overflow-y-auto bg-emerald-50 border-2 border-emerald-950 rounded-b-lg">
+              {universities
+                .map((u) => {
+                  const search = selectedUniversity.toLowerCase();
+                  const name = u.name.toLowerCase();
+                  const domainMatch = u.domains?.some((d: string) =>
+                    d.toLowerCase().includes(search),
+                  );
+
+                  let rank = -1;
+                  if (name === search) rank = 0;
+                  else if (name.includes(search)) rank = 1;
+                  else if (domainMatch) rank = 2;
+
+                  return { ...u, rank };
+                })
+                .filter((u) => u.rank >= 0)
+                .sort((a, b) => a.rank - b.rank)
+                .slice(0, 10)
+                .map((u) => (
+                  <li
+                    key={u.name}
+                    className="px-3 py-2 hover:bg-emerald-100 cursor-pointer"
+                    onClick={() => setSelectedUniversity(u.name)}
+                  >
+                    {u.name} ({u.country})
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
         <div className="flex items-center justify-center gap-4">
           <button
             type="submit"
