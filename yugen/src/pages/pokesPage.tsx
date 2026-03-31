@@ -4,7 +4,7 @@ import { usePokes } from "../features/pokes/usePokes";
 import { useAuth } from "../contexts/AuthContext";
 import Loading from "../components/loading_kickflip";
 import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
-
+import { useNavigate } from "react-router-dom";
 import {
   CheckCircle,
   Eye,
@@ -21,7 +21,7 @@ import {
 
 const PokesPage: React.FC = () => {
   const { getAccessToken } = useAuth();
-
+  const navigate = useNavigate();
   const {
     sent,
     received,
@@ -208,7 +208,15 @@ const PokesPage: React.FC = () => {
               ${isMatched ? "ring-2 ring-emerald-500" : ""}`}
               >
                 {/* Header */}
-                <div className="flex items-center gap-3 mb-2">
+                <div
+                  className="flex items-center gap-3 mb-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(
+                      `/@?username=${encodeURIComponent(user?.username)}`,
+                    );
+                  }}
+                >
                   <img
                     src={
                       user?.pfp_path
