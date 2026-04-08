@@ -99,7 +99,7 @@ const handleSubmit = async (
 
       
   ...(croppedFile ? { pfpContentType: croppedFile.type } : {}),    };
-console.log("PROFILE PAYLOAD TO API:", payload);
+//console.log("PROFILE PAYLOAD TO API:", payload);
 
     const { uploadUrl } = await editProfile(payload, token);
 

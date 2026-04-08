@@ -118,7 +118,7 @@ const [pendingModerationUploadUrls, setPendingModerationUploadUrls] =
         filmMime: filmFile.type,
         posterMime: posterFile?.type ?? null,
       });
-console.log("INIT RESPONSE", init);
+//console.log("INIT RESPONSE", init);
 
 const {
   uploadUrl,
@@ -185,7 +185,7 @@ try {
   setPendingUploadUrl(null);
   setPendingPosterUploadUrl(null);
   setPendingModerationUploadUrls(null);
-  console.log("Cleanup: deleted film", filmId);
+  //console.log("Cleanup: deleted film", filmId);
 }
       } catch (cleanupErr) {
         console.error("Cleanup failed:", cleanupErr);
