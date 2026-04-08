@@ -97,16 +97,18 @@ function AccHub() {
               <SettingsIcon fontSize="small" />
               Settings
             </button>
-            <button
-              className="flex items-center gap-2 px-4 py-2 text-emerald-950  hover:bg-emerald-100 rounded-lg"
-              onClick={() => {
-                setMenuOpen(false);
-                logOut();
-              }}
-            >
-              <LogoutIcon fontSize="small" />
-              Logout
-            </button>{" "}
+            {userInfo.username && (
+              <button
+                className="flex items-center gap-2 px-4 py-2 text-emerald-950  hover:bg-emerald-100 rounded-lg"
+                onClick={() => {
+                  setMenuOpen(false);
+                  logOut();
+                }}
+              >
+                <LogoutIcon fontSize="small" />
+                Logout
+              </button>
+            )}
           </div>,
           document.body,
         )}
