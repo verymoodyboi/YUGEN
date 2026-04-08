@@ -72,7 +72,7 @@ export async function getSimilarFilms(filmId: string) {
       params: { filmId },
     });
 
-    console.log("found:", res.data);
+   // console.log("found:", res.data);
 
     return res.data?.films ?? [];
   } catch (err) {

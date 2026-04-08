@@ -86,7 +86,7 @@ const ExploreChallengesPage: React.FC = () => {
   });
 
   const challenges = data?.pages.flatMap((page) => page) ?? [];
-  console.log("challenges:", challenges);
+  // console.log("challenges:", challenges);
   //scroll
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -112,7 +112,7 @@ const ExploreChallengesPage: React.FC = () => {
       "http://localhost:3000/api/challenges/community-challenges",
       {
         params: { offset: pageParam, limit: 10 },
-      }
+      },
     );
     return res.data;
   };
@@ -144,7 +144,7 @@ const ExploreChallengesPage: React.FC = () => {
       "http://localhost:3000/api/challenges/academic-challenges",
       {
         params: { offset: pageParam, limit: 10 },
-      }
+      },
     );
     return res.data;
   };
@@ -209,7 +209,7 @@ const ExploreChallengesPage: React.FC = () => {
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       toast.success("Challenge created!");
@@ -376,8 +376,8 @@ const ExploreChallengesPage: React.FC = () => {
                     onClick={() =>
                       navigate(
                         `/challenge?challenge_id=${encodeURIComponent(
-                          challenge.challenge_id
-                        )}`
+                          challenge.challenge_id,
+                        )}`,
                       )
                     }
                   >
@@ -509,7 +509,7 @@ const ExploreChallengesPage: React.FC = () => {
                                 } catch (err) {
                                   console.error(
                                     "Invalid JSON in challenge_rules:",
-                                    err
+                                    err,
                                   );
                                   rules = [];
                                 }
@@ -667,8 +667,8 @@ const ExploreChallengesPage: React.FC = () => {
                   onClick={() =>
                     navigate(
                       `/challenge?challenge_id=${encodeURIComponent(
-                        challenge.challenge_id
-                      )}`
+                        challenge.challenge_id,
+                      )}`,
                     )
                   }
                 >
@@ -760,7 +760,7 @@ const ExploreChallengesPage: React.FC = () => {
                             Deadline:{" "}
                             {challenge.deadline
                               ? new Date(
-                                  challenge.deadline
+                                  challenge.deadline,
                                 ).toLocaleDateString()
                               : "N/A"}
                           </Typography>
@@ -819,8 +819,8 @@ const ExploreChallengesPage: React.FC = () => {
                   onClick={() =>
                     navigate(
                       `/challenge?challenge_id=${encodeURIComponent(
-                        challenge.challenge_id
-                      )}`
+                        challenge.challenge_id,
+                      )}`,
                     )
                   }
                 >
@@ -912,7 +912,7 @@ const ExploreChallengesPage: React.FC = () => {
                             Deadline:{" "}
                             {challenge.deadline
                               ? new Date(
-                                  challenge.deadline
+                                  challenge.deadline,
                                 ).toLocaleDateString()
                               : "N/A"}
                           </Typography>

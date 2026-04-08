@@ -22,7 +22,7 @@ const WatchPlaylist: React.FC = () => {
     searchParams.get("playlist") ||
     null;
 
-  console.log(" WatchPlaylist params:", { uuid, playlistId });
+  //console.log(" WatchPlaylist params:", { uuid, playlistId });
 
   const [activeTab, setActiveTab] = React.useState<
     "thoughts" | "playlist" | "recommended"

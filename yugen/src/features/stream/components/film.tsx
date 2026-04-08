@@ -57,7 +57,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
       </div>
     );
   }
-  console.log("FilmPath being passed:", filmData?.film_path);
+  //console.log("FilmPath being passed:", filmData?.film_path);
   const castArray = (() => {
     try {
       if (Array.isArray(filmData?.cast)) return filmData.cast;
@@ -141,7 +141,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                     return filmData.film_genre || "No genre";
                   }
                 })()}
-       {filmData.release_date && (
+                {filmData.release_date && (
                   <>
                     <span>•</span>
                     <span>
@@ -252,7 +252,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
                           <img
                             src={
                               member?.pfp
-                               ?  `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
+                                ? `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
                                 : tempPFP
                             }
                             alt={member.actor}

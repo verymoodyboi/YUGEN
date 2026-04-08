@@ -197,14 +197,14 @@ const PokesPage: React.FC = () => {
             const isMatched = sameRegion || sameUniversity;
 
             const state = getPokeState(poke, type);
-            const Icon = state.icon;
+            const Icon = state?.icon;
 
             return (
               <div
                 key={poke.id}
                 className={`p-4 border-2 rounded-lg transition-all duration-200
               hover:-translate-y-1 hover:shadow-[4px_4px_0_0_#064e3b]
-              ${state.card}
+              ${state?.card}
               ${isMatched ? "ring-2 ring-emerald-500" : ""}`}
               >
                 {/* Header */}
@@ -247,7 +247,7 @@ const PokesPage: React.FC = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <Icon className="w-4 h-4" />
 
-                  {state.label && (
+                  {state?.label && (
                     <span
                       className={`px-2 py-1 text-xs rounded-full font-bold ${state.badge}`}
                     >

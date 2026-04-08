@@ -103,7 +103,7 @@ export async function uploadToR2(uploadUrl: string, file: File) {
       "Content-Type": file.type,
     },
   });
-  console.log(uploadUrl);
+  // console.log(uploadUrl);
   if (!res.ok) {
     throw new Error("Failed to upload file to storage");
   }
