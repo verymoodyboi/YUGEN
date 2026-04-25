@@ -103,6 +103,7 @@
     "@types/react-mentions": "^4.4.1",
     "@types/three": "^0.176.0",
     "@types/video.js": "^7.3.58",
+    "@types/videojs-contrib-quality-levels": "^2.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.21.0",

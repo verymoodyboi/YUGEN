@@ -2,8 +2,27 @@ import React, { useRef, useEffect, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import "../../../App.css";
-import "videojs-contrib-quality-levels/dist/videojs-contrib-quality-levels.js";
-import "videojs-hls-quality-selector/dist/videojs-hls-quality-selector.js";
+
+// Global flag to avoid re-loading quality plugins multiple times
+let qualityPluginsLoaded = false;
+
+// Dynamically load quality plugins only once (they are optional)
+const loadQualityPlugins = async () => {
+  if (qualityPluginsLoaded) return;
+  try {
+    await Promise.all([
+      import("videojs-contrib-quality-levels/dist/videojs-contrib-quality-levels.js"),
+      import("videojs-hls-quality-selector/dist/videojs-hls-quality-selector.js"),
+    ]);
+    qualityPluginsLoaded = true;
+  } catch (err) {
+    console.warn(
+      "Failed to load video quality plugins, manual selector will be used",
+      err,
+    );
+    qualityPluginsLoaded = true; // prevent retries
+  }
+};
 
 interface VideoPlayerProps {
   filmPath: string;
@@ -28,7 +47,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const playerRef = useRef<any>(null);
   const watched70Ref = useRef(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const selectedQualityRef = useRef<"auto" | number | null>("auto");
+  const selectedQualityRef = useRef<"auto" | number>("auto");
   const menuItemsRef = useRef<
     Array<{ el: HTMLDivElement; quality: "auto" | number }>
   >([]);
@@ -72,6 +91,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     };
   }, [filmPath, film_uuid]);
 
+  // Quality menu helpers
   const updateHighlight = () => {
     const selected = selectedQualityRef.current;
     menuItemsRef.current.forEach((item) => {
@@ -133,140 +153,160 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     updateHighlight();
   };
 
-  // Register the quality selector component safely
-  const registerQualitySelector = () => {
-    // Check if component is already registered
-    if (videojs.getComponent("QualitySelector")) {
-      return;
-    }
+  // Manual quality selector button (does not rely on videojs plugins)
+  const addManualQualitySelector = (player: any, controlBar: any) => {
+    const qualityButton = document.createElement("button");
+    qualityButton.className =
+      "vjs-quality-selector vjs-menu-button vjs-control";
+    qualityButton.setAttribute("type", "button");
+    qualityButton.setAttribute("aria-label", "Quality");
+    qualityButton.innerHTML =
+      '<span class="vjs-icon-placeholder" aria-hidden="true"></span>';
 
-    const Button = videojs.getComponent("Button");
-
-    // Safety check: make sure Button exists
-    if (!Button) {
-      console.warn("Button component not yet available, retrying...");
-      setTimeout(registerQualitySelector, 100);
-      return;
-    }
-
-    class QualitySelector extends Button {
-      menu?: HTMLDivElement;
-
-      constructor(player: any, options?: any) {
-        super(player, options);
-        this.controlText("Quality");
-        this.addClass("vjs-quality-selector");
-
-        this.el().style.position = "relative";
+    qualityButton.onclick = (e) => {
+      e.preventDefault();
+      if (menuRef.current) {
+        const menu = menuRef.current;
+        qualityButton.appendChild(menu);
+        menu.style.position = "absolute";
+        menu.style.bottom = "40px";
+        menu.style.right = "0";
+        menu.classList.toggle("hidden");
       }
+    };
 
-      handleClick() {
-        if (menuRef.current) {
-          const menu = menuRef.current;
-
-          // attach to button (NOT player)
-          this.el().appendChild(menu);
-
-          menu.style.position = "absolute";
-          menu.style.bottom = "40px";
-          menu.style.right = "0";
-
-          menu.classList.toggle("hidden");
-        }
-      }
+    const controlBarEl = controlBar.el();
+    if (controlBarEl) {
+      const children = controlBarEl.children;
+      const insertIndex = children.length - 1; // before fullscreen button
+      controlBarEl.insertBefore(qualityButton, children[insertIndex]);
     }
 
-    videojs.registerComponent("QualitySelector", QualitySelector);
+    return qualityButton;
   };
 
+  // Initialize player only when source and DOM element are ready
   useEffect(() => {
-    if (!videoRef.current || playerRef.current || !source) return;
+    if (!videoRef.current || !source || playerRef.current) return;
 
-    const player = videojs(videoRef.current, {
-      controls: true,
-      fluid: true,
-      responsive: true,
-      html5: {
-        vhs: {
-          overrideNative: true,
+    // Ensure the video element is actually attached to the DOM
+    const initPlayer = () => {
+      if (playerRef.current) return;
+
+      const player = videojs(videoRef.current!, {
+        controls: true,
+        fluid: true,
+        responsive: true,
+        html5: {
+          vhs: {
+            overrideNative: true,
+          },
+          nativeAudioTracks: false,
+          nativeVideoTracks: false,
         },
-        nativeAudioTracks: false,
-        nativeVideoTracks: false,
-      },
-      sources: [source],
-    });
-
-    playerRef.current = player;
-
-    // Register the quality selector with retry logic
-    registerQualitySelector();
-
-    player.ready(() => {
-      const levels = (player.qualityLevels as any)?.();
-      if (!levels) return;
-
-      qualityLevelsRef.current = levels;
-      const foundHeights: number[] = [];
-
-      const menu = document.createElement("div");
-      menu.className =
-        "vjs-quality-menu hidden absolute bottom-12 right-4 bg-black text-white p-2 rounded z-50";
-      menuRef.current = menu;
-      player.el().appendChild(menu);
-
-      for (let i = 0; i < levels.length; i++) {
-        const level = levels[i];
-        if (level.height && !foundHeights.includes(level.height)) {
-          foundHeights.push(level.height);
-        }
-      }
-      foundHeights.sort((a, b) => b - a);
-      rebuildMenu(foundHeights);
-
-      levels.on("addqualitylevel", (event: any) => {
-        const level = event.qualityLevel;
-        if (level.height && !foundHeights.includes(level.height)) {
-          foundHeights.push(level.height);
-          foundHeights.sort((a, b) => b - a);
-          rebuildMenu(foundHeights);
-        }
+        sources: [source],
       });
 
-      const controlBar = player.getChild("controlBar");
-      if (controlBar) {
-        // Wait a bit to ensure QualitySelector is registered
-        const addQualitySelector = () => {
-          if (videojs.getComponent("QualitySelector")) {
-            controlBar.addChild("QualitySelector", {}, 8);
-          } else {
-            setTimeout(addQualitySelector, 100);
+      playerRef.current = player;
+
+      player.ready(() => {
+        // Try to get quality levels (may appear after plugin loads or natively)
+        const setupQualitySelector = () => {
+          const levels = (player.qualityLevels as any)?.();
+          if (!levels) {
+            // Retry if levels not yet available
+            setTimeout(setupQualitySelector, 200);
+            return;
+          }
+
+          qualityLevelsRef.current = levels;
+          const foundHeights: number[] = [];
+
+          const menu = document.createElement("div");
+          menu.className =
+            "vjs-quality-menu hidden absolute bottom-12 right-4 bg-black text-white p-2 rounded z-50";
+          menuRef.current = menu;
+          player.el().appendChild(menu);
+
+          for (let i = 0; i < levels.length; i++) {
+            const level = levels[i];
+            if (level.height && !foundHeights.includes(level.height)) {
+              foundHeights.push(level.height);
+            }
+          }
+          foundHeights.sort((a, b) => b - a);
+          rebuildMenu(foundHeights);
+
+          levels.on("addqualitylevel", (event: any) => {
+            const level = event.qualityLevel;
+            if (level.height && !foundHeights.includes(level.height)) {
+              foundHeights.push(level.height);
+              foundHeights.sort((a, b) => b - a);
+              rebuildMenu(foundHeights);
+            }
+          });
+
+          const controlBar = player.getChild("controlBar");
+          if (controlBar) {
+            addManualQualitySelector(player, controlBar);
           }
         };
-        addQualitySelector();
-      }
-    });
 
-    player.on("ended", () => onEnded?.());
+        setupQualitySelector();
+      });
 
-    player.on("timeupdate", () => {
-      const current = player.currentTime() || 0;
-      const duration = player.duration() || 0;
+      player.on("ended", () => onEnded?.());
 
-      if (!watched70Ref.current && duration > 0 && current / duration >= 0.7) {
-        watched70Ref.current = true;
-        on70?.();
-      }
-    });
+      player.on("timeupdate", () => {
+        const current = player.currentTime() || 0;
+        const duration = player.duration() || 0;
+        if (
+          !watched70Ref.current &&
+          duration > 0 &&
+          current / duration >= 0.7
+        ) {
+          watched70Ref.current = true;
+          on70?.();
+        }
+      });
+    };
 
+    // Check if element is in DOM, otherwise wait for next frame
+    if (document.body.contains(videoRef.current)) {
+      initPlayer();
+    } else {
+      requestAnimationFrame(() => {
+        if (videoRef.current && !playerRef.current) {
+          initPlayer();
+        }
+      });
+    }
+
+    // Cleanup function for this effect (not the final cleanup)
+    return () => {
+      // We don't dispose here because the next effect handles cleanup on unmount
+    };
+  }, [source, onEnded, on70]);
+
+  // Final cleanup on component unmount
+  useEffect(() => {
     return () => {
       if (playerRef.current) {
         playerRef.current.dispose();
         playerRef.current = null;
       }
-      menuRef.current = null;
+      if (menuRef.current) {
+        menuRef.current.remove();
+        menuRef.current = null;
+      }
       qualityLevelsRef.current = null;
     };
-  }, [source, onEnded, on70]);
+  }, []);
+
+  // Optionally load quality plugins (they might provide extra features but manual selector works without)
+  useEffect(() => {
+    loadQualityPlugins();
+  }, []);
 
   if (!filmPath) {
     return (
