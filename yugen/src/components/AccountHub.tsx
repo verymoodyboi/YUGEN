@@ -97,7 +97,7 @@ function AccHub() {
               <SettingsIcon fontSize="small" />
               Settings
             </button>
-            {userInfo.username && (
+            {userInfo?.username && (
               <button
                 className="flex items-center gap-2 px-4 py-2 text-emerald-950  hover:bg-emerald-100 rounded-lg"
                 onClick={() => {
