@@ -33,7 +33,6 @@ export async function runFilmWorker() {
 
       logger.info("🚀 Processing job", { jobId: job.id });
 
-      // 🔽 NEW: fetch payload only after claim
       const payload = await fetchJobPayload(job.id);
 
       await processFilmJob({

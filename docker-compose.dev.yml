@@ -36,6 +36,18 @@ services:
       - vod-network
     restart: unless-stopped
 
+  worker:
+    build:
+      context: ./worker  
+      dockerfile: Dockerfile
+    container_name: vod-worker
+    env_file:
+      - ./worker/.env     # if you have one
+    depends_on:
+      - backend
+    networks:
+      - vod-network
+    restart: unless-stopped
 networks:
   vod-network:
     driver: bridge

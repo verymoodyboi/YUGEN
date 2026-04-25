@@ -117,6 +117,7 @@ const Film: React.FC<Props> = ({ filmId, onEnded }) => {
           {filmData?.film_path && (
             <VideoPlayer
               filmPath={filmData.film_path}
+              film_uuid={filmData.film_uuid}
               onEnded={onEnded}
               on70={handleIncrementView}
             />

@@ -16,10 +16,8 @@ export async function claimNextJob() {
 
   if (error) throw error;
 
-  // RPC returns [] when no job
   return data?.[0] ?? null;
 }
-
 
 export async function fetchJobPayload(jobId: string) {
   const { data, error } = await supabase

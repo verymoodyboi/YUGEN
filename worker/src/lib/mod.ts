@@ -20,9 +20,12 @@ export interface ModerationResult {
 /* -------------------------------------------------------------------------- */
 /*                         🎥 Direct Video Moderation                          */
 /* -------------------------------------------------------------------------- */
-export async function moderateVideoFile(filePath: string): Promise<ModerationResult> {
+export async function moderateVideoFile(
+  filePath: string,
+): Promise<ModerationResult> {
   const resolvedPath = path.resolve(filePath);
-  if (!fs.existsSync(resolvedPath)) throw new Error(`Video not found: ${resolvedPath}`);
+  if (!fs.existsSync(resolvedPath))
+    throw new Error(`Video not found: ${resolvedPath}`);
 
   const size = fs.statSync(resolvedPath).size;
   if (size > 50 * 1024 * 1024)
@@ -44,7 +47,7 @@ export async function moderateVideoFile(filePath: string): Promise<ModerationRes
     const { data } = await axios.post(
       "https://api.sightengine.com/1.0/video/check-sync.json",
       form,
-      { headers: form.getHeaders() }
+      { headers: form.getHeaders() },
     );
 
     console.log(`✅ Video moderation completed for ${resolvedPath}`);
@@ -54,7 +57,7 @@ export async function moderateVideoFile(filePath: string): Promise<ModerationRes
     throw new Error(
       `Sightengine video check failed: ${
         err.response?.data?.error?.message || err.message
-      }`
+      }`,
     );
   }
 }
@@ -62,17 +65,20 @@ export async function moderateVideoFile(filePath: string): Promise<ModerationRes
 /* -------------------------------------------------------------------------- */
 /*                           🖼️ Image Moderation                              */
 /* -------------------------------------------------------------------------- */
-export async function moderateImageFile(filePath: string): Promise<ModerationResult> {
+export async function moderateImageFile(
+  filePath: string,
+): Promise<ModerationResult> {
   const resolvedPath = path.resolve(filePath);
-  if (!fs.existsSync(resolvedPath)) throw new Error(`Image not found: ${resolvedPath}`);
+  if (!fs.existsSync(resolvedPath))
+    throw new Error(`Image not found: ${resolvedPath}`);
 
   const ext = path.extname(resolvedPath).toLowerCase();
   const contentType =
     ext === ".png"
       ? "image/png"
       : ext === ".jpg" || ext === ".jpeg"
-      ? "image/jpeg"
-      : "application/octet-stream";
+        ? "image/jpeg"
+        : "application/octet-stream";
 
   console.log("🖼️ Starting image moderation:", resolvedPath);
 
@@ -89,17 +95,20 @@ export async function moderateImageFile(filePath: string): Promise<ModerationRes
     const { data } = await axios.post(
       "https://api.sightengine.com/1.0/check.json",
       form,
-      { headers: form.getHeaders() }
+      { headers: form.getHeaders() },
     );
 
     console.log(`✅ Image moderation completed for ${resolvedPath}`);
     return data;
   } catch (err: any) {
-    console.error("❌ Image moderation failed:", err.response?.data || err.message);
+    console.error(
+      "❌ Image moderation failed:",
+      err.response?.data || err.message,
+    );
     throw new Error(
       `Sightengine image check failed: ${
         err.response?.data?.error?.message || err.message
-      }`
+      }`,
     );
   }
 }

@@ -30,7 +30,7 @@ export async function generateR2SignedPutUrl(params: {
   });
 
   return getSignedUrl(r2, command, {
-    expiresIn: params.expiresIn ?? 600, // seconds
+    expiresIn: params.expiresIn ?? 600,
   });
 }
 
@@ -176,32 +176,78 @@ export async function deleteFilmService(
 
 
 
+// export async function processUpload(req: Request) {
+//   const { filmUuid } = req.body;
+
+//   //  Mark film uploaded
+//   await supabase.from("films").update({
+//     moderation_status: "queued",
+//   }).eq("film_uuid", filmUuid);
+
+//   //  Enqueue job
+//   const { data, error } = await supabase
+//     .from("jobs")
+//     .insert([{
+//       type: "PROCESS_FILM",
+//       status: "queued",
+//       payload: { filmUuid },
+//     }])
+//     .select()
+//     .single();
+
+//   if (error) throw error;
+
+//   return { jobId: data.id };
+// }
+
+
 export async function processUpload(req: Request) {
   const { filmUuid } = req.body;
 
-  //  Mark film uploaded
-  await supabase.from("films").update({
-    moderation_status: "queued",
-  }).eq("film_uuid", filmUuid);
+  // Mark film uploaded
+  await supabase
+    .from("films")
+    .update({
+      moderation_status: "queued",
+    })
+    .eq("film_uuid", filmUuid);
 
-  //  Enqueue job
-  const { data, error } = await supabase
+  // Enqueue general processing job
+  const { data: jobData, error: jobError } = await supabase
     .from("jobs")
-    .insert([{
-      type: "PROCESS_FILM",
-      status: "queued",
-      payload: { filmUuid },
-    }])
+    .insert([
+      {
+        type: "PROCESS_FILM",
+        status: "queued",
+        payload: { filmUuid },
+      },
+    ])
     .select()
     .single();
 
-  if (error) throw error;
+  if (jobError) throw jobError;
 
-  return { jobId: data.id };
+  // Enqueue transcode-specific job
+  const { data: transcodeJob, error: transcodeError } = await supabase
+    .from("jobs_transcode")
+    .insert([
+      {
+        type: "TRANSCODE_FILM",
+        status: "queued",
+        payload: { filmUuid },
+        run_at: new Date().toISOString(),
+      },
+    ])
+    .select()
+    .single();
+
+  if (transcodeError) throw transcodeError;
+
+  return {
+    jobId: jobData.id,
+    transcodeJobId: transcodeJob.id,
+  };
 }
-
-
-
 
 
 
