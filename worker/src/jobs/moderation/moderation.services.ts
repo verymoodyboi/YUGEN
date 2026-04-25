@@ -1,13 +1,16 @@
 import axios from "axios";
 import supabase from "../../lib/supabase.js";
-import  { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 
 const SIGHTENGINE_USER = process.env.SIGHTENGINE_USER!;
 const SIGHTENGINE_SECRET = process.env.SIGHTENGINE_SECRET!;
-const CALLBACK_URL = 'https://try-yugen.com/api/moderation/callback'; 
+const CALLBACK_URL = "https://try-yugen.com/api/moderation/callback";
 const WEBHOOK_SECRET = process.env.SIGHTENGINE_WEBHOOK_SECRET!;
 
-export async function submitVideoForModeration(filmUuid: string, publicUrl: string) {
+export async function submitVideoForModeration(
+  filmUuid: string,
+  publicUrl: string,
+) {
   try {
     const res = await axios.post(
       "https://api.sightengine.com/1.0/video/check.json",
@@ -21,19 +24,22 @@ export async function submitVideoForModeration(filmUuid: string, publicUrl: stri
           callback_url: CALLBACK_URL,
         },
         timeout: 30_000,
-      }
+      },
     );
 
     if (res.data?.status !== "success") {
-      throw new Error("Sightengine returned non-success: " + JSON.stringify(res.data));
+      throw new Error(
+        "Sightengine returned non-success: " + JSON.stringify(res.data),
+      );
     }
 
     const requestId = res.data?.request?.id ?? null;
     const mediaId = res.data?.media?.id ?? null;
     const mediaUri = res.data?.media?.uri ?? null;
-console.log("Callback IDs:", { requestId, mediaId });
+    console.log("Callback IDs:", { requestId, mediaId });
 
-    if (!requestId) throw new Error("Missing request id from Sightengine response");
+    if (!requestId)
+      throw new Error("Missing request id from Sightengine response");
 
     await supabase
       .from("films")
@@ -46,10 +52,15 @@ console.log("Callback IDs:", { requestId, mediaId });
       })
       .eq("film_uuid", filmUuid);
 
-    console.log(` Submitted ${filmUuid} for moderation → request=${requestId} media=${mediaId}`);
+    console.log(
+      ` Submitted ${filmUuid} for moderation → request=${requestId} media=${mediaId}`,
+    );
     return { requestId, mediaId, mediaUri };
   } catch (err: any) {
-    console.error(" Error submitting video for moderation:", err?.response?.data || err?.message || err);
+    console.error(
+      " Error submitting video for moderation:",
+      err?.response?.data || err?.message || err,
+    );
 
     // Mark film as flagged for manual review (submission failure)
     try {
@@ -58,21 +69,28 @@ console.log("Callback IDs:", { requestId, mediaId });
         .update({
           moderation_status: "failed",
           is_flagged: true,
-          flag_reason: "Automated scan failed, film is currently under manual review by our team",
+          flag_reason:
+            "Automated scan failed, film is currently under manual review by our team",
         })
         .eq("film_uuid", filmUuid);
 
       await supabase.from("flagged_films").insert([
         {
           film_uuid: filmUuid,
-          reason: "Automated scan failed, film is currently under manual review by our team",
+          reason:
+            "Automated scan failed, film is currently under manual review by our team",
           status: "waiting for review",
         },
       ]);
 
-      console.log(` Film ${filmUuid} marked for manual review (submission failure)`);
+      console.log(
+        ` Film ${filmUuid} marked for manual review (submission failure)`,
+      );
     } catch (subErr) {
-      console.error(" Failed to insert flagged film on submission error:", subErr);
+      console.error(
+        " Failed to insert flagged film on submission error:",
+        subErr,
+      );
     }
 
     throw err;
@@ -89,7 +107,10 @@ function computeMaxSexualScoreFromFrames(frames: any[] = []) {
   return { maxScore, framesEvaluated: frames.length };
 }
 
-export async function checkPosterForModeration(filmUuid: string, posterUrl: string) {
+export async function checkPosterForModeration(
+  filmUuid: string,
+  posterUrl: string,
+) {
   try {
     const res = await axios.get("https://api.sightengine.com/1.0/check.json", {
       params: {
@@ -102,11 +123,14 @@ export async function checkPosterForModeration(filmUuid: string, posterUrl: stri
     });
 
     if (res.data?.status !== "success") {
-      throw new Error(`Sightengine poster moderation failed: ${JSON.stringify(res.data)}`);
+      throw new Error(
+        `Sightengine poster moderation failed: ${JSON.stringify(res.data)}`,
+      );
     }
 
     const nudity = res.data?.nudity ?? {};
-    const sexualScore = (nudity.sexual_activity ?? 0) + (nudity.sexual_display ?? 0);
+    const sexualScore =
+      (nudity.sexual_activity ?? 0) + (nudity.sexual_display ?? 0);
     const threshold = 0.3;
     const posterStatus = sexualScore > threshold ? "rejected" : "approved";
 
@@ -118,7 +142,9 @@ export async function checkPosterForModeration(filmUuid: string, posterUrl: stri
       })
       .eq("film_uuid", filmUuid);
 
-    console.log(`Poster moderation for ${filmUuid}: ${posterStatus} (score=${sexualScore})`);
+    console.log(
+      `Poster moderation for ${filmUuid}: ${posterStatus} (score=${sexualScore})`,
+    );
 
     if (posterStatus === "rejected") {
       await supabase
@@ -143,7 +169,10 @@ export async function checkPosterForModeration(filmUuid: string, posterUrl: stri
 
     return { posterStatus, sexualScore, raw: res.data };
   } catch (err: any) {
-    console.error("Poster moderation check failed:", err?.response?.data || err?.message || err);
+    console.error(
+      "Poster moderation check failed:",
+      err?.response?.data || err?.message || err,
+    );
 
     try {
       await supabase
@@ -163,16 +192,19 @@ export async function checkPosterForModeration(filmUuid: string, posterUrl: stri
         },
       ]);
 
-      console.log(`Film ${filmUuid} flagged for manual review (poster scan failed)`);
+      console.log(
+        `Film ${filmUuid} flagged for manual review (poster scan failed)`,
+      );
     } catch (fallbackErr) {
-      console.error("Failed to flag film after poster scan failure:", fallbackErr);
+      console.error(
+        "Failed to flag film after poster scan failure:",
+        fallbackErr,
+      );
     }
 
     throw err;
   }
 }
-
-
 
 async function resolveFinalApprovalStatus(uploader_id: string) {
   const { data: user, error } = await supabase
@@ -183,20 +215,16 @@ async function resolveFinalApprovalStatus(uploader_id: string) {
 
   if (error) {
     console.error("Failed to fetch uploader user_type:", error);
-    return "quality_control"; 
+    return "quality_control";
   }
 
   return user?.user_type === "verified" ? "approved" : "quality_control";
 }
 
-
 export async function handleModerationCallback(payload: any) {
   try {
-const requestId =
-  payload?.request?.id ??
-  payload?.request_id ??
-  payload?.requestId ??
-  null;
+    const requestId =
+      payload?.request?.id ?? payload?.request_id ?? payload?.requestId ?? null;
     const media = payload?.media ?? null;
     const data = payload?.data ?? payload?.summary ?? payload ?? null;
 
@@ -206,8 +234,12 @@ const requestId =
 
     const { data: filmRows, error: selectErr } = await supabase
       .from("films")
-      .select("film_uuid, moderation_status, poster_moderation_status, uploader_id")
-      .or(`moderation_request_id.eq.${requestId},moderation_media_id.eq.${media?.id ?? ""}`)
+      .select(
+        "film_uuid, moderation_status, poster_moderation_status, uploader_id",
+      )
+      .or(
+        `moderation_request_id.eq.${requestId},moderation_media_id.eq.${media?.id ?? ""}`,
+      )
       .limit(1);
 
     if (selectErr) {
@@ -217,13 +249,17 @@ const requestId =
 
     const film = filmRows?.[0];
     if (!film) {
-      console.warn(`No film row found for request=${requestId} media=${media?.id}`);
+      console.warn(
+        `No film row found for request=${requestId} media=${media?.id}`,
+      );
       return;
     }
 
     const finalized = ["approved", "rejected"].includes(film.moderation_status);
     if (finalized) {
-      console.log(`Film ${film.film_uuid} already finalized (${film.moderation_status}) — skipping update.`);
+      console.log(
+        `Film ${film.film_uuid} already finalized (${film.moderation_status}) — skipping update.`,
+      );
       return;
     }
 
@@ -234,7 +270,8 @@ const requestId =
           moderation_status: "failed",
           moderation_result: payload.error,
           is_flagged: true,
-          flag_reason: "Automated scan failed, film is currently under manual review by our team",
+          flag_reason:
+            "Automated scan failed, film is currently under manual review by our team",
           moderation_checked_at: new Date().toISOString(),
         })
         .eq("film_uuid", film.film_uuid);
@@ -242,37 +279,43 @@ const requestId =
       await supabase.from("flagged_films").insert([
         {
           film_uuid: film.film_uuid,
-          reason: "Automated scan failed, film is currently under manual review by our team",
+          reason:
+            "Automated scan failed, film is currently under manual review by our team",
           status: "waiting for review",
         },
       ]);
 
-      console.log(`Film ${film.film_uuid} marked for manual review (callback error)`);
+      console.log(
+        `Film ${film.film_uuid} marked for manual review (callback error)`,
+      );
       return;
     }
 
     const statusFlag = data?.status ?? data?.summary?.status ?? null;
     if (statusFlag && statusFlag !== "finished" && statusFlag !== "done") {
-      console.log(` Moderation for ${film.film_uuid} (request=${requestId}) not finished yet: ${statusFlag}`);
+      console.log(
+        ` Moderation for ${film.film_uuid} (request=${requestId}) not finished yet: ${statusFlag}`,
+      );
       return;
     }
 
     const frames = data?.frames ?? [];
-    const { maxScore, framesEvaluated } = computeMaxSexualScoreFromFrames(frames);
+    const { maxScore, framesEvaluated } =
+      computeMaxSexualScoreFromFrames(frames);
     const threshold = 0.3;
     const videoStatus = maxScore > threshold ? "rejected" : "approved";
 
     await supabase
       .from("films")
       .update({
-        moderation_status: videoStatus, 
+        moderation_status: videoStatus,
         moderation_result: data,
         moderation_checked_at: new Date().toISOString(),
       })
       .eq("film_uuid", film.film_uuid);
 
     console.log(
-      `Video moderation for ${film.film_uuid} → ${videoStatus} (maxScore=${maxScore} frames=${framesEvaluated})`
+      `Video moderation for ${film.film_uuid} → ${videoStatus} (maxScore=${maxScore} frames=${framesEvaluated})`,
     );
 
     if (videoStatus === "rejected") {
@@ -292,12 +335,15 @@ const requestId =
         })
         .eq("film_uuid", film.film_uuid);
 
-      if (flagError) console.error(" Failed to insert flagged film:", flagError);
-      else console.log(`Film ${film.film_uuid} flagged for sexual content (video)`);
+      if (flagError)
+        console.error(" Failed to insert flagged film:", flagError);
+      else
+        console.log(
+          `Film ${film.film_uuid} flagged for sexual content (video)`,
+        );
 
       return;
     }
-
 
     const { data: posterRow, error: posterErr } = await supabase
       .from("films")
@@ -324,7 +370,9 @@ const requestId =
         },
       ]);
 
-      console.log(`Film ${film.film_uuid} flagged because poster moderation missing`);
+      console.log(
+        `Film ${film.film_uuid} flagged because poster moderation missing`,
+      );
       return;
     }
 
@@ -355,52 +403,60 @@ const requestId =
     if (posterStatus === "approved") {
       const finalStatus = await resolveFinalApprovalStatus(film.uploader_id);
 
-  await supabase
-    .from("films")
-    .update({
-      moderation_status: finalStatus,
-    })
-    .eq("film_uuid", film.film_uuid);
-
+      await supabase
+        .from("films")
+        .update({
+          moderation_status: finalStatus,
+        })
+        .eq("film_uuid", film.film_uuid);
 
       console.log(`Film ${film.film_uuid} fully approved (video + poster)`);
       return;
     }
 
     // posterStatus is null or not finished/unknown => mark film under_review (leave for manual/poller)
-    console.log(`Film ${film.film_uuid} video OK but poster status=${posterStatus} — leaving under_review for now`);
+    console.log(
+      `Film ${film.film_uuid} video OK but poster status=${posterStatus} — leaving under_review for now`,
+    );
     await supabase
       .from("films")
       .update({
         moderation_status: "under_review",
       })
       .eq("film_uuid", film.film_uuid);
-
   } catch (err: any) {
-    console.error("handleModerationCallback error:", err?.response?.data || err?.message || err);
+    console.error(
+      "handleModerationCallback error:",
+      err?.response?.data || err?.message || err,
+    );
 
     // Fallback: try to flag by film_uuid in payload if present
     try {
-      const fallbackUuid = payload?.film_uuid ?? payload?.request?.film_uuid ?? null;
+      const fallbackUuid =
+        payload?.film_uuid ?? payload?.request?.film_uuid ?? null;
       if (fallbackUuid) {
         await supabase
           .from("films")
           .update({
             moderation_status: "failed",
             is_flagged: true,
-            flag_reason: "Automated scan failed, film is currently under manual review by our team",
+            flag_reason:
+              "Automated scan failed, film is currently under manual review by our team",
           })
           .eq("film_uuid", fallbackUuid);
 
         await supabase.from("flagged_films").insert([
           {
             film_uuid: fallbackUuid,
-            reason: "Automated scan failed, film is currently under manual review by our team",
+            reason:
+              "Automated scan failed, film is currently under manual review by our team",
             status: "waiting for review",
           },
         ]);
 
-        console.log(`Film ${fallbackUuid} flagged for manual review (callback error fallback)`);
+        console.log(
+          `Film ${fallbackUuid} flagged for manual review (callback error fallback)`,
+        );
       }
     } catch (fallbackErr) {
       console.error("Failed to flag fallback film:", fallbackErr);
@@ -410,12 +466,6 @@ const requestId =
     throw err;
   }
 }
-
-
-
-
-
-
 
 // --- Types ---
 interface FrameResult {
@@ -444,7 +494,8 @@ function extractSexualScoreFromImageResponse(data: any): number {
     if (nudity) {
       if (typeof nudity === "number") candidates.push(nudity);
       if (typeof nudity.sexual === "number") candidates.push(nudity.sexual);
-      if (nudity.raw && typeof nudity.raw.sexual === "number") candidates.push(nudity.raw.sexual);
+      if (nudity.raw && typeof nudity.raw.sexual === "number")
+        candidates.push(nudity.raw.sexual);
       if (typeof nudity.partial === "number") candidates.push(nudity.partial);
     }
 
@@ -486,7 +537,7 @@ type ModerationResult =
 
 export async function submitFramesForModeration(
   filmUuid: string,
-  frameUrls: string[] = []
+  frameUrls: string[] = [],
 ): Promise<FrameModerationResponse> {
   if (!Array.isArray(frameUrls) || frameUrls.length === 0) {
     throw new Error("No frame URLs provided for moderation");
@@ -496,56 +547,56 @@ export async function submitFramesForModeration(
 
   // Send requests in parallel
   const requests = frameUrls.map((url) =>
-   axios.get("https://api.sightengine.com/1.0/check.json", {
-  params: {
-    url,
-    models: "nudity-2.1",
-    api_user: SIGHTENGINE_USER,
-    api_secret: SIGHTENGINE_SECRET,
-  },
-  timeout: 15_000,
-})
+    axios
+      .get("https://api.sightengine.com/1.0/check.json", {
+        params: {
+          url,
+          models: "nudity-2.1",
+          api_user: SIGHTENGINE_USER,
+          api_secret: SIGHTENGINE_SECRET,
+        },
+        timeout: 15_000,
+      })
       .then((res: AxiosResponse) => ({ url, res }))
-      .catch((err: any) => ({ url, err }))
+      .catch((err: any) => ({ url, err })),
   );
 
   const settled = await Promise.all(requests);
 
- for (const item of settled) {
-  // Type guard to check if item has err
-  if ("err" in item || !("res" in item)) {
-    console.warn(
-      "Frame moderation request failed for",
-      item.url,
-      "error:",
-      "err" in item ? item.err?.message ?? item.err : "unknown"
-    );
-    results.push({
-      url: item.url,
-      score: 1,
-      rawResponse: "err" in item ? { error: item.err?.message } : undefined,
-      ok: false,
-    });
-    continue;
+  for (const item of settled) {
+    // Type guard to check if item has err
+    if ("err" in item || !("res" in item)) {
+      console.warn(
+        "Frame moderation request failed for",
+        item.url,
+        "error:",
+        "err" in item ? (item.err?.message ?? item.err) : "unknown",
+      );
+      results.push({
+        url: item.url,
+        score: 1,
+        rawResponse: "err" in item ? { error: item.err?.message } : undefined,
+        ok: false,
+      });
+      continue;
+    }
+
+    // At this point, TypeScript knows item has res
+    const data = item.res.data;
+    if (data?.status !== "success" && data?.status !== "ok") {
+      console.warn("Sightengine returned non-success for:", item.url, data);
+      results.push({
+        url: item.url,
+        score: 1,
+        rawResponse: data,
+        ok: false,
+      });
+      continue;
+    }
+
+    const score = extractSexualScoreFromImageResponse(data);
+    results.push({ url: item.url, score, rawResponse: data, ok: true });
   }
-
-  // At this point, TypeScript knows item has res
-  const data = item.res.data;
-  if (data?.status !== "success" && data?.status !== "ok") {
-    console.warn("Sightengine returned non-success for:", item.url, data);
-    results.push({
-      url: item.url,
-      score: 1,
-      rawResponse: data,
-      ok: false,
-    });
-    continue;
-  }
-
-  const score = extractSexualScoreFromImageResponse(data);
-  results.push({ url: item.url, score, rawResponse: data, ok: true });
-}
-
 
   const maxScore = results.reduce((acc, r) => Math.max(acc, r.score ?? 0), 0);
 
@@ -565,24 +616,34 @@ export async function submitFramesForModeration(
           moderation_status: "rejected",
           is_flagged: true,
           flag_reason: "Sexual content detected in moderation snapshots",
-          moderation_result: results.map((r) => ({ url: r.url, score: r.score })),
+          moderation_result: results.map((r) => ({
+            url: r.url,
+            score: r.score,
+          })),
           moderation_checked_at: new Date().toISOString(),
         })
         .eq("film_uuid", filmUuid);
 
-      console.info(`Frames moderation for ${filmUuid} -> rejected (maxScore=${maxScore})`);
+      console.info(
+        `Frames moderation for ${filmUuid} -> rejected (maxScore=${maxScore})`,
+      );
       return { passed: false, maxScore, results };
     } else {
       await supabase
         .from("films")
         .update({
           moderation_status: "quality_control",
-          moderation_result: results.map((r) => ({ url: r.url, score: r.score })),
+          moderation_result: results.map((r) => ({
+            url: r.url,
+            score: r.score,
+          })),
           moderation_checked_at: new Date().toISOString(),
         })
         .eq("film_uuid", filmUuid);
 
-      console.info(`Frames moderation for ${filmUuid} -> passed (maxScore=${maxScore})`);
+      console.info(
+        `Frames moderation for ${filmUuid} -> passed (maxScore=${maxScore})`,
+      );
       return { passed: true, maxScore, results };
     }
   } catch (dbErr: any) {

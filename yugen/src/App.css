@@ -142,3 +142,16 @@ background-color: #ECFDF5;
     }
   }
 }
+
+
+
+@layer components {
+  .vjs-quality-selector::before {
+    content: "⚙";
+    font-size: 16px;
+  }
+
+  .vjs-quality-menu.hidden {
+    display: none;
+  }
+}

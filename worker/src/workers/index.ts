@@ -1,5 +1,7 @@
-import { runFilmWorker } from "./filmWorker.js"
+import { runFilmWorker } from "./filmWorker.js";
+import { runTranscodeWorker } from "./HLSWorker.js";
 import logger from "../lib/logger.js";
+import { runQencodePollWorker } from "./HLSPollWorker.js";
 console.log("🔥 Film worker entrypoint loaded");
 
 process.on("unhandledRejection", (err) => {
@@ -13,6 +15,14 @@ process.on("uncaughtException", (err) => {
 });
 
 runFilmWorker().catch((err) => {
+  logger.error("💥 Worker failed to start", err);
+  process.exit(1);
+});
+runTranscodeWorker().catch((err) => {
+  logger.error("💥 Worker failed to start", err);
+  process.exit(1);
+});
+runQencodePollWorker().catch((err) => {
   logger.error("💥 Worker failed to start", err);
   process.exit(1);
 });

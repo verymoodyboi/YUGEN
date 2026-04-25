@@ -1,4 +1,4 @@
-import ffmpeg, { FfprobeData } from 'fluent-ffmpeg';
+import ffmpeg, { FfprobeData } from "fluent-ffmpeg";
 
 /**
  * Transcodes a video to a given resolution and saves to outPath.
@@ -9,17 +9,17 @@ import ffmpeg, { FfprobeData } from 'fluent-ffmpeg';
 export function transcodeToFile(
   inputPath: string,
   resolution: number | string,
-  outPath: string
+  outPath: string,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     ffmpeg(inputPath)
-      .videoCodec('libx264')
-      .audioCodec('aac')
+      .videoCodec("libx264")
+      .audioCodec("aac")
       .size(`${resolution}x?`)
-      .format('mp4')
-      .outputOptions('-movflags', 'frag_keyframe+empty_moov')
-      .on('end', () => resolve(outPath))
-      .on('error', (err:any) => reject(err))
+      .format("mp4")
+      .outputOptions("-movflags", "frag_keyframe+empty_moov")
+      .on("end", () => resolve(outPath))
+      .on("error", (err: any) => reject(err))
       .save(outPath);
   });
 }
@@ -30,7 +30,7 @@ export function transcodeToFile(
  */
 export function getDuration(inputPath: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(inputPath, (err:any, metadata: FfprobeData) => {
+    ffmpeg.ffprobe(inputPath, (err: any, metadata: FfprobeData) => {
       if (err) return reject(err);
 
       const durationSeconds = Math.floor(metadata.format?.duration ?? 0);

@@ -124,7 +124,7 @@ export async function fetchHomeRecommendations(userId?: string) {
 
   const { data: hottest } = await baseQuery
     .order("popularity", { ascending: false })
-    .limit(100);
+    .limit(50);
 
   const { data: fresh } = await supabase
     .from("films")
@@ -137,7 +137,7 @@ export async function fetchHomeRecommendations(userId?: string) {
       new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
     )
     .order("popularity", { ascending: false })
-    .limit(100);
+    .limit(50);
 
   let subscriptions: any[] = [];
   let watchlist: any[] = [];
@@ -190,7 +190,7 @@ if (userRegion || userUniversity) {
         const normalizedPopularity =
           (Number(film.popularity) || 0) / maxPopularity;
 
-        const popularityWeight = 4; // tune this if needed
+        const popularityWeight = 4;
 
         const finalScore =
           communityWeight + normalizedPopularity * popularityWeight;
@@ -199,7 +199,7 @@ if (userRegion || userUniversity) {
       })
       .filter(Boolean)
       .sort((a: any, b: any) => b.finalScore - a.finalScore)
-      .slice(0, 100);
+      .slice(0, 50);
   }
 }
 
@@ -274,7 +274,7 @@ export async function fetchSimilarFilms(
 ) {
   if (!filmUuid) return [];
 
-  // 1️⃣ Fetch target film
+  //  Fetch target film
   const { data: film, error: filmErr } = await supabase
     .from("films")
     .select("film_uuid, film_title, thesis, embedding")
@@ -288,21 +288,21 @@ export async function fetchSimilarFilms(
 
   let targetEmbedding = film.embedding;
 
-  // 2️⃣ Generate embedding if missing
-  if (!Array.isArray(targetEmbedding) || !targetEmbedding.length) {
-    const text = `${film.film_title ?? ""} ${film.thesis ?? ""}`.trim();
-    const gen = await generateEmbedding(text);
-    if (!gen) return [];
+  //  Generate embedding if missing
+  // if (!Array.isArray(targetEmbedding) || !targetEmbedding.length) {
+  //   const text = `${film.film_title ?? ""} ${film.thesis ?? ""}`.trim();
+  //   const gen = await generateEmbedding(text);
+  //   if (!gen) return [];
 
-    targetEmbedding = gen;
+  //   targetEmbedding = gen;
 
-    await supabase
-      .from("films")
-      .update({ embedding: gen })
-      .eq("film_uuid", filmUuid);
-  }
+  //   await supabase
+  //     .from("films")
+  //     .update({ embedding: gen })
+  //     .eq("film_uuid", filmUuid);
+  // }
 
-  // 3️⃣ Get similar films from pgvector
+  //  Get similar films from pgvector
   const { data: similarFilms, error } = await supabase.rpc(
     "match_similar_films",
     {
@@ -313,12 +313,12 @@ export async function fetchSimilarFilms(
 
   if (error || !similarFilms?.length) return [];
 
-  // 🚫 If user is not logged in → return pure similarity
+  //  If user is not logged in → return pure similarity
   if (!userId) {
     return similarFilms;
   }
 
-  // 4️⃣ Fetch user community info
+  //  Fetch user community info
   const { data: currentUser } = await supabase
     .from("users")
     .select("region, university")
@@ -333,7 +333,7 @@ export async function fetchSimilarFilms(
     return similarFilms;
   }
 
-  // 5️⃣ Fetch uploader info for returned films
+  //  Fetch uploader info for returned films
   const filmUuids = similarFilms.map((f: any) => f.film_uuid);
 
   const { data: enriched } = await supabase
