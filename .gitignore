@@ -17,11 +17,3 @@ coverage/
 
 
 # Ignore all Dockerfiles anywhere
-**/Dockerfile
-**/Dockerfile.*
-
-# Ignore all docker-compose files anywhere
-**/docker-compose.yml
-**/docker-compose.yaml
-**/docker-compose.*.yml
-**/docker-compose.*.yaml
