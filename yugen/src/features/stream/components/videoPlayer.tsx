@@ -70,7 +70,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       isMounted = false;
       abortController.abort();
     };
-  }, [filmPath]);
+  }, [filmPath, film_uuid]);
 
   const updateHighlight = () => {
     const selected = selectedQualityRef.current;
@@ -133,27 +133,21 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     updateHighlight();
   };
 
-  useEffect(() => {
-    if (!videoRef.current || playerRef.current || !source) return;
+  // Register the quality selector component safely
+  const registerQualitySelector = () => {
+    // Check if component is already registered
+    if (videojs.getComponent("QualitySelector")) {
+      return;
+    }
 
-    const player = videojs(videoRef.current, {
-      controls: true,
-      fluid: true,
-      responsive: true,
-      html5: {
-        vhs: {
-          overrideNative: true,
-        },
-        nativeAudioTracks: false,
-        nativeVideoTracks: false,
-      },
-      sources: [source],
-    });
-
-    playerRef.current = player;
-
-    // Custom quality selector button
     const Button = videojs.getComponent("Button");
+
+    // Safety check: make sure Button exists
+    if (!Button) {
+      console.warn("Button component not yet available, retrying...");
+      setTimeout(registerQualitySelector, 100);
+      return;
+    }
 
     class QualitySelector extends Button {
       menu?: HTMLDivElement;
@@ -183,6 +177,29 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
 
     videojs.registerComponent("QualitySelector", QualitySelector);
+  };
+
+  useEffect(() => {
+    if (!videoRef.current || playerRef.current || !source) return;
+
+    const player = videojs(videoRef.current, {
+      controls: true,
+      fluid: true,
+      responsive: true,
+      html5: {
+        vhs: {
+          overrideNative: true,
+        },
+        nativeAudioTracks: false,
+        nativeVideoTracks: false,
+      },
+      sources: [source],
+    });
+
+    playerRef.current = player;
+
+    // Register the quality selector with retry logic
+    registerQualitySelector();
 
     player.ready(() => {
       const levels = (player.qualityLevels as any)?.();
@@ -217,7 +234,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
       const controlBar = player.getChild("controlBar");
       if (controlBar) {
-        controlBar.addChild("QualitySelector", {}, 8);
+        // Wait a bit to ensure QualitySelector is registered
+        const addQualitySelector = () => {
+          if (videojs.getComponent("QualitySelector")) {
+            controlBar.addChild("QualitySelector", {}, 8);
+          } else {
+            setTimeout(addQualitySelector, 100);
+          }
+        };
+        addQualitySelector();
       }
     });
 
@@ -234,8 +259,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     });
 
     return () => {
-      player.dispose();
-      playerRef.current = null;
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
       menuRef.current = null;
       qualityLevelsRef.current = null;
     };
