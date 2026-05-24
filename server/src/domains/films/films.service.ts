@@ -242,10 +242,25 @@ export async function processUpload(req: Request) {
     .single();
 
   if (transcodeError) throw transcodeError;
+  const { data: posterJob, error: posterError } = await supabase
+    .from("jobs_poster_compression")
+    .insert([
+      {
+        type: "poster_compression",
+        status: "queued",
+        payload: { film_uuid: filmUuid },
+        run_at: new Date().toISOString(),
+      },
+    ])
+    .select()
+    .single();
+
+  if (posterError) throw posterError;
 
   return {
     jobId: jobData.id,
     transcodeJobId: transcodeJob.id,
+    posterJobId: posterJob.id
   };
 }
 
