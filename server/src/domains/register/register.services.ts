@@ -121,6 +121,24 @@ export async function registerGoogleUser(body: any) {
       })
     : null;
 
+
+    // Enqueue pfp compression job now that we have auth_id and pfp_path.
+  // Only enqueue if a pfp is actually being uploaded this registration.
+  if (pfpContentType) {
+    const { error: jobError } = await supabase
+      .from("jobs_pfp_compression")
+      .insert({
+        type: "pfp_compression",
+        payload: { auth_id },
+      });
+ 
+    if (jobError) {
+      // Non-fatal — user is created, compression can be retried via backfill.
+      logger.error("Failed to enqueue pfp compression job", { auth_id, error: jobError });
+    } else {
+      logger.info("Enqueued pfp compression job", { auth_id });
+    }
+  }
   return {
     success: true,
     uploadUrl,
