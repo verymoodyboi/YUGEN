@@ -88,6 +88,7 @@
     "videojs-contrib-quality-levels": "^4.1.0",
     "videojs-hls-quality-selector": "^2.0.0",
     "videojs-http-source-selector": "^1.1.6",
+    "videojs-ima": "^2.6.0",
     "xmlbuilder2": "^4.0.3"
   },
   "proxy": "http://localhost:3001",

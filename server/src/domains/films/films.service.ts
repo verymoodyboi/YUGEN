@@ -12,7 +12,7 @@ import * as moderationService from '../moderation/moderation.services.js';
 import { spawnSync } from 'child_process';
 import { title } from 'process';
 
-
+import nodemailer from 'nodemailer';
 import { PutObjectCommand,DeleteObjectCommand  } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from '../../lib/r2.js';
@@ -115,7 +115,14 @@ export async function initializeUpload(req: Request) {
         expiresIn: 60 * 10,
       })
     )
+
   );
+
+  sendFilmUploadEmail({
+  filmTitle: title,
+  filmUuid: filmUuid,
+  uploaderAuthId: uploaderId,
+}).catch(err => logger.warn("Upload email failed", err));
 
   return {
     film_uuid: filmUuid,
@@ -126,6 +133,8 @@ export async function initializeUpload(req: Request) {
     posterKey,
   };
 }
+
+
 
 
 
@@ -492,4 +501,63 @@ export async function deleteFilm(req: Request) {
   await supabase.rpc('update_user_films_count', { p_user: req.user?.id });
 
   return { success: true };
+}
+
+
+
+
+// helper upload notification
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.zoho.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.ZOHO_EMAIL,
+    pass: process.env.ZOHO_PASSWORD, // or app-specific password
+  },
+});
+
+export async function sendFilmUploadEmail(params: {
+  filmTitle: string;
+  filmUuid: string;
+  uploaderAuthId: string;
+  uploadedAt?: Date;
+}) {
+  const { filmTitle, filmUuid, uploaderAuthId, uploadedAt = new Date() } = params;
+
+  const formattedTime = uploadedAt.toLocaleString("en-US", {
+    dateStyle: "full",
+    timeStyle: "short",
+    timeZone: "UTC",
+  });
+
+  await transporter.sendMail({
+    from: `"Your App" <${process.env.ZOHO_EMAIL}>`,
+    to: process.env.ZOHO_EMAIL_RECEIVER,
+    subject: `New Film Uploaded: ${filmTitle}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto;">
+        <h2>New Film Upload</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">Title</td>
+            <td style="padding: 8px;">${filmTitle}</td>
+          </tr>
+          <tr style="background: #f5f5f5;">
+            <td style="padding: 8px; font-weight: bold;">Film UUID</td>
+            <td style="padding: 8px; font-family: monospace;">${filmUuid}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">Uploader Auth ID</td>
+            <td style="padding: 8px; font-family: monospace;">${uploaderAuthId}</td>
+          </tr>
+          <tr style="background: #f5f5f5;">
+            <td style="padding: 8px; font-weight: bold;">Upload Time</td>
+            <td style="padding: 8px;">${formattedTime} (UTC)</td>
+          </tr>
+        </table>
+      </div>
+    `,
+  });
 }
