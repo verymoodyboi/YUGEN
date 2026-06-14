@@ -12,11 +12,11 @@ import * as moderationService from '../moderation/moderation.services.js';
 import { spawnSync } from 'child_process';
 import { title } from 'process';
 
-import nodemailer from 'nodemailer';
 import { PutObjectCommand,DeleteObjectCommand  } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { r2 } from '../../lib/r2.js';
 
+import { Resend } from 'resend';
 export async function generateR2SignedPutUrl(params: {
   key: string;
   contentType: string;
@@ -508,15 +508,8 @@ export async function deleteFilm(req: Request) {
 
 // helper upload notification
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.zoho.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.ZOHO_EMAIL,
-    pass: process.env.ZOHO_PASSWORD, // or app-specific password
-  },
-});
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendFilmUploadEmail(params: {
   filmTitle: string;
@@ -532,9 +525,9 @@ export async function sendFilmUploadEmail(params: {
     timeZone: "UTC",
   });
 
-  await transporter.sendMail({
-    from: `"Your App" <${process.env.ZOHO_EMAIL}>`,
-    to: process.env.ZOHO_EMAIL_RECEIVER,
+  const { error } = await resend.emails.send({
+    from: `Your App <noreply@try-yugen.com>`,
+    to: process.env.RESEND_EMAIL_RECEIVER!,
     subject: `New Film Uploaded: ${filmTitle}`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: auto;">
@@ -560,4 +553,6 @@ export async function sendFilmUploadEmail(params: {
       </div>
     `,
   });
+
+  if (error) throw new Error(`Resend error: ${error.message}`);
 }
