@@ -124,7 +124,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
           resetScroll(titleTextRef.current, genreTextRef.current);
         }
       }}
-      className="relative flex flex-col rounded-xl overflow-hidden w-51 h-100
+      className="relative flex flex-col mt-3 rounded-xl overflow-hidden w-51 h-100
              bg-emerald-50 border-2 border-emerald-950 shadow-md
              transition-transform duration-300 hover:scale-105 mb-3 mt-1 ml-3 mr-1"
     >

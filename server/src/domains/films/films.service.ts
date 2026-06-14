@@ -212,6 +212,15 @@ export async function processUpload(req: Request) {
     })
     .eq("film_uuid", filmUuid);
 
+  // Fetch required film fields for transcode payload
+  const { data: film, error: filmError } = await supabase
+    .from("films")
+    .select("film_uuid, film_path, poster_path, film_duration, film_title")
+    .eq("film_uuid", filmUuid)
+    .single();
+
+  if (filmError) throw filmError;
+
   // Enqueue general processing job
   const { data: jobData, error: jobError } = await supabase
     .from("jobs")
@@ -232,9 +241,15 @@ export async function processUpload(req: Request) {
     .from("jobs_transcode")
     .insert([
       {
-        type: "TRANSCODE_FILM",
+        type: "transcode",
         status: "queued",
-        payload: { filmUuid },
+        payload: {
+          film_uuid: film.film_uuid,
+          film_path: film.film_path,
+          poster_path: film.poster_path,
+          film_duration: film.film_duration,
+          film_title: film.film_title,
+        },
         run_at: new Date().toISOString(),
       },
     ])
@@ -242,6 +257,7 @@ export async function processUpload(req: Request) {
     .single();
 
   if (transcodeError) throw transcodeError;
+
   const { data: posterJob, error: posterError } = await supabase
     .from("jobs_poster_compression")
     .insert([
@@ -260,10 +276,9 @@ export async function processUpload(req: Request) {
   return {
     jobId: jobData.id,
     transcodeJobId: transcodeJob.id,
-    posterJobId: posterJob.id
+    posterJobId: posterJob.id,
   };
 }
-
 
 
 
