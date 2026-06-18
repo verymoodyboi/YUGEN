@@ -20,12 +20,16 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
     { title: "Home", path: "/login" },
     { title: "Login", path: "/login" },
     { title: "Terms and Conditions", path: "/terms" },
-{ title: "Privacy Policy", path: "/yugen-privacy-policy.html" },
+    { title: "Privacy Policy", path: "/yugen-privacy-policy.html" },
+    { title: "Terms of Service", path: "/yugen-terms.html" },
   ];
 
   const socialLinks: SocialLink[] = [
-    { name: "Instagram", href: "#", icon: <FiInstagram /> },
-    { name: "YouTube", href: "#", icon: <FiYoutube /> },
+    {
+      name: "Instagram",
+      href: "https://www.instagram.com/yugen.st/",
+      icon: <FiInstagram />,
+    },
   ];
   const [openContact, setOpenContact] = useState(false);
 

@@ -145,14 +145,23 @@ function LoginForm() {
         </button>
         <p className="mt-4 text-xs text-emerald-950/60 font-freckle">
           By signing up, you agree to our{" "}
-        <a
-  href="/yugen-privacy-policy.html"
-  className="underline hover:text-emerald-700 transition"
-  target="_blank" // optional: open in new tab
-  rel="noopener noreferrer"
->
-  Privacy Policy
-</a>
+          <a
+            href="/yugen-privacy-policy.html"
+            className="underline hover:text-emerald-700 transition"
+            target="_blank" // optional: open in new tab
+            rel="noopener noreferrer"
+          >
+            Privacy Policy
+          </a>{" "}
+          and{" "}
+          <a
+            href="/yugen-terms.html"
+            className="underline hover:text-emerald-700 transition"
+            target="_blank" // optional: open in new tab
+            rel="noopener noreferrer"
+          >
+            Terms of Service
+          </a>
         </p>
       </form>
 

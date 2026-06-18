@@ -41,6 +41,7 @@ function SideMenu({
   const navigationLinks: NavLink[] = [
     { title: "About", path: "/about" },
     { title: "Privacy Policy", path: "/yugen-privacy-policy.html" },
+    { title: "Terms of Service", path: "/yugen-terms.html" },
   ];
   const MenuButton = ({
     label,
