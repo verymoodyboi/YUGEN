@@ -1,8 +1,8 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSignupGoogle } from "../hooks/useSignUpGoogle";
-import { ImageCropper } from "../../../util/image-cropping/components/image-cropper";
-import countries from "../../../Data/countries.json";
+import { ImageCropper } from "../../../../util/image-cropping/components/image-cropper";
+import countries from "../../../../Data/countries.json";
 
 const SignupGoogle: React.FC = () => {
   const signup = useSignupGoogle();

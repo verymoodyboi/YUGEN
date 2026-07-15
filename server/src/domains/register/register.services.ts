@@ -133,7 +133,6 @@ export async function registerGoogleUser(body: any) {
       });
  
     if (jobError) {
-      // Non-fatal — user is created, compression can be retried via backfill.
       logger.error("Failed to enqueue pfp compression job", { auth_id, error: jobError });
     } else {
       logger.info("Enqueued pfp compression job", { auth_id });
@@ -143,5 +142,38 @@ export async function registerGoogleUser(body: any) {
     success: true,
     uploadUrl,
     pfpKey,
+  };
+}
+
+
+export async function deleteAccount(body: any) {
+  const { userID } = body;
+
+  if (!userID) {
+    throw new Error("Missing userID");
+  }
+
+  // Cascade-delete all public-schema rows tied to this user in one transaction
+  const { error: rpcError } = await supabase.rpc("delete_user_account", {
+    target_auth_id: userID,
+  });
+
+  if (rpcError) {
+    logger.error("Failed to delete public schema data for user", { userID, error: rpcError });
+    throw new Error("Failed to delete account data");
+  }
+
+  // Delete the underlying auth user (requires service-role client)
+  const { error: authError } = await supabase.auth.admin.deleteUser(userID);
+
+  if (authError) {
+    logger.error("Failed to delete auth user", { userID, error: authError });
+    throw new Error("Failed to delete auth user");
+  }
+
+  logger.info("Account deleted", { userID });
+
+  return {
+    success: true,
   };
 }

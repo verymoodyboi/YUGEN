@@ -55,7 +55,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
       return;
     }
 
-    const pfp_url = `https://pfps.try-yugen.com/${uploader.pfp}`;
+    const pfp_url = `https://pfps.try-yugen.com/${uploader.pfp}?t=${Date.now()}`;
 
     const preload = new window.Image();
     preload.onload = () => setPfpUrl(pfp_url);

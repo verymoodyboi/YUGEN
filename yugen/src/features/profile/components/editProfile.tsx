@@ -221,7 +221,6 @@ const EditProfile: React.FC<Props> = ({ onSubmitSuccess, onCancel }) => {
       "contactNumber",
       contactNumber ? `(${countryCode}) ${contactNumber}` : "",
     );
-    if (croppedFile instanceof File) formData.append("PFP", croppedFile);
 
     setEmailError("");
     setPhoneError("");

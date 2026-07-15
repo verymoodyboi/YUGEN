@@ -17,3 +17,12 @@ export async function registerGoogle(req: Request, res: Response) {
     res.status(500).json({ error: err.message });
   }
 }
+
+export async function deleteAccount(req: Request, res: Response) {
+  try {
+    const result = await registerService.deleteAccount(req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}

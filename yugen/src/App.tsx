@@ -8,7 +8,7 @@ import UserProfile from "./pages/myProfilePage.tsx";
 import Wrapper from "./pages/Wrapper.tsx";
 import SearchPage from "./pages/searchResultsPage.tsx";
 import Watch from "./pages/watchFilmPage.tsx";
-import SignUpGoogle from "./features/register/components/SignUpWithGoogle.tsx";
+import SignUpGoogle from "./features/auth/register/components/SignUpWithGoogle.tsx";
 import AccountProfile from "./pages/viewProfilePage.tsx";
 import PlaylistsPage from "./pages/myPlaylistsPage.tsx";
 import Subscriptons from "./pages/mySubscriptionsPage.tsx";
