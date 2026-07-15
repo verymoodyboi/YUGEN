@@ -21,3 +21,8 @@ export const registerGoogleSchema = Joi.object({
     university: Joi.any().optional(),
 
 });
+
+export const deleteAccountSchema = Joi.object({
+
+userID:Joi.string().required()
+});

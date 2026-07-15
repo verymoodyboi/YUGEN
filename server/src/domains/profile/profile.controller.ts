@@ -62,6 +62,20 @@ console.log("REQ BODY EDIT PROFILE:", req.body);
 }
 
 
+export async function compressPfp(req: Request, res: Response) {
+  try {
+    
+    const authId = req.user?.id;
+    if (!authId) return res.status(401).json({ error: 'Unauthorized' });
+    await service.compressPfp(authId);
+    res.json({ message: 'pfp qeued!' });
+  } catch (err: any) {
+    console.error('Error pfp qeued:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+
 export async function preRegisterSocials(req: Request, res: Response) {
   const { error } = preRegisterSocialsSchema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details.map(d => d.message) });

@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { addUserType, editProfile, updateSocials } from "../services";
+import { addUserType, compressEditedPFP, editProfile, updateSocials } from "../services";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/toaster";
-  import { uploadToR2 } from "../../register/services";
+  import { uploadToR2 } from "../../auth/register/services";
+
 
 const hasLineBreaks = (v: string) => /[\r\n]/.test(v);
 const containsEmoji = (v: string) =>
@@ -71,7 +72,7 @@ export function useEditProfile(onSuccess?: () => void) {
   const { getAccessToken } = useAuth();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-
+const {userInfo}=useAuth()
 
 const handleSubmit = async (
   formData: FormData,
@@ -87,6 +88,7 @@ const handleSubmit = async (
     await updateSocials(socials, token);
 
     const payload = {
+      authId: userInfo?.auth_id as string,
       FName: formData.get("FName") as string,
       LName: formData.get("LName") as string,
       UserName: formData.get("UserName") as string,
@@ -101,14 +103,17 @@ const handleSubmit = async (
   ...(croppedFile ? { pfpContentType: croppedFile.type } : {}),    };
 //console.log("PROFILE PAYLOAD TO API:", payload);
 
-    const { uploadUrl } = await editProfile(payload, token);
+const { uploadUrl } = await editProfile(payload, token);
 
-    if (uploadUrl && croppedFile) {
-      alert("yes")
-      await uploadToR2(uploadUrl, croppedFile);
-    }
+if (croppedFile) {
+  if (!uploadUrl) throw new Error("No upload URL returned for profile picture");
+  await uploadToR2(uploadUrl, croppedFile);
+}
+ 
 
     toast.success("Profile updated successfully!");
+    const pfpPayload={authId:userInfo?.auth_id}
+    await compressEditedPFP(pfpPayload,token)
     onSuccess?.();
   } catch (err) {
     console.error("Profile update failed:", err);

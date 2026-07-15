@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Crop } from "react-image-crop";
-import { api } from "../../../lib/api";
-import { getCroppedFileFromImage } from "../../../util/image-cropping/services";
-import { checkUsernameAvailable } from "../../../util/availability-validation/services";
-import { useAuth } from "../../../contexts/AuthContext";
-import { useToast } from "../../../components/toaster";
+import { api } from "../../../../lib/api";
+import { getCroppedFileFromImage } from "../../../../util/image-cropping/services";
+import { checkUsernameAvailable } from "../../../../util/availability-validation/services";
+import { useAuth } from "../../../../contexts/AuthContext";
+import { useToast } from "../../../../components/toaster";
 import { uploadToR2 } from "../services";
 import { University } from "lucide-react";
 
@@ -220,8 +220,8 @@ const handleSubmit = async () => {
     rawPreview,
     croppedFile,
     handleFileChange,
-      setRawPreview, 
-universities,
+    setRawPreview, 
+    universities,
     confirmCrop,
     fileInputRef,
     isRegistering,

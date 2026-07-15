@@ -1,4 +1,3 @@
-// src/features/profile/services/profileServices.ts
 import { api } from "../../lib/api";
 
 export async function updateSocials(
@@ -11,10 +10,10 @@ export async function updateSocials(
   return res.data;
 }
 
-// src/features/profile/services/profileServices.ts
 
 export async function editProfile(
   payload: {
+    authId:string;
     FName: string;
     LName: string;
     UserName: string;
@@ -35,6 +34,20 @@ export async function editProfile(
     message: string;
     uploadUrl?: string | null;
   };
+}
+
+//enque compress pfp after editting
+export async function compressEditedPFP(
+  payload: {
+    authId:string;
+  },
+  token: string
+) {
+  const res = await api.post("/profile/edit_helper_pfp_compress", payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 
 

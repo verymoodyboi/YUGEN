@@ -2,9 +2,9 @@
 // src/features/signup/hooks/useSignup.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../../lib/api";
-import { checkEmailAvailable } from "../../../util/availability-validation/services";
-import { useToast } from "../../../components/toaster";
+import { api } from "../../../../lib/api";
+import { checkEmailAvailable } from "../../../../util/availability-validation/services";
+import { useToast } from "../../../../components/toaster";
 
 export function useSignup() {
   const navigate = useNavigate();

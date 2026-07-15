@@ -16,4 +16,8 @@ router.post("/addSchool", requireAuth, controller.addSchool);
 
 router.get("/contact", requireAuth, controller.getContactInfo);
 router.post("/contact", requireAuth, controller.updateContactInfo);
+
+router.post("/edit_helper_pfp_compress", requireAuth, controller.compressPfp);
+
+
 export default router;

@@ -1,8 +1,6 @@
-// src/features/signup/services/signupServices.ts
-import { api } from "../../lib/api";
+import { api } from "../../../lib/api";
 import { Crop } from "react-image-crop";
 
-/** 🔹 Check username availability */
 export async function checkUsernameAvailable(
   username: string,
 ): Promise<boolean> {
@@ -17,7 +15,6 @@ export async function checkUsernameAvailable(
   }
 }
 
-/** 🔹 Check email availability */
 export async function checkEmailAvailable(email: string): Promise<boolean> {
   if (!email) return false;
   try {
@@ -30,7 +27,6 @@ export async function checkEmailAvailable(email: string): Promise<boolean> {
   }
 }
 
-/** 🔹 Convert crop + image element into circular PNG File */
 export function getCroppedFileFromImage(
   img: HTMLImageElement,
   crop: Crop,
@@ -59,7 +55,6 @@ export function getCroppedFileFromImage(
 
     ctx.drawImage(img, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
 
-    // circular mask
     const circCanvas = document.createElement("canvas");
     circCanvas.width = canvas.width;
     circCanvas.height = canvas.height;

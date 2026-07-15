@@ -1,6 +1,7 @@
 import supabase from '../../lib/supabase.js';
 import type { UpdateSocialsDTO, EditProfileDTO } from './profile.types.js';
 import { generateR2SignedPutUrl } from '../register/register.services.js';
+import logger from '../../lib/logger.js';
 
 export async function updateSocials(authId: string, socials: UpdateSocialsDTO) {
   const { error } = await supabase
@@ -42,6 +43,20 @@ export async function editProfile(
       contentType: body.pfpContentType,
     });
   }
+  //  if (body.pfpContentType) {
+  //   const { error: jobError } = await supabase
+  //     .from("jobs_pfp_compression")
+  //     .insert({
+  //       type: "pfp_compression",
+  //       payload: { auth_id:authId },
+  //     });
+ 
+  //   if (jobError) {
+  //     logger.error("Failed to enqueue pfp compression job", { authId, error: jobError });
+  //   } else {
+  //     logger.info("Enqueued pfp compression job", { authId });
+  //   }
+  // }
 
   const { error } = await supabase
     .from("users")
@@ -65,7 +80,23 @@ export async function editProfile(
     uploadUrl,
   };
 }
-
+export async function compressPfp(authId:string)
+{
+  
+    const { error: jobError } = await supabase
+      .from("jobs_pfp_compression")
+      .insert({
+        type: "pfp_compression",
+        payload: { auth_id:authId },
+      });
+ 
+    if (jobError) {
+      logger.error("Failed to enqueue pfp compression job", { authId, error: jobError });
+    } else {
+      logger.info("Enqueued pfp compression job", { authId });
+    }
+  
+}
 
 
 export async function preRegisterSocials(body: { Username: string; Insta?: string; YT?: string; LI?: string }) {

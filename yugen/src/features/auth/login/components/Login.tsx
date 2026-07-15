@@ -1,13 +1,13 @@
-import "../../../App.css";
+import "../../../../App.css";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import supabase from "../../../lib/supabaseClient.ts";
+import supabase from "../../../../lib/supabaseClient.ts";
 import GoogleIcon from "@mui/icons-material/Google";
 import CloseIcon from "@mui/icons-material/Close";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CheckIcon from "@mui/icons-material/Check";
 import logo from "../../../YugenAssits/Transparent long.png";
-import { useToast } from "../../../components/toaster.tsx";
+import { useToast } from "../../../../components/toaster.tsx";
 import { Transition } from "@headlessui/react";
 
 function LoginForm() {
@@ -73,7 +73,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-[90vh]  text-center p-6 mt-3">
+    <div className="flex flex-col items-center justify-center h-[90vh]  text-center p-6 mt-6">
       <form
         onSubmit={handleSubmit}
         className="bg-emerald-50 rounded-3xl shadow-xl p-8 max-w-md w-full border-4 border-emerald-950"
@@ -148,7 +148,7 @@ function LoginForm() {
           <a
             href="/yugen-privacy-policy.html"
             className="underline hover:text-emerald-700 transition"
-            target="_blank" // optional: open in new tab
+            target="_blank"
             rel="noopener noreferrer"
           >
             Privacy Policy
@@ -157,7 +157,7 @@ function LoginForm() {
           <a
             href="/yugen-terms.html"
             className="underline hover:text-emerald-700 transition"
-            target="_blank" // optional: open in new tab
+            target="_blank"
             rel="noopener noreferrer"
           >
             Terms of Service
