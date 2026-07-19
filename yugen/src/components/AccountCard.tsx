@@ -17,7 +17,6 @@ const AccountCard = ({ account }: any) => {
         if (userInfo?.username === account?.username) {
           navigate(`/profile`);
         } else {
-          3;
           navigate(`/@?username=${encodeURIComponent(account?.username)}`);
         }
       }}

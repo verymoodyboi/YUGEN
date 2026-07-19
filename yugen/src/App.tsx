@@ -35,6 +35,8 @@ import PrivacyPolicyPage from "./pages/legal/privacyPolicyPage.tsx";
 import ManageUploadsPage from "./pages/admin/QAPage.tsx";
 import AdminWrapper from "./pages/adminWrapper.tsx";
 import PokesPage from "./pages/pokesPage.tsx";
+import ReportedAccountsPage from "./pages/admin/reported_accounts_page.tsx";
+import SupportTicketsPage from "./pages/admin/supportTicketsPage.tsx";
 
 function Yugen() {
   return (
@@ -170,6 +172,22 @@ function Yugen() {
                 element={
                   <AdminWrapper>
                     <ManageUploadsPage />
+                  </AdminWrapper>
+                }
+              />
+              <Route
+                path="admin/reported_accounts"
+                element={
+                  <AdminWrapper>
+                    <ReportedAccountsPage />
+                  </AdminWrapper>
+                }
+              />
+              <Route
+                path="admin/support_requests"
+                element={
+                  <AdminWrapper>
+                    <SupportTicketsPage />
                   </AdminWrapper>
                 }
               />

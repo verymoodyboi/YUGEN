@@ -101,7 +101,7 @@ export default function AppLayout() {
             </h2>
             <ul className="space-y-2 text-emerald-950 ">
               <li>
-                <strong>Email:</strong> support@try-yugen.com
+                <strong>Email:</strong> contact@try-yugen.com
               </li>
               <li>
                 <strong>Address:</strong> All over the world! (until we can

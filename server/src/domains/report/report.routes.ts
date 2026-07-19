@@ -9,4 +9,7 @@ const router = Router();
 router.post('/film',requireAuth, validate(filmReportSchema), reportController.createFilmReport);
 router.post('/technical',requireAuth, validate(techReportSchema), reportController.createTechReport);
 
+router.post("/account", requireAuth, reportController.submitAccountReportController);
+ 
+
 export default router;
