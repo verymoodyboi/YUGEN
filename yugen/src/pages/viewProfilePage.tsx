@@ -23,6 +23,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { Tooltip } from "@mui/material";
 import AuthActionGuard from "../components/clickWrapper";
 import ContactInfoGuard from "../features/pokes/components/contactWrapper";
+import ReportButton from "../features/profile/components/ReportButton";
 
 const AccProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -215,6 +216,11 @@ const AccProfile: React.FC = () => {
                       </AuthActionGuard>
                     </Tooltip>
                   )}
+                  <Tooltip title="Report">
+                    <AuthActionGuard>
+                      <ReportButton reportedUserId={user.auth_id} />
+                    </AuthActionGuard>
+                  </Tooltip>
                 </div>
 
                 {/* ROW 2 — Poke */}

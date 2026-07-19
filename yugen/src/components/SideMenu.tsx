@@ -160,11 +160,7 @@ function SideMenu({
         onClick={onOpenContact}
       />
       <AuthActionGuard>
-        <MenuButton
-          label="Technical Report"
-          icon={report_icon}
-          onClick={onOpenReport}
-        />
+        <MenuButton label="Support" icon={report_icon} onClick={onOpenReport} />
       </AuthActionGuard>
       <nav className="flex flex-col space-y-3 flex-1 md:items-center">
         <h3 className="text-emerald-50 title text-md">More</h3>

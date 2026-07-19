@@ -30,7 +30,11 @@ import exploreRouter from "./domains/explore/explore.router.js"
 import globeRoutes from "./domains/globe/globe.routes.js"
 import toolstRouter from './domains/tools/tools.routes.js';
 import flaggedRouter from "./domains/admin/flagged_films/flagged_films.routes.js"
+import repororted_acc_router from "./domains/admin/reported_accounts/reported_accounts.routes.js"
+
 import QARouter from "./domains/admin/QA/QA.routes.js"
+import supportRouter from "./domains/admin/support_tickets/support_tickets.routes.js"
+
 import moderationRouter from './domains/moderation/moderation.routes.js';
 
 import { register } from 'module';
@@ -79,6 +83,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/films', filmsRouter);
 app.use('/api/stream', streamRouter);
 app.use('/api/report', reportRouter);
+app.use('/api/support', supportRouter);
 app.use('/api/academic', academictRouter);
 app.use('/api/thoughts', thoughtstRouter);
 app.use('/api/subs', subsRouter);
@@ -93,6 +98,7 @@ app.use('/api/view_profile', view_profileRouter);
 app.use("/api/explore",exploreRouter)
 app.use("/api/globe",globeRoutes)
 app.use("/api/admin/flagged",flaggedRouter)
+app.use("/api/admin/reported",repororted_acc_router)
 app.use("/api/admin/QA",QARouter)
 
 app.use("/api/moderation", moderationRouter);

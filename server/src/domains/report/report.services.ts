@@ -83,3 +83,38 @@ export async function submitTechReport(auth_id: string, reportType: string, repo
 
   return { success: true, message: 'Technical report submitted successfully!' };
 }
+
+
+
+
+export interface SubmitReportInput {
+  reported: string;
+  reported_by: string;
+  reason: string;
+  report?: string;
+}
+ 
+export async function reportAccount({ reported, reported_by, reason, report }: SubmitReportInput) {
+  if (reported === reported_by) {
+    throw new Error("You cannot report yourself.");
+  }
+ 
+  const { data, error } = await supabase
+    .from("reported_users")
+    .insert({
+      reported,
+      reported_by,
+      reason,
+      report: report || "",
+    })
+    .select()
+    .single();
+ 
+  if (error) {
+    logger.error("Error submitting report", { error });
+    throw new Error(error.message);
+  }
+ 
+  return { success: true, message: "Report submitted successfully.", data };
+}
+ 
