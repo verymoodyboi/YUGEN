@@ -10,12 +10,21 @@ import genres_icon from "../YugenAssits/menu_icons/Genres.svg";
 import surprise_icon from "../YugenAssits/menu_icons/Random.svg";
 import report_icon from "../YugenAssits/menu_icons/Report.svg";
 import contact_icon from "../YugenAssits/menu_icons/Contact.svg";
+import send_icon from "../YugenAssits/menu_icons/send_temp.png";
 
+import AuthActionGuard from "./clickWrapper";
+import { Send } from "lucide-react";
+import { send } from "process";
 type SideMenuProps = {
   mode?: "desktop" | "mobile";
   onOpenReport?: () => void;
   onOpenContact?: () => void;
 };
+
+interface NavLink {
+  title: string;
+  path: string;
+}
 
 function SideMenu({
   mode = "desktop",
@@ -29,7 +38,11 @@ function SideMenu({
   const SectionTitle = ({ children }: { children: string }) => (
     <h2 className="text-2xl title text-emerald-50  mb-2">{children}</h2>
   );
-
+  const navigationLinks: NavLink[] = [
+    { title: "About", path: "/about" },
+    { title: "Privacy Policy", path: "/yugen-privacy-policy.html" },
+    { title: "Terms of Service", path: "/yugen-terms.html" },
+  ];
   const MenuButton = ({
     label,
     onClick,
@@ -67,7 +80,6 @@ function SideMenu({
 
   const MenuContent = (
     <div className="no-scrollbar w-full h-full bg-emerald-950 border-emerald-950  flex flex-col gap-4 p-6 overflow-y-auto ">
-      {/* Library */}
       <SectionTitle>Your Library</SectionTitle>
       <MenuButton
         label="Watchlist"
@@ -105,9 +117,7 @@ function SideMenu({
           setOpen(false);
         }}
       />
-
-      {/* Explore */}
-      <SectionTitle>Explore</SectionTitle>
+      <SectionTitle>Community</SectionTitle>
       <MenuButton
         label="Yūgen map"
         icon={map_icon}
@@ -116,6 +126,15 @@ function SideMenu({
           setOpen(false);
         }}
       />
+      <MenuButton
+        label="Pokes"
+        icon={send_icon}
+        onClick={() => {
+          navigate("/Pokes");
+          setOpen(false);
+        }}
+      />
+      <SectionTitle>Explore</SectionTitle>
 
       <MenuButton
         label="Surprise me"
@@ -132,20 +151,7 @@ function SideMenu({
           navigate("/genres");
         }}
       />
-      {/* Community */}
-      <SectionTitle>Community</SectionTitle>
-      <MenuButton
-        disabled
-        badge="Soon!"
-        label="Challenges"
-        onClick={() => {
-          navigate("/challenges");
-          setOpen(false);
-        }}
-      />
-      <MenuButton label="Clubs" badge="Soon!" disabled />
 
-      {/* Help */}
       <SectionTitle>Help</SectionTitle>
 
       <MenuButton
@@ -153,18 +159,26 @@ function SideMenu({
         icon={contact_icon}
         onClick={onOpenContact}
       />
-      <MenuButton
-        label="Technical Report"
-        icon={report_icon}
-        onClick={onOpenReport}
-      />
+      <AuthActionGuard>
+        <MenuButton label="Support" icon={report_icon} onClick={onOpenReport} />
+      </AuthActionGuard>
+      <nav className="flex flex-col space-y-3 flex-1 md:items-center">
+        <h3 className="text-emerald-50 title text-md">More</h3>
+        {navigationLinks.map((link) => (
+          <a
+            key={link.title}
+            href={link.path}
+            className="text-emerald-100/80 hover:text-emerald-50 hover:translate-x-1 transition-all duration-200 text-xs"
+          >
+            {link.title}
+          </a>
+        ))}
+      </nav>
     </div>
   );
 
-  // Desktop
   if (mode === "desktop") return <>{MenuContent}</>;
 
-  // Mobile
   return (
     <>
       {!open && (
@@ -189,12 +203,11 @@ function SideMenu({
         </button>
       )}
 
-      {/* Always-mounted mobile drawer */}
       <div
         className={`fixed inset-0 z-[9999] bg-black/40 backdrop-blur-[1px] transition-opacity duration-300 ease-in-out
     ${open ? "opacity-100 visible" : "opacity-0 pointer-events-none"}`}
         onClick={(e) => {
-          if (e.target === e.currentTarget) setOpen(false); // close on outside click
+          if (e.target === e.currentTarget) setOpen(false);
         }}
       >
         <div

@@ -1,4 +1,3 @@
-// src/features/globe/components/FilmGlobe.tsx
 import React, { useEffect, useRef, useState } from "react";
 import Globe from "react-globe.gl";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +24,6 @@ const FilmGlobe: React.FC = () => {
   const navigate = useNavigate();
   const { hoverStats, handleCountryHover } = useGlobe();
 
-  // Load country geojson
   useEffect(() => {
     fetch("/world.geojson")
       .then((res) => res.json())
@@ -33,7 +31,6 @@ const FilmGlobe: React.FC = () => {
       .catch((err) => console.error("Failed to load countries:", err));
   }, []);
 
-  // Update container dimensions on resize
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
@@ -48,7 +45,6 @@ const FilmGlobe: React.FC = () => {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  // Globe initial controls
   useEffect(() => {
     if (!globeRef.current) return;
     const controls = globeRef.current.controls();
@@ -57,7 +53,6 @@ const FilmGlobe: React.FC = () => {
     controls.autoRotateSpeed = 0.1;
   }, []);
 
-  // Pause/resume rotation on hover
   useEffect(() => {
     if (!globeRef.current) return;
     const controls = globeRef.current.controls();
@@ -66,7 +61,6 @@ const FilmGlobe: React.FC = () => {
 
   return (
     <div ref={containerRef} className="w-full h-full relative flex-1">
-      {/* Tooltip */}
       {hoverD && (
         <div
           className="pointer-events-none absolute z-30 top-4 left-1/2 transform -translate-x-1/2 rounded-md px-3 py-2 text-center text-white text-sm shadow-lg"
@@ -103,7 +97,7 @@ const FilmGlobe: React.FC = () => {
         ref={globeRef}
         width={dimensions.width}
         height={dimensions.height}
-        globeImageUrl="earth.png"
+        globeImageUrl="earth.jpg"
         backgroundImageUrl="galaxy.png"
         polygonsData={countries.filter((d) => d.properties.ISO_A3 !== "ATA")}
         polygonAltitude={(d) => (d === hoverD ? 0.06 : 0.01)}
@@ -122,7 +116,7 @@ const FilmGlobe: React.FC = () => {
           const country = polygon as CountryFeature;
           if (country?.properties?.name) {
             navigate(
-              `/country?country=${encodeURIComponent(country.properties.name)}`
+              `/country?country=${encodeURIComponent(country.properties.name)}`,
             );
           }
         }}

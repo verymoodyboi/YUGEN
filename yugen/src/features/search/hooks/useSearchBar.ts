@@ -1,4 +1,3 @@
-// src/features/search/hooks/useSearchBar.ts
 import { useEffect, useState } from "react";
 import { quickSearch } from "../services";
 
@@ -7,7 +6,6 @@ export const useSearchBar = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Function to calculate a relevance score for sorting
   const getScore = (item: any, query: string) => {
     const q = query.toLowerCase();
 
@@ -15,10 +13,9 @@ export const useSearchBar = () => {
       const title = item.title.toLowerCase();
       let score = 0;
 
-      if (title === q) score += 100;           // exact match
-      else if (title.includes(q)) score += 50; // partial match
+      if (title === q) score += 100;          
+      else if (title.includes(q)) score += 50; 
 
-      // Bonus: popularity weighting
       score += item.popularity ? item.popularity * 0.1 : 0;
 
       return score;
@@ -28,10 +25,9 @@ export const useSearchBar = () => {
       const username = item.username.toLowerCase();
       let score = 0;
 
-      if (username === q) score += 100;           // exact match
-      else if (username.includes(q)) score += 50; // partial match
+      if (username === q) score += 100;           
+      else if (username.includes(q)) score += 50; 
 
-      // Bonus: subscriber count weighting
       score += item.sub_count ? item.sub_count * 0.05 : 0;
 
       return score;
@@ -52,11 +48,10 @@ export const useSearchBar = () => {
         try {
           const results = await quickSearch(searchInput);
 
-          // Reorder by relevance
           const sortedResults = results
             .map(item => ({ ...item, score: getScore(item, searchInput) }))
             .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
-            .map(({ score, ...rest }) => rest); // remove score before rendering
+            .map(({ score, ...rest }) => rest); 
 
           setSearchResults(sortedResults);
         } catch (err) {

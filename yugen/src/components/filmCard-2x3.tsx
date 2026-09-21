@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import supabase from "../lib/supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
 import { createPortal } from "react-dom";
 import { logFilmClick } from "../features/stream/services/filmCardServices";
@@ -11,31 +10,61 @@ import EditFilm from "../features/editFilm/components/EditFilm";
 import BookMarkIcon from "../YugenAssits/fn_icons/Bookmark not added.svg";
 import BookMarkIconheck from "../YugenAssits/fn_icons/Bookmark added.svg";
 import Edit_icon from "../YugenAssits/fn_icons/Edit_Film.svg";
-import { motion, useAnimation } from "framer-motion";
 import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
+import tempPoster from "../YugenAssits/Cover_Placeholder.png";
 
-// Icons
-import { FiEdit, FiEye, FiStar } from "react-icons/fi";
-import { BsBookmarkPlus, BsBookmarkCheck } from "react-icons/bs";
+import { FiEye, FiStar } from "react-icons/fi";
 import { LuBookOpen } from "react-icons/lu";
 import { Tooltip } from "@mui/material";
+import AuthActionGuard from "./clickWrapper";
 
 interface FilmCardProps {
   film: Film;
 }
 
 const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
-  const { userInfo, getAccessToken } = useAuth();
-  const controls = useAnimation();
+  const poster_url = `https://posters.try-yugen.com/${film.poster_path}`;
 
+  const { userInfo, getAccessToken } = useAuth();
   const { watchlisted, handleToggleWatchlist, uploader } = useFilm(
     film.film_uuid,
-    film.uploader_id
+    film.uploader_id,
   );
-  const [openThesis, setOpenThesis] = React.useState(false);
+
+  // null = still preloading (show skeleton), string = ready to display
+  const [displayUrl, setDisplayUrl] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!film.poster_path) {
+      setDisplayUrl(tempPoster);
+      return;
+    }
+
+    const preload = new window.Image();
+    preload.onload = () => setDisplayUrl(poster_url);
+    preload.onerror = () => setDisplayUrl(tempPoster);
+    preload.src = poster_url;
+  }, [film.poster_path]);
+
+  // null = still preloading (show skeleton), string = ready to display
+  const [pfpUrl, setPfpUrl] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!uploader?.pfp) {
+      setPfpUrl(tempPFP);
+      return;
+    }
+
+    const pfp_url = `https://pfps.try-yugen.com/${uploader.pfp}?t=${Date.now()}`;
+
+    const preload = new window.Image();
+    preload.onload = () => setPfpUrl(pfp_url);
+    preload.onerror = () => setPfpUrl(tempPFP);
+    preload.src = pfp_url;
+  }, [uploader?.pfp]);
+
   const [openEdit, setOpenEdit] = React.useState(false);
   const [showModal, setShowModal] = React.useState(false);
-
   const [openRating, setOpenRating] = React.useState(false);
   const navigate = useNavigate();
 
@@ -43,13 +72,19 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(max-width: 768px)").matches;
   }, []);
+
+  const titleContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const titleTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const genreContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const genreTextRef = React.useRef<HTMLSpanElement | null>(null);
+
   React.useEffect(() => {
     if (isMobile) {
       startScroll(
         titleTextRef.current,
         titleContainerRef.current,
         genreTextRef.current,
-        genreContainerRef.current
+        genreContainerRef.current,
       );
     }
 
@@ -57,10 +92,6 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
       resetScroll(titleTextRef.current, genreTextRef.current);
     };
   }, [isMobile]);
-  const titleContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const titleTextRef = React.useRef<HTMLSpanElement | null>(null);
-  const genreContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const genreTextRef = React.useRef<HTMLSpanElement | null>(null);
 
   const handleCardClick = async (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -84,7 +115,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
             titleTextRef.current,
             titleContainerRef.current,
             genreTextRef.current,
-            genreContainerRef.current
+            genreContainerRef.current,
           );
         }
       }}
@@ -93,49 +124,51 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
           resetScroll(titleTextRef.current, genreTextRef.current);
         }
       }}
-      className="relative flex flex-col rounded-xl overflow-hidden aspect-[2/3] w-46 h-90
-             bg-emerald-50 border-2 border-emerald-950 shadow-md  mt-2
-             transition-transform duration-300 hover:scale-105 mb-3 mt-3 ml-3 mr-1"
+      className="relative flex flex-col mt-3 rounded-xl overflow-hidden w-51 h-100
+             bg-emerald-50 border-2 border-emerald-950 shadow-md
+             transition-transform duration-300 hover:scale-105 mb-3 mt-1 ml-3 mr-1"
     >
-      {/* Poster */}
-      <img
-        src={
-          supabase.storage.from("posters").getPublicUrl(film.poster_path).data
-            .publicUrl +
-          (film.updated_at ? `?v=${new Date(film.updated_at).getTime()}` : "")
-        }
-        alt="Film thumbnail"
-        className="w-full aspect-[2/3] object-cover border-b-2 border-emerald-950"
-      />
+      <div className="w-full aspect-[2/3] overflow-hidden border-b-2 border-emerald-950 relative">
+        {!displayUrl && (
+          <div className="absolute inset-0 bg-emerald-100 animate-pulse" />
+        )}
+        {displayUrl && (
+          <img
+            src={displayUrl}
+            alt={film.film_title}
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
 
-      {/* Watchlist Icon */}
-      {/* Watchlist Icon */}
       <Tooltip title="Watchlist">
-        <button
-          className="absolute top-1 left-1 p-1 cursor-pointer hover:scale-110 transition"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleToggleWatchlist();
-          }}
-        >
-          <span className=" rounded-full p-[4px] flex items-center justify-center">
-            {watchlisted ? (
-              <img
-                src={BookMarkIconheck}
-                alt="Bookmarked"
-                className="w-[24px] h-[24px]"
-              />
-            ) : (
-              <img
-                src={BookMarkIcon}
-                alt="Add to bookmarks"
-                className="w-[24px] h-[24px]"
-              />
-            )}
-          </span>
-        </button>
+        <AuthActionGuard>
+          <button
+            className="absolute top-1 left-1 p-1 cursor-pointer hover:scale-110 transition"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleWatchlist();
+            }}
+          >
+            <span className="rounded-full p-[4px] flex items-center justify-center">
+              {watchlisted ? (
+                <img
+                  src={BookMarkIconheck}
+                  alt="Bookmarked"
+                  className="w-[24px] h-[24px]"
+                />
+              ) : (
+                <img
+                  src={BookMarkIcon}
+                  alt="Add to bookmarks"
+                  className="w-[24px] h-[24px]"
+                />
+              )}
+            </span>
+          </button>
+        </AuthActionGuard>
       </Tooltip>
-      {/* Edit Icon */}
+
       {userInfo?.auth_id === film.uploader_id && (
         <Tooltip title="Edit">
           <button
@@ -146,18 +179,21 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
             }}
           >
             <span className="rounded-full p-[4px] flex items-center justify-center">
-              <img src={Edit_icon} alt="Edited" className="w-[24px] h-[24px]" />{" "}
+              <img
+                src={Edit_icon}
+                alt="Edit film"
+                className="w-[24px] h-[24px]"
+              />
             </span>
           </button>
         </Tooltip>
       )}
 
-      {/* Info Section */}
-      <div className="flex justify-between items-start px-1 py-0.5  text-emerald-950">
-        <div className="w-[130px] max-w-[130px] ">
+      <div className="flex justify-between items-start px-1 py-0.5 text-emerald-950">
+        <div className="w-[130px] max-w-[130px]">
           <div
             ref={titleContainerRef}
-            className="overflow-hidden whitespace-nowrap "
+            className="overflow-hidden whitespace-nowrap"
           >
             <span
               ref={titleTextRef}
@@ -176,25 +212,20 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
             >
               {(() => {
                 try {
-                  // If it's a JSON string, parse it
                   const parsed =
                     typeof film.film_genre === "string"
                       ? JSON.parse(film.film_genre)
                       : film.film_genre;
-
-                  // If it's now an array, join it
                   return Array.isArray(parsed)
                     ? parsed.join(", ")
                     : parsed || "No genre";
                 } catch {
-                  // fallback if parsing fails
                   return film.film_genre || "No genre";
                 }
               })()}
             </span>
           </div>
         </div>
-        {/* Views */}
         <Tooltip title="Thesis">
           <button
             onClick={(e) => {
@@ -208,38 +239,33 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
         </Tooltip>
       </div>
 
-      {/* footer */}
+      {/* Footer */}
       <div className="flex justify-center items-center bg-emerald-950 py-1 h-14 hover:bg-emerald-900 transition-colors gap-6 text-emerald-50">
         <div
           className="hover:scale-105 flex items-center gap-1 w-[50%] cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/@?username=${encodeURIComponent(uploader?.username)}`);
+            navigate(
+              `/@?username=${encodeURIComponent(uploader?.username ?? "")}`,
+            );
           }}
         >
-          {uploader.pfp ? (
-            <img
-              src={
-                uploader?.pfp
-                  ? supabase.storage.from("pfps").getPublicUrl(uploader.pfp)
-                      .data.publicUrl + `?v=${Date.now()}`
-                  : tempPFP
-              }
-              alt="User avatar"
-              className="w-5 h-5 rounded-full object-cover"
-            />
+          {!pfpUrl ? (
+            <div className="w-8 h-8 rounded-full bg-emerald-800 animate-pulse flex-shrink-0" />
           ) : (
-            <div className="w-5 h-5 rounded-full bg-emerald-700" />
+            <img
+              src={pfpUrl}
+              alt="User avatar"
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+            />
           )}
-
           <span className="text-[11px]">
-            {uploader.username && uploader.username.length > 9
+            {uploader?.username && uploader.username.length > 9
               ? `${uploader.username.slice(0, 9)}...`
-              : uploader.username}
+              : uploader?.username}
           </span>
         </div>
 
-        {/* Views */}
         <Tooltip title="Views">
           <div className="flex flex-col items-center">
             <FiEye size={14} />
@@ -261,28 +287,6 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
         </Tooltip>
       </div>
 
-      {/* Thesis Modal */}
-      {openThesis &&
-        createPortal(
-          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-            <div
-              className="bg-emerald-50 border-2 border-emerald-950 rounded-lg p-3 max-w-sm shadow-xl text-sm"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="font-freckle text-emerald-950">Thesis</h2>
-              <p className="text-emerald-950">{film?.thesis}</p>
-              <button
-                onClick={() => setOpenThesis(false)}
-                className="mt-2 px-3 py-1 border border-emerald-950 text-emerald-950 rounded hover:bg-emerald-100 transition"
-              >
-                Close
-              </button>
-            </div>
-          </div>,
-          document.body
-        )}
-
-      {/* Edit Modal */}
       {openEdit &&
         createPortal(
           <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
@@ -293,26 +297,19 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
               <EditFilm onDone={() => setOpenEdit(false)} filmInfo={film} />
             </div>
           </div>,
-          document.body
+          document.body,
         )}
+
       {showModal &&
         createPortal(
           <div
             className="fixed inset-0 z-50 flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => setShowModal(false)}
           >
-            {/* Overlay */}
             <div
-              className="absolute inset-0 bg-black/40"
-              onClick={() => setShowModal(false)}
-            />
-
-            {/* Modal content */}
-            <div
-              className="relative bg-emerald-50 rounded-2xl p-6 border-4 border-emerald-950 shadow-[12px_12px_0_0_#064e3b] max-h-[90vh] hidden-scrollbar overflow-y-auto"
-              onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing
+              className="relative bg-emerald-50 rounded-2xl p-6 border-4 border-emerald-950 shadow-[12px_12px_0_0_#064e3b] max-h-[90vh] w-[80vw] hidden-scrollbar overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
-              {/* X Close Button */}
               <button
                 onClick={() => setShowModal(false)}
                 className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-emerald-950 font-bold text-[23px] rounded-full bg-emerald-50 border-2 border-emerald-950 hover:bg-emerald-100 transition"
@@ -320,25 +317,15 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
                 ×
               </button>
 
-              {/* Modal body */}
               <div className="flex flex-col md:flex-row gap-6 items-start">
-                {/* Poster */}
                 <div className="flex-shrink-0 rounded-md overflow-hidden border-4 border-emerald-950 w-[288px] h-[432px]">
                   <img
-                    src={
-                      supabase.storage
-                        .from("posters")
-                        .getPublicUrl(film.poster_path).data.publicUrl +
-                      (film.updated_at
-                        ? `?v=${new Date(film.updated_at).getTime()}`
-                        : "")
-                    }
+                    src={displayUrl ?? tempPoster}
                     alt={film.film_title}
                     className="w-full h-full object-cover"
                   />
                 </div>
 
-                {/* Details */}
                 <div className="flex-1">
                   <h2 className="text-3xl font-bold mb-2 mt-3">
                     {film.film_title}
@@ -354,32 +341,24 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
 
                   <p className="mb-3 text-sm text-emerald-900">{film.thesis}</p>
 
-                  {/* Uploader */}
-                  {uploader.username && (
+                  {uploader?.username && (
                     <div
                       className="hover:scale-105 flex items-center gap-1 w-[50%] cursor-pointer mb-3"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(
-                          `/@?username=${encodeURIComponent(uploader.username)}`
+                          `/@?username=${encodeURIComponent(uploader.username)}`,
                         );
                       }}
                     >
-                      {uploader.pfp ? (
-                        <img
-                          src={
-                            uploader?.pfp
-                              ? supabase.storage
-                                  .from("pfps")
-                                  .getPublicUrl(uploader?.pfp).data.publicUrl +
-                                `?v=${Date.now()}`
-                              : tempPFP
-                          }
-                          alt="User avatar"
-                          className="w-5 h-5 rounded-full object-cover"
-                        />
+                      {!pfpUrl ? (
+                        <div className="w-5 h-5 rounded-full bg-emerald-200 animate-pulse flex-shrink-0" />
                       ) : (
-                        <div className="w-5 h-5 rounded-full bg-emerald-700" />
+                        <img
+                          src={pfpUrl}
+                          alt="User avatar"
+                          className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+                        />
                       )}
                       <span className="text-[11px]">
                         {uploader.username.length > 9
@@ -389,7 +368,6 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
                     </div>
                   )}
 
-                  {/* Genres */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {film.film_genre?.map((g: string) => (
                       <span
@@ -401,14 +379,13 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
                     ))}
                   </div>
 
-                  {/* Actions */}
                   <div className="flex gap-3">
                     <button
-                      onClick={() => {
+                      onClick={() =>
                         navigate(
-                          `/watch?uuid=${encodeURIComponent(film.film_uuid)}`
-                        );
-                      }}
+                          `/watch?uuid=${encodeURIComponent(film.film_uuid)}`,
+                        )
+                      }
                       className="px-5 py-2 rounded-lg bg-emerald-950 text-emerald-50 border-4 border-emerald-950 hover:scale-105 transition-transform"
                     >
                       Watch Film
@@ -424,7 +401,7 @@ const FilmCard: React.FC<FilmCardProps> = ({ film }) => {
               </div>
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </div>
   );

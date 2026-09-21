@@ -34,7 +34,6 @@ const EditChallengeTab: React.FC<EditChallengeTabProps> = ({
 }) => {
   return (
     <div className="p-4 overflow-y-auto max-h-[60vh] text-emerald-950">
-      {/* === Extend Deadline Section === */}
       <h3 className="text-lg font-bold mb-3">Extend deadline</h3>
 
       <div className="flex gap-2 mb-4">
@@ -53,7 +52,6 @@ const EditChallengeTab: React.FC<EditChallengeTabProps> = ({
         ))}
       </div>
 
-      {/* === Manage Rules Section === */}
       <div>
         <h4 className="text-md font-bold mb-2">Manage Rules</h4>
         <div className="flex gap-2 mb-3">
@@ -105,7 +103,6 @@ const EditChallengeTab: React.FC<EditChallengeTabProps> = ({
         </div>
       </div>
 
-      {/* === Advanced Options === */}
       <div className="mt-4 border-t pt-4">
         <details className="bg-emerald-50 p-2 rounded border border-emerald-900">
           <summary className="cursor-pointer flex items-center justify-between">
@@ -114,7 +111,6 @@ const EditChallengeTab: React.FC<EditChallengeTabProps> = ({
           </summary>
 
           <div className="mt-3 space-y-3">
-            {/* University Challenge */}
             <div className="flex items-center gap-2">
               <span className="font-semibold">University Challenge</span>
               <InfoOutlinedIcon className="text-emerald-700" />
@@ -138,7 +134,6 @@ const EditChallengeTab: React.FC<EditChallengeTabProps> = ({
               )}
             </div>
 
-            {/* Non-student toggle */}
             {userInfo?.role === "teacher" && challenge?.is_academic && (
               <div className="pl-4 flex items-center gap-2">
                 <span>Allow Non-Students</span>
@@ -153,7 +148,6 @@ const EditChallengeTab: React.FC<EditChallengeTabProps> = ({
               </div>
             )}
 
-            {/* Ranking System */}
             <div>
               <fieldset disabled className="space-y-2">
                 <legend className="font-semibold">Ranking system</legend>
@@ -199,7 +193,6 @@ const EditChallengeTab: React.FC<EditChallengeTabProps> = ({
         </details>
       </div>
 
-      {/* === Save Button === */}
       <div className="flex justify-end mt-4">
         <button
           onClick={handleSaveChallenge}

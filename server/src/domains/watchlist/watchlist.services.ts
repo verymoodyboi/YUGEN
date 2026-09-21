@@ -65,7 +65,8 @@ export async function getMyWatchlist(userId: string) {
         poster_path,
         avg_rating,
         thesis,
-        uploader_id
+        uploader_id,
+        view_count
       )
     `
     )

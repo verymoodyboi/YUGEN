@@ -20,7 +20,6 @@ if (!userId || !thoughtId) {
   }
 }
 
-/** POST /thoughts/replies/flag */
 export async function flagReply(req: Request, res: Response) {
   try {
     const userId = req.user?.id;

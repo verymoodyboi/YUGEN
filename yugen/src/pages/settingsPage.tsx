@@ -4,15 +4,17 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import supabase from "../lib/supabaseClient";
 import "react-toastify/dist/ReactToastify.css";
-import EditProfile from "../features/profile/components/EditProfile";
+import EditProfile from "../features/profile/components/editProfile";
 import { useSearchParams } from "react-router-dom";
-import AppLayout from "../layouts/layout-main";
 import LockIcon from "@mui/icons-material/Lock";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import SchoolIcon from "@mui/icons-material/School";
 import CheckIcon from "@mui/icons-material/Check";
-import { useAcademic } from "../features/academic/hooks/useAcademicAplication";
 import { useToast } from "../components/toaster";
+import { Label } from "@headlessui/react";
+import { useDeleteAccount } from "../features/auth/delete/useDeleteAccount";
 const SettingsPage: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
@@ -22,39 +24,44 @@ const SettingsPage: React.FC = () => {
     paramTab === "password" || paramTab === "profile" ? paramTab : "profile";
 
   const [selectedTab, setSelectedTab] = useState(initialTab);
+  const { handleDeleteAccount, isDeleting } = useDeleteAccount();
   const tabGroups = [
     {
       groupLabel: "Account",
-      tabs: [{ key: "profile", label: "Edit profile", icon: <SchoolIcon /> }],
+      tabs: [{ key: "profile", label: "Edit profile", icon: <EditIcon /> }],
     },
     {
       groupLabel: "Security",
-      tabs: [{ key: "password", label: "Change Password", icon: <LockIcon /> }],
+      tabs: [
+        { key: "password", label: "Change Password", icon: <LockIcon /> },
+        { key: "delete", label: "Delete Account", icon: <DeleteIcon /> },
+      ],
     },
   ];
 
   // Academic linking
-  const {
-    academicEmail,
-    universityName,
-    uniID,
-    role,
-    verificationFile,
-    existingApplication,
-    step,
-    setAcademicEmail,
-    setRole,
-    setUniID,
-    setVerificationFile,
-    setStep,
-    handleAcademicSubmit,
-    handleAcademicSubmitFinal,
-    handleRemoveApplication,
-  } = useAcademic();
+  // const {
+  //   academicEmail,
+  //   universityName,
+  //   uniID,
+  //   role,
+  //   verificationFile,
+  //   existingApplication,
+  //   step,
+  //   setAcademicEmail,
+  //   setRole,
+  //   setUniID,
+  //   setVerificationFile,
+  //   setStep,
+  //   handleAcademicSubmit,
+  //   handleAcademicSubmitFinal,
+  //   handleRemoveApplication,
+  // } = useAcademic();
 
   // Password reset
   const [isDone, setIsDone] = useState(false);
   const [email, setEmail] = useState("");
+  const [openDelete, setopenDelete] = useState(false);
 
   const handleChangePasswordEmail = async () => {
     if (!email || !/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email))
@@ -125,19 +132,26 @@ const SettingsPage: React.FC = () => {
       case "profile":
         return <EditProfile />;
 
-      case "theme":
+      case "delete":
         return (
           <div className="flex flex-col items-center justify-center gap-6 p-6">
-            <h2 className="font-freckle text-xl text-emerald-950">
-              Appearance
-            </h2>
+            <div className="flex flex-col items-center justify-center gap-2 p-6">
+              <h2 className="font-freckle text-5xl text-red-500">
+                Delete Account
+              </h2>
+              <div className="font-freckle text-sm text-red-500">
+                Note that this action is irreversable
+              </div>
+            </div>
             <button
-              onClick={toggleTheme}
-              className="px-4 py-2 rounded-lg bg-emerald-950 text-emerald-50 
+              onClick={() => {
+                setopenDelete(true);
+              }}
+              className="px-4 py-2 rounded-lg bg-red-700 text-red-50 
                          shadow-md
                          hover:shadow-lg hover:scale-105 transition"
             >
-              {theme === "light" ? "☀︎ Light" : "☽ Dark"}
+              Delete Acount
             </button>
           </div>
         );
@@ -155,7 +169,6 @@ const SettingsPage: React.FC = () => {
         </h2>
 
         <div className="flex flex-1 gap-6 overflow-hidden">
-          {/* Sidebar Tabs */}
           <div className="w-[200px] flex-shrink-0 border-r-2 border-emerald-950/30 pr-2">
             {tabGroups.map((group, idx) => (
               <div key={group.groupLabel} className="mb-3">
@@ -182,10 +195,34 @@ const SettingsPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Main Content */}
           <div className="flex-1 overflow-y-auto">{renderContent()}</div>
         </div>
       </div>
+      {openDelete && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center "
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setopenDelete(false);
+          }}
+        >
+          <div
+            className="flex flex-col gap-4 p-6 rounded-2xl border-4 border-red-950 bg-red-50  animate-modal-in items-center justify-cente"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-freckle text-2xl text-red-500 ">WARNING!</h2>
+            <div className="text-red-500">
+              DELETED ACCOUNTS ARE NOT RECOVERABLE.
+            </div>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="w-full py-2 rounded-lg bg-red-700 text-red-50 font-freckle hover:scale-105 transition-transform disabled:opacity-50"
+            >
+              {isDeleting ? "Deleting..." : "Delete Account"}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

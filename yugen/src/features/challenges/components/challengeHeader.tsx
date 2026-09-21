@@ -27,7 +27,6 @@ const ChallengeHeader: React.FC<ChallengeHeaderProps> = ({
     <div className="rounded-2xl overflow-hidden border-2 border-emerald-950 shadow-md bg-emerald-100">
       {challenge ? (
         <div className="flex flex-col lg:flex-row">
-          {/* Left: Cover */}
           <div className="lg:w-1/2 w-full h-80 lg:h-auto">
             <img
               src={
@@ -40,7 +39,6 @@ const ChallengeHeader: React.FC<ChallengeHeaderProps> = ({
             />
           </div>
 
-          {/* Right: Content */}
           <div className="flex-1 p-6 space-y-3">
             <h1 className="text-3xl font-bold text-emerald-950">
               Challenge: {challenge?.challenge_name || ""}
@@ -50,7 +48,7 @@ const ChallengeHeader: React.FC<ChallengeHeaderProps> = ({
               className="flex items-center space-x-2 text-emerald-900"
               onClick={() =>
                 navigate(
-                  `/@?username=${encodeURIComponent(challenge?.creator?.username)}`
+                  `/@?username=${encodeURIComponent(challenge?.creator?.username)}`,
                 )
               }
             >
@@ -111,7 +109,6 @@ const ChallengeHeader: React.FC<ChallengeHeaderProps> = ({
               Deadline: {challenge?.deadline || "N/A"}
             </p>
 
-            {/* === Submission Area === */}
             <div className="mt-4">
               {challenge?.deadline &&
               new Date(challenge.deadline) < new Date() ? (

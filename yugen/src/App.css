@@ -13,22 +13,26 @@
   }
 
 /*general*/
-html, body, #root {
+html, body {
   width: 100%;
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
-   overflow-y: hidden;
-   overflow-x: hidden;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  
 }
 
+#root {
+  min-height: 100vh;
+
+}
 body {
   font-family: "Freckle Face", system-ui;
   font-weight: 400;
   font-style: normal;
     font-family: "Comic Relief", system-ui;
     font-weight: 700;
-  
+      padding-bottom: 20px;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
 background-color: #ECFDF5;
 }
 /*fonts*/
@@ -136,5 +140,18 @@ background-color: #ECFDF5;
       opacity: 0;
       transform: scale(0.95) translateY(8px);
     }
+  }
+}
+
+
+
+@layer components {
+  .vjs-quality-selector::before {
+    content: "⚙";
+    font-size: 16px;
+  }
+
+  .vjs-quality-menu.hidden {
+    display: none;
   }
 }

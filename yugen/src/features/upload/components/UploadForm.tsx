@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import supabase from "../../../lib/supabaseClient";
-import CustomLoading from "../../../SmallComponents/CutomsLoading";
 import "react-toastify/dist/ReactToastify.css";
-import ShinyText from "../../../SmallComponents/ShinyText";
 import FuzzyText from "../../../SmallComponents/FuzzyText";
-import Shuffle from "../../../SmallComponents/Shuffle";
 import TechnicalReportForm from "../../report/components/TechReport";
 import { FilePond, registerPlugin } from "react-filepond";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -14,17 +11,24 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import countries from "../../../Data/countries.json";
 import ReactCrop, { makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import ErrorImg from "../../../YugenAssits/Icons/ErrorImg.png";
-import AccHub from "../../../components/AccountHub";
+
 import { useUpload } from "../hooks/useUpload";
 import { useGenresWithFilms } from "../../genres/useGenres";
 import { useToast } from "../../../components/toaster";
 import uploading_animation from "../../../YugenAssits/upload-button/Yugen Upload.gif";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+import { useAuth } from "../../../contexts/AuthContext";
+import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
+
+registerPlugin(FilePondPluginFileValidateSize);
 registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
-const steps = ["Upload", "Details", "Additional details"];
+const steps = ["Upload", "Details", "more details"];
 
 const UploadForm: React.FC = () => {
+  const { userInfo } = useAuth();
+  const [hasStartedUpload, setHasStartedUpload] = useState(false);
+
   const toast = useToast();
   const {
     filmFile,
@@ -69,7 +73,6 @@ const UploadForm: React.FC = () => {
   const [actorPFP, setActorPFP] = useState<string>("");
   const [character, setCharacter] = useState<string>("");
 
-  // Poster crop states (kept same logic)
   const MinWidth = 200;
   const MinHeight = 300;
   const aspectRatio = 2 / 3;
@@ -100,7 +103,7 @@ const UploadForm: React.FC = () => {
       { unit: "px", width: MinWidth, height: MinHeight },
       aspectRatio,
       naturalWidth,
-      naturalHeight
+      naturalHeight,
     );
 
     setCrop(newCrop);
@@ -109,7 +112,7 @@ const UploadForm: React.FC = () => {
   const setCroppedPFP = (
     img: HTMLImageElement,
     canvas: HTMLCanvasElement,
-    cropParam: any
+    cropParam: any,
   ) => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -142,7 +145,6 @@ const UploadForm: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  // Film file validation (kept exact logic)
   const handleFilmFileChange = (file: File | null) => {
     if (!file) {
       setFilmFile(null);
@@ -154,15 +156,6 @@ const UploadForm: React.FC = () => {
     video.preload = "metadata";
 
     video.onloadedmetadata = () => {
-      const height = video.videoHeight;
-
-      if (height < 1080) {
-        toast.error("Film must be at least 1080p.");
-        setFilmFile(null);
-        setIsValidFilm(false);
-        return;
-      }
-
       setFilmFile(file);
       setIsValidFilm(true);
     };
@@ -176,9 +169,8 @@ const UploadForm: React.FC = () => {
     video.src = URL.createObjectURL(file);
   };
 
-  // poster input handlers (kept logic)
   const handlePosterFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -187,6 +179,7 @@ const UploadForm: React.FC = () => {
       toast.warn("Only JPEG or PNG images allowed!");
       return;
     }
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
     const img = new Image();
     img.onload = () => {
@@ -194,7 +187,11 @@ const UploadForm: React.FC = () => {
         toast.warn(`Poster must be at least ${MinWidth}x${MinHeight} pixels`);
         return;
       }
-
+      if (file.size > MAX_FILE_SIZE) {
+        toast.console.warn();
+        ("Poster file size must be under 12MB");
+        return;
+      }
       const path = URL.createObjectURL(file);
       setPosterFile(file);
       setPosterPath(path);
@@ -216,7 +213,6 @@ const UploadForm: React.FC = () => {
     if (imgRef.current && canvasRef.current && crop) {
       setCroppedPFP(imgRef.current, canvasRef.current, crop);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [crop]);
 
   const handleNext = async () => {
@@ -243,11 +239,10 @@ const UploadForm: React.FC = () => {
 
     if (s === 1) {
       if (!title || !thesis || !genres || genres.length === 0) {
-        toast.warn("Please fill the title, thesis, and at least one genre.");
+        toast.warn("Please fill the title, thesis, and at least one genre");
         return false;
       }
 
-      // Title validation
       if (title.length > 100) {
         toast.warn("Title cannot exceed 100 characters");
         return false;
@@ -256,25 +251,16 @@ const UploadForm: React.FC = () => {
         toast.warn("Title cannot contain line breaks");
         return false;
       }
-      if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(title)) {
-        // disallow emojis and unusual symbols
+      if (/[^\p{L}\p{N}\s.,!?'"\-()/]/u.test(title)) {
         toast.warn("Title cannot contain emojis or special characters");
         return false;
       }
 
-      // Thesis validation
       if (thesis.length > 1000) {
         toast.warn("Thesis cannot exceed 1000 characters");
         return false;
       }
-      if (/\r|\n/.test(thesis)) {
-        toast.warn("Thesis cannot contain line breaks");
-        return false;
-      }
-      if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(thesis)) {
-        toast.warn("Thesis cannot contain emojis or special characters");
-        return false;
-      }
+     
 
       return true;
     }
@@ -293,20 +279,18 @@ const UploadForm: React.FC = () => {
   const genreOptions = React.useMemo(
     () =>
       Array.isArray(allGenres)
-        ? allGenres.map((g: any) => g.genre || g.name || g.id) // support flexible schema
+        ? allGenres.map((g: any) => g.genre || g.name || g.id)
         : [],
-    [allGenres]
+    [allGenres],
   );
   const [openReport, setOpenReport] = useState(false);
 
-  // UI: Error / Done / Uploading states preserved but implemented with Tailwind
   if (errorMsg) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-emerald-50 p-6">
         <div className="max-w-lg w-full text-center rounded-2xl border-4 border-emerald-950 bg-emerald-50 p-8 shadow-2xl">
           <FuzzyText baseIntensity={0.2}>Unexpected Error</FuzzyText>
 
-          {/* Try again button */}
           <button
             onClick={() => setErrorMsg(null)}
             className="mt-6 mr-6 inline-flex items-center justify-center gap-2 px-6 py-2 
@@ -317,7 +301,6 @@ const UploadForm: React.FC = () => {
             Try Again
           </button>
 
-          {/* Report issue button */}
           <button
             onClick={() => setOpenReport(true)}
             className="mt-4 inline-flex items-center justify-center gap-2 px-6 py-2 
@@ -350,11 +333,39 @@ const UploadForm: React.FC = () => {
       </div>
     );
   }
+  if (userInfo?.films_count === 0 && !hasStartedUpload) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
+        <img
+          src={uploading_animation}
+          className="h-[220px] mb-6 rounded-lg"
+          alt="Become a filmmaker"
+        />
+
+        <h2 className="text-3xl font-semibold mb-2 text-emerald-950">
+          Become a storyteller on Yūgen
+        </h2>
+
+        <p className="max-w-md mb-6 text-emerald-950/80">
+          Upload your first film and join a growing community of storytellers,
+          artists, and independent creators.
+        </p>
+
+        <button
+          onClick={() => setHasStartedUpload(true)}
+          className="px-8 py-3 rounded-full bg-emerald-950 text-emerald-50
+                   hover:scale-105 active:scale-95 transition-all"
+        >
+          Upload your first film
+        </button>
+      </div>
+    );
+  }
 
   if (isDone) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-emerald-50 p-6">
-        <div className="max-w-lg w-full text-center rounded-2xl border-4 border-emerald-950 bg-emerald-50 p-8 shadow-2xl">
+      <div className="min-h-screen flex items-center justify-center  p-6">
+        <div className="max-w-lg w-full text-center rounded-2xl border-4 border-emerald-950  p-8 shadow-2xl">
           <svg
             className="mx-auto mb-4 w-24 h-24 text-emerald-950"
             viewBox="0 0 24 24"
@@ -394,7 +405,7 @@ const UploadForm: React.FC = () => {
 
   if (isSubmit) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-emerald-50 p-6">
+      <div className="min-h-screen flex flex-col items-center justify-center  p-6">
         <div className="flex flex-col items-center justify-center text-center">
           <img
             src={uploading_animation}
@@ -405,23 +416,31 @@ const UploadForm: React.FC = () => {
             Prepare for take off!
           </p>
         </div>
+
+        <div className="mt-1 w-full h-2 bg-emerald-100 rounded">
+          <div
+            className="h-full bg-emerald-950 rounded transition-all"
+            style={{ width: `${uploadProgress}%` }}
+          />
+        </div>
+        <p className="text-sm text-emerald-950 font-semibold mt-1">
+          Your upload is {uploadProgress}% completed, please do not leave this
+          tab before upload is done!
+        </p>
       </div>
     );
   }
 
-  // Main form render with Tailwind
   return (
     <>
-      <AccHub />
-      <div className="w-[100%] h[100%] mx-auto rounded-3xl  bg-emerald-50  p-6 overflow-y-auto text-emerald-950 font-freckle">
-        {/* Stepper */}
+      <div className="w-[100%] h[100%] mx-auto rounded-3xl    p-6 overflow-y-auto text-emerald-950 font-freckle">
         <div className="flex items-center justify-between mb-6">
           {steps.map((s, i) => {
             const active = i === activeStep;
             const done = i < activeStep;
             return (
               <div key={s} className="flex-1 px-2">
-                <div className={`flex items-center gap-3`}>
+                <div className={`flex-row items-center gap-1`}>
                   <div
                     className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-semibold
                         ${
@@ -449,9 +468,7 @@ const UploadForm: React.FC = () => {
           })}
         </div>
 
-        {/* Form Area */}
         <div className="space-y-6">
-          {/* --- Step 0: Upload --- */}
           {activeStep === 0 && (
             <div className="space-y-4">
               <label className="block font-semibold">Upload a film:</label>
@@ -459,11 +476,9 @@ const UploadForm: React.FC = () => {
                 <FilePond
                   name="File"
                   allowMultiple={false}
-                  acceptedFileTypes={[
-                    "video/mp4",
-                    "video/quicktime", // .mov
-                    "video/x-msvideo", // .avi
-                  ]}
+                 // maxFileSize="50GB"
+                  labelMaxFileSizeExceeded="Max file size is 5GB"
+                  acceptedFileTypes={["video/mp4"]}
                   files={filmFile ? [filmFile] : []}
                   onupdatefiles={(fileItems: any[]) => {
                     const file = fileItems[0]?.file || null;
@@ -511,7 +526,6 @@ const UploadForm: React.FC = () => {
                   </label>
                 </div>
 
-                {/* Poster crop modal */}
                 {isModalOpen && (
                   <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -558,7 +572,7 @@ const UploadForm: React.FC = () => {
                                   setCroppedPFP(
                                     imgRef.current as HTMLImageElement,
                                     canvasRef.current as HTMLCanvasElement,
-                                    crop
+                                    crop,
                                   );
                                 }
                                 setIsModalOpen(false);
@@ -580,7 +594,6 @@ const UploadForm: React.FC = () => {
                   </div>
                 )}
 
-                {/* Poster preview / canvas */}
                 {!crop && !posterPath && (
                   <div className="w-48 h-72 bg-emerald-100 rounded-md border-2 border-emerald-950 flex items-center justify-center">
                     <div className="text-sm text-emerald-900">
@@ -615,7 +628,6 @@ const UploadForm: React.FC = () => {
             </div>
           )}
 
-          {/* --- Step 1: Details --- */}
           {activeStep === 1 && (
             <div className="space-y-4">
               <div>
@@ -649,7 +661,7 @@ const UploadForm: React.FC = () => {
                           setGenres((prev) =>
                             selected
                               ? prev.filter((x) => x !== g)
-                              : [...prev, g]
+                              : [...prev, g],
                           )
                         }
                         className={`px-3 py-1 rounded-full border-2 ${
@@ -667,12 +679,11 @@ const UploadForm: React.FC = () => {
             </div>
           )}
 
-          {/* --- Step 2: Additional details --- */}
           {activeStep === 2 && (
             <div className="space-y-4">
               <div>
                 <label className="block mb-1 font-semibold">
-                  Country (optional)
+                  Country (required)
                 </label>
                 <select
                   value={country}
@@ -689,12 +700,11 @@ const UploadForm: React.FC = () => {
               </div>
 
               <div className="pt-2 border-t border-emerald-950/20">
-                <h4 className="font-semibold mb-2">Crew info (optional)</h4>
-                <div className="flex gap-2 items-center mb-3">
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center mb-3">
                   <select
                     value={crewRole}
                     onChange={(e) => setCrewRole(e.target.value)}
-                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
+                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50 w-full sm:w-auto"
                   >
                     <option value="">Select role</option>
                     {crewRoles
@@ -706,7 +716,7 @@ const UploadForm: React.FC = () => {
                       ))}
                   </select>
 
-                  <div className="relative flex-1">
+                  <div className="relative flex-1 w-full">
                     <input
                       value={crewName}
                       onChange={(e) => {
@@ -716,7 +726,6 @@ const UploadForm: React.FC = () => {
                       placeholder="Start typing a username..."
                       className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
                     />
-                    {/* suggestions dropdown */}
                     {crewSearchInput.trim() !== "" && (
                       <div className="absolute left-0 right-0 mt-1 bg-emerald-50 border-2 border-emerald-950 rounded-lg max-h-56 overflow-y-auto z-40">
                         {crewLoading ? (
@@ -728,20 +737,17 @@ const UploadForm: React.FC = () => {
                             <div
                               key={opt.username}
                               onClick={() => {
-                                setCrewName(opt.username);
+                                setCrewName("@" + opt.username);
                                 setCrewPFP(opt.pfp);
                                 setCrewSearchInput("");
-                                setCrewSearchResults([]);
                               }}
                               className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
                             >
                               <img
                                 src={
                                   opt.pfp
-                                    ? supabase.storage
-                                        .from("pfps")
-                                        .getPublicUrl(opt.pfp).data.publicUrl
-                                    : ""
+                                    ? `https://pfps.try-yugen.com/${opt.pfp}?t=${Date.now()}`
+                                    : tempPFP
                                 }
                                 alt={opt.username}
                                 className="w-8 h-8 rounded-full object-cover border"
@@ -772,13 +778,13 @@ const UploadForm: React.FC = () => {
                       setCrewRole("");
                       setCrewPFP("");
                     }}
-                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50"
+                    type="button"
+                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 w-full sm:w-auto"
                   >
                     Add
                   </button>
                 </div>
 
-                {/* crew list */}
                 <div className="space-y-2">
                   {crewList.map((member, idx) => (
                     <div
@@ -792,10 +798,8 @@ const UploadForm: React.FC = () => {
                             <img
                               src={
                                 member.pfp
-                                  ? supabase.storage
-                                      .from("pfps")
-                                      .getPublicUrl(member.pfp).data.publicUrl
-                                  : ""
+                                  ?  `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
+                                  : tempPFP
                               }
                               alt={member.name}
                               className="w-8 h-8 rounded-full object-cover"
@@ -808,7 +812,7 @@ const UploadForm: React.FC = () => {
                       <button
                         onClick={() =>
                           setCrewList((prev) =>
-                            prev.filter((_, i) => i !== idx)
+                            prev.filter((_, i) => i !== idx),
                           )
                         }
                         className="px-3 py-1 rounded-md border-2 border-red-500 text-red-600"
@@ -822,14 +826,16 @@ const UploadForm: React.FC = () => {
 
               <div className="pt-4 border-t border-emerald-950/20">
                 <h4 className="font-semibold mb-2">Cast info (optional)</h4>
-                <div className="flex gap-2 items-center mb-3">
+
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center mb-3">
                   <input
                     value={character}
                     onChange={(e) => setCharacter(e.target.value)}
                     placeholder="Character"
-                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
+                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50 w-full sm:w-auto"
                   />
-                  <div className="relative flex-1">
+
+                  <div className="relative flex-1 w-full">
                     <input
                       value={actor}
                       onChange={(e) => {
@@ -853,7 +859,6 @@ const UploadForm: React.FC = () => {
                                 setActor("@" + opt.username);
                                 setActorPFP(opt.pfp);
                                 setActorSearchInput("");
-                                setActorSearchResults([]);
                               }}
                               className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
                             >
@@ -863,7 +868,7 @@ const UploadForm: React.FC = () => {
                                     ? supabase.storage
                                         .from("pfps")
                                         .getPublicUrl(opt.pfp).data.publicUrl
-                                    : ""
+                                    : tempPFP
                                 }
                                 alt={opt.username}
                                 className="w-8 h-8 rounded-full object-cover border"
@@ -880,7 +885,7 @@ const UploadForm: React.FC = () => {
                     onClick={() => {
                       if (!character || !actor) {
                         toast.warn(
-                          "Please select a character and enter an actor."
+                          "Please select a character and enter an actor.",
                         );
                         return;
                       }
@@ -892,7 +897,8 @@ const UploadForm: React.FC = () => {
                       setActor("");
                       setActorPFP("");
                     }}
-                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50"
+                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 w-full sm:w-auto"
+                    type="button"
                   >
                     Add
                   </button>
@@ -914,13 +920,12 @@ const UploadForm: React.FC = () => {
                                   ? supabase.storage
                                       .from("pfps")
                                       .getPublicUrl(member.pfp).data.publicUrl
-                                  : ""
+                                  : tempPFP
                               }
                               alt={member.actor}
                               className="w-8 h-8 rounded-full object-cover"
                             />
                           )}
-
                           <span>{member.actor}</span>
                         </div>
                       </div>
@@ -939,7 +944,6 @@ const UploadForm: React.FC = () => {
             </div>
           )}
 
-          {/* Navigation Buttons */}
           <div className="flex items-center gap-4 mt-4">
             <button
               onClick={handleBack}

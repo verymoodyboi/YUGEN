@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowRight, FiStar, FiEye } from "react-icons/fi";
+import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
 
 interface FilmThumb {
   poster_path: string;
@@ -25,14 +26,11 @@ const GenreCard: React.FC<GenreCardProps> = ({
 
   const mainPoster =
     films.length > 0
-      ? `${
-          import.meta.env.VITE_SUPABASE_URL
-        }/storage/v1/object/public/posters/${films[0].poster_path}`
-      : undefined;
+      ? `https://posters.try-yugen.com/${films[0].poster_path}`
+      : tempPoster;
 
   return (
     <div className="relative bg-emerald-50 text-emerald-950 rounded-3xl overflow-hidden shadow-lg border-emerald-950  hover:scale-105 hover:shadow-[4px_4px_0_0_#064e3b] transition-all duration-300 border-4 border-emerald-950">
-      {/* Background Poster (less visible) */}
       {mainPoster && (
         <>
           <div
@@ -43,9 +41,7 @@ const GenreCard: React.FC<GenreCardProps> = ({
         </>
       )}
 
-      {/* Foreground Content */}
       <div className="relative z-10 p-6 flex flex-col gap-4">
-        {/* Genre Title & Description */}
         <div className="drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)]">
           <h3 className="text-3xl font-freckle font-semibold mb-1 text-emerald-950 drop-shadow-sm">
             {name || "Untitled Genre"}
@@ -57,7 +53,6 @@ const GenreCard: React.FC<GenreCardProps> = ({
           )}
         </div>
 
-        {/* Film Thumbnails Row */}
         <div className="mt-4 flex flex-col gap-3">
           <div className="flex gap-4">
             {[
@@ -77,14 +72,15 @@ const GenreCard: React.FC<GenreCardProps> = ({
                 {f ? (
                   <>
                     <img
-                      src={`${
-                        import.meta.env.VITE_SUPABASE_URL
-                      }/storage/v1/object/public/posters/${f.poster_path}`}
+                      src={
+                        f.poster_path
+                          ? `https://posters.try-yugen.com/${f.poster_path}`
+                          : tempPoster
+                      }
                       alt={f.film_title || `${name} film`}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
 
-                    {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-emerald-950/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-2">
                       <h4 className="text-emerald-50 text-sm font-freckle truncate">
                         {f.film_title || "Untitled"}
@@ -107,7 +103,6 @@ const GenreCard: React.FC<GenreCardProps> = ({
             ))}
           </div>
 
-          {/* Explore Button Below Posters */}
           <button
             onClick={() => navigate(`/genre?genre=${encodeURIComponent(name)}`)}
             className="self-start flex items-center gap-1 px-3 py-1.5 rounded-full border border-emerald-950 bg-emerald-950 text-emerald-50 text-xs font-freckle hover:bg-emerald-900 hover:translate-x-1 transition-transform duration-300"

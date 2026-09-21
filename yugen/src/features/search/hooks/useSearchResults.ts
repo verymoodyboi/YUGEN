@@ -1,4 +1,3 @@
-// src/features/search/hooks/useSearchResults.ts
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
   searchFilms,
@@ -8,7 +7,6 @@ import {
 } from "../services";
 
 export const useSearchResults = (query: string | null) => {
-  // 🎬 Films
   const filmsQuery = useInfiniteQuery({
     queryKey: ["films", query],
     queryFn: ({ pageParam = 0 }) => searchFilms(query || "", pageParam),
@@ -18,7 +16,6 @@ export const useSearchResults = (query: string | null) => {
     initialPageParam: 0,
   });
 
-  // 🎥 Suggested Films
   const suggestQuery = useInfiniteQuery({
     queryKey: ["suggestion", query],
     queryFn: ({ pageParam = 0 }) => searchFilmSuggestions(query || "", pageParam),
@@ -28,7 +25,7 @@ export const useSearchResults = (query: string | null) => {
     initialPageParam: 0,
   });
 
-  // 👤 Accounts
+  
   const accountsQuery = useInfiniteQuery({
     queryKey: ["accounts", query],
     queryFn: ({ pageParam = 0 }) => searchAccounts(query || "", pageParam),
@@ -38,7 +35,6 @@ export const useSearchResults = (query: string | null) => {
     initialPageParam: 0,
   });
 
-  // 🎞️ Playlists
   const playlistsQuery = useInfiniteQuery({
     queryKey: ["playlists", query],
     queryFn: ({ pageParam = 0 }) => searchPlaylists(query || "", pageParam),

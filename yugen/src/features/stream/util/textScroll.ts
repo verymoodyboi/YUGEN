@@ -14,7 +14,6 @@ const startLoopingScroll = (
   let timeoutId: number | null = null;
 
   const start = () => {
-    // force reflow so transition always restarts
     textEl.getBoundingClientRect();
 
     textEl.style.transition = `transform ${durationMs}ms linear`;
@@ -31,10 +30,9 @@ const startLoopingScroll = (
       requestAnimationFrame(() => {
         requestAnimationFrame(start);
       });
-    }, 500); // ⏸ pause for 0.5s
+    }, 500); 
   };
 
-  // prevent stacking listeners
   textEl.removeEventListener("transitionend", resetAndRestart);
   textEl.addEventListener("transitionend", resetAndRestart);
 

@@ -5,6 +5,8 @@ import AppLayout from "../layouts/layout-main";
 import supabase from "../lib/supabaseClient";
 import { useNotifications } from "../features/notifications/useNotifications";
 import Loading from "../components/loading_kickflip";
+import tempPoster from "../YugenAssits/Cover_Placeholder.png";
+import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
 
 const NotificationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,11 +58,16 @@ const NotificationsPage: React.FC = () => {
                 {/* Poster */}
                 <img
                   src={
-                    supabase.storage
-                      .from("posters")
-                      .getPublicUrl(film.poster_path).data.publicUrl ||
-                    "/placeholder.jpg"
+                    film.poster_path
+                      ? `https://posters.try-yugen.com/${film.poster_path}`
+                      : tempPoster
                   }
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (img.src !== tempPoster) {
+                      img.src = tempPoster;
+                    }
+                  }}
                   alt={film.film_title}
                   className="w-20 rounded-lg aspect-[2/3] object-cover border-2 border-emerald-950"
                 />
@@ -76,10 +83,10 @@ const NotificationsPage: React.FC = () => {
                       {Array.isArray(film.film_genre) &&
                       film.film_genre.length > 0
                         ? film.film_genre
-                            .map((g) =>
+                            .map((g: any) =>
                               g === "docuentry"
                                 ? "Documentary"
-                                : g.charAt(0).toUpperCase() + g.slice(1)
+                                : g.charAt(0).toUpperCase() + g.slice(1),
                             )
                             .join(", ")
                         : "No genre"}
@@ -94,11 +101,16 @@ const NotificationsPage: React.FC = () => {
                   <div className="flex flex-col items-center text-center">
                     <img
                       src={
-                        supabase.storage
-                          .from("pfps")
-                          .getPublicUrl(film.uploader_pfp).data.publicUrl ||
-                        "/default-avatar.png"
+                        film.uploader_pfp
+                          ? `https://pfps.try-yugen.com/${film?.uploader_pfp}?t=${Date.now()}`
+                          : tempPFP
                       }
+                      onError={(e) => {
+                        const img = e.currentTarget;
+                        if (img.src !== tempPFP) {
+                          img.src = tempPFP;
+                        }
+                      }}
                       alt={film.uploader_username}
                       className="w-12 h-12 rounded-full border-2 border-emerald-950 object-cover mb-1"
                     />

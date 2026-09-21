@@ -18,13 +18,12 @@ const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess, onClose }) => {
   });
 
   const types = [
-    "Buffering or playback issues",
-    "Video quality problems",
+    "Video Playback",
+    "Content Missing",
     "Audio not syncing or missing",
-    "Subtitles not working",
     "App/website freezing",
-    "Login issues",
-    "Other technical issue",
+    "Autherization & Accounts",
+    "Other",
   ];
 
   const formRef = useRef<HTMLDivElement>(null);
@@ -55,10 +54,10 @@ const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess, onClose }) => {
         ${animate ? "opacity-100 scale-100" : "opacity-0 scale-90"}`}
       >
         <CheckCircleOutlineIcon sx={{ fontSize: 100, color: "#064e3b" }} />
-        <h2 className="text-3xl mt-4 mb-2">Technical report submitted!</h2>
+        <h2 className="text-3xl mt-4 mb-2">Request Submitted!</h2>
         <p className="text-lg">
-          Thank you for your feedback — our technical team will review the
-          issue.
+          Thank you for your feedback — our technical team will review the issue
+          and get back to you.
         </p>
       </div>
     );
@@ -77,7 +76,7 @@ const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess, onClose }) => {
         className="relative flex flex-col gap-4 p-6 rounded-2xl border-4 border-emerald-950 bg-emerald-50 shadow-[6px_6px_0_#064e3b]"
       >
         <h2 className="text-3xl font-bold mb-4 text-center">
-          Report a Technical Issue
+          Submit a Support Ticket
         </h2>
 
         <label className="block text-lg mb-1">Issue Type</label>

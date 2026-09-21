@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { useEditProfile } from "../features/profile/hooks/useEditProfile";
@@ -6,7 +6,8 @@ import { FaYoutube, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { useToast } from "../components/toaster";
 import { api } from "../lib/api";
 import { useAuth } from "../contexts/AuthContext";
-type Stage = "welcome" | "role" | "filmmaker" | "audience" | "socials" | "done";
+
+type Stage = "welcome" | "step2" | "socials" | "student" | "done";
 
 const detectPlatform = (url: string) => {
   if (/youtube\.com|youtu\.be/.test(url)) return "YouTube";
@@ -27,39 +28,49 @@ const ProfileCustomization: React.FC = () => {
   const [stage, setStage] = useState<Stage>("welcome");
   const [searchParams] = useSearchParams();
   const username = searchParams.get("username") || "";
-  const { getAccessToken } = useAuth();
-  const [userType, setUserType] = useState("audience");
-  const { userInfo } = useAuth();
+  const { getAccessToken, userInfo } = useAuth();
+
+  // Default userType
+  const [userType, setUserType] = useState("filmmaker");
+
+  const { handleUpdateSocials, loading, handleAddUserType } = useEditProfile(
+    () => setStage("done"),
+  );
+
+  const [socials, setSocials] = useState<{ platform: string; url: string }[]>(
+    [],
+  );
+  const [socialInput, setSocialInput] = useState("");
+  const [universities, setUniversities] = useState<any[]>([]);
+  const [selectedUniversity, setSelectedUniversity] = useState("");
+
+  useEffect(() => {
+    // Load universities JSON
+    fetch("/world_universities_and_domains.json")
+      .then((res) => res.json())
+      .then((data) => setUniversities(data))
+      .catch((err) => console.error("Failed to load universities:", err));
+  }, []);
+
   const handleGoHome = async () => {
     try {
       const token = await getAccessToken();
       if (!token) return;
 
-      // Call backend to mark first login complete
       await api.post(
         "tools/complete-first-login",
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      // Navigate to home
       navigate("/");
     } catch (err) {
       console.error("Failed to complete first login:", err);
-      // Optionally still navigate to home even if request fails
       navigate("/");
     }
   };
-  const { handleUpdateSocials, loading, handleAddUserType } = useEditProfile(
-    () => setStage("done")
-  );
 
-  const [socials, setSocials] = useState<{ platform: string; url: string }[]>(
-    []
-  );
-  const [socialInput, setSocialInput] = useState("");
-
-  // Add socials
+  // ---------------- SOCIALS ----------------
   const handleAddSocial = () => {
     const url = socialInput.trim();
     if (!url) return;
@@ -76,12 +87,10 @@ const ProfileCustomization: React.FC = () => {
     setSocialInput("");
   };
 
-  // Remove socials
   const handleRemoveSocial = (platform: string) => {
     setSocials(socials.filter((s) => s.platform !== platform));
   };
 
-  // Save socials
   const handleSaveSocials = async () => {
     if (socials.length === 0) {
       toast.error("Add at least one social link");
@@ -98,14 +107,22 @@ const ProfileCustomization: React.FC = () => {
     setStage("done");
   };
 
-  // ---------------- RENDER ----------------
+  const handleSaveUniversity = async () => {
+    if (!selectedUniversity) {
+      toast.error("Please select your university");
+      return;
+    }
+    // Save userType and selected university
+    await handleAddUserType("student");
+    setStage("done");
+  };
 
+  // ---------------- RENDER ----------------
   return (
-    <div className="min-h-screen flex items-center justify-center bg-emerald-50 text-emerald-950 font-freckle p-6">
-      {/* Persistent Logo */}
+    <div className="min-h-screen flex items-center justify-center text-emerald-950 font-freckle p-6">
       <div className="fixed top-0 left-4 z-50 flex items-center gap-2">
         <img
-          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
+          src="https://assets.try-yugen.com/yugen_logo_dark.svg"
           alt="Yugen Logo"
           className="w-20 h-20 object-contain cursor-pointer"
           onClick={() => navigate("/")}
@@ -114,8 +131,7 @@ const ProfileCustomization: React.FC = () => {
 
       <div className="w-full max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl p-6">
         {/* ---------------------------------- */}
-        {/* WELCOME SCREEN */}
-        {/* ---------------------------------- */}
+        {/* WELCOME */}
         {stage === "welcome" && (
           <div className="text-center space-y-4">
             <h1 className="text-3xl font-bold">Welcome to Yūgen</h1>
@@ -123,20 +139,12 @@ const ProfileCustomization: React.FC = () => {
               Almost there! Just answer a few questions to improve your
               experience.
             </p>
-
             <div className="flex gap-4 justify-center mt-6">
               <button
                 onClick={async () => {
-                  setStage("done");
-                  await handleAddUserType(userType);
+                  await handleAddUserType("filmmaker");
+                  setStage("step2");
                 }}
-                className="px-5 py-2 border border-emerald-950 rounded-md hover:bg-emerald-100 transition"
-              >
-                Skip
-              </button>
-
-              <button
-                onClick={() => setStage("role")}
                 className="px-5 py-2 bg-emerald-950 text-emerald-50 rounded-lg shadow hover:scale-105 transition"
               >
                 Let’s go
@@ -146,92 +154,130 @@ const ProfileCustomization: React.FC = () => {
         )}
 
         {/* ---------------------------------- */}
-        {/* ROLE */}
-        {/* ---------------------------------- */}
-        {stage === "role" && (
+        {/* STEP 2 */}
+        {stage === "step2" && (
           <div className="text-center space-y-6">
-            <h2 className="text-2xl font-semibold">What are you here for?</h2>
+            <h2 className="text-2xl font-semibold">Choose your path</h2>
 
             <div className="grid grid-cols-2 gap-4 mt-6">
               <button
-                onClick={() => {
-                  setStage("filmmaker");
-                  setUserType("filmmaker");
+                onClick={async () => {
+                  await handleAddUserType("audience");
+                  setStage("done");
                 }}
-                className="px-5 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
+                className="px-4 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
               >
-                Filmmaking
+                Just here to watch
               </button>
 
               <button
-                onClick={() => {
-                  setStage("audience");
-                  setUserType("audience");
-                }}
-                className="px-5 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
+                onClick={() => setStage("student")}
+                className="px-4 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
               >
-                Watching Films
+                Student
               </button>
-            </div>
-          </div>
-        )}
 
-        {/* ---------------------------------- */}
-        {/* FILMMAKER */}
-        {/* ---------------------------------- */}
-        {stage === "filmmaker" && (
-          <div className="text-center space-y-6">
-            <h2 className="text-2xl font-semibold">
-              What type of filmmaker are you?
-            </h2>
+              <button
+                onClick={async () => {
+                  await handleAddUserType("filmmaker");
+                  setStage("done");
+                }}
+                className="px-4 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
+              >
+                I know what I’m doing
+              </button>
 
-            <div className="grid grid-cols-2 gap-4 mt-6">
               <button
                 onClick={() => setStage("socials")}
                 className="px-4 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
               >
                 Professional
               </button>
-
-              <button
-                onClick={async () => {
-                  await handleAddUserType(userType);
-
-                  setStage("done");
-                }}
-                className="px-4 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
-              >
-                Just Started
-              </button>
             </div>
           </div>
         )}
 
         {/* ---------------------------------- */}
-        {/* AUDIENCE */}
-        {/* ---------------------------------- */}
-        {stage === "audience" && (
+        {/* STUDENT */}
+        {stage === "student" && (
           <div className="text-center space-y-6">
-            <h2 className="text-2xl font-semibold">
-              What type of audience are you?
-            </h2>
+            <h2 className="text-2xl font-semibold">Select your university</h2>
 
-            <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="relative w-full">
+              <input
+                type="text"
+                placeholder="Type to search your university..."
+                value={selectedUniversity}
+                onChange={(e) => setSelectedUniversity(e.target.value)}
+                className="w-full rounded-lg border-2 border-emerald-950 p-2"
+              />
+
+              {selectedUniversity && (
+                <ul className="absolute z-10 w-full max-h-48 overflow-y-auto bg-emerald-50 border-2 border-emerald-950 rounded-b-lg mt-1">
+                  {universities
+                    .map((u) => {
+                      const search = selectedUniversity.toLowerCase();
+                      const name = u.name.toLowerCase();
+                      const domainMatch = u.domains?.some((d: string) =>
+                        d.toLowerCase().includes(search),
+                      );
+                      let rank = -1;
+                      if (name === search) rank = 0;
+                      else if (name.includes(search)) rank = 1;
+                      else if (domainMatch) rank = 2;
+                      return { ...u, rank };
+                    })
+                    .filter((u) => u.rank >= 0)
+                    .sort((a, b) => a.rank - b.rank)
+                    .slice(0, 10)
+                    .map((u) => (
+                      <li
+                        key={u.name}
+                        className="px-3 py-2 hover:bg-emerald-100 cursor-pointer"
+                        onClick={() => setSelectedUniversity(u.name)}
+                      >
+                        {u.name} ({u.country})
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="flex gap-3 mt-15 justify-center">
               <button
                 onClick={async () => {
-                  await handleAddUserType(userType);
-                  setStage("done");
+                  if (!selectedUniversity) {
+                    toast.error("Please select your university");
+                    return;
+                  }
+
+                  try {
+                    const token = await getAccessToken();
+                    if (!token) return;
+
+                    await api.post(
+                      "profile/addSchool",
+                      { school: selectedUniversity },
+                      { headers: { Authorization: `Bearer ${token}` } },
+                    );
+
+                    await handleAddUserType("student");
+                    setStage("done");
+                  } catch (err) {
+                    console.error("Failed to add school:", err);
+                    toast.error("Failed to save your university");
+                  }
                 }}
-                className="px-5 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
+                className="px-4 py-2 bg-emerald-950 text-emerald-50 rounded-md shadow hover:scale-105 transition"
               >
-                Film Lover
+                Save & Continue
               </button>
 
               <button
-                onClick={() => setStage("socials")}
-                className="px-5 py-6 border-2 border-emerald-950 rounded-xl hover:bg-emerald-100 transition"
+                onClick={() => setStage("done")}
+                className="px-4 py-2 border border-emerald-950 rounded-md hover:bg-emerald-100 transition"
               >
-                Critic
+                Skip
               </button>
             </div>
           </div>
@@ -239,7 +285,6 @@ const ProfileCustomization: React.FC = () => {
 
         {/* ---------------------------------- */}
         {/* SOCIALS */}
-        {/* ---------------------------------- */}
         {stage === "socials" && (
           <div>
             <h2 className="text-2xl font-semibold mb-3">Add your socials</h2>
@@ -305,7 +350,7 @@ const ProfileCustomization: React.FC = () => {
               <button
                 onClick={async () => {
                   setStage("done");
-                  await handleAddUserType(userType);
+                  await handleAddUserType("filmmaker");
                 }}
                 className="px-4 py-2 border border-emerald-950 rounded-md hover:bg-emerald-100 transition"
               >
@@ -317,12 +362,10 @@ const ProfileCustomization: React.FC = () => {
 
         {/* ---------------------------------- */}
         {/* DONE */}
-        {/* ---------------------------------- */}
         {stage === "done" && (
-          <div className="flex items-center justify-center max-h-[20vh]">
+          <div className="flex items-center justify-center ">
             <div className="text-center space-y-4">
               <h1 className="text-3xl font-bold">Welcome to Yūgen</h1>
-
               <p className="opacity-80">
                 You are all set! Check your email for verification and start
                 exploring.

@@ -145,10 +145,7 @@ const CountryPage: React.FC = () => {
             }`}
           >
             <img
-              src={getPosterUrl(
-                currentFilm.poster_path,
-                currentFilm.updated_at
-              )}
+              src={`https://posters.try-yugen.com/${currentFilm.poster_path}`}
               alt=""
               className="w-full h-full object-cover object-center"
             />
@@ -159,17 +156,22 @@ const CountryPage: React.FC = () => {
                        rounded-xl shadow-md flex items-center gap-3 border border-emerald-900/10 cursor-pointer"
                 onClick={() =>
                   navigate(
-                    `/@?username=${encodeURIComponent(uploader.username)}`
+                    `/@?username=${encodeURIComponent(uploader.username)}`,
                   )
                 }
               >
                 <img
                   src={
-                    uploader.pfp
-                      ? supabase.storage.from("pfps").getPublicUrl(uploader.pfp)
-                          .data.publicUrl + `?v=${Date.now()}`
+                    uploader?.pfp_path
+                      ? `https://pfps.try-yugen.com/${uploader.pfp_path}?t=${Date.now()}`
                       : tempPFP
                   }
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (img.src !== tempPFP) {
+                      img.src = tempPFP;
+                    }
+                  }}
                   className="w-12 h-12 rounded-full object-cover border border-emerald-900/20"
                 />
                 <div className="font-freckle text-lg text-emerald-950 truncate max-w-[150px]">
@@ -183,7 +185,8 @@ const CountryPage: React.FC = () => {
               <button
                 onClick={() =>
                   setCurrentIndex(
-                    (i) => (i - 1 + featuredFilms.length) % featuredFilms.length
+                    (i) =>
+                      (i - 1 + featuredFilms.length) % featuredFilms.length,
                   )
                 }
                 className="bg-white/90 backdrop-blur border border-emerald-900/10 
@@ -228,11 +231,14 @@ const CountryPage: React.FC = () => {
 
       {/* Content */}
       <div className="p-8 grid gap-8">
-        {loading ? (
+        {loading && (
           <div className="text-center py-10 text-emerald-900">Loading…</div>
-        ) : activeTab === "films" ? (
-          displayedFilms.length ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8">
+        )}
+
+        {!loading &&
+          activeTab === "films" &&
+          (displayedFilms.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-8 place-items-center">
               {displayedFilms.map((film) => (
                 <FilmCard key={film.film_uuid} film={film} />
               ))}
@@ -241,18 +247,21 @@ const CountryPage: React.FC = () => {
             <div className="text-center py-10 text-emerald-900">
               No films available.
             </div>
-          )
-        ) : displayedUsers.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-            {displayedUsers.map((u) => (
-              <AccountCard key={u.username} account={u} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-10 text-emerald-900">
-            No artists available.
-          </div>
-        )}
+          ))}
+
+        {!loading &&
+          activeTab === "artists" &&
+          (displayedUsers.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-8 place-items-center">
+              {displayedUsers.map((u) => (
+                <AccountCard key={u.username} account={u} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-emerald-900">
+              No artists available.
+            </div>
+          ))}
       </div>
     </div>
   );

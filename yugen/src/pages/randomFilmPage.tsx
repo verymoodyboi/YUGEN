@@ -10,7 +10,7 @@ export default function RandomFilmPage(): JSX.Element {
         </h1>
         <p className="text-sm text-emerald-900/70  mt-2 sm:mt-0">Surprise! </p>
       </div>
-      <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle py-12">
+      <div className="min-h-screen  text-emerald-950 font-freckle py-12">
         <div className="max-w-[1400px] mx-auto px-6">
           <div className="flex items-center justify-between mb-6"></div>
           <FilmPicker />

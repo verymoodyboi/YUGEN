@@ -8,12 +8,12 @@ import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import PlaylistCard from "../features/playlist/components/PlaylistCard";
 import CustomLoading from "../SmallComponents/CutomsLoading";
-import EditProfile from "../features/profile/components/EditProfile";
+import EditProfile from "../features/profile/components/editProfile";
 import { Dialog, Transition } from "@headlessui/react";
 import UploadFilmCard from "../features/profile/components/uploadedFilmsCard";
 import { useSearchParams } from "react-router-dom";
-import upload_button_static from "../YugenAssits/upload-button/Regular.png";
-import upload_button_gif from "../YugenAssits/upload-button/Upload button modified REPEAT.gif";
+import upload_button_static from "../YugenAssits/upload-button/upload_button.png";
+import upload_button_gif from "../YugenAssits/upload-button/upload_button.gif";
 import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
 
 import {
@@ -51,7 +51,7 @@ const UserProfile: React.FC = () => {
       : "library";
 
   const [value, setValue] = useState<"library" | "info" | "uploads">(
-    initialTab
+    initialTab,
   );
 
   const [openEdit, setOpenEdit] = useState(false);
@@ -74,7 +74,7 @@ const UserProfile: React.FC = () => {
     handleLocalPlaylistUpdate,
     playlistsLoading,
     myUploads,
-    myUploadsData, // ✅ fixed
+    myUploadsData,
     fetchNextUploadsPage,
     hasNextUploadsPage,
     uploadsLoading,
@@ -94,21 +94,24 @@ const UserProfile: React.FC = () => {
         </div>
       </>
     );
-
+  const PFPurl = user?.pfp_path
+    ? `https://pfps.try-yugen.com/${user.pfp_path}?t=${Date.now()}`
+    : tempPFP;
   return (
     <>
-      <div className="min-h-screen bg-emerald-50 text-emerald-950 font-freckle p-4 flex flex-col gap-6">
+      <div className="min-h-screen  text-emerald-950 font-freckle p-4 flex flex-col gap-6">
         {/* HEADER */}
         <div className="flex flex-wrap gap-2 items-start justify-between w-full max-w-full overflow-x-hidden">
           {/* Profile Info */}
           <div className="flex gap-4 items-center">
             <img
-              src={
-                user?.pfp_path
-                  ? supabase.storage.from("pfps").getPublicUrl(user.pfp_path)
-                      .data.publicUrl + `?v=${Date.now()}`
-                  : tempPFP
-              }
+              src={PFPurl}
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (img.src !== tempPFP) {
+                  img.src = tempPFP;
+                }
+              }}
               alt="pfp"
               className="w-24 h-24 rounded-full border-4 border-emerald-950 object-cover"
             />
@@ -197,7 +200,7 @@ const UserProfile: React.FC = () => {
                       onClick={() => navigate("/UploadFilmPage")}
                       onMouseEnter={() => setIsHover(true)}
                       onMouseLeave={() => setIsHover(false)}
-                      className="h-15 w-15 cursor-pointer rounded-lg transition-transform duration-300 ease-in-out"
+                      className="h-12 w-12 cursor-pointer rounded-lg transition-transform duration-300 ease-in-out"
                       alt="upload_button"
                     />
                   </Tooltip>
@@ -257,7 +260,7 @@ const UserProfile: React.FC = () => {
         {/* TAB CONTENT */}
         {value === "library" && (
           <div className="flex flex-col gap-6">
-            {films.length > 0 && (
+            {films.length > 0 ? (
               <div
                 onScroll={handleScroll}
                 className="flex overflow-x-auto pb-2 gap-3 no-scrollbar max-h-100"
@@ -285,6 +288,10 @@ const UserProfile: React.FC = () => {
                   )}
                 </div>
               </div>
+            ) : (
+              <p className="text-emerald-900">
+                Start sharing to see your work here.
+              </p>
             )}
 
             {myPlaylists.length > 0 && (

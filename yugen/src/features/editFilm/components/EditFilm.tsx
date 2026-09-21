@@ -16,8 +16,12 @@ import supabase from "../../../lib/supabaseClient";
 import { useAuth } from "../../../contexts/AuthContext";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-import useEditFilmApi from "../hooks/useEditFilm";
-import { useGenresWithFilms } from "../../genres/useGenres";
+import useEditFilmApi from "../../../features/editFilm/hooks/useEditFilm";
+import { useGenresWithFilms } from "../../../features/genres/useGenres";
+import { useUpload } from "../../../features/upload/hooks/useUpload";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
+
 registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
 const crewRoles = ["Director", "DP", "Editor", "Producer", "Writer"];
@@ -50,14 +54,12 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   const genreOptions = React.useMemo(
     () =>
       Array.isArray(allGenres)
-        ? allGenres.map((g: any) => g.genre || g.name || g.id) // support flexible schema
+        ? allGenres.map((g: any) => g.genre || g.name || g.id)
         : [],
-    [allGenres]
+    [allGenres],
   );
-  // Auth (still available in this component because some non-API parts might use it)
   const { getAccessToken } = useAuth();
 
-  // Use the refactored hook that contains API calls and mention search state
   const {
     searchInput,
     setSearchInput,
@@ -68,8 +70,23 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     submitEdit,
     deleteFilmByUuid,
   } = useEditFilmApi();
+  const {
+    crewList,
+    cast,
 
-  // Delete film modal state
+    crewSearchInput,
+    crewSearchResults,
+    crewLoading,
+    actorSearchInput,
+    actorSearchResults,
+    actorLoading,
+
+    setCrewList,
+    setCast,
+    setCrewSearchInput,
+    setActorSearchInput,
+  } = useUpload();
+
   const [openDelete, setOpenDelete] = useState(false);
 
   const handleDelete = async () => {
@@ -85,7 +102,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     }
   };
 
-  // Mentions search (for crew/cast)
   const [crewPFP, setCrewPFP] = useState<string>("");
   const [actorPFP, setActorPFP] = useState<string>("");
 
@@ -95,11 +111,11 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
 
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [originalPreviewUrl, setOriginalPreviewUrl] = useState<string | null>(
-    null
+    null,
   );
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
   const [croppedPreviewUrl, setCroppedPreviewUrl] = useState<string | null>(
-    null
+    null,
   );
 
   const [crop, setCrop] = useState<any>(null);
@@ -109,7 +125,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    // cleanup object URLs on unmount
     return () => {
       if (originalPreviewUrl) URL.revokeObjectURL(originalPreviewUrl);
       if (croppedPreviewUrl) URL.revokeObjectURL(croppedPreviewUrl);
@@ -127,7 +142,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       { unit: "px", width: MinWidth, height: MinHeight },
       aspectRatio,
       naturalWidth,
-      naturalHeight
+      naturalHeight,
     );
     setCrop(newCrop);
   };
@@ -139,7 +154,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     if (!ctx) return;
 
     const pxRatio = window.devicePixelRatio || 1;
-    // compute cropping in original image pixels
     const scaleX = imgEl.naturalWidth / imgEl.width;
     const scaleY = imgEl.naturalHeight / imgEl.height;
     const sx = Math.round(cropArg.x * scaleX);
@@ -147,18 +161,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     const sw = Math.round(cropArg.width * scaleX);
     const sh = Math.round(cropArg.height * scaleY);
 
-    // set canvas to the size of the cropped area (consider pixel ratio)
     canvas.width = Math.floor(sw * pxRatio);
     canvas.height = Math.floor(sh * pxRatio);
 
-    // use setTransform for crisp scaling
     ctx.setTransform(pxRatio, 0, 0, pxRatio, 0, 0);
     ctx.imageSmoothingQuality = "high";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // draw the cropped portion to canvas
     ctx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, sw, sh);
 
-    // produce blob and file
     return new Promise<File | null>((resolve) => {
       canvas.toBlob(
         (blob) => {
@@ -169,7 +179,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
           const file = new File([blob], "poster_cropped.png", {
             type: "image/png",
           });
-          // revoke old cropped URL
           if (croppedPreviewUrl) {
             try {
               URL.revokeObjectURL(croppedPreviewUrl);
@@ -181,7 +190,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
           resolve(file);
         },
         "image/png",
-        0.95
+        0.95,
       );
     });
   };
@@ -193,7 +202,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       toast.warn("Only JPEG or PNG images allowed!");
       return;
     }
-    // revoke old original preview
     if (originalPreviewUrl) {
       try {
         URL.revokeObjectURL(originalPreviewUrl);
@@ -202,9 +210,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     const path = URL.createObjectURL(file);
     setPosterFile(file);
     setOriginalPreviewUrl(path);
-    // open crop modal
     setIsModalOpen(true);
-    // reset any previous cropped file (user will crop again)
     if (croppedPreviewUrl) {
       try {
         URL.revokeObjectURL(croppedPreviewUrl);
@@ -234,19 +240,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // show modal (already used)
   const showModal = () => setIsModalOpen(true);
 
-  // Save button in cropper
   const handleOk = async () => {
     if (imgRef.current && crop && canvasRef.current) {
       await applyCropAndSetFile(imgRef.current, crop);
     }
-    setIsModalOpen(false);
   };
 
-  // Original file in-state -> crop on change (mirror prior behavior)
-  // In some original code the onClose applied crop; keep original behavior: apply crop when modal closes too
   const handleCancel = async () => {
     if (imgRef.current && crop && canvasRef.current) {
       await applyCropAndSetFile(imgRef.current, crop);
@@ -255,19 +256,16 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   };
 
   useEffect(() => {
-    // whenever crop changes and we have an image element and canvas, produce a preview immediately (mirrors old code)
     const apply = async () => {
       if (imgRef.current && crop && canvasRef.current) {
         await applyCropAndSetFile(imgRef.current, crop);
       }
     };
     apply();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [crop]);
 
-  // Film data states
   const [title, setTitle] = useState(
-    filmInfo.film_title || filmInfo.title || ""
+    filmInfo.film_title || filmInfo.title || "",
   );
   const [thesis, setThesis] = useState(filmInfo.thesis || "");
   const [genres, setGenres] = useState<string[]>(
@@ -275,78 +273,23 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       ? filmInfo.film_genre
       : typeof filmInfo.film_genre === "string"
         ? filmInfo.film_genre.split(",").map((g) => g.trim())
-        : []
+        : [],
   );
   const [country, setCountry] = useState(filmInfo.country || "");
-  const [crewList, setCrewList] = useState<any[]>(() => {
-    try {
-      if (Array.isArray(filmInfo.crew)) return filmInfo.crew;
-      if (typeof filmInfo.crew === "string") return JSON.parse(filmInfo.crew);
-      return [];
-    } catch (e) {
-      console.error("Failed to parse crew:", e);
-      return [];
-    }
-  });
-  const [cast, setCast] = useState<any[]>(() => {
-    try {
-      if (Array.isArray(filmInfo.cast)) return filmInfo.cast;
-      if (typeof filmInfo.cast === "string") return JSON.parse(filmInfo.cast);
-      return [];
-    } catch (e) {
-      console.error("Failed to parse cast:", e);
-      return [];
-    }
-  });
 
   const [crewName, setCrewName] = useState("");
   const [crewRole, setCrewRole] = useState("");
   const [actor, setActor] = useState("");
   const [character, setCharacter] = useState("");
 
-  const handleAddCrew = () => {
-    if (!crewRole || !crewName) {
-      toast.warn("Please select a role and enter a name.");
-      return;
-    }
-    if (crewList?.some((m) => m.role === crewRole)) {
-      toast.warn("Role already added.");
-      return;
-    }
-    setCrewList((prev) => [
-      ...prev,
-      { role: crewRole, name: crewName, pfp: crewPFP },
-    ]);
-    setCrewName("");
-    setCrewRole("");
-    setCrewPFP("");
-  };
-
-  const handleAddCast = () => {
-    if (!character || !actor) {
-      toast.warn("Please enter a character and an actor.");
-      return;
-    }
-    setCast((prev) => [...prev, { character, actor, pfp: actorPFP }]);
-    setCharacter("");
-    setActor("");
-    setActorPFP("");
-  };
-
-  // Submit update (calls the hook's submitEdit, which calls service)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // preserve original behavior: call onDone early (original code did this)
-    if (onDone) {
-      onDone();
-    }
 
     if (!title || !thesis || !genres || genres.length === 0) {
       toast.warn("Please fill the title, thesis, and at least one genre.");
       return false;
     }
 
-    // Title validation
     if (title.length > 100) {
       toast.warn("Title cannot exceed 100 characters");
       return false;
@@ -356,12 +299,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       return false;
     }
     if (/[^\p{L}\p{N}\s.,!?'"-]/u.test(title)) {
-      // disallow emojis and unusual symbols
       toast.warn("Title cannot contain emojis or special characters");
       return false;
     }
 
-    // Thesis validation
     if (thesis.length > 1000) {
       toast.warn("Thesis cannot exceed 1000 characters");
       return false;
@@ -389,7 +330,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       formData.append("Cast", JSON.stringify(cast));
       formData.append("uplouderUsername", userInfo.username);
 
-      // prefer the cropped file if present; otherwise fall back to original selected file
       if (croppedFile) formData.append("Poster", croppedFile);
       else if (posterFile) formData.append("Poster", posterFile);
 
@@ -403,7 +343,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     }
   };
 
-  // Helper to get public url
   const getPublic = (bucket: string, path?: string | null) => {
     try {
       if (!path) return "";
@@ -415,79 +354,24 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     }
   };
 
-  // simple autocomplete UI for users
-  const UserAutocomplete = ({
-    value,
-    onChange,
-    placeholder,
-    loading,
-  }: {
-    value: string;
-    onChange: (val: string, pfp?: string | undefined) => void;
-    placeholder?: string;
-    loading?: boolean;
-  }) => {
-    const [open, setOpen] = useState(false);
-    return (
-      <div className="relative w-full">
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => {
-            const val = e.target.value;
-            onChange(val);
-            setSearchInput(val); // <- use the hook's setter so the hook's effect runs
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => {
-            // small delay so click on result registers
-            setTimeout(() => setOpen(false), 150);
-          }}
-          placeholder={placeholder}
-          className="w-full rounded-md border-2 border-emerald-950 bg-emerald-50 px-3 py-2 text-emerald-950 focus:outline-none"
-        />
-        {loading && (
-          <div className="absolute right-2 top-2">
-            <div className="w-3 h-3 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin" />
-          </div>
-        )}
+  const posterUrl = filmInfo.poster_path
+    ? `https://posters.try-yugen.com/${filmInfo.poster_path}`
+    : tempPoster;
 
-        {open && searchResults.length > 0 && (
-          <ul className="absolute z-50 mt-2 w-full max-h-44 overflow-y-auto bg-emerald-50 border-2 border-emerald-950 rounded-md shadow-md">
-            {searchResults.map((opt, i) => (
-              <li
-                key={i}
-                onMouseDown={() => {
-                  onChange(opt.username, opt.pfp);
-                  setOpen(false);
-                  setSearchInput("");
-                }}
-                className="flex items-center gap-3 px-3 py-2 hover:bg-emerald-100 cursor-pointer"
-              >
-                <img
-                  src={getPublic("pfps", opt.pfp) || "/default-avatar.png"}
-                  alt={opt.username}
-                  className="w-8 h-8 rounded-full object-cover border border-emerald-950"
-                />
-                <span className="text-emerald-950 font-freckle">
-                  {opt.username}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    );
-  };
   return (
-    <div className="w-screen h-screen overflow-auto bg-emerald-50 text-emerald-950 p-6">
+    <div
+      className="w-screen h-screen overflow-auto bg-emerald-50 text-emerald-950 p-6"
+      style={{
+        backgroundImage: 'url("/Background.png")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="max-w-[1200px] mx-auto rounded-2xl p-4">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col lg:flex-row gap-6">
-            {/* LEFT COLUMN */}
             <div className="flex-1 min-w-0">
-              {/* Genres */}
               <div>
                 <label className="block mb-2 font-freckle font-semibold">
                   Genres
@@ -503,7 +387,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                           setGenres((prev) =>
                             prev.includes(g)
                               ? prev.filter((x) => x !== g)
-                              : [...prev, g]
+                              : [...prev, g],
                           )
                         }
                         className={`px-3 py-1 rounded-md border-2 font-freckle text-sm transition ${
@@ -519,7 +403,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                 </div>
               </div>
 
-              {/* Country */}
               <div className="mt-4">
                 <label className="block mb-2 font-freckle font-semibold">
                   Country
@@ -538,85 +421,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                 </select>
               </div>
 
-              {/* Poster Image */}
-              <div className="mt-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-freckle font-semibold">
-                    Poster Image (optional)
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md border-2 border-emerald-950 bg-emerald-50 cursor-pointer">
-                      <CloudUploadIcon />
-                      Change Poster
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg, image/png"
-                        className="hidden"
-                        onChange={handleFileChange}
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleRemoveFile}
-                      className="px-3 py-2 rounded-md border-2 border-red-400 text-red-600 bg-emerald-50"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center gap-4">
-                  <div className="w-[200px] h-[300px] rounded-sm overflow-hidden border-2 border-emerald-950 bg-emerald-50 flex items-center justify-center">
-                    {croppedPreviewUrl ? (
-                      <img
-                        src={croppedPreviewUrl}
-                        alt="poster preview"
-                        className="object-cover w-full h-full"
-                      />
-                    ) : originalPreviewUrl ? (
-                      <img
-                        src={originalPreviewUrl}
-                        alt="poster preview"
-                        className="object-cover w-full h-full"
-                      />
-                    ) : (
-                      <img
-                        src={
-                          getPublic("posters", filmInfo.poster_path) ||
-                          "/placeholder.jpg"
-                        }
-                        alt="current poster"
-                        className="object-cover w-full h-full"
-                      />
-                    )}
-                  </div>
-
-                  <div className="flex-1 text-sm">
-                    <p className="text-emerald-950/80">
-                      Recommended aspect ratio: 2:3 (200x300 minimum). Use JPEG
-                      or PNG.
-                    </p>
-                    <p className="text-emerald-950/60 mt-2">
-                      After selecting an image you can crop it to the
-                      appropriate aspect ratio.
-                    </p>
-                    {posterFile && (
-                      <div className="mt-3">
-                        <button
-                          type="button"
-                          onClick={() => setIsModalOpen(true)}
-                          className="px-3 py-2 rounded-md border-2 border-emerald-950 bg-emerald-50"
-                        >
-                          Open cropper
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Poster Crop Modal */}
               {isModalOpen && (
                 <div
                   className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
@@ -640,7 +444,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                             minHeight={MinHeight}
                             onChange={(pixelCrop) => setCrop(pixelCrop)}
                           >
-                            {/* eslint-disable-next-line jsx-a11y/alt-text */}
                             <img
                               ref={imgRef}
                               src={originalPreviewUrl}
@@ -663,11 +466,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                             onClick={handleCancel}
                             className="px-4 py-2 rounded-md border-2 border-emerald-950 bg-emerald-50"
                           >
-                            Cancel
+                            Close
                           </button>
                         </div>
 
-                        {/* hidden canvas used for export */}
                         <canvas ref={canvasRef} style={{ display: "none" }} />
                       </>
                     )}
@@ -675,171 +477,256 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                 </div>
               )}
 
-              {/* Crew */}
-              <div className="mt-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-freckle font-semibold">
-                    Crew info (optional)
-                  </h3>
-                </div>
+              <div className="pt-2 border-t border-emerald-950/20">
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center mb-3">
+                  <select
+                    value={crewRole}
+                    onChange={(e) => setCrewRole(e.target.value)}
+                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50 w-full sm:w-auto"
+                  >
+                    <option value="">Select role</option>
+                    {crewRoles
+                      .filter((role) => !crewList.some((m) => m.role === role))
+                      .map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                  </select>
 
-                <div className="flex gap-2 items-start mt-2">
-                  <div className="w-36">
-                    <select
-                      value={crewRole}
-                      onChange={(e) => setCrewRole(e.target.value)}
-                      className="w-full rounded-md border-2 border-emerald-950 bg-emerald-50 px-2 py-2"
-                    >
-                      <option value="">Select role</option>
-                      {crewRoles
-                        .filter((r) => !crewList.some((m) => m.role === r))
-                        .map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-
-                  <div className="flex-1">
-                    <UserAutocomplete
+                  <div className="relative flex-1 w-full">
+                    <input
                       value={crewName}
-                      onChange={(val: string, pfp?: string) => {
-                        setCrewName("@" + val);
-                        if (pfp) setCrewPFP(pfp);
+                      onChange={(e) => {
+                        setCrewName(e.target.value);
+                        setCrewSearchInput(e.target.value);
                       }}
                       placeholder="Start typing a username..."
-                      loading={loadingUsers}
+                      className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
                     />
+                    {crewSearchInput.trim() !== "" && (
+                      <div className="absolute left-0 right-0 mt-1 bg-emerald-50 border-2 border-emerald-950 rounded-lg max-h-56 overflow-y-auto z-40">
+                        {crewLoading ? (
+                          <div className="p-2 text-center">
+                            <div className="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin mx-auto" />
+                          </div>
+                        ) : (
+                          crewSearchResults.map((opt: any) => (
+                            <div
+                              key={opt.username}
+                              onClick={() => {
+                                setCrewName("@" + opt.username);
+                                setCrewPFP(opt.pfp || tempPFP);
+                                setCrewSearchInput("");
+                              
+                              }}
+                              className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
+                            >
+                              <img
+                                src={
+                                  opt.pfp
+                                    ?  `https://pfps.try-yugen.com/${opt.pfp}?t=${Date.now()}`
+                                    : tempPFP
+                                }
+                                alt={opt.username}
+                                className="w-8 h-8 rounded-full object-cover border"
+                              />
+                              <span>@{opt.username}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <button
-                      type="button"
-                      onClick={handleAddCrew}
-                      className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 border-2 border-emerald-950"
-                    >
-                      Add
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      if (!crewName || !crewRole) {
+                        toast.warn("Please select a role and enter a name.");
+                        return;
+                      }
+                      if (crewList.some((m) => m.role === crewRole)) {
+                        toast.warn("Role already added.");
+                        return;
+                      }
+                      setCrewList((prev) => [
+                        ...prev,
+                        { role: crewRole, name: crewName, pfp: crewPFP },
+                      ]);
+                      setCrewName("");
+                      setCrewRole("");
+                      setCrewPFP("");
+                    }}
+                    type="button"
+                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 w-full sm:w-auto"
+                  >
+                    Add
+                  </button>
                 </div>
 
-                <div className="mt-3 space-y-2">
+                <div className="space-y-2">
                   {crewList.map((member, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between gap-3 bg-emerald-50 border-2 border-emerald-950 p-2 rounded-md"
+                      className="flex items-center justify-between bg-emerald-100 p-3 rounded-lg border-2 border-emerald-950"
                     >
                       <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            getPublic("pfps", member.pfp) ||
-                            "/default-avatar.png"
-                          }
-                          alt={member.name}
-                          className="w-8 h-8 rounded-full object-cover border"
-                        />
-                        <div>
-                          <div className="font-semibold">{member.role}</div>
-                          <div className="text-sm">{member.name}</div>
+                        <strong>{member.role}:</strong>
+                        <div className="flex items-center gap-2">
+                          {member.name.includes("@") && (
+                            <img
+                              src={
+                                member.pfp
+                                  ? `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
+                                  : tempPFP
+                              }
+                              alt={member.name}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          )}
+
+                          <span>{member.name}</span>
                         </div>
                       </div>
-
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCrewList((prev) =>
-                              prev.filter((_, i) => i !== idx)
-                            )
-                          }
-                          className="px-3 py-1 rounded-md border-2 border-red-400 text-red-600"
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      <button
+                        onClick={() =>
+                          setCrewList((prev) =>
+                            prev.filter((_, i) => i !== idx),
+                          )
+                        }
+                        className="px-3 py-1 rounded-md border-2 border-red-500 text-red-600"
+                      >
+                        Remove
+                      </button>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Cast */}
-              <div className="mt-6">
-                <h3 className="font-freckle font-semibold mb-2">Cast</h3>
-                <div className="flex gap-2">
+              <div className="pt-4 border-t border-emerald-950/20">
+                <h4 className="font-semibold mb-2">Cast info (optional)</h4>
+
+                <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center mb-3">
                   <input
                     value={character}
                     onChange={(e) => setCharacter(e.target.value)}
                     placeholder="Character"
-                    className="rounded-md border-2 border-emerald-950 bg-emerald-50 px-3 py-2 flex-1"
+                    className="rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50 w-full sm:w-auto"
                   />
-                  <div className="w-60">
-                    <UserAutocomplete
+
+                  <div className="relative flex-1 w-full">
+                    <input
                       value={actor}
-                      onChange={(val: string, pfp?: string) => {
-                        setActor("@" + val);
-                        if (pfp) setActorPFP(pfp);
+                      onChange={(e) => {
+                        setActor(e.target.value);
+                        setActorSearchInput(e.target.value);
                       }}
-                      placeholder="Actor username..."
-                      loading={loadingUsers}
+                      placeholder="Start typing a username..."
+                      className="w-full rounded-lg border-2 border-emerald-950 px-3 py-2 bg-emerald-50"
                     />
+                    {actorSearchInput.trim() !== "" && (
+                      <div className="absolute left-0 right-0 mt-1 bg-emerald-50 border-2 border-emerald-950 rounded-lg max-h-56 overflow-y-auto z-40">
+                        {actorLoading ? (
+                          <div className="p-2 text-center">
+                            <div className="w-4 h-4 border-2 border-emerald-700 border-t-transparent rounded-full animate-spin mx-auto" />
+                          </div>
+                        ) : (
+                          actorSearchResults.map((opt: any) => (
+                            <div
+                              key={opt.username}
+                              onClick={() => {
+                                setActor("@" + opt.username);
+                                setActorPFP(opt.pfp || tempPFP);
+                                setActorSearchInput("");
+                               
+                              }}
+                              className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
+                            >
+                              <img
+                                src={
+                                  opt.pfp
+                                    ? supabase.storage
+                                        .from("pfps")
+                                        .getPublicUrl(opt.pfp).data.publicUrl
+                                    : tempPFP
+                                }
+                                alt={opt.username}
+                                className="w-8 h-8 rounded-full object-cover border"
+                              />
+                              <span>@{opt.username}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <button
-                      type="button"
-                      onClick={handleAddCast}
-                      className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 border-2 border-emerald-950"
-                    >
-                      Add
-                    </button>
-                  </div>
+
+                  <button
+                    onClick={() => {
+                      if (!character || !actor) {
+                        toast.warn(
+                          "Please select a character and enter an actor.",
+                        );
+                        return;
+                      }
+                      setCast((prev) => [
+                        ...prev,
+                        { character, actor, pfp: actorPFP },
+                      ]);
+                      setCharacter("");
+                      setActor("");
+                      setActorPFP("");
+                    }}
+                    className="px-4 py-2 rounded-md bg-emerald-950 text-emerald-50 w-full sm:w-auto"
+                    type="button"
+                  >
+                    Add
+                  </button>
                 </div>
 
-                <div className="mt-3 space-y-2">
+                <div className="space-y-2">
                   {cast.map((member, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between gap-3 bg-emerald-50 border-2 border-emerald-950 p-2 rounded-md"
+                      className="flex items-center justify-between bg-emerald-100 p-3 rounded-lg border-2 border-emerald-950"
                     >
                       <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            getPublic("pfps", member.pfp) ||
-                            "/default-avatar.png"
-                          }
-                          alt={member.actor}
-                          className="w-8 h-8 rounded-full object-cover border"
-                        />
-                        <div>
-                          <div className="font-semibold">
-                            {member.character}
-                          </div>
-                          <div className="text-sm">@{member.actor}</div>
+                        <strong>{member.character}:</strong>
+                        <div className="flex items-center gap-2">
+                          {member.actor.includes("@") && (
+                            <img
+                              src={
+                                member.pfp
+                                  ? supabase.storage
+                                      .from("pfps")
+                                      .getPublicUrl(member.pfp).data.publicUrl
+                                  : tempPFP
+                              }
+                              alt={member.actor}
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          )}
+                          <span>{member.actor}</span>
                         </div>
                       </div>
-
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCast((prev) => prev.filter((_, i) => i !== idx))
-                          }
-                          className="px-3 py-1 rounded-md border-2 border-red-400 text-red-600"
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      <button
+                        onClick={() =>
+                          setCast((prev) => prev.filter((_, i) => i !== idx))
+                        }
+                        className="px-3 py-1 rounded-md border-2 border-red-500 text-red-600"
+                      >
+                        Remove
+                      </button>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* RIGHT COLUMN */}
             <div className="w-full lg:w-[400px] flex-shrink-0">
               <div className="w-full bg-emerald-50 border-2 border-emerald-950 rounded-md overflow-hidden">
                 <ReactPlayer
-                  url={getPublic("films", filmInfo.film_path) || ""}
+                  url={`https://cdn.try-yugen.com/${filmInfo.film_path}`}
                   controls
                   width="100%"
                   height="225px"
@@ -871,7 +758,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex flex-wrap gap-3">
             <button
               type="submit"
@@ -903,7 +789,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
         </form>
       </div>
 
-      {/* Delete confirmation modal */}
       {openDelete && (
         <div
           className="fixed inset-0 z-60 bg-black/60 flex items-center justify-center p-4"
@@ -957,9 +842,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       )}
     </div>
   );
-  // NOTE: The original file ended after UserAutocomplete. To preserve layout/style/logic exactly,
-  // keep the rest of the component exactly as-is (no JSX changes were requested).
-  // If your original file had a render/return block below, paste it here unchanged.
 };
 
 export default EditFilm;

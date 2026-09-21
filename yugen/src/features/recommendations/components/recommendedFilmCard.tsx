@@ -4,7 +4,9 @@ import { FiStar, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useFilm } from "../../stream/hooks/useFilmCard";
-
+import { startScroll, resetScroll } from "../../stream/util/textScroll";
+import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 interface SimilarFilmCardProps {
   film: any;
   selected?: boolean;
@@ -18,20 +20,44 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const { userInfo } = useAuth();
+  const posterUrl = film.poster_path
+    ? `https://posters.try-yugen.com/${film.poster_path}`
+    : tempPoster;
 
-  // ✅ Always pass both film_uuid and uploader_id
+  const titleContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const titleTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const genreContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const genreTextRef = React.useRef<HTMLSpanElement | null>(null);
+
+  const isMobile = React.useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 768px)").matches;
+  }, []);
+
+  React.useEffect(() => {
+    if (isMobile) {
+      startScroll(
+        titleTextRef.current,
+        titleContainerRef.current,
+        genreTextRef.current,
+        genreContainerRef.current,
+      );
+    }
+
+    return () => {
+      resetScroll(titleTextRef.current, genreTextRef.current);
+    };
+  }, [isMobile]);
+
   const { uploader } = useFilm(film.film_uuid, film.uploader_id);
-
-  const posterUrl =
-    supabase.storage.from("posters").getPublicUrl(film.poster_path || "").data
-      .publicUrl || "/placeholder.jpg";
-
+  const PFPurl = uploader?.pfp
+    ? `https://pfps.try-yugen.com/${uploader.pfp}?t=${Date.now()}`
+    : tempPFP;
   const handleClick = () => {
     if (onClick) onClick();
     else navigate(`/watch?uuid=${film.film_uuid}`);
   };
 
-  // ✅ Display genres safely
   const genresText = (() => {
     try {
       const genres =
@@ -49,69 +75,107 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
   return (
     <div
       onClick={handleClick}
-      className={`p-4 border-2 mt-2 border-emerald-950 rounded-lg bg-emerald-50 text-emerald-950 cursor-pointer transition-transform duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[4px_4px_0_0_#064e3b] ${
-        selected ? "bg-emerald-100" : ""
-      }`}
+      onMouseEnter={() => {
+        if (!isMobile) {
+          startScroll(
+            titleTextRef.current,
+            titleContainerRef.current,
+            genreTextRef.current,
+            genreContainerRef.current,
+          );
+        }
+      }}
+      onMouseLeave={() => {
+        if (!isMobile) {
+          resetScroll(titleTextRef.current, genreTextRef.current);
+        }
+      }}
+      className={`p-4 mt-2 border-2 border-emerald-950 rounded-lg bg-emerald-50
+        cursor-pointer transition-transform duration-200 ease-in-out
+        hover:-translate-y-1 hover:shadow-[4px_4px_0_0_#064e3b]
+        ${selected ? "bg-emerald-100" : ""}`}
     >
-      <div className="flex items-center gap-4">
-        {/* Poster */}
+      <div className="flex items-start gap-4">
         <img
           src={posterUrl}
-          alt={film.film_title}
-          className="w-20 h-28 object-cover rounded-md border border-emerald-950"
+          alt="Film thumbnail"
+          onError={(e) => {
+            const img = e.currentTarget;
+            if (img.src !== tempPoster) {
+              img.src = tempPoster;
+            }
+          }}
+          className="w-20 h-28 object-cover rounded-md border border-emerald-950 flex-shrink-0"
         />
 
-        {/* Film info */}
         <div className="flex-1 flex flex-col">
-          <h3 className="font-freckle text-xl truncate">{film.film_title}</h3>
-          <p className="text-sm text-emerald-950/70">{genresText}</p>
+          <div
+            ref={titleContainerRef}
+            className="overflow-hidden whitespace-nowrap
+                       max-w-[140px] sm:max-w-[200px]"
+          >
+            <span
+              ref={titleTextRef}
+              className="inline-block font-freckle text-sm"
+            >
+              {film.film_title}
+            </span>
+          </div>
 
-          {/* Uploader info under genre */}
-          {uploader && uploader.username ? (
+          <div
+            ref={genreContainerRef}
+            className="overflow-hidden whitespace-nowrap
+                       max-w-[140px] sm:max-w-[200px]"
+          >
+            <span
+              ref={genreTextRef}
+              className="inline-block text-sm text-emerald-950/70"
+            >
+              {genresText}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 mt-1 text-xs text-emerald-950/80">
+            <div className="flex items-center gap-1">
+              <FiEye size={14} />
+              <span>{film.view_count ?? 0}</span>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <FiStar size={14} />
+              <span>{film.avg_rating ?? "N/A"}</span>
+            </div>
+          </div>
+
+          {uploader?.username ? (
             <div
-              className="flex items-center gap-1 mt-1 w-32 flex-shrink-0"
+              className="flex items-center gap-1 mt-2 w-32 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(
-                  `/@?username=${encodeURIComponent(uploader?.username)}`
+                  `/@?username=${encodeURIComponent(uploader.username)}`,
                 );
               }}
             >
-              {uploader.pfp ? (
-                <img
-                  src={
-                    userInfo?.pfp_path
-                      ? supabase.storage.from("pfps").getPublicUrl(uploader.pfp)
-                          .data.publicUrl + `?v=${Date.now()}`
-                      : undefined
+              <img
+                src={PFPurl}
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (img.src !== tempPFP) {
+                    img.src = tempPFP;
                   }
-                  alt="Uploader avatar"
-                  className="w-5 h-5 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-emerald-700 flex-shrink-0" />
-              )}
-              <span className="text-[11px] truncate" title={uploader.username}>
-                {uploader.username.length > 10
-                  ? `${uploader.username.slice(0, 10)}...`
-                  : uploader.username}
-              </span>
+                }}
+                alt="Uploader avatar"
+                className="w-5 h-5 rounded-full object-cover"
+              />
+
+              <span className="text-[11px] truncate">{uploader.username}</span>
             </div>
           ) : (
-            <div className="text-xs text-emerald-950/50 mt-1">
+            <div className="text-xs text-emerald-950/50 mt-2">
               Loading uploader...
             </div>
           )}
-        </div>
-
-        {/* Views & Rating */}
-        <div className="flex flex-col items-end text-sm text-emerald-950">
-          <div className="flex items-center gap-1">
-            <FiEye size={16} /> {film.view_count ?? 0}
-          </div>
-          <div className="flex items-center gap-1">
-            <FiStar size={16} /> {film.avg_rating ?? "N/A"}
-          </div>
         </div>
       </div>
     </div>

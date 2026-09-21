@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { addUserType, editProfile, updateSocials } from "../services";
+import { addUserType, compressEditedPFP, editProfile, updateSocials } from "../services";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../components/toaster";
+  import { uploadToR2 } from "../../auth/register/services";
 
-/* ================== VALIDATION HELPERS ================== */
+
 const hasLineBreaks = (v: string) => /[\r\n]/.test(v);
 const containsEmoji = (v: string) =>
   /[\p{Extended_Pictographic}]/u.test(v);
@@ -19,6 +20,8 @@ function validateProfileForm(
   const region = formData.get("Region") as string;
   const gender = formData.get("Gender") as string;
   const bio = formData.get("Bio") as string;
+  const conactEmail = formData.get("contactEmail") as string;
+  const contactNumber = formData.get("contactNumber") as string;
 
   if (
     isEmpty(fname) ||
@@ -28,7 +31,7 @@ function validateProfileForm(
     isEmpty(gender) ||
     isEmpty(bio)
   ) {
-    toast.error("All fields except socials are required.");
+    toast.error("All fields except socials and contacts are required.");
     return false;
   }
 
@@ -64,38 +67,62 @@ function validateProfileForm(
 
   return true;
 }
-/* ======================================================== */
 
 export function useEditProfile(onSuccess?: () => void) {
   const { getAccessToken } = useAuth();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
+const {userInfo}=useAuth()
 
-  // --- main profile update (profile + socials) ---
-  const handleSubmit = async (
-    formData: FormData,
-    socials: { Insta?: string; YT?: string; LI?: string }
-  ) => {
-    if (!validateProfileForm(formData, toast)) return;
+const handleSubmit = async (
+  formData: FormData,
+  socials: { Insta?: string; YT?: string; LI?: string },
+  croppedFile?: File
+) => {
+  if (!validateProfileForm(formData, toast)) return;
 
-    setLoading(true);
-    try {
-      const token = await getAccessToken();
+  setLoading(true);
+  try {
+    const token = await getAccessToken();
 
-      await updateSocials(socials, token);
-      await editProfile(formData, token);
+    await updateSocials(socials, token);
 
-      toast.success("Profile updated successfully!");
-      onSuccess?.();
-    } catch (err) {
-      console.error("Profile update failed:", err);
-      toast.error("Error updating profile");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const payload = {
+      authId: userInfo?.auth_id as string,
+      FName: formData.get("FName") as string,
+      LName: formData.get("LName") as string,
+      UserName: formData.get("UserName") as string,
+      Bio: formData.get("Bio") as string,
+      Gender: formData.get("Gender") as string,
+      Region: formData.get("Region") as string,
+         contactEmail : formData.get("contactEmail") as string,
+         contactNumber : formData.get("contactNumber") as string,
 
-  // --- socials-only update ---
+
+      
+  ...(croppedFile ? { pfpContentType: croppedFile.type } : {}),    };
+//console.log("PROFILE PAYLOAD TO API:", payload);
+
+const { uploadUrl } = await editProfile(payload, token);
+
+if (croppedFile) {
+  if (!uploadUrl) throw new Error("No upload URL returned for profile picture");
+  await uploadToR2(uploadUrl, croppedFile);
+}
+ 
+
+    toast.success("Profile updated successfully!");
+    const pfpPayload={authId:userInfo?.auth_id}
+    await compressEditedPFP(pfpPayload,token)
+    onSuccess?.();
+  } catch (err) {
+    console.error("Profile update failed:", err);
+    toast.error("Error updating profile");
+  } finally {
+    setLoading(false);
+  }
+};
+
   const handleUpdateSocials = async (
     socials: { Insta?: string; YT?: string; LI?: string }
   ) => {

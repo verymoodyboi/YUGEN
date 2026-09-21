@@ -18,6 +18,8 @@ import reportRouter from './domains/report/report.routes.js';
 import academictRouter from './domains/academic/academic.routes.js';
 import thoughtstRouter from './domains/thoughts/thoughts.routes.js';
 import subsRouter from './domains/subscriptions/subscriptions.routes.js';
+import pokesRouter from './domains/pokes/pokes.routes.js'
+
 import historyRouter from './domains/history/history.routes.js';
 import playlistsRouter from './domains/playlists/playlists.routes.js';
 import watchlistRouter from './domains/watchlist/watchlist.routes.js';
@@ -28,6 +30,11 @@ import exploreRouter from "./domains/explore/explore.router.js"
 import globeRoutes from "./domains/globe/globe.routes.js"
 import toolstRouter from './domains/tools/tools.routes.js';
 import flaggedRouter from "./domains/admin/flagged_films/flagged_films.routes.js"
+import repororted_acc_router from "./domains/admin/reported_accounts/reported_accounts.routes.js"
+
+import QARouter from "./domains/admin/QA/QA.routes.js"
+import supportRouter from "./domains/admin/support_tickets/support_tickets.routes.js"
+
 import moderationRouter from './domains/moderation/moderation.routes.js';
 
 import { register } from 'module';
@@ -36,9 +43,10 @@ import { register } from 'module';
 
 const app: Application = express();
 const allowedOrigins = [
-  "http://try-yugen.com", // temp production url
+  "https://try-yugen.com", 
+  "http://try-yugen.com",
   "http://localhost:5174",  
-  "http://localhost:5173",            // for local dev
+  "http://localhost:5173",
 ];
 // Security middlewares
 app.use(helmet());
@@ -51,6 +59,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.set("trust proxy", 1);
 
 // Rate limiting
 app.use(rateLimiter);
@@ -73,9 +83,12 @@ app.use('/api/auth', authRouter);
 app.use('/api/films', filmsRouter);
 app.use('/api/stream', streamRouter);
 app.use('/api/report', reportRouter);
+app.use('/api/support', supportRouter);
 app.use('/api/academic', academictRouter);
 app.use('/api/thoughts', thoughtstRouter);
 app.use('/api/subs', subsRouter);
+app.use('/api/pokes', pokesRouter);
+
 app.use('/api/history', historyRouter);
 app.use('/api/playlists', playlistsRouter);
 app.use('/api/watchlist', watchlistRouter);
@@ -84,7 +97,10 @@ app.use('/api/recommendations', recommendationsRouter);
 app.use('/api/view_profile', view_profileRouter);
 app.use("/api/explore",exploreRouter)
 app.use("/api/globe",globeRoutes)
-app.use("/api/flagged",flaggedRouter)
+app.use("/api/admin/flagged",flaggedRouter)
+app.use("/api/admin/reported",repororted_acc_router)
+app.use("/api/admin/QA",QARouter)
+
 app.use("/api/moderation", moderationRouter);
 // app.use('/api/users', userRoutes); // future
 

@@ -1,11 +1,13 @@
-// PlaylistItem.tsx
 import React from "react";
 import supabase from "../../../lib/supabaseClient";
 import { FiEye, FiStar } from "react-icons/fi";
 import { useFilm } from "../../stream/hooks/useFilmCard";
 import { useNavigate } from "react-router-dom";
+import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
+import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
+
 interface PlaylistItemProps {
-  pf: any; // same shape as playlistFilms entries from backend
+  pf: any;
   selected: boolean;
   onClick: () => void;
 }
@@ -17,12 +19,19 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
 }) => {
   const film = pf.films || pf;
 
-  // --- Get uploader info using your existing hook ---
   const { uploader } = useFilm(undefined, film.uploader_id);
 
-  const posterUrl =
-    supabase.storage.from("posters").getPublicUrl(film.poster_path).data
-      .publicUrl || "/placeholder.jpg";
+  const posterUrl = film.poster_path
+    ? supabase.storage.from("posters").getPublicUrl(film.poster_path).data
+        .publicUrl +
+      (film.updated_at ? `?v=${new Date(film.updated_at).getTime()}` : "")
+    : tempPoster;
+  const PFPurl = uploader?.pfp
+    ? supabase.storage.from("pfps").getPublicUrl(uploader?.pfp).data.publicUrl +
+      (uploader?.updated_at
+        ? `?v=${new Date(uploader?.updated_at).getTime()}`
+        : "")
+    : tempPFP;
   const navigate = useNavigate();
   return (
     <div
@@ -32,43 +41,46 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
       }`}
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        {/* Poster */}
         <img
           src={posterUrl}
-          alt={film.film_title}
+          alt="Film thumbnail"
+          onError={(e) => {
+            const img = e.currentTarget;
+            if (img.src !== tempPoster) {
+              img.src = tempPoster;
+            }
+          }}
           className="w-20 h-28 object-cover rounded-md border border-emerald-950 flex-shrink-0"
         />
 
-        {/* Film info */}
         <div className="flex-1 flex flex-col min-w-0">
           <h3 className="font-freckle text-xl truncate">{film.film_title}</h3>
           <p className="text-sm text-emerald-950/70 truncate">
             {film.film_genre || "No genre"}
           </p>
 
-          {/* Uploader info under genre */}
           {uploader?.username && (
             <div
               className="flex items-center gap-1 mt-1 w-full sm:w-32 flex-shrink-0"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(
-                  `/@?username=${encodeURIComponent(uploader?.username)}`
+                  `/@?username=${encodeURIComponent(uploader?.username)}`,
                 );
               }}
             >
-              {uploader.pfp ? (
-                <img
-                  src={
-                    supabase.storage.from("pfps").getPublicUrl(uploader.pfp)
-                      .data.publicUrl + `?v=${Date.now()}`
+              <img
+                src={PFPurl}
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (img.src !== tempPFP) {
+                    img.src = tempPFP;
                   }
-                  alt="Uploader avatar"
-                  className="w-5 h-5 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-emerald-700 flex-shrink-0" />
-              )}
+                }}
+                alt="Uploader avatar"
+                className="w-5 h-5 rounded-full object-cover                                            flex-shrink-0"
+              />
+
               <span className="text-[11px] truncate" title={uploader.username}>
                 {uploader.username.length > 10
                   ? `${uploader.username.slice(0, 10)}...`
@@ -78,7 +90,6 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
           )}
         </div>
 
-        {/* Views & Rating */}
         <div className="flex sm:flex-col items-start sm:items-end gap-2 text-sm text-emerald-950 flex-shrink-0 mt-2 sm:mt-0">
           <div className="flex items-center gap-1">
             <FiEye size={16} /> <span>{film.view_count ?? 0}</span>

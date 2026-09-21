@@ -21,12 +21,10 @@ export async function getFilmById(filmId: string) {
 
 
 
-/**
- * Recalculate and update a film's popularity via Supabase RPC
- */
+
 export async function updateFilmPopularity(filmId: string) {
   const { error } = await supabase.rpc('update_film_popularity', {
-    p_film_uuid: filmId,  //  must match the SQL parameter name
+    p_film_uuid: filmId,  
   });
 
   if (error) {
@@ -39,21 +37,17 @@ export async function updateFilmPopularity(filmId: string) {
 }
 
 
-/**
- * Increment film view count, and every 10th view triggers a popularity update
- */
+
 export async function incrementView(filmId: string) {
-  // Step 1: Increment via RPC
   const { error: incrementError } = await supabase.rpc('increment_view_count', {
     p_film_uuid: filmId,
   });
 
   if (incrementError) {
-    logger.error('❌ Failed to increment view count', { filmId, error: incrementError });
+    logger.error('Failed to increment view count', { filmId, error: incrementError });
     throw new Error('Failed to increment view count');
   }
 
-  // Step 2: Get updated view count
   const { data, error: fetchError } = await supabase
     .from('films')
     .select('view_count')
@@ -61,18 +55,17 @@ export async function incrementView(filmId: string) {
     .single();
 
   if (fetchError || !data) {
-    logger.error('❌ Failed to fetch updated view count', { filmId, error: fetchError });
+    logger.error('Failed to fetch updated view count', { filmId, error: fetchError });
     throw new Error('Failed to fetch updated view count');
   }
 
   const currentViews = data.view_count ?? 0;
 
-  // Step 3: Trigger popularity update every 10 views
   if (currentViews % 10 === 0) {
     try {
       await updateFilmPopularity(filmId);
     } catch (popularityError) {
-      logger.warn('⚠️ Popularity update failed after view increment', {
+      logger.warn('Popularity update failed after view increment', {
         filmId,
         error: popularityError,
       });
@@ -83,9 +76,8 @@ export async function incrementView(filmId: string) {
 }
 
 
-export async function logClick(filmId: string, userId: string) {
+export async function logClick(filmId: string, userId?: string) {
   const { error } = await supabase.from('click_through_films').insert({
-    auth_id: userId,
     film_uuid: filmId,
   });
 

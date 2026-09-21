@@ -118,7 +118,6 @@ const AcceptedFilmsTab: React.FC<AcceptedFilmsTabProps> = ({
         </div>
       )}
 
-      {/* === Manual ranking (Podium system) === */}
       {challenge?.ranking_system === "manual" && (
         <div>
           <div className="p-4">
@@ -210,7 +209,7 @@ const AcceptedFilmsTab: React.FC<AcceptedFilmsTabProps> = ({
                     className="w-24 h-36 object-cover rounded-md cursor-pointer"
                     onClick={async () => {
                       navigate(
-                        `/watch?uuid=${encodeURIComponent(film.film_uuid)}`
+                        `/watch?uuid=${encodeURIComponent(film.film_uuid)}`,
                       );
                     }}
                   />

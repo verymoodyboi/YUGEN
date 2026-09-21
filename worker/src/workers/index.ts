@@ -1,0 +1,41 @@
+import { runFilmWorker } from "./filmWorker.js";
+import { runTranscodeWorker } from "./HLSWorker.js";
+import logger from "../lib/logger.js";
+import { runQencodePollWorker } from "./HLSPollWorker.js";
+import { runPosterCompressionWorker } from "./posterCompWorker.js";
+import { runPfpCompressionWorker } from "./PfpCompresiionWorker.js";
+console.log("🔥 Film worker entrypoint loaded");
+
+process.on("unhandledRejection", (err) => {
+  logger.error("Unhandled promise rejection", err);
+  process.exit(1);
+});
+
+process.on("uncaughtException", (err) => {
+  logger.error("Uncaught exception", err);
+  process.exit(1);
+});
+
+runFilmWorker().catch((err) => {
+  logger.error("💥 Worker failed to start", err);
+  process.exit(1);
+});
+runTranscodeWorker().catch((err) => {
+  logger.error("💥 Worker failed to start", err);
+  process.exit(1);
+});
+runQencodePollWorker().catch((err) => {
+  logger.error("💥 Worker failed to start", err);
+  process.exit(1);
+});
+
+runPosterCompressionWorker().catch((err) => {
+  logger.error("💥 poster Worker failed to start", err);
+  process.exit(1);
+});
+
+
+runPfpCompressionWorker().catch((err) => {
+  logger.error("💥 poster Worker failed to start", err);
+  process.exit(1);
+});

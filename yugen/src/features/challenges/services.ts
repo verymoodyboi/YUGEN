@@ -1,9 +1,5 @@
-// src/features/challenges/services/challengeServices.ts
 import { api } from "../../lib/api";
 
-/**
- * --- Public routes ---
- */
 export async function listAdminChallenges() {
   const res = await api.get("/challenges");
   return res.data;
@@ -35,9 +31,7 @@ export async function fetchUserChallenges({
   });
   return data;
 }
-/**
- * --- Authenticated routes ---
- */
+
 export async function getMyFilms(token: string) {
   const res = await api.get("/challenges/my/films", {
     headers: { Authorization: `Bearer ${token}` },
@@ -66,9 +60,6 @@ export async function getSubmission(id: string, token: string) {
   return res.data;
 }
 
-/**
- * --- Submissions ---
- */
 export async function submitFilm(id: string, filmData: any, token: string) {
   const res = await api.post(`/challenges/${id}/submit`, filmData, {
     headers: { Authorization: `Bearer ${token}` },
@@ -83,9 +74,7 @@ export async function removeSubmission(id: string, token: string) {
   return res.data;
 }
 
-/**
- * --- Voting ---
- */
+
 export async function getVote(id: string, token: string) {
   const res = await api.get(`/challenges/${id}/vote`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -102,9 +91,7 @@ export async function toggleVote(id: string, token: string) {
   return res.data;
 }
 
-/**
- * --- Creation & management ---
- */
+
 export async function createChallenge(formData: FormData, token: string) {
   const res = await api.post("/challenges/create", formData, {
     headers: { Authorization: `Bearer ${token}` },
@@ -119,9 +106,6 @@ export async function editChallenge(id: string, payload: any, token: string) {
   return res.data;
 }
 
-/**
- * --- Admin / owner moderation ---
- */
 export async function getPendingFilms(id: string, token: string) {
   const res = await api.get(`/challenges/${id}/pending-films`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -145,9 +129,7 @@ export async function removeFilm(id: string, filmUuid: string, token: string) {
   return res.data;
 }
 
-/**
- * --- Podium ---
- */
+
 export async function getPodium(id: string, token: string) {
   const res = await api.get(`/challenges/${id}/podium`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -162,7 +144,6 @@ export async function savePodium(id: string, data: any, token: string) {
   return res.data;
 }
 
-// src/services/challengeService.ts
 
 export const ChallengeService = {
   async getChallenge(id: string) {

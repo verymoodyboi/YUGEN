@@ -4,7 +4,7 @@ import { api } from "../../lib/api";
 
 
 
-export const deleteFilm = async (film_uuid: string, token: string) => {
+export const deleteFilm = async (film_uuid: string, token: any) => {
   return api.post(
     "films/delete",
     { film_uuid },
@@ -29,7 +29,6 @@ export const editFilm = async (formData: FormData, token: string) => {
 
 
 export const searchMentions = async (q: string, token: string) => {
-  // returns axios response (caller can read response.data)
   const encoded = encodeURIComponent(q);
   return api.get(
     `search/mentions/?q=${encoded}`,

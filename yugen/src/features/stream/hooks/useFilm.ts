@@ -20,7 +20,6 @@ export function useFilms({ filmId, getAccessToken }: UseFilmsProps) {
   const [listedPlaylists, setListedPlaylists] = useState<{ [key: string]: boolean }>({});
   const [loading, setLoading] = useState(true);
 
-  // --- Fetch film data ---
   const loadFilmData = useCallback(async () => {
     if (!filmId || !getAccessToken) return;
     setLoading(true);
@@ -35,7 +34,6 @@ export function useFilms({ filmId, getAccessToken }: UseFilmsProps) {
     }
   }, [filmId, getAccessToken]);
 
-  // --- Increment view ---
   const handleIncrementView = useCallback(async () => {
     if (!filmId || !getAccessToken) return;
     try {
@@ -46,7 +44,6 @@ export function useFilms({ filmId, getAccessToken }: UseFilmsProps) {
     }
   }, [filmId, getAccessToken]);
 
-  // --- Watchlist ---
   const loadWatchlist = useCallback(async () => {
     if (!filmId || !getAccessToken) return;
     try {
@@ -69,7 +66,6 @@ export function useFilms({ filmId, getAccessToken }: UseFilmsProps) {
     }
   }, [filmId, getAccessToken]);
 
-  // --- Playlists ---
   const loadPlaylistsAndChecks = useCallback(async () => {
     if (!filmId || !getAccessToken) return;
     setLoading(true);
@@ -109,7 +105,6 @@ export function useFilms({ filmId, getAccessToken }: UseFilmsProps) {
     }
   }, [filmId, getAccessToken]);
 
-  // --- Load everything on mount ---
   useEffect(() => {
     loadFilmData();
     loadWatchlist();

@@ -1,6 +1,5 @@
-// src/features/recommendations/hooks/useFilmsByGenre.ts
 import { useState, useCallback, useEffect } from "react";
-import { api } from "../../../lib/api"; // use your axios instance
+import { api } from "../../../lib/api"; 
 import { Film } from "../../stream/types/film";
 
 interface UseFilmsByGenreResult {

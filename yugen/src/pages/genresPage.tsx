@@ -16,7 +16,7 @@ const GenresPage: React.FC = () => {
           Discover films by theme, tone, and feel.
         </p>
       </div>
-      <div className="min-h-screen flex flex-col gap-10 text-emerald-950 bg-emerald-50  px-4 sm:px-8 py-10 transition-colors duration-300">
+      <div className="min-h-screen flex flex-col gap-10 text-emerald-950  px-4 sm:px-8 py-10 transition-colors duration-300">
         {/* Header */}
 
         {/* Loading & Empty States */}

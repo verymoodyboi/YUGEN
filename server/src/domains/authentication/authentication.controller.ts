@@ -1,19 +1,23 @@
 import type { Request, Response } from 'express';
 import * as authService from './authentication.services.js';
 
-export async function authStatus(req: Request, res: Response) {
+export async function authStatus(req: any, res: Response) {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
+    if (!req.user) {
       return res.status(401).json({ status: 'unauthenticated' });
     }
 
-    const result = await authService.getAuthStatus(userId);
-    res.json(result);
+    const result = await authService.getAuthStatus(req.user);
+    return res.json(result);
   } catch (err: any) {
-    res.status(500).json({ status: 'unauthenticated', error: err.message });
+    console.error('Auth status error', { err });
+    return res.status(500).json({
+      status: 'unauthenticated',
+      error: err.message,
+    });
   }
 }
+
 
 export async function me(req: Request, res: Response) {
   try {

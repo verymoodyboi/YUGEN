@@ -7,7 +7,7 @@ export async function deletePlaylist(
 ) {
   const { data } = await api.delete("/playlists/", {
     headers: { Authorization: `Bearer ${token}` },
-    data: { playlistID },       // DELETE body
+    data: { playlistID },   
   });
 
   return data;

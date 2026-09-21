@@ -1,6 +1,7 @@
 import supabase from '../../lib/supabase.js';
 import type { UpdateSocialsDTO, EditProfileDTO } from './profile.types.js';
-import { preRegisterSocialsSchema } from './profile.validations.js';
+import { generateR2SignedPutUrl } from '../register/register.services.js';
+import logger from '../../lib/logger.js';
 
 export async function updateSocials(authId: string, socials: UpdateSocialsDTO) {
   const { error } = await supabase
@@ -17,39 +18,84 @@ export async function updateSocials(authId: string, socials: UpdateSocialsDTO) {
   return true;
 }
 
-export async function editProfile(authId: string, dto: EditProfileDTO, file?: Express.Multer.File) {
-  // Handle new PFP upload only if a file was provided
-  if (file) {
-    // remove old picture
-    await supabase.storage.from('pfps').remove([`${authId}.jpg`]);
-
-    const { error: uploadError } = await supabase.storage
-      .from('pfps')
-      .upload(`${authId}.jpg`, file.buffer, {
-        contentType: file.mimetype,
-        upsert: true,
-      });
-
-    if (uploadError) throw new Error(uploadError.message);
+export async function editProfile(
+  authId: string,
+  body: {
+    FName: string;
+    LName: string;
+    UserName: string;
+    Bio: string;
+    Gender: string;
+    Region: string;
+    pfpContentType?: string;
+    contactEmail:string;
+    contactNumber:string;
   }
+) {
+  let uploadUrl: string | null = null;
+  let pfpPath: string | null = null;
 
-  // Update text fields (and only include pfp_path if new file uploaded)
-  const { error: updateError } = await supabase
-    .from('users')
+  if (body.pfpContentType) {
+    pfpPath = `pfps/${authId}.jpg`;
+
+    uploadUrl = await generateR2SignedPutUrl({
+      key: pfpPath,
+      contentType: body.pfpContentType,
+    });
+  }
+  //  if (body.pfpContentType) {
+  //   const { error: jobError } = await supabase
+  //     .from("jobs_pfp_compression")
+  //     .insert({
+  //       type: "pfp_compression",
+  //       payload: { auth_id:authId },
+  //     });
+ 
+  //   if (jobError) {
+  //     logger.error("Failed to enqueue pfp compression job", { authId, error: jobError });
+  //   } else {
+  //     logger.info("Enqueued pfp compression job", { authId });
+  //   }
+  // }
+
+  const { error } = await supabase
+    .from("users")
     .update({
-      username: dto.UserName,
-      f_name: dto.FName,
-      l_name: dto.LName,
-      bio: dto.Bio,
-      gender: dto.Gender,
-      region: dto.Region,
-      ...(file ? { pfp_path: `${authId}.jpg` } : {}), 
+      username: body.UserName,
+      f_name: body.FName,
+      l_name: body.LName,
+      bio: body.Bio,
+      gender: body.Gender,
+      region: body.Region,
+      contact_email:body.contactEmail,
+      contact_number:body.contactNumber,
+      ...(pfpPath ? { pfp_path: pfpPath } : {}),
     })
-    .eq('auth_id', authId);
+    .eq("auth_id", authId);
 
-  if (updateError) throw new Error(updateError.message);
+  if (error) throw new Error(error.message);
 
-  return true;
+  return {
+    success: true,
+    uploadUrl,
+  };
+}
+export async function compressPfp(authId:string)
+{
+  
+    const { error: jobError } = await supabase
+      .from("jobs_pfp_compression")
+      .insert({
+        type: "pfp_compression",
+        payload: { auth_id:authId },
+      });
+ 
+    if (jobError) {
+      logger.error("Failed to enqueue pfp compression job", { authId, error: jobError });
+    } else {
+      logger.info("Enqueued pfp compression job", { authId });
+    }
+  
 }
 
 
@@ -81,6 +127,60 @@ export async function addUserType(userType:string,authId:string) {
    user_type:userType
     })
     .eq('auth_id', authId);
+
+  if (error) throw new Error(error.message);
+
+  return true;
+}
+
+
+
+export async function addSchool(authId: string, school: string) {
+  const { error } = await supabase
+    .from("users")
+    .update({ university:school })
+    .eq("auth_id", authId);
+
+  if (error) throw new Error(error.message);
+
+  return true;
+}
+
+
+
+export async function getContactInfo(authId: string) {
+  const { data, error } = await supabase
+    .from("users")
+    .select("contact_email, contact_number")
+    .eq("auth_id", authId)
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return data;
+}
+
+export async function updateContactInfo(
+  authId: string,
+  body: {
+    contactEmail?: string;
+    contactNumber?: string;
+  }
+) {
+  const updateData: any = {};
+
+  if (body.contactEmail !== undefined) {
+    updateData.contact_email = body.contactEmail;
+  }
+
+  if (body.contactNumber !== undefined) {
+    updateData.contact_number = body.contactNumber;
+  }
+
+  const { error } = await supabase
+    .from("users")
+    .update(updateData)
+    .eq("auth_id", authId);
 
   if (error) throw new Error(error.message);
 

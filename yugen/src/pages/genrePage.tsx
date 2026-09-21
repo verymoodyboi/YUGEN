@@ -1,7 +1,5 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
-import AppLayout from "../layouts/layout-main";
-import supabase from "../lib/supabaseClient";
 import { useFilmsByGenre } from "../features/recommendations/hooks/useFilmsByGenre";
 import { useGenresWithFilms } from "../features/genres/useGenres";
 import FilmCard from "../components/filmCard-2x3";
@@ -16,13 +14,12 @@ const GenrePage: React.FC = () => {
 
   const genreInfo = React.useMemo(
     () => genres?.find((g) => g.genre === genreName),
-    [genres, genreName]
+    [genres, genreName],
   );
 
   const mainPoster =
     films.length > 0
-      ? supabase.storage.from("posters").getPublicUrl(films[0].poster_path).data
-          .publicUrl
+      ? `https://posters.try-yugen.com/${films[0].poster_path}`
       : undefined;
 
   const topFilm = films[0];
@@ -44,15 +41,15 @@ const GenrePage: React.FC = () => {
     <>
       <div className="flex flex-col space-y-10 text-emerald-950 ">
         {/* === HERO SECTION === */}
-        <div className="relative w-full rounded-3xl overflow-hidden border border-emerald-950/30 shadow-lg bg-emerald-50 ">
+        <div className=" w-full rounded-3xl  overflow-hidden border border-emerald-950/30 shadow-lg bg-emerald-950 ">
           {/* Background Poster (faded) */}
           {mainPoster && (
             <>
               <div
-                className="absolute inset-0 bg-cover bg-center opacity-70"
+                className=" inset-0 bg-cover bg-center opacity-70"
                 style={{ backgroundImage: `url(${mainPoster})` }}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/80 via-emerald-950/50 to-transparent" />
+              <div className=" inset-0 bg-gradient-to-r from-emerald-950/80 via-emerald-950/50 to-transparent" />
             </>
           )}
 

@@ -1,8 +1,7 @@
-// src/services/historyService.ts
 import { api } from "../../lib/api";
 export interface HistoryItem {
   id: string;
-  films: any; // you may replace with Film type
+  films: any;
   watched_at: string;
 }
 

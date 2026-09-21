@@ -49,7 +49,6 @@ const { data: likedFilms, error: likedError } = await supabase
   if (likedError) throw likedError;
   if (!likedFilms || likedFilms.length === 0) return [];
 
-  // Parse embeddings safely
   const embeddings = likedFilms
     .map((f) => {
       let emb = f.films?.embedding;
@@ -68,13 +67,11 @@ const { data: likedFilms, error: likedError } = await supabase
 
   if (embeddings.length === 0) return [];
 
-  // Average embedding
   const size = embeddings[0].length;
   const avgEmbedding = Array(size).fill(0);
   embeddings.forEach((emb) => emb.forEach((val, i) => (avgEmbedding[i] += val)));
   for (let i = 0; i < size; i++) avgEmbedding[i] /= embeddings.length;
 
-  // RPC call
   const { data: recs, error: recError } = await supabase.rpc("match_films_personalized", {
     query_embedding: avgEmbedding,
     match_count: limit,
@@ -91,7 +88,6 @@ const { data: likedFilms, error: likedError } = await supabase
 
 export async function getFilmsByGenre(genre: string, offset: number, limit: number): Promise<Film[]> {
   const cached = genreCache[genre];
-  // logger.info(cached)
   if (!cached) return [];
   return cached.films;
 }
@@ -113,29 +109,102 @@ export async function getAllGenres() {
 
 
 export async function fetchHomeRecommendations(userId?: string) {
-  const { data: hottest } = await supabase
+  const baseQuery = supabase
     .from("films")
-    .select("*")
+    .select(`
+      *,
+      users!fk_uploader (
+        region,
+        university
+      )
+    `)
     .eq("is_flagged", false)
-  .eq("moderation_status", "approved")
-  .eq("poster_moderation_status", "approved")
+    .eq("moderation_status", "approved")
+    .eq("poster_moderation_status", "approved");
+
+  const { data: hottest } = await baseQuery
     .order("popularity", { ascending: false })
-    .limit(100);
+    .limit(50);
 
   const { data: fresh } = await supabase
     .from("films")
     .select("*")
-      .eq("is_flagged", false)
-  .eq("moderation_status", "approved")
-  .eq("poster_moderation_status", "approved")
-    .gte("release_date", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+    .eq("is_flagged", false)
+    .eq("moderation_status", "approved")
+    .eq("poster_moderation_status", "approved")
+    .gte(
+      "release_date",
+      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    )
     .order("popularity", { ascending: false })
-    .limit(100);
+    .limit(50);
 
   let subscriptions: any[] = [];
   let watchlist: any[] = [];
+  let community: any[] = [];
 
   if (userId) {
+    // Fetch current user
+    const { data: currentUser } = await supabase
+      .from("users")
+      .select("region, university")
+      .eq("auth_id", userId)
+      .single();
+
+    const userRegion = currentUser?.region;
+    const userUniversity = currentUser?.university;
+
+// COMMUNITY LOGIC
+if (userRegion || userUniversity) {
+  const { data: communityData } = await baseQuery.limit(300);
+
+  if (communityData?.length) {
+    // Find max popularity for normalization
+    const maxPopularity =
+      Math.max(...communityData.map((f: any) => Number(f.popularity) || 0)) || 1;
+
+    community = communityData
+      .map((film: any) => {
+        const uploader = film.users;
+
+        let communityWeight = 0;
+
+        const sameRegion =
+          uploader?.region && userRegion && uploader.region === userRegion;
+
+        const sameUniversity =
+          uploader?.university &&
+          userUniversity &&
+          uploader.university === userUniversity;
+
+        if (sameRegion && sameUniversity) {
+          communityWeight = 5;
+        } else if (sameRegion) {
+          communityWeight = 3;
+        } else if (sameUniversity) {
+          communityWeight = 3;
+        }
+
+        if (communityWeight === 0) return null;
+
+        const normalizedPopularity =
+          (Number(film.popularity) || 0) / maxPopularity;
+
+        const popularityWeight = 4;
+
+        const finalScore =
+          communityWeight + normalizedPopularity * popularityWeight;
+
+        return { ...film, finalScore };
+      })
+      .filter(Boolean)
+      .sort((a: any, b: any) => b.finalScore - a.finalScore)
+      .slice(0, 50);
+  }
+}
+
+
+    // SUBSCRIPTIONS
     const { data: subs } = await supabase
       .from("subscriptions")
       .select("artist_id")
@@ -146,19 +215,20 @@ export async function fetchHomeRecommendations(userId?: string) {
       const { data } = await supabase
         .from("films")
         .select("*")
-          .eq("is_flagged", false)
-  .eq("moderation_status", "approved")
-  .eq("poster_moderation_status", "approved")
+        .eq("is_flagged", false)
+        .eq("moderation_status", "approved")
+        .eq("poster_moderation_status", "approved")
         .in("uploader_id", ids)
         .order("popularity", { ascending: false })
         .limit(100);
+
       subscriptions = data?.sort(() => 0.5 - Math.random()) ?? [];
     }
 
+    // WATCHLIST
     const { data: watch } = await supabase
       .from("watchlists_films")
       .select("film_id")
-
       .eq("watchlist_id", userId);
 
     if (watch?.length) {
@@ -166,17 +236,18 @@ export async function fetchHomeRecommendations(userId?: string) {
       const { data } = await supabase
         .from("films")
         .select("*")
-          .eq("is_flagged", false)
-  .eq("moderation_status", "approved")
-  .eq("poster_moderation_status", "approved")
+        .eq("is_flagged", false)
+        .eq("moderation_status", "approved")
+        .eq("poster_moderation_status", "approved")
         .in("film_uuid", ids)
         .order("popularity", { ascending: false })
         .limit(100);
+
       watchlist = data?.sort(() => 0.5 - Math.random()) ?? [];
     }
   }
 
-  return { hottest, fresh, subscriptions, watchlist };
+  return { hottest, fresh, subscriptions, watchlist, community };
 }
 
 
@@ -196,61 +267,115 @@ type FilmRow = {
   avg_rating?: number | null;
 };
 
-/**
- * Fetch similar films using pgvector similarity operator <=>.
- * Steps:
- *  - Ensure target film embedding exists (generate & save if missing)
- *  - Query top 100 similar films by vector distance
- *  - Blend in basic filtering to exclude self and null embeddings
- */
-export async function fetchSimilarFilms(filmUuid: string, userId?: string) {
+
+export async function fetchSimilarFilms(
+  filmUuid: string,
+  userId?: string
+) {
   if (!filmUuid) return [];
 
-  // 1️ Get target film embedding
+  //  Fetch target film
   const { data: film, error: filmErr } = await supabase
     .from("films")
     .select("film_uuid, film_title, thesis, embedding")
-      .eq("is_flagged", false)
-  .eq("moderation_status", "approved")
-  .eq("poster_moderation_status", "approved")
+    .eq("is_flagged", false)
+    .eq("moderation_status", "approved")
+    .eq("poster_moderation_status", "approved")
     .eq("film_uuid", filmUuid)
     .maybeSingle();
 
-  if (filmErr || !film) {
-    logger.error(" Failed to fetch target film", { filmUuid, filmErr });
-    return [];
-  }
+  if (filmErr || !film) return [];
 
   let targetEmbedding = film.embedding;
 
-  // 2️⃣ Generate embedding if missing
-  if (!Array.isArray(targetEmbedding) || !targetEmbedding.length) {
-    const text = `${film.film_title ?? ""} ${film.thesis ?? ""}`.trim();
-    const gen = await generateEmbedding(text);
-    if (!gen) {
-      logger.warn(" Could not generate embedding for film", { filmUuid });
-      return [];
+  //  Generate embedding if missing
+  // if (!Array.isArray(targetEmbedding) || !targetEmbedding.length) {
+  //   const text = `${film.film_title ?? ""} ${film.thesis ?? ""}`.trim();
+  //   const gen = await generateEmbedding(text);
+  //   if (!gen) return [];
+
+  //   targetEmbedding = gen;
+
+  //   await supabase
+  //     .from("films")
+  //     .update({ embedding: gen })
+  //     .eq("film_uuid", filmUuid);
+  // }
+
+  //  Get similar films from pgvector
+  const { data: similarFilms, error } = await supabase.rpc(
+    "match_similar_films",
+    {
+      query_embedding: targetEmbedding,
+      exclude_uuid: filmUuid,
     }
-    targetEmbedding = gen;
-    await supabase
-      .from("films")
-      .update({ embedding: gen })
-      .eq("film_uuid", filmUuid);
-    // logger.info(" Generated and saved missing embedding", { filmUuid });
+  );
+
+  if (error || !similarFilms?.length) return [];
+
+  //  If user is not logged in → return pure similarity
+  if (!userId) {
+    return similarFilms;
   }
 
-  // 3️⃣ Query Postgres directly using pgvector operator (<=>)
-  // This uses raw SQL since Supabase JS doesn't natively expose <=> operator.
-  const { data, error } = await supabase.rpc("match_similar_films", {
-    query_embedding: targetEmbedding,
-    exclude_uuid: filmUuid,
-  });
+  //  Fetch user community info
+  const { data: currentUser } = await supabase
+    .from("users")
+    .select("region, university")
+    .eq("auth_id", userId)
+    .single();
 
-  if (error) {
-    logger.error(" pgvector similarity RPC failed", { error });
-    return [];
+  const userRegion = currentUser?.region ?? null;
+  const userUniversity = currentUser?.university ?? null;
+
+  // If user has no region/university → skip community boost
+  if (!userRegion && !userUniversity) {
+    return similarFilms;
   }
 
-  // logger.info(` Found ${data?.length ?? 0} similar films using pgvector`);
-  return data ?? [];
+  //  Fetch uploader info for returned films
+  const filmUuids = similarFilms.map((f: any) => f.film_uuid);
+
+  const { data: enriched } = await supabase
+    .from("films")
+    .select(`
+      film_uuid,
+      users!fk_uploader (
+        region,
+        university
+      )
+    `)
+    .in("film_uuid", filmUuids);
+
+  if (!enriched?.length) return similarFilms;
+
+  // Apply community boost
+const ranked = similarFilms
+  .map((sim: any) => {
+    const film = enriched.find(
+      (f: any) => f.film_uuid === sim.film_uuid
+    );
+
+    const uploader = film?.users?.[0]; // <--- fix
+
+    let communityWeight = 0;
+
+    const sameRegion = uploader?.region === userRegion;
+    const sameUniversity = uploader?.university === userUniversity;
+
+    if (sameRegion && sameUniversity) {
+      communityWeight = 0.15;
+    } else if (sameRegion || sameUniversity) {
+      communityWeight = 0.08;
+    }
+
+    return {
+      ...sim,
+      finalScore: sim.similarity + communityWeight,
+    };
+  })
+  .sort((a: any, b: any) => b.finalScore - a.finalScore);
+
+
+  return ranked;
 }

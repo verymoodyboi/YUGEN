@@ -93,13 +93,18 @@ const HeroSection: React.FC = () => {
   return (
     <section
       onMouseMove={handleMouseMove}
-      className="relative w-full h-screen bg-emerald-50 flex flex-col items-center justify-center"
+      className="relative w-full h-screen  flex flex-col items-center justify-center"
     >
       {/* Floating Parallax Icons */}
       {floatingIcons.map((icon) => (
         <div
           key={icon.id}
-          className="absolute transition-transform duration-150 ease-out pointer-events-none"
+          className={`
+  absolute transition-transform duration-150 ease-out 
+  pointer-events-none z-0
+  opacity-10 lg:opacity-30
+  ${icon.id === 5 || icon.id === 6 ? "hidden lg:block" : ""}
+`}
           style={{
             top: icon.top,
             left: icon.left,
@@ -112,54 +117,49 @@ const HeroSection: React.FC = () => {
           }}
         >
           <img
-            src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
+            src="https://assets.try-yugen.com/yugen_logo_dark.svg"
             alt="floating icon"
-            className="min-w-[100px] min-h-[100px] object-contain opacity-50"
+            className="min-w-[100px] min-h-[100px] object-contain "
           />
         </div>
       ))}
+      <div className="relative z-10 flex flex-col items-center justify-center">
+        <div
+          style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+          className="transition-transform duration-150 ease-out"
+        >
+          <img
+            alt="Yugen Logo"
+            className="w-50 h-auto"
+            src="https://assets.try-yugen.com/Kickflip!.gif"
+          />
+        </div>
 
-      {/* Main Logo */}
-      <div
-        style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-        className="transition-transform duration-150 ease-out"
-      >
-        <img
-          alt="Yugen Logo"
-          className="w-50 h-auto"
-          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
-        />
-      </div>
+        <div className="mt-10 ml-10 mr-10 text-center">
+          <p className="text-3xl font-freckle text-emerald-950 tracking-tight">
+            Don’t consume, but{" "}
+            <span className="text-3xl title text-emerald-700">CURATE.</span>{" "}
+            Don’t generate, but{" "}
+            <span className="text-3xl title text-emerald-700">CREATE.</span>
+          </p>
+        </div>
 
-      {/* Title */}
-      <div className="m-10 text-center">
-        <p className="text-3xl font-freckle text-emerald-950 tracking-tight">
-          Don’t consume, but{" "}
-          <span className="text-3xl title text-emerald-700">CURATE.</span> Don’t
-          generate, but{" "}
-          <span className="text-3xl title text-emerald-700">CREATE.</span>
+        <p className="m-3 text-emerald-950/70 text-lg italic text-center">
+          Discover unique stories told by filmmakers around the world, and share
+          your stories with the world.
         </p>
-      </div>
 
-      {/* Subtitle */}
-      <p className="m-3 text-emerald-950/70 text-lg italic text-center">
-        Discover unique stories told by filmmakers around the world, and share
-        your stories with the world.
-      </p>
-
-      {/* CTA Button */}
-      <div className="m-6 flex space-x-4">
-        <button
-          onClick={() => navigate("/login")}
-          className="px-20 py-3 border-2 border-emerald-950 rounded-xl 
+        <div className="m-6 flex space-x-4">
+          <button
+            onClick={() => navigate("/login")}
+            className="px-20 py-3 border-2 border-emerald-950 rounded-xl 
                      bg-emerald-950 text-emerald-50 hover:bg-emerald-900 
                      hover:scale-105 transition font-semibold"
-        >
-          Start Exploring
-        </button>
+          >
+            Start Exploring
+          </button>
+        </div>
       </div>
-
-      {/* Background Grain */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.07] bg-[url('/grain.png')] bg-repeat"></div>
     </section>
   );

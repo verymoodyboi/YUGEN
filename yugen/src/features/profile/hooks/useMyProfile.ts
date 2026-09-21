@@ -1,4 +1,3 @@
-// src/features/profile/hooks/useMyProfile.ts
 import { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchLatestUserFilms } from "../../recommendations/services";
@@ -7,7 +6,6 @@ import { fetchUserChallenges } from "../../challenges/services";
 import { fetchMyUploads } from "../services";
 
 export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise<string>) {
-  // ---- Films ----
   const filmsQuery = useInfiniteQuery({
     queryKey: ["films", uploaderID],
     queryFn: ({ pageParam = 0 }) =>
@@ -26,7 +24,6 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
   const isFetchingNextPage = filmsQuery.isFetchingNextPage;
   const films = data?.pages.flat() ?? [];
 
-  // ---- My Uploads (new) ----
   const uploadsQuery = useInfiniteQuery({
     queryKey: ["myUploads", uploaderID],
     queryFn: ({ pageParam = 0 }) =>
@@ -44,7 +41,6 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
   const uploadsLoading = uploadsQuery.isLoading;
   const uploadsError = uploadsQuery.isError;
 
-  // ---- Playlists ----
   const [myPlaylists, setMyPlaylists] = useState<any[]>([]);
   const [playlistsLoading, setPlaylistsLoading] = useState(false);
 
@@ -78,25 +74,22 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
     setMyPlaylists((prev) => prev.filter((p) => p.playlist_uuid !== playlist_uuid));
   };
 
-  // ---- Challenges ----
-  const challengesQuery = useInfiniteQuery({
-    queryKey: ["userChallenges", uploaderID],
-    queryFn: ({ pageParam = 0 }) =>
-      fetchUserChallenges({ pageParam, auth_id: uploaderID! }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) =>
-      !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
-    enabled: !!uploaderID,
-  });
+  // const challengesQuery = useInfiniteQuery({
+  //   queryKey: ["userChallenges", uploaderID],
+  //   queryFn: ({ pageParam = 0 }) =>
+  //     fetchUserChallenges({ pageParam, auth_id: uploaderID! }),
+  //   initialPageParam: 0,
+  //   getNextPageParam: (lastPage, allPages) =>
+  //     !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
+  //   enabled: !!uploaderID,
+  // });
 
-  const userChallengesData = challengesQuery.data;
-  const userChallengesLoading = challengesQuery.isLoading;
-  const userChallengesError = challengesQuery.isError;
-  const userChallenges = userChallengesData?.pages.flat() ?? [];
+  // const userChallengesData = challengesQuery.data;
+  // const userChallengesLoading = challengesQuery.isLoading;
+  // const userChallengesError = challengesQuery.isError;
+  // const userChallenges = userChallengesData?.pages.flat() ?? [];
 
-  // ---- Return ----
   return {
-    // Films
     data,
     fetchNextPage,
     hasNextPage,
@@ -105,7 +98,6 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
     isFetchingNextPage,
     films,
 
-    // My Uploads (new)
     myUploadsData,
     myUploads,
     fetchNextUploadsPage,
@@ -113,16 +105,14 @@ export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise
     uploadsLoading,
     uploadsError,
 
-    // Playlists
     myPlaylists,
     playlistsLoading,
     handleLocalPlaylistDelete,
     handleLocalPlaylistUpdate,
 
-    // Challenges
-    userChallengesData,
-    userChallengesLoading,
-    userChallengesError,
-    userChallenges,
+    // userChallengesData,
+    // userChallengesLoading,
+    // userChallengesError,
+    // userChallenges,
   };
 }

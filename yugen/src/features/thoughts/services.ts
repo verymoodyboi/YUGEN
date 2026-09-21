@@ -1,15 +1,11 @@
-// src/features/thought/services.ts
 import { api } from "../../lib/api";
 
 const BASE = "/thoughts";
 
-/* Return the full backend payload (not just .thoughts) so callers can read
-   per-user vote maps returned by the server: upvotes/downvotes/upvoteReplies/downvoteReplies */
 export async function getThoughts(filmId: number, token?: string) {
   const res = await api.get(`${BASE}/${filmId}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
-  // return the full data object (controller/service returns { thoughts, upvotes, downvotes, upvoteReplies, downvoteReplies })
   return res.data ?? {};
 }
 
@@ -40,7 +36,6 @@ export async function voteThought(type: "upvote" | "downvote", payload: any, tok
   });
 }
 
-/* Replies */
 export async function addReply(thoughtId: number, comment: string, token: string) {
   return api.post(
     `${BASE}/replies/add`,
@@ -66,7 +61,7 @@ export async function voteReply(type: "upvote" | "downvote", payload: any, token
 export async function flagThought(thoughtId: string, reason: string, token: string) {
   return api.post(
     `/thoughts/flag`,
-    { thoughtId, reason }, // must match backend req.body
+    { thoughtId, reason }, 
     { headers: { Authorization: `Bearer ${token}` } }
   );
 }

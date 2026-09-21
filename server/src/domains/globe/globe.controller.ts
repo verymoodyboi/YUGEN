@@ -6,12 +6,7 @@ import {
 } from "./globe.services.js";
 import logger from "../../lib/logger";
 
-/**
- * GET /globe/:name/films
- */
-/**
- * GET /globe/:name/films
- */
+
 export const fetchFilmsByCountry = async (req: Request, res: Response) => {
   try {
     const { name } = req.params;
@@ -27,9 +22,7 @@ export const fetchFilmsByCountry = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * GET /globe/:country/users
- */
+
 export const getArtistsByCountry = async (req: Request, res: Response) => {
   try {
     const { country } = req.params;
@@ -49,9 +42,7 @@ export const getArtistsByCountry = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * GET /globe/:name/stats
- */
+
 export const fetchCountryStats = async (req: Request, res: Response) => {
   try {
     const { name } = req.params;
@@ -61,7 +52,3 @@ export const fetchCountryStats = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
-
-/**
- * GET /globe/:country/users
- */

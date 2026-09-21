@@ -1,4 +1,3 @@
-// src/features/notifications/notificationServices.ts
 import { api } from "../../lib/api";
 
 export async function checkNotifications(token: string): Promise<boolean> {
@@ -25,6 +24,5 @@ export async function fetchNotifications(token: string) {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  // Normalize so it's always an array
   return data.films || data || [];
 }

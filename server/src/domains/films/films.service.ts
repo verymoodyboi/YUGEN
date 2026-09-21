@@ -6,18 +6,355 @@ import type { Request } from 'express';
 
 import supabase from '../../lib/supabase.js';
 import { generateEmbedding,concatenateInfo } from '../../lib/embedding.js';
-import { transcodeToFile, getDuration } from '../../lib/ffmpeg.js';
 import logger from '../../lib/logger.js';
 import type { FilmInsert, FilmUpdate } from './films.types.js';
 import * as moderationService from '../moderation/moderation.services.js';
 import { spawnSync } from 'child_process';
 import { title } from 'process';
 
+import { PutObjectCommand,DeleteObjectCommand  } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { r2 } from '../../lib/r2.js';
 
-// Upload film
+import { Resend } from 'resend';
+export async function generateR2SignedPutUrl(params: {
+  key: string;
+  contentType: string;
+  expiresIn?: number;
+  bucket:string
+}) {
+  const command = new PutObjectCommand({
+    Bucket: params.bucket,
+    Key: params.key,
+    ContentType: params.contentType,
+  });
+
+  return getSignedUrl(r2, command, {
+    expiresIn: params.expiresIn ?? 600,
+  });
+}
+
+export async function deleteFromR2(bucket: string, key: string) {
+  if (!key) return;
+
+  try {
+    await r2.send(
+      new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      })
+    );
+  } catch (err) {
+    console.warn(`R2 delete failed (${bucket}/${key})`, err);
+  }
+}
+export async function initializeUpload(req: Request) {
+  const {
+    title,
+    thesis,
+    country,
+    crew,
+    cast,
+    genres,
+    filmMime,
+    posterMime,
+  } = req.body;
+
+  const uploaderId = req.user!.id;
+  const filmUuid = crypto.randomUUID();
+
+  const filmExt = filmMime?.split("/")[1] ?? "mp4";
+  const posterExt = posterMime?.split("/")[1] ?? "jpg";
+
+  const filmKey = `${filmUuid}.${filmExt}`;
+  const posterKey = `${filmUuid}.${posterExt}`;
+
+  // 4 JPEG moderation frames
+  const moderationKeys = Array.from({ length: 4 }, (_, i) =>
+    `${filmUuid}/key_${i + 1}.jpeg`
+  );
+
+  const { error } = await supabase.from("films").insert([
+    {
+      film_uuid: filmUuid,
+      film_title: title,
+      thesis,
+      film_genre: genres,
+      uploader_id: uploaderId,
+      country,
+      crew: crew ?? null,
+      cast: cast ?? null,
+      film_path: filmKey,
+      poster_path: posterKey,
+      moderation_status: "uploading",
+    },
+  ]);
+
+  if (error) throw error;
+
+  const filmUploadUrl = await generateR2SignedPutUrl({
+    bucket: "films",
+    key: filmKey,
+    contentType: filmMime,
+    expiresIn: 60 * 10,
+  });
+
+  const posterUploadUrl = await generateR2SignedPutUrl({
+    bucket: "posters",
+    key: posterKey,
+    contentType: posterMime,
+    expiresIn: 60 * 10,
+  });
+
+  const moderationUploadUrls = await Promise.all(
+    moderationKeys.map((key) =>
+      generateR2SignedPutUrl({
+        bucket: "moderation",
+        key,
+        contentType: "image/jpeg",
+        expiresIn: 60 * 10,
+      })
+    )
+
+  );
+
+  sendFilmUploadEmail({
+  filmTitle: title,
+  filmUuid: filmUuid,
+  uploaderAuthId: uploaderId,
+}).catch(err => logger.warn("Upload email failed", err));
+
+  return {
+    film_uuid: filmUuid,
+    filmUploadUrl,
+    posterUploadUrl,
+    moderationUploadUrls,
+    filmKey,
+    posterKey,
+  };
+}
+
+
+
+
+
+
+
+
+export async function deleteFilmService(
+  film_uuid: string,
+  userId: string
+) {
+  // 1️⃣ Fetch film (ownership enforced)
+  const { data: film, error } = await supabase
+    .from("films")
+    .select("film_path, poster_path")
+    .eq("film_uuid", film_uuid)
+    .eq("uploader_id", userId)
+    .single();
+
+  if (error || !film) {
+    throw new Error("Film not found or unauthorized");
+  }
+
+  const { film_path, poster_path } = film;
+
+  const moderation_path = film_path
+    ? film_path.replace(/\.(\w+)$/, "_moderation.$1")
+    : null;
+
+  const { error: deleteError } = await supabase
+    .from("films")
+    .delete()
+    .eq("film_uuid", film_uuid)
+    .eq("uploader_id", userId);
+
+  if (deleteError) throw deleteError;
+
+  await Promise.all([
+    deleteFromR2("films", film_path),
+    deleteFromR2("posters", poster_path),
+    deleteFromR2("moderation", moderation_path),
+  ]);
+
+  return { success: true };
+}
+
+
+
+
+
+
+// export async function processUpload(req: Request) {
+//   const { filmUuid } = req.body;
+
+//   //  Mark film uploaded
+//   await supabase.from("films").update({
+//     moderation_status: "queued",
+//   }).eq("film_uuid", filmUuid);
+
+//   //  Enqueue job
+//   const { data, error } = await supabase
+//     .from("jobs")
+//     .insert([{
+//       type: "PROCESS_FILM",
+//       status: "queued",
+//       payload: { filmUuid },
+//     }])
+//     .select()
+//     .single();
+
+//   if (error) throw error;
+
+//   return { jobId: data.id };
+// }
+
+
+export async function processUpload(req: Request) {
+  const { filmUuid } = req.body;
+
+  // Mark film uploaded
+  await supabase
+    .from("films")
+    .update({
+      moderation_status: "queued",
+    })
+    .eq("film_uuid", filmUuid);
+
+  // Fetch required film fields for transcode payload
+  const { data: film, error: filmError } = await supabase
+    .from("films")
+    .select("film_uuid, film_path, poster_path, film_duration, film_title")
+    .eq("film_uuid", filmUuid)
+    .single();
+
+  if (filmError) throw filmError;
+
+  // Enqueue general processing job
+  const { data: jobData, error: jobError } = await supabase
+    .from("jobs")
+    .insert([
+      {
+        type: "PROCESS_FILM",
+        status: "queued",
+        payload: { filmUuid },
+      },
+    ])
+    .select()
+    .single();
+
+  if (jobError) throw jobError;
+
+  // Enqueue transcode-specific job
+  const { data: transcodeJob, error: transcodeError } = await supabase
+    .from("jobs_transcode")
+    .insert([
+      {
+        type: "transcode",
+        status: "queued",
+        payload: {
+          film_uuid: film.film_uuid,
+          film_path: film.film_path,
+          poster_path: film.poster_path,
+          film_duration: film.film_duration,
+          film_title: film.film_title,
+        },
+        run_at: new Date().toISOString(),
+      },
+    ])
+    .select()
+    .single();
+
+  if (transcodeError) throw transcodeError;
+
+  const { data: posterJob, error: posterError } = await supabase
+    .from("jobs_poster_compression")
+    .insert([
+      {
+        type: "poster_compression",
+        status: "queued",
+        payload: { film_uuid: filmUuid },
+        run_at: new Date().toISOString(),
+      },
+    ])
+    .select()
+    .single();
+
+  if (posterError) throw posterError;
+
+  return {
+    jobId: jobData.id,
+    transcodeJobId: transcodeJob.id,
+    posterJobId: posterJob.id,
+  };
+}
+
+
+
+export async function retryUpload(req: Request) {
+  const { filmUuid } = req.body;
+  const userId = req.user!.id;
+
+  if (!filmUuid) {
+    throw new Error("filmUuid is required");
+  }
+
+  const { data: film, error } = await supabase
+    .from("films")
+    .select("film_path, poster_path, uploader_id")
+    .eq("film_uuid", filmUuid)
+    .single();
+
+  if (error || !film) {
+    throw new Error("Film not found");
+  }
+
+  if (film.uploader_id !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const filmExt = film.film_path.split(".").pop() ?? "mp4";
+  const posterExt = film.poster_path?.split(".").pop() ?? "jpg";
+
+  const filmMime = `video/${filmExt}`;
+  const posterMime = `image/${posterExt}`;
+
+  const uploadUrl = await generateR2SignedPutUrl({
+    bucket: "films",
+    key: film.film_path,
+    contentType: filmMime,
+    expiresIn: 60 * 10,
+  });
+
+  const poster_uploadUrl = film.poster_path
+    ? await generateR2SignedPutUrl({
+        bucket: "posters",
+        key: film.poster_path,
+        contentType: posterMime,
+        expiresIn: 60 * 10,
+      })
+    : null;
+
+  await supabase
+    .from("films")
+    .update({
+      moderation_status: "uploading",
+      processing_progress: 0,
+      processing_step: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("film_uuid", filmUuid);
+
+  return {
+    uploadUrl,
+    poster_uploadUrl,
+  };
+}
+
 export async function uploadFilm(req: Request) {
   const { Title, Thesis, Country, Crew, Cast } = req.body;
   const uploaderId = req.user!.id;
+
   const filmFile = (req.files as any)?.Film?.[0];
   const posterFile = (req.files as any)?.Poster?.[0];
   const Genres = JSON.parse(req.body.Genres || "[]");
@@ -26,41 +363,84 @@ export async function uploadFilm(req: Request) {
     throw new Error("Missing required files");
   }
 
-  const uuid = crypto.randomUUID();
+  const filmUuid = crypto.randomUUID();
+  const filmKey = `${filmUuid}.mp4`;
+  const posterKey = `${filmUuid}.jpg`;
 
-  const duration = await getDuration(filmFile.path);
+const filmBuffer = await fs.promises.readFile(filmFile.path);
+const posterBuffer = await fs.promises.readFile(posterFile.path);
 
-  const film = {
-    film_uuid: uuid,
-    film_title: Title,
-    thesis: Thesis,
-    film_genre: Genres,
-    uploader_id: uploaderId,
-    country: Country,
-    crew: Crew ? JSON.parse(Crew) : null,
-    cast: Cast ? JSON.parse(Cast) : null,
-    film_path: `${uuid}.mp4`,
-    poster_path: `${uuid}.jpg`,
-    film_duration: duration,
-    moderation_status: "queued",
-  };
+  const [filmUpload, posterUpload] = await Promise.all([
+    supabase.storage
+      .from("original_film_files")
+      .upload(filmKey, filmBuffer, {
+        contentType: filmFile.mimetype,
+        upsert: true,
+      }),
+    supabase.storage
+      .from("posters")
+      .upload(posterKey, posterBuffer, {
+        contentType: posterFile.mimetype,
+        upsert: true,
+      }),
+  ]);
 
-  await supabase.from("films").insert([film]);
+  if (filmUpload.error) throw filmUpload.error;
+  if (posterUpload.error) throw posterUpload.error;
 
-  // 🔑 enqueue job instead of processing
-  await supabase.from("jobs").insert([
+  const { error: insertFilmErr } = await supabase.from("films").insert([
     {
-      type: "PROCESS_FILM",
-      payload: {
-        filmUuid: uuid,
-        filmTmpPath: filmFile.path,
-        posterTmpPath: posterFile.path,
-      },
+      film_uuid: filmUuid,
+      film_title: Title,
+      thesis: Thesis,
+      film_genre: Genres,
+      uploader_id: uploaderId,
+      country: Country,
+      crew: Crew ? JSON.parse(Crew) : null,
+      cast: Cast ? JSON.parse(Cast) : null,
+      film_path: filmKey,
+      poster_path: posterKey,
+      film_duration: null,
+      moderation_status: "queued",
+      release_date: new Date().toISOString(),
     },
   ]);
 
-  return { success: true, film_uuid: uuid };
+  if (insertFilmErr) {
+    try {
+      await Promise.all([
+        supabase.storage.from("original_film_files").remove([filmKey]),
+        supabase.storage.from("posters").remove([posterKey]),
+      ]);
+    } catch (_) {}
+    throw insertFilmErr;
+  }
+
+  const { data: jobInsertResp, error: jobInsertErr } = await supabase
+    .from("jobs")
+    .insert([
+      {
+        type: "PROCESS_FILM",
+        status: "queued",
+        payload: {
+          filmUuid,
+          filmKey,
+          posterKey,
+        },
+        created_at: new Date().toISOString(),
+      },
+    ])
+    .select("*")
+    .single();
+
+  if (jobInsertErr) {
+    console.error("Failed inserting job:", jobInsertErr);
+    throw jobInsertErr;
+  }
+
+  return { success: true, film_uuid: filmUuid, job_id: jobInsertResp?.id ?? null };
 }
+
 
 // Edit film
 export async function editFilm(req: Request) {
@@ -136,4 +516,58 @@ export async function deleteFilm(req: Request) {
   await supabase.rpc('update_user_films_count', { p_user: req.user?.id });
 
   return { success: true };
+}
+
+
+
+
+// helper upload notification
+
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export async function sendFilmUploadEmail(params: {
+  filmTitle: string;
+  filmUuid: string;
+  uploaderAuthId: string;
+  uploadedAt?: Date;
+}) {
+  const { filmTitle, filmUuid, uploaderAuthId, uploadedAt = new Date() } = params;
+
+  const formattedTime = uploadedAt.toLocaleString("en-US", {
+    dateStyle: "full",
+    timeStyle: "short",
+    timeZone: "UTC",
+  });
+
+  const { error } = await resend.emails.send({
+    from: `Your App <noreply@try-yugen.com>`,
+    to: process.env.RESEND_EMAIL_RECEIVER!,
+    subject: `New Film Uploaded: ${filmTitle}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto;">
+        <h2>New Film Upload</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">Title</td>
+            <td style="padding: 8px;">${filmTitle}</td>
+          </tr>
+          <tr style="background: #f5f5f5;">
+            <td style="padding: 8px; font-weight: bold;">Film UUID</td>
+            <td style="padding: 8px; font-family: monospace;">${filmUuid}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; font-weight: bold;">Uploader Auth ID</td>
+            <td style="padding: 8px; font-family: monospace;">${uploaderAuthId}</td>
+          </tr>
+          <tr style="background: #f5f5f5;">
+            <td style="padding: 8px; font-weight: bold;">Upload Time</td>
+            <td style="padding: 8px;">${formattedTime} (UTC)</td>
+          </tr>
+        </table>
+      </div>
+    `,
+  });
+
+  if (error) throw new Error(`Resend error: ${error.message}`);
 }

@@ -1,9 +1,6 @@
-// src/features/playlist/services/playlistServices.ts
 import { api } from "../../../lib/api";
 
-/**
- * Fetch metadata for a playlist
- */
+
 export async function fetchPlaylistMeta(playlistId: string, token: string) {
   const res = await api.get(`/playlists/${playlistId}/meta`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -11,9 +8,6 @@ export async function fetchPlaylistMeta(playlistId: string, token: string) {
   return res.data.playlist || res.data;
 }
 
-/**
- * Fetch films in a playlist
- */
 export async function fetchPlaylistFilms(playlistId: string, token: string) {
   const res = await api.get(`/playlists/${playlistId}/films`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -21,9 +15,7 @@ export async function fetchPlaylistFilms(playlistId: string, token: string) {
   return res.data.films || res.data || [];
 }
 
-/**
- * Determine the next film based on shuffle or sequential mode
- */
+
 export function getNextFilm(
   films: any[],
   currentFilmId: string | null,

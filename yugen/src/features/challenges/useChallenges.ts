@@ -1,4 +1,3 @@
-// src/features/challenges/hooks/useChallenges.ts
 import { useState, useEffect } from "react";
 import {
   listAdminChallenges,
@@ -21,7 +20,6 @@ export function useChallenges(getAccessToken?: () => Promise<string>) {
   const [vote, setVote] = useState<any>(null);
   const [myFilms, setMyFilms] = useState<any[]>([]);
 
-  /** Load public challenges */
   const loadChallenges = async (type: "admin" | "community" | "academic" | "user" = "admin") => {
     setLoading(true);
     try {
@@ -47,7 +45,6 @@ export function useChallenges(getAccessToken?: () => Promise<string>) {
     }
   };
 
-  /** Load one challenge + its films */
   const loadChallengeDetails = async (id: string) => {
     if (!getAccessToken) return;
     setLoading(true);
@@ -66,7 +63,6 @@ export function useChallenges(getAccessToken?: () => Promise<string>) {
     }
   };
 
-  /** Get user’s submitted films */
   const loadMyFilms = async () => {
     if (!getAccessToken) return;
     setLoading(true);
@@ -81,7 +77,6 @@ export function useChallenges(getAccessToken?: () => Promise<string>) {
     }
   };
 
-  /** Voting */
   const handleVote = async (id: string) => {
     if (!getAccessToken) return;
     try {
@@ -93,7 +88,6 @@ export function useChallenges(getAccessToken?: () => Promise<string>) {
     }
   };
 
-  /** Submitting film */
   const handleSubmitFilm = async (id: string, filmData: any) => {
     if (!getAccessToken) return;
     try {
@@ -106,14 +100,12 @@ export function useChallenges(getAccessToken?: () => Promise<string>) {
   };
 
   return {
-    // state
     challenges,
     selectedChallenge,
     films,
     myFilms,
     vote,
     loading,
-    // actions
     loadChallenges,
     loadChallengeDetails,
     loadMyFilms,

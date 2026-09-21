@@ -4,6 +4,6 @@ export async function checkFilmInPlaylist(playlistID: string, filmID: string, to
     params: { playlistID, filmID },
     headers: { Authorization: `Bearer ${token}` },
   });
-  console.log("checkFilmInPlaylist response:", data, playlistID, filmID);
+ // console.log("checkFilmInPlaylist response:", data, playlistID, filmID);
   return data.listed as boolean;
 }

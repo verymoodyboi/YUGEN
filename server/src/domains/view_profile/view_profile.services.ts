@@ -23,7 +23,9 @@ export async function getUserProfile(username: string) {
       linkedin,
       watchlist_count,
       role,
-      auth_id
+      auth_id,
+      contact_email,
+      contact_number
     `)
     .eq("username", username)
     .single();
@@ -64,6 +66,7 @@ export async function getMyUploads(
     .from("films")
     .select("*")
     .eq("uploader_id", uploaderID)
+    .neq("moderation_status","uploading" )
     .order("release_date", { ascending: false })
     .range(offset, offset + limit - 1);
 

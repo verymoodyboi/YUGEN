@@ -1,4 +1,3 @@
-// src/L2/AccountCard.tsx
 import { useNavigate } from "react-router-dom";
 import supabase from "../lib/supabaseClient";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
@@ -16,31 +15,26 @@ const AccountCard = ({ account }: any) => {
                  flex flex-col items-center p-2 w-[200px] h-[160px] transition-transform hover:scale-[1.02] overflow-hidden m-4"
       onClick={() => {
         if (userInfo?.username === account?.username) {
-          navigate("/profile");
+          navigate(`/profile`);
         } else {
-          3;
           navigate(`/@?username=${encodeURIComponent(account?.username)}`);
         }
       }}
     >
-      {/* Avatar */}
       <img
         src={
           account?.pfp_path
-            ? supabase.storage.from("pfps").getPublicUrl(account.pfp_path).data
-                .publicUrl
+            ? `https://pfps.try-yugen.com/${account.pfp_path}?t=${Date.now()}`
             : tempPFP
         }
         alt={account?.username}
         className="w-16 h-16 rounded-full border-2 border-emerald-950 object-cover mb-1"
       />
 
-      {/* Username */}
       <h3 className="font-freckle text-xs text-emerald-950 truncate w-full text-center">
         @{account?.username}
       </h3>
 
-      {/* Stats */}
       <div className="flex justify-center items-center gap-2 text-emerald-950 text-[10px] my-1 w-full">
         <div className="flex items-center gap-1">
           <VideocamOutlinedIcon className="text-emerald-950 text-[12px]" />
@@ -52,7 +46,6 @@ const AccountCard = ({ account }: any) => {
         </div>
       </div>
 
-      {/* Bio preview */}
       {account?.bio && (
         <div className="flex items-center justify-center w-full gap-1">
           <p className="font-freckle text-emerald-950 text-[10px] truncate w-[70%]">
@@ -68,8 +61,8 @@ const AccountCard = ({ account }: any) => {
               } else {
                 navigate(
                   `/@?username=${encodeURIComponent(
-                    account?.username
-                  )}&tab=info`
+                    account?.username,
+                  )}&tab=info`,
                 );
               }
             }}

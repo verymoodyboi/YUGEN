@@ -6,8 +6,8 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import supabase from "../lib/supabaseClient"; // still needed for session/token
-import axios from "axios";
+import supabase from "../lib/supabaseClient";
+import { api } from "../lib/api";
 import { Session } from "@supabase/supabase-js";
 
 type AuthStatus =
@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [username, setUsername] = useState<string>("");
-
   const getAccessToken = useCallback(async (): Promise<string | null> => {
     const {
       data: { session },
@@ -62,7 +61,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return;
       }
 
-      const { data } = await axios.get("http://localhost:8080/api/auth/me", {
+      const { data } = await api.get("/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -81,14 +80,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [getAccessToken]);
 
   useEffect(() => {
-    loadProfile(); // initial load
+    loadProfile();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        console.log("Auth state change:", _event);
+        // console.log("Auth state change:", _event);
         setSession(session);
         loadProfile();
-      }
+      },
     );
 
     return () => {

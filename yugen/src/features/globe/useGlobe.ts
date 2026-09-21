@@ -1,4 +1,3 @@
-// src/features/globe/useGlobe.ts
 import { useState, useCallback } from "react";
 import {
   fetchFilmsByCountry,
@@ -47,15 +46,15 @@ const handleCountryClick = useCallback(async (countryName: string) => {
 
     const filmCount = filmsData?.length || 0;
 
+    setSelectedCountry(countryName);
+    setCountryStats(stats || { film_count: 0, artist_count: 0 });
+    setFilms(filmsData || []);
+    setUsers(usersData?.data || usersData || []);
     if (filmCount === 0) {
       toast.warn(`No films uploaded from ${countryName} yet!`);
       return; 
     }
 
-    setSelectedCountry(countryName);
-    setCountryStats(stats || { film_count: 0, artist_count: 0 });
-    setFilms(filmsData || []);
-    setUsers(usersData?.data || usersData || []);
   } catch (err: any) {
     setError(err.message || "Failed to load data");
     toast.error(`Failed to load data for ${countryName}`);
@@ -64,7 +63,6 @@ const handleCountryClick = useCallback(async (countryName: string) => {
   }
 }, []);
 
-  // Load more films when scrolling
   const loadMoreFilms = useCallback(async () => {
     if (!selectedCountry) return;
     setLoadingMore(true);
@@ -86,7 +84,6 @@ const handleCountryClick = useCallback(async (countryName: string) => {
     }
   }, [selectedCountry, filmOffset]);
 
-  // Load more users (artists)
   const loadMoreUsers = useCallback(async () => {
     if (!selectedCountry) return;
     setLoadingMore(true);

@@ -1,4 +1,3 @@
-// src/features/admin/flagged_films/useFlaggedFilms.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchFlaggedFilms, recoverFilm, deleteFilm, FlaggedFilm } from "./services";
 
@@ -15,7 +14,7 @@ export function useFlaggedFilms() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["flagged_films"] }),
   });
 
-  const deleteMutation = useMutation({
+  const deleteMutation = useMutation({ 
     mutationFn: deleteFilm,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["flagged_films"] }),
   });

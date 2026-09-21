@@ -1,4 +1,3 @@
-// src/data/genres.ts
 export const GENRES = [
   {
     id: "documentary",

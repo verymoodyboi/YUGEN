@@ -1,4 +1,3 @@
-// src/hooks/useChallenge.ts
 import { useEffect, useState, useCallback } from "react";
 import { ChallengeService } from "./services";
 
@@ -11,7 +10,6 @@ export function useChallenge(challengeID?: string | null, userInfo?: any) {
   const [userVote, setUserVote] = useState<string | null>(null);
   const [submittedFilm, setSubmittedFilm] = useState<any>(null);
 
-  // === Fetch All ===
   const fetchAll = useCallback(async () => {
     if (!challengeID) return;
     try {
@@ -55,7 +53,6 @@ export function useChallenge(challengeID?: string | null, userInfo?: any) {
     }
   }, [challengeID]);
 
-  // === Mutations ===
   const handleVote = async (filmUuid: string) => {
     const vote = await ChallengeService.vote(challengeID!, filmUuid);
     setUserVote(vote);
@@ -95,7 +92,6 @@ const fetchUserFilms = async (getAccessToken: () => Promise<string | null>): Pro
   }
 };
 
-// === Submit selected film to a challenge ===
 const handleSubmitFilm = async (
   challengeId: string,
   film_uuid: string,
@@ -112,10 +108,6 @@ const handleSubmitFilm = async (
   }
 };
 
-
-// Submit selected film to a challenge
-
-// === Save podium winners ===
 const savePodium = async (challengeId: string, podiumFilms: { rank: number; films: any }[]) => {
   const payload = podiumFilms
     .map((p) => {
@@ -131,7 +123,6 @@ const savePodium = async (challengeId: string, podiumFilms: { rank: number; film
       return;
     }
 
-    // ✅ This should call the service, not itself
     await ChallengeService.savePodium(challengeId, payload);
     alert("Podium saved successfully!");
   } catch (error) {
@@ -140,7 +131,6 @@ const savePodium = async (challengeId: string, podiumFilms: { rank: number; film
   }
 };
 
-  // === Effects ===
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
@@ -168,7 +158,6 @@ const savePodium = async (challengeId: string, podiumFilms: { rank: number; film
     userVote,
     submittedFilm,
 
-    // Actions
     handleVote,
     handleRemoveFilm,
     handleAcceptFilm,

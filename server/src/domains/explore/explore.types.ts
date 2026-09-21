@@ -1,4 +1,3 @@
-// src/features/explore/explore.types.ts
 export interface Film { 
   film_uuid: string;
   film_title: string;
