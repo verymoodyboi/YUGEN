@@ -7,59 +7,56 @@ import {
 } from "../services";
 
 export function useRecommendations(userId?: string) {
-  // ---------------------------
-  // STATE
-  // ---------------------------
+
   const [hottest, setHottest] = useState<any[]>([]);
   const [fresh, setFresh] = useState<any[]>([]);
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [watchlist, setWatchlist] = useState<any[]>([]);
   const [isLoading, setLoading] = useState(true);
+const [community, setCommunity] = useState<any[]>([]);
 
-  // keep offsets for each section
-  const offsets = useRef({
-    hottest: 0,
-    fresh: 0,
-    subscriptions: 0,
-    watchlist: 0,
-  });
+const offsets = useRef({
+  hottest: 0,
+  fresh: 0,
+  subscriptions: 0,
+  watchlist: 0,
+  community: 0,
+});
 
-  // refs for last-item observers
   const hottestRef = useRef<HTMLDivElement | null>(null);
   const freshRef = useRef<HTMLDivElement | null>(null);
   const subsRef = useRef<HTMLDivElement | null>(null);
   const watchlistRef = useRef<HTMLDivElement | null>(null);
+const communityRef = useRef<HTMLDivElement | null>(null);
 
-  // ---------------------------
-  // INITIAL LOAD
-  // ---------------------------
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
 
-      const res = await getHomeRecommendations(userId);
+useEffect(() => {
+  async function load() {
+    setLoading(true);
 
-      setHottest(res.hottest || []);
-      setFresh(res.fresh || []);
-      setSubscriptions(res.subscriptions || []);
-      setWatchlist(res.watchlist || []);
+    const res = await getHomeRecommendations(userId);
 
-      offsets.current = {
-        hottest: res.hottest?.length || 0,
-        fresh: res.fresh?.length || 0,
-        subscriptions: res.subscriptions?.length || 0,
-        watchlist: res.watchlist?.length || 0,
-      };
+    setHottest(res.hottest || []);
+    setFresh(res.fresh || []);
+    setSubscriptions(res.subscriptions || []);
+    setWatchlist(res.watchlist || []);
+    setCommunity(res.community || []);
 
-      setLoading(false);
-    }
+    offsets.current = {
+      hottest: res.hottest?.length || 0,
+      fresh: res.fresh?.length || 0,
+      subscriptions: res.subscriptions?.length || 0,
+      watchlist: res.watchlist?.length || 0,
+      community: res.community?.length || 0,
+    };
 
-    load();
-  }, [userId]);
+    setLoading(false);
+  }
 
-  // ---------------------------
-  // LOAD MORE HANDLERS
-  // ---------------------------
+  load();
+}, [userId]);
+
+
   const loadMore = {
     hottest: async () => {
       const more = await fetchHotThisWeek(offsets.current.hottest);
@@ -78,15 +75,17 @@ export function useRecommendations(userId?: string) {
       setSubscriptions((prev) => [...prev, ...more]);
     },
     watchlist: async () => {
-      // you did not give a watchlist service → so we DO NOT create one.
-      // we simply do nothing.
+
       return;
+
     },
+    community: async () => {
+  return;
+},
+
   };
 
-  // ---------------------------
-  // OBSERVER
-  // ---------------------------
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -106,12 +105,13 @@ export function useRecommendations(userId?: string) {
       }
     );
 
-    const targets = [
-      { ref: hottestRef, id: "hottest" },
-      { ref: freshRef, id: "fresh" },
-      { ref: subsRef, id: "subscriptions" },
-      { ref: watchlistRef, id: "watchlist" },
-    ];
+ const targets = [
+  { ref: hottestRef, id: "hottest" },
+  { ref: freshRef, id: "fresh" },
+  { ref: subsRef, id: "subscriptions" },
+  { ref: watchlistRef, id: "watchlist" },
+  { ref: communityRef, id: "community" },
+];
 
     targets.forEach(({ ref, id }) => {
       if (ref.current) {
@@ -123,15 +123,18 @@ export function useRecommendations(userId?: string) {
     return () => observer.disconnect();
   }, [userId]);
 
-  return {
-    hottest,
-    fresh,
-    subscriptions,
-    watchlist,
-    isLoading,
-    hottestRef,
-    freshRef,
-    subsRef,
-    watchlistRef,
-  };
+return {
+  hottest,
+  fresh,
+  subscriptions,
+  watchlist,
+  community,
+  isLoading,
+  hottestRef,
+  freshRef,
+  subsRef,
+  watchlistRef,
+  communityRef,
+};
+
 }

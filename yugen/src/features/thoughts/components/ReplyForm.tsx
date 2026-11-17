@@ -4,7 +4,7 @@ import { useReply } from "../hooks/useReply";
 interface TargetReply {
   comment_id: number;
   commentor: string;
-  onSubmitSuccess?: () => void; // will be used to close form
+  onSubmitSuccess?: () => void;
 }
 
 const ReplyForm: React.FC<TargetReply> = ({
@@ -22,7 +22,7 @@ const ReplyForm: React.FC<TargetReply> = ({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (formRef.current && !formRef.current.contains(e.target as Node)) {
-        onSubmitSuccess?.(); // close form
+        onSubmitSuccess?.();
       }
     };
 

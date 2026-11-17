@@ -61,7 +61,7 @@ const ReportForm: React.FC<ReportFormProps> = ({
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto font-freckle">
       <button
-        onClick={(e) => {
+        onClick={() => {
           if (onClose) onClose();
         }}
         className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-emerald-950 font-bold text-[23px] rounded-full bg-emerald-50 border-2 border-emerald-950 hover:bg-emerald-100 transition"

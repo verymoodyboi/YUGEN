@@ -48,7 +48,6 @@ export async function recoverFilm(film_uuid: string) {
 }
 
 export async function deleteFilm(film_uuid: string) {
-  // Permanently delete film and remove from flagged table
   const { error: filmError } = await supabase
     .from("films")
     .delete()

@@ -1,4 +1,3 @@
-// src/features/subs/hooks/useSubs.ts
 import { useState, useCallback } from "react";
 import {
   fetchMySubscriptions,
@@ -7,7 +6,7 @@ import {
   Subscription,
 } from "../services"
 
-export function useSubs(getAccessToken: () => Promise<string>) {
+export function useSubs(getAccessToken: any) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -32,7 +31,7 @@ export function useSubs(getAccessToken: () => Promise<string>) {
       try {
         const token = await getAccessToken();
         await subscribe(authId, token);
-        await loadSubscriptions(); // refresh list
+        await loadSubscriptions(); 
       } catch (err) {
         console.error("Error subscribing:", err);
       } finally {
@@ -48,7 +47,7 @@ export function useSubs(getAccessToken: () => Promise<string>) {
       try {
         const token = await getAccessToken();
         await unsubscribe(authId, token);
-        await loadSubscriptions(); // refresh list
+        await loadSubscriptions(); 
       } catch (err) {
         console.error("Error unsubscribing:", err);
       } finally {

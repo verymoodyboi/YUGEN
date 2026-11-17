@@ -14,12 +14,25 @@ export async function checkSubscription(subscriberId: string, artistId: string) 
 }
 
 export async function subscribe(subscriberId: string, artistId: string) {
-  const { error } = await supabase
-    .from('subscriptions')
-    .insert([{ subscriber_id: subscriberId, artist_id: artistId }]);
+  const { error: insertError } = await supabase
+    .from("subscriptions")
+    .insert([
+      {
+        subscriber_id: subscriberId,
+        artist_id: artistId,
+      },
+    ]);
 
-  if (error) throw new Error(error.message);
+  if (insertError) throw new Error(insertError.message);
+
+  const { error: rpcError } = await supabase
+    .rpc("increment_sub_count", {
+      user_id: artistId,
+    });
+
+  if (rpcError) throw new Error(rpcError.message);
 }
+
 
 export async function unsubscribe(subscriberId: string, artistId: string) {
   const { error } = await supabase

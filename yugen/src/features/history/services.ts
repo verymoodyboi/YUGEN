@@ -1,19 +1,18 @@
-// src/services/historyService.ts
 import { api } from "../../lib/api";
 export interface HistoryItem {
   id: string;
-  films: any; // you may replace with Film type
+  films: any;
   watched_at: string;
 }
 
 export const historyService = {
-  async getMyHistory(token:string): Promise<HistoryItem[]> {
+  async getMyHistory(token:any): Promise<HistoryItem[]> {
     const { data } = await api.get("/history", {
         headers: { Authorization: `Bearer ${token}` },
       });
     return data;
   },
-   addHistory: async (filmId: string, token: string) => {
+   addHistory: async (filmId: string, token: any) => {
     const { data } = await api.post(
       "/history/add",
       { filmId },

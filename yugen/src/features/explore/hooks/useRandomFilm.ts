@@ -6,7 +6,6 @@ export const useRandomFilm = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
 
-  // reusable fetch logic
   const loadFilms = useCallback(async () => {
     try {
       setLoading(true);
@@ -21,11 +20,9 @@ export const useRandomFilm = () => {
     }
   }, []);
 
-  // initial fetch on mount
   useEffect(() => {
     loadFilms();
   }, [loadFilms]);
 
-  // expose refetch for reset
   return { films, loading, error, refetch: loadFilms };
 };

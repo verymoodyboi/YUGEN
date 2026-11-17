@@ -1,12 +1,11 @@
 // src/pages/WatchlistPage.tsx
 import * as React from "react";
-import AppLayout from "../layouts/layout-main";
 
 import { useMyWatchlist } from "../features/watchlist/hooks/useGetMyWatchlist";
 import FilmScrollRowDynamic from "../layouts/filmcard-scroll-h-dynamic";
 import Loading from "../components/loading_kickflip";
 const WatchlistPage: React.FC = () => {
-  const { watchlist, loading, error } = useMyWatchlist();
+  const { watchlist, loading } = useMyWatchlist();
 
   return (
     <>

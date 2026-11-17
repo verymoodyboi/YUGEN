@@ -27,9 +27,6 @@ function WaitingConfirmation() {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email: cleanEmail,
-        options: {
-          emailRedirectTo: "http://localhost:5173/profile-customization",
-        },
       });
 
       if (error) throw error;
@@ -44,7 +41,7 @@ function WaitingConfirmation() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-emerald-50 p-6">
+    <div className="min-h-screen flex items-center justify-center  p-6">
       <div
         className="
           flex flex-col items-center text-center gap-4
@@ -62,7 +59,7 @@ function WaitingConfirmation() {
         "
       >
         <img
-          src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
+          src="https://assets.try-yugen.com/Kickflip!.gif"
           alt="Yugen Logo"
           className="h-36 w-auto mb-4"
         />

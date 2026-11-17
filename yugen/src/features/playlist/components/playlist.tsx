@@ -1,7 +1,5 @@
-// src/features/playlist/components/PlaylistSection.tsx
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FiEye, FiShuffle, FiPlay } from "react-icons/fi";
+import { FiShuffle } from "react-icons/fi";
 import { useAuth } from "../../../contexts/AuthContext";
 import { usePlaylist } from "../hooks/useWatchPlaylist";
 import PlaylistItem from "./playlistFilmCard";
@@ -9,27 +7,24 @@ import PlaylistItem from "./playlistFilmCard";
 const PlaylistSection = ({
   playlistId,
   currentFilmId,
+  nextFilmTrigger,
 }: {
   playlistId?: string | null;
   currentFilmId?: string | null;
+  nextFilmTrigger: any;
 }) => {
   const { getAccessToken } = useAuth();
   const navigate = useNavigate();
 
-  const { playlist, films, loading, shuffle, toggleShuffle, getNext } =
-    usePlaylist(playlistId, currentFilmId, getAccessToken);
+  const { playlist, films, loading } = usePlaylist(
+    playlistId,
+    currentFilmId,
+    getAccessToken,
+  );
 
-  const handleNextFilm = () => {
-    const nextFilm = getNext();
-    if (nextFilm?.film_uuid)
-      navigate(
-        `/watchplaylist?uuid=${nextFilm.film_uuid}&playlist=${playlistId}`
-      );
-  };
   const handleShufflePlay = () => {
     if (!films.length) return;
 
-    // If only one film exists, just play it
     if (films.length === 1) {
       const onlyFilm = films[0]?.films?.film_uuid;
       if (onlyFilm)
@@ -67,7 +62,6 @@ const PlaylistSection = ({
 
   return (
     <div className="w-full max-w-3xl mx-auto border-4 border-emerald-950 rounded-xl bg-emerald-50 p-4 mt-6 shadow-lg">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-4">
         <div>
           <h2 className="text-2xl font-freckle text-emerald-950">
@@ -98,7 +92,6 @@ const PlaylistSection = ({
         </div>
       </div>
 
-      {/* Films List */}
       <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-1">
         {films.length > 0 ? (
           films.map((pf, i) => {
@@ -110,7 +103,7 @@ const PlaylistSection = ({
                 selected={!!isActive}
                 onClick={() =>
                   navigate(
-                    `/watchplaylist?uuid=${pf.films.film_uuid}&playlist=${playlistId}`
+                    `/watchplaylist?uuid=${pf.films.film_uuid}&playlist=${playlistId}`,
                   )
                 }
               />

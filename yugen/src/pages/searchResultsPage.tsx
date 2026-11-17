@@ -2,7 +2,6 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
-import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import PlayListCard from "../features/playlist/components/PlaylistCard";
 import AccountCard from "../components/AccountCard";
@@ -19,12 +18,6 @@ const SearchPage: React.FC = () => {
   const suggestions = suggestQuery.data?.pages.flat() ?? [];
   const accounts = accountsQuery.data?.pages.flat() ?? [];
   const playlists = playlistsQuery.data?.pages.flat() ?? [];
-
-  const LoadingIndicator = () => (
-    <div className="flex justify-center py-4">
-      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-emerald-950 dark:border-emerald-50"></div>
-    </div>
-  );
 
   const Section = ({
     title,
@@ -56,6 +49,7 @@ const SearchPage: React.FC = () => {
             scrollableTarget={`${title}-scroll`}
             scrollThreshold={0.8}
             className="flex gap-5 w-max px-4"
+            loader={null}
           >
             {items.map((item) => (
               <div

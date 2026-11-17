@@ -1,13 +1,11 @@
 import supabase from '../../lib/supabase.js';
 
 export async function addHistory(userId: string, filmId: string) {
-  // delete existing entry
   await supabase.from('historys_films')
     .delete()
     .eq('film_id', filmId)
     .eq('history_id', userId);
 
-  // count existing
   const { count, error: countError } = await supabase
     .from('historys_films')
     .select('*', { count: 'exact', head: true })
@@ -29,7 +27,6 @@ export async function addHistory(userId: string, filmId: string) {
 
 
 export async function removeHistory(userId: string, filmId: string) {
-  // delete existing entry
   await supabase.from('historys_films')
     .delete()
     .eq('film_id', filmId)

@@ -1,4 +1,3 @@
-// src/features/recommendations/hooks/useHotThisWeek.ts
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchHotThisWeek } from "../services";
 

@@ -2,19 +2,12 @@
 import * as React from "react";
 import { useAuth } from "../contexts/AuthContext";
 import AccountCard from "../components/AccountCard";
-import AppLayout from "../layouts/layout-main";
 import { useSubs } from "../features/subscriptions/hooks/useSubs";
 import Loading from "../components/loading_kickflip";
 
 const SubscriptionsPage: React.FC = () => {
   const { getAccessToken, userInfo } = useAuth();
-  const {
-    subscriptions,
-    loading,
-    loadSubscriptions,
-    handleSubscribe,
-    handleUnsubscribe,
-  } = useSubs(getAccessToken);
+  const { subscriptions, loading, loadSubscriptions } = useSubs(getAccessToken);
 
   React.useEffect(() => {
     if (userInfo?.auth_id) loadSubscriptions();

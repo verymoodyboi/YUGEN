@@ -1,8 +1,6 @@
 import supabase from "../../lib/supabase.js";
 
-/**
- * Fetch films for a given country name, ordered by view_count DESC
- */
+
 export const getFilmsByCountry = async (
   country: string,
   limit = 12,
@@ -37,9 +35,6 @@ export const getFilmsByCountry = async (
 
 
 
-/**
- * Fetch film_count and artist_count for a given country name
- */
 export const getCountryStats = async (name: string) => {
   const { data, error } = await supabase
     .from("regions")
@@ -51,9 +46,7 @@ export const getCountryStats = async (name: string) => {
   return data;
 };
 
-/**
- * Fetch artists for a given country name, ordered by sub_count DESC
- */
+
 export const fetchArtistsByCountry = async (
   countryName: string,
   limit = 9,

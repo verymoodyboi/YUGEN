@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchFilmsByGenre, fetchAllGenres } from "../recommendations/services";
 
-/**
- * Hook to fetch genres from backend and populate each with top films
- */
+
 export const useGenresWithFilms = () => {
   const [genresWithFilms, setGenresWithFilms] = useState<any[]>([]);
   const [genres, setGenres] = useState<any[]>([]);
@@ -13,12 +11,10 @@ export const useGenresWithFilms = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        // 1️⃣ Fetch all genres from DB
         const allGenres = await fetchAllGenres();
         if (!Array.isArray(allGenres)) throw new Error("Invalid genres response");
         setGenres(allGenres);
 
-        // 2️⃣ For each genre, fetch films
         const enrichedGenres = await Promise.all(
           allGenres.map(async (genre: any) => {
             try {

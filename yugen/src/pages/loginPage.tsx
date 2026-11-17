@@ -1,5 +1,5 @@
 import "../App.css";
-import LoginForm from "../features/auth/components/Login";
+import LoginForm from "../features/auth/login/components/Login";
 function LoginPage() {
   const LoginP = (
     <div>

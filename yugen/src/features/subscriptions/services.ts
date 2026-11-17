@@ -1,4 +1,3 @@
-// src/features/subs/services/subsServices.ts
 import { api } from "../../lib/api";
 
 export interface Subscription {
@@ -39,7 +38,7 @@ export async function unsubscribe(authId: string, token: string): Promise<void> 
     }
   );
 }
-export async function subscribeToArtist(artistId: string, token: string) {
+export async function subscribeToArtist(artistId: string, token: any) {
   await api.post(
     "/subs",
     { artistId },
@@ -48,8 +47,7 @@ export async function subscribeToArtist(artistId: string, token: string) {
   return { isSubscribed: true, notify: true };
 }
 
-// ✅ Unsubscribe from an artist
-export async function unsubscribeFromArtist(artistId: string, token: string) {
+export async function unsubscribeFromArtist(artistId: string, token: any) {
   await api.delete("/subs", {
     data: { artistId },
     headers: { Authorization: `Bearer ${token}` },
@@ -67,7 +65,7 @@ export async function unsubscribeFromArtist(artistId: string, token: string) {
 // }
 export async function checkSubscriptionStatus(
   artistId: string,
-  token: string
+  token: any
 ): Promise<{ isSubscribed: boolean; notify: boolean }> {
   const { data } = await api.get("/subs/check", {
     params: { artistId },

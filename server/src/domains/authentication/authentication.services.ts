@@ -1,24 +1,38 @@
 import supabase from '../../lib/supabase.js';
 import logger from '../../lib/logger.js';
 
-export async function getAuthStatus(userId: string) {
-  const { data, error } = await supabase
+export async function getAuthStatus(authUser: {
+  id: string;
+  email_confirmed_at: string | null;
+}) {
+  const { data: userRow, error } = await supabase
     .from('users')
     .select('*')
-    .eq('auth_id', userId)
-    .single();
+    .eq('auth_id', authUser.id)
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') {
+  if (error) {
     logger.error('Database error checking user row', { error });
     throw new Error('Database error');
   }
 
-  if (!data) {
-    return { status: 'signupGoogle' };
+  if (!userRow) {
+    return { status: 'pendingGoogleSignup' };
   }
 
-  return { status: 'authenticated', user: data };
+  if (!authUser.email_confirmed_at) {
+    return { status: 'pendingConfirmation' };
+  }
+  if (userRow.first_timer === true) {
+    return { status: 'firstTimer' };
+  }
+
+  return {
+    status: 'authenticated',
+    user: userRow,
+  };
 }
+
 
 export async function getMe(userId: string, email?: string) {
   const { data, error } = await supabase

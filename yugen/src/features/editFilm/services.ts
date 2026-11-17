@@ -4,7 +4,7 @@ import { api } from "../../lib/api";
 
 
 
-export const deleteFilm = async (film_uuid: string, token: string) => {
+export const deleteFilm = async (film_uuid: string, token: any) => {
   return api.post(
     "films/delete",
     { film_uuid },
@@ -17,7 +17,7 @@ export const deleteFilm = async (film_uuid: string, token: string) => {
 
 
 
-export const editFilm = async (formData: FormData, token: string) => {
+export const editFilm = async (formData: FormData, token: any) => {
   return api.post("films/edit", formData, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -28,8 +28,7 @@ export const editFilm = async (formData: FormData, token: string) => {
 
 
 
-export const searchMentions = async (q: string, token: string) => {
-  // returns axios response (caller can read response.data)
+export const searchMentions = async (q: string, token: any) => {
   const encoded = encodeURIComponent(q);
   return api.get(
     `search/mentions/?q=${encoded}`,

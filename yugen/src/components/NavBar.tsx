@@ -8,7 +8,7 @@ import { FiSearch, FiBell } from "react-icons/fi";
 function NavBar() {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
-  const [animateOpen, setAnimateOpen] = useState(false); // for animation
+  const [animateOpen, setAnimateOpen] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
 
   const logOut = async () => {
@@ -16,13 +16,11 @@ function NavBar() {
     navigate("/LoginPage");
   };
 
-  // Close search drawer when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) {
-        // start closing animation
         setAnimateOpen(false);
-        setTimeout(() => setSearchOpen(false), 300); // match transition duration
+        setTimeout(() => setSearchOpen(false), 300);
       }
     };
     if (searchOpen) document.addEventListener("mousedown", handleClickOutside);
@@ -32,15 +30,13 @@ function NavBar() {
   const handleOpenSearch = (e: React.MouseEvent) => {
     e.preventDefault();
     setSearchOpen(true);
-    setTimeout(() => setAnimateOpen(true), 10); // start animation
+    setTimeout(() => setAnimateOpen(true), 10);
   };
 
   return (
     <div className="absolute -top-2 left-1 w-[115px] h-[8vh] z-50">
-      {/* PillNav */}
       <PillNav
-        logo="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Yugen%20Logo%20Vector%20FINAL.svg"
-        logoAlt="Company Logo"
+        logo="https://assets.try-yugen.com/yugen_logo_dark.svg"
         items={[
           {
             label: (
@@ -71,7 +67,6 @@ function NavBar() {
         pillTextColor="#032a20"
       />
 
-      {/* Top Drawer for Search */}
       {searchOpen && (
         <div
           className={`fixed inset-0 z-[100000000000000000] flex flex-col items-center justify-start bg-transparent pointer-events-none`}
@@ -83,12 +78,11 @@ function NavBar() {
                         transform transition-transform duration-300 ease-in-out pointer-events-auto
                         ${animateOpen ? "translate-y-0" : "-translate-y-full"}`}
           >
-            <div className="w-full h-[10vh] flex justify-center items-center">
+            <div className="w-full h-[10vh] flex justify-center items-center z-10000000000">
               <SearchBar
                 onSearch={() => {
-                  // Close drawer on search
                   setAnimateOpen(false);
-                  setTimeout(() => setSearchOpen(false), 300); // match transition
+                  setTimeout(() => setSearchOpen(false), 300);
                 }}
               />
             </div>

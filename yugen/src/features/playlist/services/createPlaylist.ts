@@ -5,7 +5,7 @@ interface CreatePlaylistParams {
   is_public: boolean;
 }
 
-export async function createPlaylist(params: CreatePlaylistParams, token: string) {
+export async function createPlaylist(params: CreatePlaylistParams, token: any) {
   const { playlist_name, is_public } = params;
   const { data } = await api.post("/playlists/create", { playlist_name, is_public }, {
     headers: { Authorization: `Bearer ${token}` },

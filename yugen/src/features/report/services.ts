@@ -11,6 +11,6 @@ export async function submitFilmReport(
 export async function submitTechnicalReport(
   data: { auth_id: string; report: string; reportType: string }
 ) {
-  const res = await api.post("/report/technical", data);
+  const res = await api.post("/support/technical", data);
   return res.data;
 }

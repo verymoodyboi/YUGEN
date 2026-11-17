@@ -3,12 +3,12 @@ import * as React from "react";
 import { useSearchParams } from "react-router-dom";
 import Film from "../features/stream/components/film";
 import { useAddHistory } from "../features/history/useHistory";
-import AppLayout from "../layouts/layout-main";
 import PlaylistSection from "../features/playlist/components/playlist";
 import Thoughts from "../features/thoughts/components/thoughts";
 import { useSimilarFilms } from "../features/recommendations/hooks/useSimilarFilms";
 import SimilarFilmCard from "../features/recommendations/components/recommendedFilmCard";
 import Loading from "../components/loading_kickflip";
+import AuthActionGuard from "../components/clickWrapper";
 
 const WatchPlaylist: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -22,7 +22,7 @@ const WatchPlaylist: React.FC = () => {
     searchParams.get("playlist") ||
     null;
 
-  console.log(" WatchPlaylist params:", { uuid, playlistId });
+  //console.log(" WatchPlaylist params:", { uuid, playlistId });
 
   const [activeTab, setActiveTab] = React.useState<
     "thoughts" | "playlist" | "recommended"
@@ -33,7 +33,7 @@ const WatchPlaylist: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-6 p-4 bg-emerald-50 min-h-screen text-emerald-950 font-freckle">
+      <div className="flex flex-col gap-6 p-4  min-h-screen text-emerald-950 font-freckle">
         {uuid ? (
           <>
             {/* Film */}
@@ -77,7 +77,9 @@ const WatchPlaylist: React.FC = () => {
             {/* Tab content */}
             <div className="mt-4">
               {activeTab === "thoughts" ? (
-                <Thoughts filmId={uuid} />
+                <AuthActionGuard>
+                  <Thoughts filmId={uuid} />
+                </AuthActionGuard>
               ) : activeTab === "playlist" ? (
                 <PlaylistSection
                   playlistId={playlistId}

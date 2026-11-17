@@ -14,6 +14,6 @@ router.get("/playlists", controller.searchPlaylists);
 
 router.get("/", controller.combinedSearch);
 
-router.get("/mentions", requireAuth, controller.searchMentions);
+router.get("/mentions", controller.searchMentions);
 
 export default router;

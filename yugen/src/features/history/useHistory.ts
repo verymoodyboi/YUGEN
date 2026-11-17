@@ -1,4 +1,3 @@
-// src/hooks/useHistory.ts
 import { useState, useEffect, useRef } from "react";
 import { historyService, HistoryItem } from "./services";
 import { useAuth } from "../../contexts/AuthContext";
@@ -8,7 +7,7 @@ export function useHistory() {
   const {getAccessToken} = useAuth()
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<unknown>(null);
+  const [error, setError] = useState<any>(null);
 
   useEffect(() => {
     if (!userInfo?.auth_id) return;

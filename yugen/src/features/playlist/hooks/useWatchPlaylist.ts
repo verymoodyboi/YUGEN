@@ -1,11 +1,10 @@
-// src/features/playlist/hooks/usePlaylist.ts
 import { useState, useEffect } from "react";
 import { fetchPlaylistMeta, fetchPlaylistFilms, getNextFilm } from "../services/watchPlaylistServices";
 
 export function usePlaylist(
   playlistId?: string | null,
   currentFilmId?: string | null,
-  getAccessToken?: () => Promise<string>
+  getAccessToken?:any
 ) {
   const [playlist, setPlaylist] = useState<any>(null);
   const [films, setFilms] = useState<any[]>([]);

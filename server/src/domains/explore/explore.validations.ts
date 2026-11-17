@@ -1,4 +1,3 @@
-// src/features/explore/explore.validate.ts
 import Joi from "joi";
 
 export const randomFilmsSchema = Joi.object({

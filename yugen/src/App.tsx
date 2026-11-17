@@ -8,7 +8,7 @@ import UserProfile from "./pages/myProfilePage.tsx";
 import Wrapper from "./pages/Wrapper.tsx";
 import SearchPage from "./pages/searchResultsPage.tsx";
 import Watch from "./pages/watchFilmPage.tsx";
-import SignUpGoogle from "./features/register/components/SignUpWithGoogle.tsx";
+import SignUpGoogle from "./features/auth/register/components/SignUpWithGoogle.tsx";
 import AccountProfile from "./pages/viewProfilePage.tsx";
 import PlaylistsPage from "./pages/myPlaylistsPage.tsx";
 import Subscriptons from "./pages/mySubscriptionsPage.tsx";
@@ -16,8 +16,6 @@ import WatchlistPage from "./pages/myWatchlistPage.tsx";
 import WatchPlaylist from "./pages/watchPlaylistPage.tsx";
 import HistoryPage from "./pages/historyPage.tsx";
 import GenrePage from "./pages/genrePage.tsx";
-import ChallengePage from "./pages/challengePage.tsx";
-import ExploreChallengesPage from "./pages/challengesPage.tsx";
 import NotificationsPage from "./pages/notificationsPage.tsx";
 import SettingsPage from "./pages/settingsPage.tsx";
 import ErrorBoundary from "./pages/errorPage.tsx";
@@ -31,7 +29,15 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage.tsx";
 import WaitingComfirmation from "./pages/waitingEmailComfirmationPage.tsx";
 import AppLayout from "./layouts/layout-main.tsx";
+import AppLayout2 from "./layouts/layout-secondery.tsx";
 import Legal from "./pages/legal/termsAndPoliciesPage.tsx";
+import PrivacyPolicyPage from "./pages/legal/privacyPolicyPage.tsx";
+import ManageUploadsPage from "./pages/admin/QAPage.tsx";
+import AdminWrapper from "./pages/adminWrapper.tsx";
+import PokesPage from "./pages/pokesPage.tsx";
+import ReportedAccountsPage from "./pages/admin/reported_accounts_page.tsx";
+import SupportTicketsPage from "./pages/admin/supportTicketsPage.tsx";
+
 function Yugen() {
   return (
     <div>
@@ -39,37 +45,29 @@ function Yugen() {
         <Router>
           <Routes>
             <Route path="/about" element={<LandingPage />} />
-            <Route path="/terms" element={<Legal />} />
-
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/SignUpPage" element={<SignUpPage />} />
-            <Route path="/googleSignUp" element={<SignUpGoogle />} />
-            <Route
-              path="/profile-customization"
-              element={<ProfileCustomization />}
-            />
-            <Route
-              path="/reset-password"
-              element={
-                <Wrapper>
-                  <ResetPassword />
-                </Wrapper>
-              }
-            />
-            <Route
-              path="/pending-email-confirmation"
-              element={<WaitingComfirmation />}
-            />
-
-            <Route element={<AppLayout />}>
+            <Route element={<AppLayout2 />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/SignUpPage" element={<SignUpPage />} />
+              <Route path="/googleSignUp" element={<SignUpGoogle />} />
+              <Route path="/onboarding" element={<ProfileCustomization />} />
               <Route
-                path="/"
+                path="/reset-password"
                 element={
                   <Wrapper>
-                    <HomePage />
+                    <ResetPassword />
                   </Wrapper>
                 }
               />
+              <Route
+                path="/pending-email-confirmation"
+                element={<WaitingComfirmation />}
+              />
+            </Route>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/terms" element={<Legal />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+
               <Route
                 path="/watchlist"
                 element={
@@ -88,6 +86,15 @@ function Yugen() {
               />
 
               <Route
+                path="/pokes"
+                element={
+                  <Wrapper>
+                    <PokesPage />
+                  </Wrapper>
+                }
+              />
+
+              <Route
                 path="/UploadFilmPage"
                 element={
                   <Wrapper>
@@ -96,55 +103,13 @@ function Yugen() {
                 }
               />
 
-              <Route
-                path="/search"
-                element={
-                  <Wrapper>
-                    <SearchPage />
-                  </Wrapper>
-                }
-              />
-              <Route
-                path="/watch"
-                element={
-                  <Wrapper>
-                    <Watch />
-                  </Wrapper>
-                }
-              />
-              <Route
-                path="/watchplaylist"
-                element={
-                  <Wrapper>
-                    <WatchPlaylist />
-                  </Wrapper>
-                }
-              />
-              <Route
-                path="/random"
-                element={
-                  <Wrapper>
-                    <FilmRollPickerPage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/watch" element={<Watch />} />
+              <Route path="/watchplaylist" element={<WatchPlaylist />} />
+              <Route path="/random" element={<FilmRollPickerPage />} />
 
-              <Route
-                path="/globe"
-                element={
-                  <Wrapper>
-                    <FilmGlobePage />
-                  </Wrapper>
-                }
-              />
-              <Route
-                path="/country"
-                element={
-                  <Wrapper>
-                    <CountryPage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/globe" element={<FilmGlobePage />} />
+              <Route path="/country" element={<CountryPage />} />
               <Route
                 path="/settings"
                 element={
@@ -172,23 +137,9 @@ function Yugen() {
                 }
               />
 
-              <Route
-                path="/genre"
-                element={
-                  <Wrapper>
-                    <GenrePage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/genre" element={<GenrePage />} />
 
-              <Route
-                path="/genres"
-                element={
-                  <Wrapper>
-                    <GenresPage />
-                  </Wrapper>
-                }
-              />
+              <Route path="/genres" element={<GenresPage />} />
 
               <Route
                 path="/notifications"
@@ -199,14 +150,7 @@ function Yugen() {
                 }
               />
 
-              <Route
-                path="/@"
-                element={
-                  <Wrapper>
-                    <AccountProfile />
-                  </Wrapper>
-                }
-              />
+              <Route path="/@" element={<AccountProfile />} />
               <Route
                 path="/Profile"
                 element={
@@ -216,11 +160,35 @@ function Yugen() {
                 }
               />
               <Route
-                path="/flagged"
+                path="admin/flagged"
                 element={
-                  <Wrapper>
+                  <AdminWrapper>
                     <FlaggedFilmsPage />
-                  </Wrapper>
+                  </AdminWrapper>
+                }
+              />
+              <Route
+                path="admin/QA"
+                element={
+                  <AdminWrapper>
+                    <ManageUploadsPage />
+                  </AdminWrapper>
+                }
+              />
+              <Route
+                path="admin/reported_accounts"
+                element={
+                  <AdminWrapper>
+                    <ReportedAccountsPage />
+                  </AdminWrapper>
+                }
+              />
+              <Route
+                path="admin/support_requests"
+                element={
+                  <AdminWrapper>
+                    <SupportTicketsPage />
+                  </AdminWrapper>
                 }
               />
             </Route>

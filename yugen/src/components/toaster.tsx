@@ -1,4 +1,3 @@
-// src/components/toaster.tsx
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { FiCheckCircle, FiXCircle, FiAlertTriangle } from "react-icons/fi";
 
@@ -17,17 +16,14 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const addToast = useCallback((message: string, type: Toast["type"]) => {
     const id = Date.now();
 
-    // Add toast in "entering" state
     setToasts((prev) => [...prev, { id, message, type, exiting: false }]);
 
-    // Trigger exit animation before removal
     setTimeout(() => {
       setToasts((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, exiting: true } : t))
+        prev.map((t) => (t.id === id ? { ...t, exiting: true } : t)),
       );
-    }, 2800); // Exit starts 0.4s before removal
+    }, 2800);
 
-    // Remove after exit animation completes
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3200);
@@ -43,7 +39,6 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     <ToastContext.Provider value={toastAPI}>
       {children}
 
-      {/* Toast container: top-center */}
       <div className="fixed top-4 left-1/2 transform -translate-x-1/2 space-y-3 z-[9999]">
         {toasts.map((t) => (
           <ToastItem
@@ -69,7 +64,6 @@ const ToastItem = ({
   type: "success" | "error" | "warn";
   exiting?: boolean;
 }) => {
-  // Icon per type
   const icon =
     type === "success" ? (
       <FiCheckCircle className="inline-block mr-2 text-emerald-50" />
@@ -79,7 +73,6 @@ const ToastItem = ({
       <FiAlertTriangle className="inline-block mr-2 text-yellow-500" />
     );
 
-  // Shadow/tint per type
   const tint =
     type === "success"
       ? "shadow-[0_0_0_2px_rgba(16,185,129,0.6)]"

@@ -35,7 +35,7 @@ export const quickSearch = async (query: string) => {
 };
 
 
-export const searchMentions = async (token: string, query: string) => {
+export const searchMentions = async (token: any, query: string) => {
   if (!query.trim()) return [];
   const res = await api.get(
     `/search/mentions/?q=${encodeURIComponent(query)}`,

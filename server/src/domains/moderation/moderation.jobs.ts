@@ -1,4 +1,3 @@
-// src/domains/moderation/moderation.poller.ts
 import cron from "node-cron";
 import axios from "axios";
 import supabase from "../../lib/supabase.js";
@@ -6,10 +5,9 @@ import supabase from "../../lib/supabase.js";
 const SIGHTENGINE_USER = process.env.SIGHTENGINE_USER!;
 const SIGHTENGINE_SECRET = process.env.SIGHTENGINE_SECRET!;
 
-const minAgeMinutes = 2; // only poll films submitted more than 2 minutes ago
+const minAgeMinutes = 2;
 
 export async function checkPendingModerationsOnce() {
-  // select films under_review older than minAgeMinutes
   const cutoff = new Date(Date.now() - minAgeMinutes * 60_000).toISOString();
   const { data: pending, error } = await supabase
     .from("films")
@@ -19,11 +17,10 @@ export async function checkPendingModerationsOnce() {
     .lt("release_date", cutoff);
 
   if (error) {
-    console.error("❌ Error fetching pending films:", error);
+    console.error("Error fetching pending films:", error);
     return;
   }
   if (!pending?.length) {
-    // no pending to poll
     return;
   }
 
@@ -46,7 +43,6 @@ export async function checkPendingModerationsOnce() {
 
       const data = res.data;
       if (data?.data?.status === "finished") {
-        // reuse compute logic: max score across frames
         const frames = data?.data?.frames ?? [];
         let maxScore = 0;
         for (const f of frames) {
@@ -64,12 +60,12 @@ export async function checkPendingModerationsOnce() {
           })
           .eq("film_uuid", film.film_uuid);
 
-        console.log(`✅ (poller) Updated ${film.film_uuid} → ${newStatus} (max=${maxScore})`);
+        console.log(`(poller) Updated ${film.film_uuid} → ${newStatus} (max=${maxScore})`);
       } else {
-        console.log(`⏳ (poller) ${film.film_uuid} status: ${data?.data?.status}`);
+        console.log(`(poller) ${film.film_uuid} status: ${data?.data?.status}`);
       }
     } catch (err: any) {
-      console.error(`⚠️ Poller error for ${film.film_uuid}:`, err.response?.data || err.message);
+      console.error(`Poller error for ${film.film_uuid}:`, err.response?.data || err.message);
     }
   }
 }

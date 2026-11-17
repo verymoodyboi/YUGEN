@@ -2,7 +2,6 @@ import supabase from "../../lib/supabase.js";
 import logger from "../../lib/logger.js";
 import cron from "node-cron";
 
-// cache structure stays the same
 export const genreCache: Record<string, { films: any[]; lastFetched: Date }> = {};
 
 async function fetchAndCacheGenre(genre: string) {
@@ -51,11 +50,9 @@ export async function preloadAllGenres() {
   }
 }
 
-// --- initialize at server start ---
 await preloadAllGenres();
 logger.info("All genres cached successfully on server start");
 
-// --- refresh once per day at midnight ---
 cron.schedule("0 0 * * *", async () => {
   logger.info("Refreshing genre cache...");
   await preloadAllGenres();

@@ -14,3 +14,6 @@ build/
 out/
 .turbo/
 coverage/
+
+
+# Ignore all Dockerfiles anywhere

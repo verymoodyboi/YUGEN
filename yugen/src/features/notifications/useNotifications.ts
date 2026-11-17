@@ -1,4 +1,3 @@
-// src/features/subscriptions/hooks/useNotifications.ts
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { fetchNotifications } from "./services";

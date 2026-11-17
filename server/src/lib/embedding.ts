@@ -4,10 +4,7 @@ type EmbeddingPipeline = (text: string, options?: { pooling?: string; normalize?
 
 let cachedPipe: EmbeddingPipeline | null = null;
 
-/**
- * Generate an embedding vector from text using Xenova Transformers.
- * Pipeline is cached after first initialization for performance.
- */
+
 
 export async function generateEmbedding(text: string): Promise<number[] | null> {
   if (!text) return null;
@@ -54,7 +51,7 @@ export async function concatenateInfo(
       Thesis: ${thesis || "No thesis provided"}
     `.trim();
 
-    logger.info("🔹 Generating embedding for:", text);
+    logger.info(" Generating embedding for:", text);
     return await generateEmbedding(text);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

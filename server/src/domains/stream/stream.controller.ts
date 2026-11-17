@@ -32,14 +32,15 @@ export async function incrementView(req: Request, res: Response) {
 export async function clickFilm(req: Request, res: Response) {
   try {
     const { film_uuid } = req.params;
-    const userId = req.user?.id;
 
-    if (!film_uuid || !userId) {
+    if (!film_uuid ) {
       return res.status(400).json({ error: 'Missing film_uuid or user' });
     }
-
-    const result = await streamService.logClick(film_uuid, userId);
-    res.json(result);
+   
+    const result = await streamService.logClick(film_uuid);
+      res.json(result);
+    
+  
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Unexpected error' });
   }

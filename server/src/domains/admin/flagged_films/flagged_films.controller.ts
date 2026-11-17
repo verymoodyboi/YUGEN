@@ -1,4 +1,3 @@
-// src/domains/admin/flagged_films/flagged_films.controller.ts
 import { Request, Response } from "express";
 import {
   getFlaggedFilms,

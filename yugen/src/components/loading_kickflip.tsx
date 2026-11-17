@@ -4,7 +4,7 @@ const Loading: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen w-full bg-transparent">
       <img
-        src="https://iqvsgbsnpqvbddmdixoz.supabase.co/storage/v1/object/public/assets/Kickflip!.gif"
+        src="https://assets.try-yugen.com/Kickflip!.gif"
         alt="loading"
         className="w-48 h-48 object-contain"
       />

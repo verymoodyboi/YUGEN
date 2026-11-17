@@ -7,7 +7,6 @@ import { api } from "../../../lib/api";
 import { toggleNotifyStatus } from "../../notifications/services";
 import { fetchProfileFilms } from "../../recommendations/services";
 import { fetchUserPlaylists } from "../../playlist/services/fetchUserPlaylist";
-  import { fetchUserChallenges } from "../../challenges/services";
 
 export function useViewProfile(username: string | null) {
   const { userInfo, getAccessToken } = useAuth();
@@ -18,7 +17,6 @@ export function useViewProfile(username: string | null) {
   const [isNotify, setIsNotify] = useState<boolean>(false);
   const [myPlaylists, setMyPlaylists] = useState<any[]>([]);
 
-  // === Fetch account ===
   useEffect(() => {
     const fetchAccount = async () => {
       if (!username) return;
@@ -39,7 +37,6 @@ export function useViewProfile(username: string | null) {
     fetchAccount();
   }, [username]);
 
-  // === Subscription check ===
 
 useEffect(() => {
   const loadSubscriptionStatus = async () => {
@@ -60,7 +57,6 @@ useEffect(() => {
   };
   loadSubscriptionStatus();
 }, [user?.auth_id, userInfo?.auth_id]);
-  // === Subscribe / Unsubscribe ===
 const handleSubscribe = async () => {
   if (!user?.auth_id) return;
   try {
@@ -140,20 +136,20 @@ useEffect(() => {
 
   // === Fetch Challenges ===
 
-const {
-  data: userChallengesData,
-  isLoading: userChallengesLoading,
-} = useInfiniteQuery({
-  queryKey: ["userChallenges", user?.auth_id],
-  queryFn: ({ pageParam = 0 }) =>
-    fetchUserChallenges({ pageParam, auth_id: user?.auth_id! }),
-  initialPageParam: 0,
-  getNextPageParam: (lastPage, allPages) =>
-    !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
-  enabled: !!user?.auth_id,
-});
+// const {
+//   data: userChallengesData,
+//   isLoading: userChallengesLoading,
+// } = useInfiniteQuery({
+//   queryKey: ["userChallenges", user?.auth_id],
+//   queryFn: ({ pageParam = 0 }) =>
+//     fetchUserChallenges({ pageParam, auth_id: user?.auth_id! }),
+//   initialPageParam: 0,
+//   getNextPageParam: (lastPage, allPages) =>
+//     !lastPage || lastPage.length < 10 ? undefined : allPages.length * 10,
+//   enabled: !!user?.auth_id,
+// });
 
-const userChallenges = userChallengesData?.pages.flat() ?? [];
+// const userChallenges = userChallengesData?.pages.flat() ?? [];
 
   return {
     user,
@@ -168,7 +164,7 @@ const userChallenges = userChallengesData?.pages.flat() ?? [];
     hasNextPage,
     isFetchingNextPage,
     myPlaylists,
-    userChallenges,
-    userChallengesLoading,
+    // userChallenges,
+    // userChallengesLoading,
   };
 }

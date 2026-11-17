@@ -4,7 +4,7 @@ import {api} from "../../../lib/api";
 export async function updateName(
   playlist_uuid: string,
   newName: string,
-  token: string
+  token: any
 ) {
   const { data } = await api.post(
     "/playlists/update-name",

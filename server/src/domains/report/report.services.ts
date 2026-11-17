@@ -7,7 +7,6 @@ export async function submitFilmReport(
   report: string,
   film_id: string
 ) {
-  // 1️⃣ Insert the report
   const { error: insertError } = await supabase.from("film_reports").insert([
     {
       auth_id,
@@ -23,7 +22,6 @@ export async function submitFilmReport(
     throw new Error(insertError.message);
   }
 
-  // 2️⃣ Count all reports for this film
   const { count, error: countError } = await supabase
     .from("film_reports")
     .select("*", { count: "exact", head: true })
@@ -34,9 +32,7 @@ export async function submitFilmReport(
     throw new Error(countError.message);
   }
 
-  // 3️⃣ If number of reports is a multiple of 5, flag the film
   if (count && count % 5 === 0) {
-    // 3a) Update the film visibility
     const { error: updateError } = await supabase
       .from("films")
       .update({ is_flagged: true, flag_reason:"multible user reports" })
@@ -49,7 +45,6 @@ export async function submitFilmReport(
       throw new Error(updateError.message);
     }
 
-    // 3b) Insert into flagged_films
     const { error: flagError } = await supabase.from("flagged_films").insert([
       {
         film_uuid: film_id,
@@ -88,3 +83,38 @@ export async function submitTechReport(auth_id: string, reportType: string, repo
 
   return { success: true, message: 'Technical report submitted successfully!' };
 }
+
+
+
+
+export interface SubmitReportInput {
+  reported: string;
+  reported_by: string;
+  reason: string;
+  report?: string;
+}
+ 
+export async function reportAccount({ reported, reported_by, reason, report }: SubmitReportInput) {
+  if (reported === reported_by) {
+    throw new Error("You cannot report yourself.");
+  }
+ 
+  const { data, error } = await supabase
+    .from("reported_users")
+    .insert({
+      reported,
+      reported_by,
+      reason,
+      report: report || "",
+    })
+    .select()
+    .single();
+ 
+  if (error) {
+    logger.error("Error submitting report", { error });
+    throw new Error(error.message);
+  }
+ 
+  return { success: true, message: "Report submitted successfully.", data };
+}
+ 

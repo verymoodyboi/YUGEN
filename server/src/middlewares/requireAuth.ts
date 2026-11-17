@@ -11,9 +11,7 @@ const supabaseAdmin = createClient(
   }
 );
 
-/**
- * Middleware: verifies Supabase auth token and attaches user to req.user
- */
+
 export async function requireAuth(
   req: Request,
   res: Response,
