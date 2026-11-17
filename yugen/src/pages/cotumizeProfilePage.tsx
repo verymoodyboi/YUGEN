@@ -16,7 +16,7 @@ const detectPlatform = (url: string) => {
   return "Other";
 };
 
-const platformIcons: Record<string, JSX.Element> = {
+const platformIcons: Record<string, React.JSX.Element> = {
   YouTube: <FaYoutube className="text-red-600" />,
   Instagram: <FaInstagram className="text-pink-600" />,
   LinkedIn: <FaLinkedin className="text-blue-600" />,

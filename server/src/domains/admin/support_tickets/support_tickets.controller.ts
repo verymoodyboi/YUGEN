@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import * as reportService from './support_tickets.services';
+import * as reportService from './support_tickets.services.js';
 import logger from '../../../lib/logger';
 
 

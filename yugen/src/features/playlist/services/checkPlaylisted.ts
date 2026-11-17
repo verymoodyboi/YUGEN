@@ -1,5 +1,5 @@
 import {api} from "../../../lib/api";
-export async function checkFilmInPlaylist(playlistID: string, filmID: string, token: string) {
+export async function checkFilmInPlaylist(playlistID: string, filmID: string, token: any) {
   const { data } = await api.get(`/playlists/check-listed`, {
     params: { playlistID, filmID },
     headers: { Authorization: `Bearer ${token}` },

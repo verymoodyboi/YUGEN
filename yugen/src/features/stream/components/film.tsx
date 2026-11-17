@@ -1,7 +1,5 @@
-import supabase from "../../../lib/supabaseClient";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, Fragment } from "react";
+import { useState, Fragment } from "react";
 import {
   FiFlag,
   FiPlusSquare,
@@ -14,7 +12,6 @@ import {
 import { Dialog, Transition } from "@headlessui/react";
 
 import VideoPlayer from "./videoPlayer";
-import Thoughts from "../../thoughts/components/thoughts";
 import ReportForm from "../../report/components/Report";
 import Wrapper from "../../../pages/Wrapper";
 import { useAuth } from "../../../contexts/AuthContext";

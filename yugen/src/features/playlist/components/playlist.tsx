@@ -1,6 +1,5 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FiEye, FiShuffle, FiPlay } from "react-icons/fi";
+import { FiShuffle } from "react-icons/fi";
 import { useAuth } from "../../../contexts/AuthContext";
 import { usePlaylist } from "../hooks/useWatchPlaylist";
 import PlaylistItem from "./playlistFilmCard";
@@ -8,23 +7,21 @@ import PlaylistItem from "./playlistFilmCard";
 const PlaylistSection = ({
   playlistId,
   currentFilmId,
+  nextFilmTrigger,
 }: {
   playlistId?: string | null;
   currentFilmId?: string | null;
+  nextFilmTrigger: any;
 }) => {
   const { getAccessToken } = useAuth();
   const navigate = useNavigate();
 
-  const { playlist, films, loading, shuffle, toggleShuffle, getNext } =
-    usePlaylist(playlistId, currentFilmId, getAccessToken);
+  const { playlist, films, loading } = usePlaylist(
+    playlistId,
+    currentFilmId,
+    getAccessToken,
+  );
 
-  const handleNextFilm = () => {
-    const nextFilm = getNext();
-    if (nextFilm?.film_uuid)
-      navigate(
-        `/watchplaylist?uuid=${nextFilm.film_uuid}&playlist=${playlistId}`,
-      );
-  };
   const handleShufflePlay = () => {
     if (!films.length) return;
 

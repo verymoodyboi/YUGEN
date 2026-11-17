@@ -14,7 +14,7 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
   onCropConfirm,
   onCancel,
 }) => {
-  const [crop, setCrop] = useState<Crop>({ unit: "%", width: 50, aspect: 1 });
+  const [crop, setCrop] = useState<any>({ unit: "%", width: 50, aspect: 1 });
   const [completedCrop, setCompletedCrop] = useState<Crop | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
 

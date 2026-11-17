@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLayoutEffect } from "react";
-import AppLayout from "../../../layouts/layout-main";
 import { motion, useAnimation } from "framer-motion";
 import { FiPlay, FiRefreshCw, FiStar } from "react-icons/fi";
-import supabase from "../../../lib/supabaseClient";
 import { useRandomFilm } from "../hooks/useRandomFilm";
 import { useNavigate } from "react-router-dom";
 import { useFilm } from "../../stream/hooks/useFilmCard";
@@ -270,9 +268,9 @@ const FilmPicker: React.FC<any> = () => {
                 <div className="flex-shrink-0 rounded-md overflow-hidden border-4 border-emerald-950 w-[288px] h-[432px]">
                   <img
                     src={
-                       selectedFilm.poster_path
-              ? `https://posters.try-yugen.com/${selectedFilm.poster_path}`
-              : tempPoster
+                      selectedFilm.poster_path
+                        ? `https://posters.try-yugen.com/${selectedFilm.poster_path}`
+                        : tempPoster
                     }
                     alt={selectedFilm.film_title}
                     className="w-full h-full object-cover"
@@ -303,7 +301,7 @@ const FilmPicker: React.FC<any> = () => {
                         e.stopPropagation();
                         navigate(
                           `/@?username=${encodeURIComponent(
-                            uploader?.username,
+                            uploader?.username ?? "",
                           )}`,
                         );
                       }}

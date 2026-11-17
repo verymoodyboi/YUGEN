@@ -1,7 +1,6 @@
 // src/pages/HistoryPage.tsx
 import * as React from "react";
 import dayjs from "dayjs";
-import AppLayout from "../layouts/layout-main";
 import FilmScrollRowDynamic from "../layouts/filmcard-scroll-h-dynamic";
 import { useHistory } from "../features/history/useHistory";
 import Loading from "../components/loading_kickflip";

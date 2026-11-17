@@ -1,7 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { FiTwitter, FiInstagram, FiYoutube, FiFacebook } from "react-icons/fi";
-import footer_logo from "../../../YugenAssits/logo/Yugen Logo (Outline).svg";
+import { FiInstagram } from "react-icons/fi";
 interface NavLink {
   title: string;
   path: string;
@@ -126,7 +125,7 @@ const FooterSection: React.FC<{ scrollToTop: () => void }> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              onClick={(e) => {
+              onClick={() => {
                 setOpenContact(false);
               }}
               className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-emerald-950 font-bold text-[23px] rounded-full bg-emerald-50 border-2 border-emerald-950 hover:bg-emerald-100 transition"

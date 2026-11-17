@@ -6,7 +6,7 @@ import {
   Subscription,
 } from "../services"
 
-export function useSubs(getAccessToken: () => Promise<string>) {
+export function useSubs(getAccessToken: any) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);

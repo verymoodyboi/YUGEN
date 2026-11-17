@@ -6,7 +6,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { checkPlaylistSaved, togglePlaylistSaved } from "../services/savePlaylist";
 
 export function usePlaylistCard(playlist: any) {
-  const { getAccessToken, userInfo } = useAuth();
+  const { getAccessToken } = useAuth();
   const [isPublic, setIsPublic] = useState<boolean>();
   const [isSaved, setIsSaved] = useState<boolean>();
 

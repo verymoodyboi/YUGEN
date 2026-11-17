@@ -1,7 +1,6 @@
 import React from "react";
 import { FiUploadCloud, FiCheck, FiX } from "react-icons/fi";
 import { usePendingUploads } from "../../features/admin/QA/useQA";
-import CustomLoading from "../../SmallComponents/CutomsLoading";
 import tempPoster from "../../YugenAssits/Cover_Placeholder.png";
 import Loading from "../../components/loading_kickflip";
 

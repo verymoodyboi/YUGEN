@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchLatestUserFilms } from "../../recommendations/services";
 import { fetchMyPlaylists } from "../../playlist/services/fetchMyPlaylists";
-import { fetchUserChallenges } from "../../challenges/services";
 import { fetchMyUploads } from "../services";
 
-export function useMyProfile(uploaderID?: string, getAccessToken?: () => Promise<string>) {
+export function useMyProfile(uploaderID?: string, getAccessToken?:any) {
   const filmsQuery = useInfiniteQuery({
     queryKey: ["films", uploaderID],
     queryFn: ({ pageParam = 0 }) =>

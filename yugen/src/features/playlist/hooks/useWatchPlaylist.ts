@@ -4,7 +4,7 @@ import { fetchPlaylistMeta, fetchPlaylistFilms, getNextFilm } from "../services/
 export function usePlaylist(
   playlistId?: string | null,
   currentFilmId?: string | null,
-  getAccessToken?: () => Promise<string>
+  getAccessToken?:any
 ) {
   const [playlist, setPlaylist] = useState<any>(null);
   const [films, setFilms] = useState<any[]>([]);

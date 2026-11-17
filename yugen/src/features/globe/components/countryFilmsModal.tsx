@@ -36,7 +36,7 @@ interface CountryModalProps {
     artist_count: number | null;
   } | null;
   films?: FilmWithUploader[];
-  users?: any[];
+  users?: any;
   loading: boolean;
   loadMoreFilms: () => void;
   loadMoreUsers: () => void;
@@ -75,11 +75,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
     return updatedAt
       ? `${data?.publicUrl}?v=${new Date(updatedAt).getTime()}`
       : data?.publicUrl;
-  };
-
-  const getPfpUrl = (path?: string) => {
-    const { data } = supabase.storage.from("pfps").getPublicUrl(path || "");
-    return data?.publicUrl || "/default-avatar.png";
   };
 
   const getUploader = (film: any): Uploader | null =>
@@ -132,13 +127,6 @@ const CountryModal: React.FC<CountryModalProps> = ({
     if (!nearBottom || loading) return;
     activeTab === "films" ? loadMoreFilms() : loadMoreUsers();
   };
-
-  const Stat = ({ icon, label }: { icon: any; label: any }) => (
-    <div className="flex items-center gap-2 text-emerald-900/80 text-sm">
-      <span className="text-base">{icon}</span>
-      <span className="font-medium">{label}</span>
-    </div>
-  );
 
   return (
     <div

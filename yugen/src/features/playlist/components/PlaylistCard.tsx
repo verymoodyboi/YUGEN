@@ -15,7 +15,6 @@ import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
 
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { useToast } from "../../../components/toaster";
 import AuthActionGuard from "../../../components/clickWrapper";
 

@@ -46,11 +46,10 @@ export const useSearchBar = () => {
 
         setLoading(true);
         try {
-          const results = await quickSearch(searchInput);
-
+const results: any[] = await quickSearch(searchInput);
           const sortedResults = results
             .map(item => ({ ...item, score: getScore(item, searchInput) }))
-            .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+            .sort((a:any, b:any) => (b.score ?? 0) - (a.score ?? 0))
             .map(({ score, ...rest }) => rest); 
 
           setSearchResults(sortedResults);

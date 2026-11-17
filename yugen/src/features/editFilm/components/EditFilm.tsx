@@ -14,7 +14,6 @@ import ReactCrop, { makeAspectCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import supabase from "../../../lib/supabaseClient";
 import { useAuth } from "../../../contexts/AuthContext";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useEditFilmApi from "../../../features/editFilm/hooks/useEditFilm";
 import { useGenresWithFilms } from "../../../features/genres/useGenres";
@@ -26,31 +25,15 @@ registerPlugin(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
 const crewRoles = ["Director", "DP", "Editor", "Producer", "Writer"];
 
-interface FilmInfo {
-  film_uuid: string;
-  id: string;
-  film_title?: string;
-  title?: string;
-  thesis?: string;
-  film_genre?: any;
-  country?: string;
-  crew?: any;
-  cast?: any;
-  poster_path?: string;
-  poster?: string;
-  film_path?: string;
-  uploader_id?: string;
-}
-
 interface EditFilmProps {
-  filmInfo: FilmInfo;
+  filmInfo: any;
   onDone?: () => void;
 }
 
 const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
   const toast = useToast();
   const { userInfo } = useAuth();
-  const { genres: allGenres, loading: genresLoading } = useGenresWithFilms();
+  const { genres: allGenres } = useGenresWithFilms();
   const genreOptions = React.useMemo(
     () =>
       Array.isArray(allGenres)
@@ -58,18 +41,9 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
         : [],
     [allGenres],
   );
-  const { getAccessToken } = useAuth();
 
-  const {
-    searchInput,
-    setSearchInput,
-    searchResults,
-    loadingUsers,
-    isSaving,
-    setIsSaving,
-    submitEdit,
-    deleteFilmByUuid,
-  } = useEditFilmApi();
+  const { isSaving, setIsSaving, submitEdit, deleteFilmByUuid } =
+    useEditFilmApi();
   const {
     crewList,
     cast,
@@ -195,53 +169,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     });
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (!["image/jpeg", "image/png"].includes(file.type)) {
-      toast.warn("Only JPEG or PNG images allowed!");
-      return;
-    }
-    if (originalPreviewUrl) {
-      try {
-        URL.revokeObjectURL(originalPreviewUrl);
-      } catch {}
-    }
-    const path = URL.createObjectURL(file);
-    setPosterFile(file);
-    setOriginalPreviewUrl(path);
-    setIsModalOpen(true);
-    if (croppedPreviewUrl) {
-      try {
-        URL.revokeObjectURL(croppedPreviewUrl);
-      } catch {}
-    }
-    setCroppedFile(null);
-    setCroppedPreviewUrl(null);
-  };
-
-  const handleRemoveFile = () => {
-    if (originalPreviewUrl) {
-      try {
-        URL.revokeObjectURL(originalPreviewUrl);
-      } catch {}
-    }
-    if (croppedPreviewUrl) {
-      try {
-        URL.revokeObjectURL(croppedPreviewUrl);
-      } catch {}
-    }
-    setOriginalPreviewUrl(null);
-    setCroppedPreviewUrl(null);
-    setPosterFile(null);
-    setCroppedFile(null);
-    setCrop(null);
-    setIsModalOpen(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const showModal = () => setIsModalOpen(true);
-
   const handleOk = async () => {
     if (imgRef.current && crop && canvasRef.current) {
       await applyCropAndSetFile(imgRef.current, crop);
@@ -272,7 +199,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
     Array.isArray(filmInfo.film_genre)
       ? filmInfo.film_genre
       : typeof filmInfo.film_genre === "string"
-        ? filmInfo.film_genre.split(",").map((g) => g.trim())
+        ? filmInfo.film_genre.split(",").map((g: any) => g.trim())
         : [],
   );
   const [country, setCountry] = useState(filmInfo.country || "");
@@ -342,21 +269,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
       setIsSaving(false);
     }
   };
-
-  const getPublic = (bucket: string, path?: string | null) => {
-    try {
-      if (!path) return "";
-      return (
-        supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl || ""
-      );
-    } catch {
-      return "";
-    }
-  };
-
-  const posterUrl = filmInfo.poster_path
-    ? `https://posters.try-yugen.com/${filmInfo.poster_path}`
-    : tempPoster;
 
   return (
     <div
@@ -518,14 +430,13 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                                 setCrewName("@" + opt.username);
                                 setCrewPFP(opt.pfp || tempPFP);
                                 setCrewSearchInput("");
-                              
                               }}
                               className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
                             >
                               <img
                                 src={
                                   opt.pfp
-                                    ?  `https://pfps.try-yugen.com/${opt.pfp}?t=${Date.now()}`
+                                    ? `https://pfps.try-yugen.com/${opt.pfp}?t=${Date.now()}`
                                     : tempPFP
                                 }
                                 alt={opt.username}
@@ -638,7 +549,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ filmInfo, onDone }) => {
                                 setActor("@" + opt.username);
                                 setActorPFP(opt.pfp || tempPFP);
                                 setActorSearchInput("");
-                               
                               }}
                               className="px-3 py-2 cursor-pointer hover:bg-emerald-100 flex items-center gap-2"
                             >

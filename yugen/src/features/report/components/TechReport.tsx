@@ -7,7 +7,7 @@ interface Props {
   onClose?: () => void;
 }
 
-const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess, onClose }) => {
+const TechnicalReportForm: React.FC<Props> = ({ onSubmitSuccess }) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [reportType, setReportType] = useState("");
   const [report, setReport] = useState("");

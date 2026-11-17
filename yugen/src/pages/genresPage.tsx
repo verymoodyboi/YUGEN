@@ -1,5 +1,4 @@
 import React from "react";
-import AppLayout from "../layouts/layout-main";
 import GenreCard from "../features/genres/components/genreCard";
 import { useGenresWithFilms } from "../features/genres/useGenres";
 import Loading from "../components/loading_kickflip";

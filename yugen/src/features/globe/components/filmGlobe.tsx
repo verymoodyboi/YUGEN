@@ -16,7 +16,7 @@ interface CountryFeature {
 }
 
 const FilmGlobe: React.FC = () => {
-  const globeRef = useRef<any>();
+  const globeRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [countries, setCountries] = useState<CountryFeature[]>([]);
   const [hoverD, setHoverD] = useState<CountryFeature | null>(null);
@@ -111,7 +111,6 @@ const FilmGlobe: React.FC = () => {
           if (country?.properties?.name)
             handleCountryHover(country.properties.name);
         }}
-        onPolygonHoverOut={() => setHoverD(null)}
         onPolygonClick={(polygon) => {
           const country = polygon as CountryFeature;
           if (country?.properties?.name) {

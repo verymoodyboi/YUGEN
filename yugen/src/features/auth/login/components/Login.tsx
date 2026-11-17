@@ -3,10 +3,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import supabase from "../../../../lib/supabaseClient.ts";
 import GoogleIcon from "@mui/icons-material/Google";
-import CloseIcon from "@mui/icons-material/Close";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CheckIcon from "@mui/icons-material/Check";
-import logo from "../../../YugenAssits/Transparent long.png";
 import { useToast } from "../../../../components/toaster.tsx";
 import { Transition } from "@headlessui/react";
 

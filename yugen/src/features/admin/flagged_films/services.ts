@@ -5,6 +5,7 @@ export interface FlaggedFilm {
   film_uuid: string;
   reason: string;
   flagged_date: string;
+  flagged_at: string;
   films?: {
     title?: string;
     cover_path?: string;

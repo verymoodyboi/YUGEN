@@ -7,7 +7,6 @@ import { api } from "../../../lib/api";
 import { toggleNotifyStatus } from "../../notifications/services";
 import { fetchProfileFilms } from "../../recommendations/services";
 import { fetchUserPlaylists } from "../../playlist/services/fetchUserPlaylist";
-  import { fetchUserChallenges } from "../../challenges/services";
 
 export function useViewProfile(username: string | null) {
   const { userInfo, getAccessToken } = useAuth();

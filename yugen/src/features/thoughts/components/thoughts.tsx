@@ -1,15 +1,13 @@
 // src/features/thought/components/Thoughts.tsx
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { Dialog } from "@mui/material";
 import {
   FiThumbsUp,
   FiThumbsDown,
   FiMessageSquare,
   FiTrash,
-  FiX,
 } from "react-icons/fi";
 import { useToast } from "../../../components/toaster";
-import supabase from "../../../lib/supabaseClient";
 import ReplyForm from "./ReplyForm";
 import { useThoughts } from "../hooks/useThoughts";
 import { useReply } from "../hooks/useReply";
@@ -19,7 +17,7 @@ import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 import AuthActionGuard from "../../../components/clickWrapper";
 
 interface ThoughtsProps {
-  filmId: number;
+  filmId: any;
   refreshKey?: number;
 }
 

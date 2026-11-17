@@ -22,7 +22,7 @@ export async function editProfile(
     Region: string;
     pfpContentType?: string;
   },
-  token: string
+  token: any
 ) {
   const res = await api.post("/profile/edit", payload, {
     headers: {
@@ -41,7 +41,7 @@ export async function compressEditedPFP(
   payload: {
     authId:string;
   },
-  token: string
+  token: any
 ) {
   const res = await api.post("/profile/edit_helper_pfp_compress", payload, {
     headers: {

@@ -1,8 +1,6 @@
-import AppLayout from "../layouts/layout-main";
 import FilmGlobe from "../features/globe/components/filmGlobe";
-import { FiFilm, FiUsers } from "react-icons/fi";
-
-export default function FilmGlobePage(): JSX.Element {
+import React from "react";
+export default function FilmGlobePage(): React.JSX.Element {
   return (
     <>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
