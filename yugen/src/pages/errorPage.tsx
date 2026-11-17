@@ -1,7 +1,5 @@
-// src/components/ErrorBoundary.tsx
 import React from "react";
 import FuzzyText from "../SmallComponents/FuzzyText";
-import { Link } from "react-router-dom";
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },

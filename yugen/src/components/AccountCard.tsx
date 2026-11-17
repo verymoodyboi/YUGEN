@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import supabase from "../lib/supabaseClient";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import VideocamOutlinedIcon from "@mui/icons-material/VideocamOutlined";
 import { useAuth } from "../contexts/AuthContext";

@@ -7,7 +7,6 @@ import { checkUsernameAvailable } from "../../../../util/availability-validation
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useToast } from "../../../../components/toaster";
 import { uploadToR2 } from "../services";
-import { University } from "lucide-react";
 
 export function useSignupGoogle() {
     const {user}= useAuth()
@@ -29,10 +28,8 @@ const toast=useToast()
 
   // Crop/file
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
   const [rawFile, setRawFile] = useState<File | null>(null);
   const [rawPreview, setRawPreview] = useState<string | null>(null);
-  const [completedCrop, setCompletedCrop] = useState<Crop | null>(null);
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
 
   const [isRegistering, setIsRegistering] = useState(false);

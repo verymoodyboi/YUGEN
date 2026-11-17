@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import supabase from "../../../lib/supabaseClient";
 import { useAuth } from "../../../contexts/AuthContext";
-import countries from "../../../Data/countries.json";
 import "react-toastify/dist/ReactToastify.css";
 
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";

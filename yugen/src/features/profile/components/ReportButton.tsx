@@ -10,10 +10,7 @@ interface ReportButtonProps {
   label?: string;
 }
 
-const ReportButton: React.FC<ReportButtonProps> = ({
-  reportedUserId,
-  label = "Report",
-}) => {
+const ReportButton: React.FC<ReportButtonProps> = ({ reportedUserId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedReason, setSelectedReason] = useState<string>("");
   const [message, setMessage] = useState<string>("");

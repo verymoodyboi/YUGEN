@@ -20,8 +20,7 @@ function validateProfileForm(
   const region = formData.get("Region") as string;
   const gender = formData.get("Gender") as string;
   const bio = formData.get("Bio") as string;
-  const conactEmail = formData.get("contactEmail") as string;
-  const contactNumber = formData.get("contactNumber") as string;
+
 
   if (
     isEmpty(fname) ||

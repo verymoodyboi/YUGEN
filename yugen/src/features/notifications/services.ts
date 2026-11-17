@@ -10,7 +10,7 @@ export async function checkNotifications(token: string): Promise<boolean> {
 export async function toggleNotifyStatus(
   artistId: string,
   notify: boolean,
-  token: string
+  token: any
 ): Promise<void> {
   await api.put(
     "/subs/notify",
@@ -19,7 +19,7 @@ export async function toggleNotifyStatus(
   );
 }
 
-export async function fetchNotifications(token: string) {
+export async function fetchNotifications(token: any) {
   const { data } = await api.get("/subs/notifications", {
     headers: { Authorization: `Bearer ${token}` },
   });

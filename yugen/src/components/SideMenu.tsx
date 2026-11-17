@@ -13,8 +13,6 @@ import contact_icon from "../YugenAssits/menu_icons/Contact.svg";
 import send_icon from "../YugenAssits/menu_icons/send_temp.png";
 
 import AuthActionGuard from "./clickWrapper";
-import { Send } from "lucide-react";
-import { send } from "process";
 type SideMenuProps = {
   mode?: "desktop" | "mobile";
   onOpenReport?: () => void;

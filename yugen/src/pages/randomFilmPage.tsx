@@ -1,7 +1,7 @@
-import AppLayout from "../layouts/layout-main";
+import React from "react";
 import FilmPicker from "../features/explore/components/filmPicker";
 
-export default function RandomFilmPage(): JSX.Element {
+export default function RandomFilmPage(): React.JSX.Element {
   return (
     <>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">

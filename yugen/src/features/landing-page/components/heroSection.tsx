@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../../../YugenAssits/YugenLogoFINAL.svg";
 const HeroSection: React.FC = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();

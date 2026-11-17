@@ -1,6 +1,5 @@
 // src/pages/UploadPage.tsx
 import * as React from "react";
-import AppLayout from "../layouts/layout-main";
 import UploadForm from "../features/upload/components/UploadForm";
 
 const UploadPage: React.FC = () => {

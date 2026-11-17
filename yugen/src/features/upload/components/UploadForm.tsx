@@ -59,9 +59,7 @@ const UploadForm: React.FC = () => {
     setCrewSearchInput,
     setActorSearchInput,
     setErrorMsg,
-    setIsDone,
     handleSubmit,
-    isValidFilm,
     setIsValidFilm,
   } = useUpload();
 
@@ -136,13 +134,6 @@ const UploadForm: React.FC = () => {
       }
     }, "image/png");
     ctx.restore();
-  };
-
-  const handleCancel = () => {
-    if (imgRef.current && canvasRef.current && crop) {
-      setCroppedPFP(imgRef.current, canvasRef.current, crop);
-    }
-    setIsModalOpen(false);
   };
 
   const handleFilmFileChange = (file: File | null) => {
@@ -260,7 +251,6 @@ const UploadForm: React.FC = () => {
         toast.warn("Thesis cannot exceed 1000 characters");
         return false;
       }
-     
 
       return true;
     }
@@ -275,7 +265,7 @@ const UploadForm: React.FC = () => {
 
   const crewRoles = ["Director", "DP", "Editor", "Producer", "Writer"];
 
-  const { genres: allGenres, loading: genresLoading } = useGenresWithFilms();
+  const { genres: allGenres } = useGenresWithFilms();
   const genreOptions = React.useMemo(
     () =>
       Array.isArray(allGenres)
@@ -476,7 +466,7 @@ const UploadForm: React.FC = () => {
                 <FilePond
                   name="File"
                   allowMultiple={false}
-                 // maxFileSize="50GB"
+                  // maxFileSize="50GB"
                   labelMaxFileSizeExceeded="Max file size is 5GB"
                   acceptedFileTypes={["video/mp4"]}
                   files={filmFile ? [filmFile] : []}
@@ -798,7 +788,7 @@ const UploadForm: React.FC = () => {
                             <img
                               src={
                                 member.pfp
-                                  ?  `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
+                                  ? `https://pfps.try-yugen.com/${member.pfp}?t=${Date.now()}`
                                   : tempPFP
                               }
                               alt={member.name}

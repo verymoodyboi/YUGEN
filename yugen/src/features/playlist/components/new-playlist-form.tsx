@@ -1,7 +1,6 @@
 import * as React from "react";
 import PlaylistPlayIcon from "@mui/icons-material/PlaylistPlay";
 import AddIcon from "@mui/icons-material/Add";
-import { useAuth } from "../../../contexts/AuthContext";
 import { usePlaylist } from "../hooks/usePlaylist";
 import { useToast } from "../../../components/toaster";
 
@@ -20,7 +19,6 @@ const NewPlaylist: React.FC<NewPlaylistProps> = ({
   const [playlistName, setPlaylistName] = React.useState("");
   const [isPublic, setIsPublic] = React.useState(false);
 
-  const { getAccessToken } = useAuth();
   const { creating, handleCreatePlaylist } = usePlaylist();
 
   const [visible, setVisible] = React.useState(false);
@@ -55,8 +53,7 @@ const NewPlaylist: React.FC<NewPlaylistProps> = ({
       return;
     }
     try {
-      const token = await getAccessToken();
-      const success = await handleCreatePlaylist(playlistName, isPublic, token);
+      const success = await handleCreatePlaylist(playlistName, isPublic);
       if (success) {
         toast.success("Playlist created!");
         setPlaylistName("");
@@ -89,7 +86,7 @@ const NewPlaylist: React.FC<NewPlaylistProps> = ({
         `}
       >
         <button
-          onClick={(e) => {
+          onClick={() => {
             setVisible(false);
             setTimeout(() => onClose(), 200);
           }}

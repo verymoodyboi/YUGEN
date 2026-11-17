@@ -10,7 +10,7 @@ import { fetchFilm, incrementView } from "../services/filmServices";
 
 interface UseFilmsProps {
   filmId?: string;
-  getAccessToken?: () => Promise<string>;
+  getAccessToken?:any;
 }
 
 export function useFilms({ filmId, getAccessToken }: UseFilmsProps) {

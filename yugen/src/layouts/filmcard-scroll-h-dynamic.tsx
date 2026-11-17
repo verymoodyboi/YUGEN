@@ -1,11 +1,17 @@
 import React from "react";
 import FilmCard from "../components/filmCard-2x3";
-
-interface Film {
-  film_uuid?: string;
-  id?: string;
-  [key: string]: any;
-}
+import { Film } from "../features/stream/types/film";
+// interface Film {
+//   film_uuid?: string;
+//   id?: string;
+//   [key: string]: any;
+//   film_title?: string;
+//   poster_path?: string;
+//   uploader_id?: any;
+//   release_date?: any;
+//   film_duration?:any;
+//   country?:string;
+// }
 
 interface FilmScrollRowProps {
   films: Film[];
@@ -68,10 +74,7 @@ const FilmScrollRowDynamic: React.FC<FilmScrollRowProps> = ({
         onScroll={handleScroll}
       >
         {films?.map((film) => (
-          <div
-            key={film.film_uuid || film.id}
-            className="flex-shrink-0 min-w-[200px]"
-          >
+          <div key={film.film_uuid} className="flex-shrink-0 min-w-[200px]">
             <FilmCard film={film} />
           </div>
         ))}

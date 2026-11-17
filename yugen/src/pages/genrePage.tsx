@@ -10,7 +10,7 @@ const GenrePage: React.FC = () => {
   const genreName = searchParams.get("genre") || undefined;
 
   const { films, loading, hasMore, fetchNextPage } = useFilmsByGenre(genreName);
-  const { genres, loading: genresLoading } = useGenresWithFilms();
+  const { genres } = useGenresWithFilms();
 
   const genreInfo = React.useMemo(
     () => genres?.find((g) => g.genre === genreName),

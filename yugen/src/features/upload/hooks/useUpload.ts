@@ -6,19 +6,16 @@ import {
   uploadToR2WithProgress,
 } from "../services";
 import { searchMentions } from "../../search/services";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "../../../components/toaster";
 import { useUploadProgress } from "../uploadContext";
 import { deleteFilm } from "../../editFilm/services";
-import { sliceFirst49MB } from "../util/sliceForMod";
 import { uploadModerationSnapshots } from "../util/uploadModFrame";
 
 export const useUpload = () => {
   const { uploadProgress, setUploadProgress } = useUploadProgress();
 
   const toast = useToast();
-  const { getAccessToken, userInfo } = useAuth();
-  const navigate = useNavigate();
+  const { getAccessToken } = useAuth();
 
 
   const [filmFile, setFilmFile] = useState<File | null>(null);

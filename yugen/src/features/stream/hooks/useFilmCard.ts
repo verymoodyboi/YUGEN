@@ -10,6 +10,7 @@ export const useFilm = (filmID?: string, uploader_id?: string) => {
   const [uploader, setUploader] = useState<{
     username: string | null;
     pfp: string | null;
+    updated_at?:any
   }>({ username: null, pfp: null });
 
   useEffect(() => {

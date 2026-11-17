@@ -1,6 +1,6 @@
 import { api } from "../../lib/api";
 
-export const toggleWatchlist = async (filmID: string, token: string) => {
+export const toggleWatchlist = async (filmID: string, token: any) => {
   const { data } = await api.post(
     `/watchlist/toggle`,
     { filmID },
@@ -8,14 +8,14 @@ export const toggleWatchlist = async (filmID: string, token: string) => {
   );
   return data.inWatchlist;
 };
-export const checkWatchlist = async (filmID: string, token: string) => {
+export const checkWatchlist = async (filmID: string, token: any) => {
   const { data } = await api.get(`/watchlist/check`, {
     params: { filmID },
     headers: { Authorization: `Bearer ${token}` },
   });
   return data.inWatchlist;
 };
-export const getMyWatchlist = async (token: string) => {
+export const getMyWatchlist = async (token: any) => {
   const { data } = await api.get(`/watchlist/my`, {
     headers: { Authorization: `Bearer ${token}` },
   });

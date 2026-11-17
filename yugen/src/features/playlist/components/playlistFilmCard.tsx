@@ -65,7 +65,7 @@ const PlaylistItem: React.FC<PlaylistItemProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(
-                  `/@?username=${encodeURIComponent(uploader?.username)}`,
+                  `/@?username=${encodeURIComponent(uploader?.username ?? "")}`,
                 );
               }}
             >

@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import supabase from "../../../lib/supabaseClient";
 import { useSearchBar } from "../hooks/useSearchBar";
 import tempPFP from "../../../YugenAssits/Avatar_Placeholder.png";
 import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";

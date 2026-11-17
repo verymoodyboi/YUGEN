@@ -4,7 +4,7 @@ import {api} from "../../../lib/api";
 export async function toggleFilmInPlaylist(
   playlistID: string,
   filmID: string,
-  token: string
+  token: any
 ) {
   const { data } = await api.post(
     "/playlists/add-to",

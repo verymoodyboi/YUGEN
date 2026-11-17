@@ -1,21 +1,16 @@
-// src/pages/UserProfile.tsx
 import React, { useState, useRef, useEffect, Fragment } from "react";
 import { useMyProfile } from "../features/profile/hooks/useMyProfile";
 import { useNavigate } from "react-router-dom";
-import supabase from "../lib/supabaseClient";
 import { useAuth } from "../contexts/AuthContext";
-import AppLayout from "../layouts/layout-main";
 import FilmCard from "../components/filmCard-2x3";
 import PlaylistCard from "../features/playlist/components/PlaylistCard";
-import CustomLoading from "../SmallComponents/CutomsLoading";
-import EditProfile from "../features/profile/components/editProfile";
 import { Dialog, Transition } from "@headlessui/react";
 import UploadFilmCard from "../features/profile/components/uploadedFilmsCard";
 import { useSearchParams } from "react-router-dom";
 import upload_button_static from "../YugenAssits/upload-button/upload_button.png";
 import upload_button_gif from "../YugenAssits/upload-button/upload_button.gif";
 import tempPFP from "../YugenAssits/Avatar_Placeholder.png";
-
+import EditProfile from "../features/profile/components/editProfile";
 import {
   FiYoutube,
   FiInstagram,
@@ -26,7 +21,6 @@ import {
   FiGlobe,
   FiCalendar,
 } from "react-icons/fi";
-import SchoolIcon from "@mui/icons-material/School";
 import Loading from "../components/loading_kickflip";
 import { Tooltip } from "@mui/material";
 
@@ -62,7 +56,6 @@ const UserProfile: React.FC = () => {
 
   // === Fetch Films (unchanged logic) ===
   const {
-    data,
     fetchNextPage,
     hasNextPage,
     isLoading,
@@ -72,10 +65,7 @@ const UserProfile: React.FC = () => {
     myPlaylists,
     handleLocalPlaylistDelete,
     handleLocalPlaylistUpdate,
-    playlistsLoading,
     myUploads,
-    myUploadsData,
-    fetchNextUploadsPage,
     hasNextUploadsPage,
     uploadsLoading,
     uploadsError,
@@ -172,7 +162,7 @@ const UserProfile: React.FC = () => {
                   <Tooltip title="View more details">
                     <button
                       className="font-freckle text-emerald-950 underline text-sm flex-shrink-0 cursor-pointer"
-                      onClick={(e) => {
+                      onClick={() => {
                         setValue("info");
                         setTimeout(scrollToInfo, 150);
                       }}

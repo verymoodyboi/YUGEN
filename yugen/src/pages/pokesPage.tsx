@@ -15,7 +15,6 @@ import {
   GraduationCap,
   Inbox,
   Mail,
-  UserPlus,
   Handshake,
 } from "lucide-react";
 
@@ -92,23 +91,21 @@ const PokesPage: React.FC = () => {
       };
     }
 
-    if (type === "received") {
-      if (!poke.seen) {
-        return {
-          label: "New",
-          icon: Sparkles,
-          card: "bg-yellow-50 border-yellow-400",
-          badge: "bg-yellow-500 text-white",
-        };
-      }
-
+    if (!poke.seen) {
       return {
-        label: "",
-        icon: Eye,
-        card: "bg-emerald-50 border-emerald-400",
-        badge: "",
+        label: "New",
+        icon: Sparkles,
+        card: "bg-yellow-50 border-yellow-400",
+        badge: "bg-yellow-500 text-white",
       };
     }
+
+    return {
+      label: "",
+      icon: Eye,
+      card: "bg-emerald-50 border-emerald-400",
+      badge: "",
+    };
   };
 
   if (loading) {

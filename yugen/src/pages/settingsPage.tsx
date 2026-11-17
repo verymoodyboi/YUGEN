@@ -1,7 +1,5 @@
 // src/pages/SettingsPage.tsx
-import { useState, useEffect } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import supabase from "../lib/supabaseClient";
 import "react-toastify/dist/ReactToastify.css";
 import EditProfile from "../features/profile/components/editProfile";
@@ -10,14 +8,11 @@ import LockIcon from "@mui/icons-material/Lock";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import SchoolIcon from "@mui/icons-material/School";
 import CheckIcon from "@mui/icons-material/Check";
 import { useToast } from "../components/toaster";
-import { Label } from "@headlessui/react";
 import { useDeleteAccount } from "../features/auth/delete/useDeleteAccount";
 const SettingsPage: React.FC = () => {
   const toast = useToast();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const paramTab = searchParams.get("to");
   const initialTab =
@@ -38,25 +33,6 @@ const SettingsPage: React.FC = () => {
       ],
     },
   ];
-
-  // Academic linking
-  // const {
-  //   academicEmail,
-  //   universityName,
-  //   uniID,
-  //   role,
-  //   verificationFile,
-  //   existingApplication,
-  //   step,
-  //   setAcademicEmail,
-  //   setRole,
-  //   setUniID,
-  //   setVerificationFile,
-  //   setStep,
-  //   handleAcademicSubmit,
-  //   handleAcademicSubmitFinal,
-  //   handleRemoveApplication,
-  // } = useAcademic();
 
   // Password reset
   const [isDone, setIsDone] = useState(false);

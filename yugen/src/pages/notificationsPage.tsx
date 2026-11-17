@@ -1,8 +1,7 @@
 // src/pages/NotificationsPage.tsx
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import AppLayout from "../layouts/layout-main";
-import supabase from "../lib/supabaseClient";
+
 import { useNotifications } from "../features/notifications/useNotifications";
 import Loading from "../components/loading_kickflip";
 import tempPoster from "../YugenAssits/Cover_Placeholder.png";

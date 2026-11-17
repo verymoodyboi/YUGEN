@@ -2,7 +2,7 @@ import { api } from "../../lib/api";
 
 const BASE = "/thoughts";
 
-export async function getThoughts(filmId: number, token?: string) {
+export async function getThoughts(filmId: number, token?: any) {
   const res = await api.get(`${BASE}/${filmId}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
@@ -13,7 +13,7 @@ export async function addThought(
   filmId: number,
   rating: number,
   comment: string | null,
-  token: string
+  token: any
 ) {
   return api.post(
     `${BASE}/add`,
@@ -22,7 +22,7 @@ export async function addThought(
   );
 }
 
-export async function deleteThought(thoughtId: number, token: string) {
+export async function deleteThought(thoughtId: number, token: any) {
   return api.post(
     `${BASE}/delete`,
     { id: thoughtId },
@@ -30,13 +30,13 @@ export async function deleteThought(thoughtId: number, token: string) {
   );
 }
 
-export async function voteThought(type: "upvote" | "downvote", payload: any, token: string) {
+export async function voteThought(type: "upvote" | "downvote", payload: any, token: any) {
   return api.post(`${BASE}/${type}`, payload, {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
 
-export async function addReply(thoughtId: number, comment: string, token: string) {
+export async function addReply(thoughtId: number, comment: string, token: any) {
   return api.post(
     `${BASE}/replies/add`,
     { thoughtId, comment },
@@ -44,7 +44,7 @@ export async function addReply(thoughtId: number, comment: string, token: string
   );
 }
 
-export async function deleteReply(replyId: number, token: string) {
+export async function deleteReply(replyId: number, token: any) {
   return api.post(
     `${BASE}/replies/delete`,
     { replyId },
@@ -52,13 +52,13 @@ export async function deleteReply(replyId: number, token: string) {
   );
 }
 
-export async function voteReply(type: "upvote" | "downvote", payload: any, token: string) {
+export async function voteReply(type: "upvote" | "downvote", payload: any, token: any) {
   return api.post(`${BASE}/replies/${type}`, payload, {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
 
-export async function flagThought(thoughtId: string, reason: string, token: string) {
+export async function flagThought(thoughtId: string, reason: string, token: any) {
   return api.post(
     `/thoughts/flag`,
     { thoughtId, reason }, 
@@ -66,7 +66,7 @@ export async function flagThought(thoughtId: string, reason: string, token: stri
   );
 }
 
-export async function flagReply(replyId: string, reason: string, token: string) {
+export async function flagReply(replyId: string, reason: string, token: any) {
   return api.post(
     `/thoughts/replies/flag`,
     { replyId, reason },

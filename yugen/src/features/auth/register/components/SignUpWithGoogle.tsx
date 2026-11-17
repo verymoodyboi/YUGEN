@@ -1,5 +1,4 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useSignupGoogle } from "../hooks/useSignUpGoogle";
 import { ImageCropper } from "../../../../util/image-cropping/components/image-cropper";
 import countries from "../../../../Data/countries.json";
@@ -62,7 +61,6 @@ const SignupGoogle: React.FC = () => {
       </div>
     </div>
   );
-  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex items-center justify-center text-emerald-950 font-freckle p-6">
       <div className="w-full max-w-3xl bg-emerald-50 border-4 border-emerald-950 rounded-3xl shadow-2xl p-6 h-[600px] overflow-y-auto">

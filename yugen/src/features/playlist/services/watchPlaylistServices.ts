@@ -1,14 +1,14 @@
 import { api } from "../../../lib/api";
 
 
-export async function fetchPlaylistMeta(playlistId: string, token: string) {
+export async function fetchPlaylistMeta(playlistId: string, token: any) {
   const res = await api.get(`/playlists/${playlistId}/meta`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data.playlist || res.data;
 }
 
-export async function fetchPlaylistFilms(playlistId: string, token: string) {
+export async function fetchPlaylistFilms(playlistId: string, token: any) {
   const res = await api.get(`/playlists/${playlistId}/films`, {
     headers: { Authorization: `Bearer ${token}` },
   });

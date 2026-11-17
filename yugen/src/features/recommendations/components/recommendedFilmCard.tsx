@@ -1,5 +1,4 @@
 import React from "react";
-import supabase from "../../../lib/supabaseClient";
 import { FiStar, FiEye } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -19,7 +18,6 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
   onClick,
 }) => {
   const navigate = useNavigate();
-  const { userInfo } = useAuth();
   const posterUrl = film.poster_path
     ? `https://posters.try-yugen.com/${film.poster_path}`
     : tempPoster;
@@ -153,7 +151,7 @@ const SimilarFilmCard: React.FC<SimilarFilmCardProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(
-                  `/@?username=${encodeURIComponent(uploader.username)}`,
+                  `/@?username=${encodeURIComponent(uploader.username ?? "")}`,
                 );
               }}
             >

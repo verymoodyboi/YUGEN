@@ -1,9 +1,6 @@
 import React from "react";
-import AppLayout from "../../layouts/layout-main";
 import { useFlaggedFilms } from "../../features/admin/flagged_films/useFlaggedFilms";
-import CustomLoading from "../../SmallComponents/CutomsLoading";
 import { FiAlertCircle, FiTrash2, FiRotateCcw } from "react-icons/fi";
-import supabase from "../../lib/supabaseClient";
 import tempPoster from "../../YugenAssits/Cover_Placeholder.png";
 import Loading from "../../components/loading_kickflip";
 
@@ -36,7 +33,7 @@ const FlaggedFilmsPage: React.FC = () => {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {flaggedFilms.map((item) => {
-              const film = item.films;
+              const film = item.films as any;
 
               return (
                 <div
