@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import logger from '../../../lib/logger';
+import logger from '../../../lib/logger.js';
 
 // NOTE: assumes you already have RESEND_API_KEY set in your env from the
 // film-insert-notification migration you did earlier. If you already have

@@ -15,7 +15,7 @@ const BITRATES = [
   { label: "1080p", width: 1920, height: 1080, bitrate: 4500 },
 ];
 
-type Job = { id: string; payload: { film_uuid: string } };
+type Job = { id: string; payload: { film_uuid?: string; filmUuid?: string; } };
 
 export async function getSignedR2Url(key: string): Promise<string> {
   const cmd = new GetObjectCommand({
@@ -26,7 +26,8 @@ export async function getSignedR2Url(key: string): Promise<string> {
 }
 
 export async function processTranscodeJob(job: Job): Promise<string> {
-  const filmId = job.payload?.film_uuid;
+    const filmId = job.payload?.film_uuid ?? job.payload?.filmUuid;
+
   if (!filmId) throw new Error("Invalid job payload");
 
   // 1. Get film path
