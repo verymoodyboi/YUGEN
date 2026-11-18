@@ -3,6 +3,7 @@ import { FiUploadCloud, FiCheck, FiX } from "react-icons/fi";
 import { usePendingUploads } from "../../features/admin/QA/useQA";
 import tempPoster from "../../YugenAssits/Cover_Placeholder.png";
 import Loading from "../../components/loading_kickflip";
+import { useNavigate } from "react-router-dom";
 
 const statusStyles = {
   queued: {
@@ -27,7 +28,7 @@ const ManageUploadsPage: React.FC = () => {
     isAccepting,
     isRejecting,
   } = usePendingUploads();
-
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen  text-emerald-950 font-freckle p-6 flex flex-col gap-6">
       <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -48,6 +49,9 @@ const ManageUploadsPage: React.FC = () => {
 
             return (
               <div
+                onClick={() => {
+                  navigate(`/watch?uuid=${encodeURIComponent(item.film_uuid)}`);
+                }}
                 key={item.film_uuid}
                 className={`border-4 rounded-xl p-4 flex flex-col justify-between hover:-translate-y-[2px] transition-transform ${status.card}`}
               >

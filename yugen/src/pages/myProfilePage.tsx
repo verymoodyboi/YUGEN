@@ -253,7 +253,7 @@ const UserProfile: React.FC = () => {
             {films.length > 0 ? (
               <div
                 onScroll={handleScroll}
-                className="flex overflow-x-auto pb-2 gap-3 no-scrollbar max-h-100"
+                className="flex overflow-x-auto overflow-y-hidden pb-2 gap-3 no-scrollbar"
               >
                 <div className="flex gap-3 flex-nowrap">
                   {isLoading ? (
@@ -273,7 +273,7 @@ const UserProfile: React.FC = () => {
                   w-46 h-90 
                   rounded-xl"
                     >
-                      <Loading />
+                      <></>
                     </div>
                   )}
                 </div>
