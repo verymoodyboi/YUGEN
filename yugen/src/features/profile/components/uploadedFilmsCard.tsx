@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import EditFilm from "../../editFilm/components/EditFilm";
 import { useUpload } from "../../upload/hooks/useUpload";
 import tempPoster from "../../../YugenAssits/Cover_Placeholder.png";
-
+import { useNavigate } from "react-router-dom";
 interface UploadFilmCardProps {
   film: any;
   uploadProgress?: number;
@@ -24,6 +24,23 @@ const UploadFilmCard: React.FC<UploadFilmCardProps> = ({ film }) => {
   const isUploading = ["uploading"].includes(film.moderation_status);
   const isUploadError = film.moderation_status === "upload_error";
   const isQualityControl = film.moderation_status === "quality_control";
+  const navigate = useNavigate();
+  const handleClick = () => {
+    if (isUploadError) {
+      // Handle upload error
+    } else if (isUploading) {
+      // Handle uploading
+    } else if (isQualityControl) {
+      // Handle quality control
+    } else if (isFlagged) {
+      // Handle flagged
+    } else if (isUnderReview) {
+      // Handle under review
+    } else {
+      // None of the states are true — navigate
+      navigate(`/watch?uuid=${encodeURIComponent(film.film_uuid)}`);
+    }
+  };
 
   const cardClass = isUploadError
     ? "bg-red-100 border-red-700"
@@ -39,6 +56,7 @@ const UploadFilmCard: React.FC<UploadFilmCardProps> = ({ film }) => {
 
   return (
     <div
+      onClick={handleClick}
       className={`flex flex-col md:flex-row items-center gap-4 p-3 rounded-lg border-2 transition-all ${cardClass}`}
     >
       <div className="relative w-20 h-28 flex flex-col">
