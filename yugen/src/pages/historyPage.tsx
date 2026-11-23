@@ -25,7 +25,8 @@ const HistoryPage: React.FC = () => {
           Revisit the unforgetable stories you watched
         </p>
       </div>{" "}
-      <div className="h-full w-full flex flex-col overflow-auto p-4">
+      <div className="flex flex-col pt-4">
+        {" "}
         {loading && <Loading />}
         {error && (
           <p className="text-red-600 dark:text-red-400">
@@ -35,7 +36,6 @@ const HistoryPage: React.FC = () => {
         {!loading && history.length === 0 && (
           <p className="text-emerald-900 ">No films in your history yet.</p>
         )}
-
         {!loading && history.length > 0 && (
           <div className="flex flex-col gap-10">
             {Object.entries(groupedHistory).map(([date, films]) => (

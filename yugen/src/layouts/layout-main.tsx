@@ -11,15 +11,9 @@ export default function AppLayout() {
   const [openContact, setOpenContact] = useState(false);
 
   return (
-    <div
-      className="    min-h-[100svh] lg:h-screen
-    w-full
-    flex flex-col
-    text-emerald-950
-    overflow-x-hidden
-    pb-20 lg:pb-0"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-    >
+    // Bottom spacing now lives on <main> (below), not here. The old inline
+    // paddingBottom style was overriding pb-20 anyway.
+    <div className="min-h-[100svh] lg:h-screen w-full flex flex-col text-emerald-950 overflow-x-hidden">
       {/* Header */}
       <header className="h-[80px] min-h-[80px] w-full border-b-3 border-emerald-950 border-solid flex items-center px-4">
         <AccHub />
@@ -37,9 +31,12 @@ export default function AppLayout() {
           />
         </aside>
 
-        {/* Main Content */}
+        {/* Main Content
+            - Mobile: the document scrolls; pb reserves room for the bottom
+              menu (adjust 5rem to the real menu height) plus the safe area.
+            - Desktop: <main> scrolls inside the h-screen layout. */}
         <main
-          className="flex-1 min-h-0 min-h-[100svh] lg:min-h-0 p-4 h-full  p-4 overflow-y-auto"
+          className="flex-1 min-h-0 min-w-0 p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-4 lg:overflow-y-auto"
           style={{
             backgroundImage: 'url("/Background.png")',
             backgroundSize: "cover",

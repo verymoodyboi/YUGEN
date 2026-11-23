@@ -89,7 +89,8 @@ const UserProfile: React.FC = () => {
     : tempPFP;
   return (
     <>
-      <div className="min-h-screen  text-emerald-950 font-freckle p-4 flex flex-col gap-6">
+      {/* No p-4 / min-h-screen here: <main> in AppLayout already provides padding */}
+      <div className="text-emerald-950 font-freckle flex flex-col gap-6">
         {/* HEADER */}
         <div className="flex flex-wrap gap-2 items-start justify-between w-full max-w-full overflow-x-hidden">
           {/* Profile Info */}
@@ -253,7 +254,7 @@ const UserProfile: React.FC = () => {
             {films.length > 0 ? (
               <div
                 onScroll={handleScroll}
-                className="flex overflow-x-auto overflow-y-hidden pb-2 gap-3 no-scrollbar"
+                className="flex overflow-x-auto -mx-4 px-4 pt-2 pb-4 gap-3 no-scrollbar"
               >
                 <div className="flex gap-3 flex-nowrap">
                   {isLoading ? (

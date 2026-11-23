@@ -15,7 +15,7 @@ const SubscriptionsPage: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col flex-grow overflow-y-auto space-y-6 pr-2">
+      <div className="flex flex-col space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
           <h1 className="text-4xl font-bold border-b-4 border-emerald-950  pb-2">
             Subscrptions
@@ -30,9 +30,15 @@ const SubscriptionsPage: React.FC = () => {
         ) : subscriptions.length === 0 ? (
           <p className="text-emerald-950">No subscriptions yet.</p>
         ) : (
-          <div className="flex flex-wrap gap-3 justify-center">
+          // Wrapping flex row, centered. Cards have a fixed width so the
+          // number per row adapts to the screen, and every row (including
+          // a partial last one) is centered. Mobile: exactly 2 per row.
+          <div className="flex flex-wrap justify-center gap-3">
             {subscriptions.map((subItem, index) => (
-              <div key={index} className="w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5">
+              <div
+                key={index}
+                className="min-w-0 flex justify-center w-[calc(50%-0.375rem)] sm:w-44"
+              >
                 <AccountCard account={subItem.sub} />
               </div>
             ))}

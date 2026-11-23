@@ -37,13 +37,16 @@ const HomePage: React.FC = () => {
           )}
         </div>
 
-        <div className="flex overflow-x-auto space-x-3 pb-2 pl-2 -mx-2">
+        {/* -mx-4 cancels <main>'s p-4 so the row bleeds to the screen edge;
+            px-4 puts the first/last card back in line with the heading.
+            pt/pb leave room for shadows and hover scaling. */}
+        <div className="flex overflow-x-auto gap-3 -mx-4 px-4 pt-2 pb-4 snap-x scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {films.map((film, index) => {
             const isLast = index === films.length - 1;
             return (
               <div
                 key={film.film_uuid}
-                className="flex-shrink-0"
+                className="flex-shrink-0 snap-start"
                 ref={isLast ? ref : null}
               >
                 <FilmCard film={film} />
@@ -57,7 +60,8 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-10 px-4 py-6">
+      {/* No horizontal padding here: <main> in AppLayout already provides it. */}
+      <div className="space-y-10 py-2">
         {renderSection(
           `Top in ${userInfo?.region}`,
           community,
