@@ -1,17 +1,6 @@
 import React from "react";
 import FilmCard from "../components/filmCard-2x3";
 import { Film } from "../features/stream/types/film";
-// interface Film {
-//   film_uuid?: string;
-//   id?: string;
-//   [key: string]: any;
-//   film_title?: string;
-//   poster_path?: string;
-//   uploader_id?: any;
-//   release_date?: any;
-//   film_duration?:any;
-//   country?:string;
-// }
 
 interface FilmScrollRowProps {
   films: Film[];
@@ -68,13 +57,20 @@ const FilmScrollRowDynamic: React.FC<FilmScrollRowProps> = ({
       )}
       {isError && <p className="text-red-500">Failed to load films</p>}
 
-      {/* Film row */}
+      {/* Film row
+          - -mx-4 cancels <main>'s p-4 so the row bleeds to the screen edges
+          - px-4 puts the first/last card back in line with the page content
+          - pt/pb leave room for shadows and hover scaling
+          - overflow-y-hidden removed: it was clipping shadows/borders */}
       <div
-        className="flex flex-row gap-0 overflow-x-auto overflow-y-hidden pl-2 min-h-[310px]"
+        className="flex flex-row gap-3 overflow-x-auto -mx-4 px-4 pt-2 pb-4 min-h-[310px] snap-x scroll-px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         onScroll={handleScroll}
       >
         {films?.map((film) => (
-          <div key={film.film_uuid} className="flex-shrink-0 min-w-[200px]">
+          <div
+            key={film.film_uuid}
+            className="flex-shrink-0 min-w-[200px] snap-start"
+          >
             <FilmCard film={film} />
           </div>
         ))}

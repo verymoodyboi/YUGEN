@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   FiYoutube,
@@ -10,7 +10,7 @@ import {
   FiBell,
   FiBellOff,
 } from "react-icons/fi";
-import { Send, CheckCircle, Sparkles, UserCheck, X } from "lucide-react";
+import { Send, CheckCircle, Sparkles, UserCheck } from "lucide-react";
 
 import { FiCheck } from "react-icons/fi";
 
@@ -24,6 +24,24 @@ import { Tooltip } from "@mui/material";
 import AuthActionGuard from "../components/clickWrapper";
 import ContactInfoGuard from "../features/pokes/components/contactWrapper";
 import ReportButton from "../features/profile/components/ReportButton";
+
+/**
+ * Returns true once `active` has been true for `ms` milliseconds.
+ * Resets whenever `active` goes back to false, so every new load
+ * gets its own timeout window.
+ */
+const useLoadingTimeout = (active: boolean, ms = 15000) => {
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    if (!active) {
+      setTimedOut(false);
+      return;
+    }
+    const t = setTimeout(() => setTimedOut(true), ms);
+    return () => clearTimeout(t);
+  }, [active, ms]);
+  return timedOut;
+};
 
 const AccProfile: React.FC = () => {
   const navigate = useNavigate();
@@ -73,6 +91,11 @@ const AccProfile: React.FC = () => {
     handleNotify,
   } = useViewProfile(username);
 
+  // Must stay above the `if (loading) return` early return (hooks order)
+  const scrollerTimedOut = useLoadingTimeout(
+    filmsLoading || isFetchingNextPage,
+  );
+
   const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const scrollRight = target.scrollLeft + target.clientWidth;
@@ -94,17 +117,19 @@ const AccProfile: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen  text-emerald-950 font-freckle p-4 flex flex-col gap-6">
-        {/* HEADER */}
-        <div className="flex flex-wrap gap-2 items-start justify-between w-full max-w-full overflow-x-hidden">
-          <div className="flex gap-4 items-center">
+      {/* No p-4 / min-h-screen here: <main> in AppLayout already provides padding */}
+      <div className="text-emerald-950 font-freckle flex flex-col gap-6">
+        {/* HEADER (overflow-x-hidden removed: it clipped button glow/hover scale) */}
+        <div className="flex flex-col gap-3 w-full max-w-full">
+          {/* Avatar + info row */}
+          <div className="flex gap-4 items-center min-w-0">
             <img
               src={`https://pfps.try-yugen.com/${user.pfp_path}?t=${Date.now()}`}
               alt="pfp"
-              className="w-24 h-24 rounded-full border-4 border-emerald-950 object-cover"
+              className="w-24 h-24 rounded-full border-4 border-emerald-950 object-cover flex-shrink-0"
             />
-            <div>
-              <h1 className="text-3xl">@{user?.username}</h1>
+            <div className="min-w-0">
+              <h1 className="text-3xl break-words">@{user?.username}</h1>
 
               <p className="flex items-center gap-2 mt-1 text-emerald-900">
                 <>
@@ -179,88 +204,87 @@ const AccProfile: React.FC = () => {
                   </button>
                 </div>
               )}
-              {/* Subscribe / Notify */}
+            </div>
+          </div>
 
-              <div className="mt-3 flex flex-col gap-3 mb-2">
-                {/* ROW 1 — Subscribe + Notify */}
-                <div className="flex gap-3">
-                  <AuthActionGuard>
-                    <button
-                      onClick={handleSubscribe}
-                      className={`px-4 py-2 rounded-full border-2 font-bold transition hover:scale-105 flex items-center gap-2 ${
-                        isSubscribed
-                          ? "bg-emerald-950 text-emerald-50 border-emerald-950"
-                          : "bg-emerald-50 text-emerald-950 border-emerald-950"
-                      }`}
-                    >
-                      {isSubscribed ? (
-                        <>
-                          <FiCheck />
-                          Subscribed
-                        </>
-                      ) : (
-                        "Subscribe"
-                      )}
-                    </button>
-                  </AuthActionGuard>
+          {/* Actions: one wrapping row (Subscribe / Notify / Report / Poke / Contact) */}
+          <div className="flex flex-wrap items-center gap-2">
+            <AuthActionGuard>
+              <button
+                onClick={handleSubscribe}
+                className={`px-3 sm:px-4 py-2 text-sm sm:text-base rounded-full border-2 font-bold transition hover:scale-105 flex items-center gap-2 ${
+                  isSubscribed
+                    ? "bg-emerald-950 text-emerald-50 border-emerald-950"
+                    : "bg-emerald-50 text-emerald-950 border-emerald-950"
+                }`}
+              >
+                {isSubscribed ? (
+                  <>
+                    <FiCheck />
+                    Subscribed
+                  </>
+                ) : (
+                  "Subscribe"
+                )}
+              </button>
+            </AuthActionGuard>
 
-                  {isSubscribed && (
-                    <Tooltip title="Notification">
-                      <AuthActionGuard>
-                        <button
-                          onClick={handleNotify}
-                          className="px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-bold hover:scale-105 transition"
-                        >
-                          {isNotify ? <FiBell /> : <FiBellOff />}
-                        </button>
-                      </AuthActionGuard>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Report">
-                    <AuthActionGuard>
-                      <ReportButton reportedUserId={user.auth_id} />
-                    </AuthActionGuard>
-                  </Tooltip>
-                </div>
-
-                {/* ROW 2 — Poke */}
-                {isSubscribed && (
-                  <Tooltip
-                    title={
-                      pokeStatus.status === "sent"
-                        ? "Poke sent — waiting for them"
-                        : pokeStatus.status === "received"
-                          ? "They poked you — accept to connect"
-                          : pokeStatus.status === "accepted"
-                            ? "You're connected"
-                            : "Send a poke"
-                    }
+            {isSubscribed && (
+              <Tooltip title="Notification">
+                <AuthActionGuard>
+                  <button
+                    onClick={handleNotify}
+                    className="px-3 sm:px-4 py-2 rounded-full border-2 border-emerald-950 bg-emerald-50 text-emerald-950 font-bold hover:scale-105 transition"
                   >
-                    <ContactInfoGuard>
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          if (!user?.auth_id) return;
+                    {isNotify ? <FiBell /> : <FiBellOff />}
+                  </button>
+                </AuthActionGuard>
+              </Tooltip>
+            )}
 
-                          switch (pokeStatus.status) {
-                            case "none":
-                              await handleSendPoke(user.auth_id);
-                              break;
+            <Tooltip title="Report">
+              <AuthActionGuard>
+                <ReportButton reportedUserId={user.auth_id} />
+              </AuthActionGuard>
+            </Tooltip>
 
-                            case "received":
-                              if (pokeStatus.pokeId)
-                                await handleAcceptPoke(pokeStatus.pokeId);
-                              break;
+            {isSubscribed && (
+              <Tooltip
+                title={
+                  pokeStatus.status === "sent"
+                    ? "Poke sent — waiting for them"
+                    : pokeStatus.status === "received"
+                      ? "They poked you — accept to connect"
+                      : pokeStatus.status === "accepted"
+                        ? "You're connected"
+                        : "Send a poke"
+                }
+              >
+                <ContactInfoGuard>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!user?.auth_id) return;
 
-                            case "accepted":
-                            case "sent":
-                              if (pokeStatus.pokeId)
-                                await handleDeletePoke(pokeStatus.pokeId);
-                              break;
-                          }
-                        }}
-                        className={`
-            px-4 py-2 rounded-full border-2 font-bold 
+                      switch (pokeStatus.status) {
+                        case "none":
+                          await handleSendPoke(user.auth_id);
+                          break;
+
+                        case "received":
+                          if (pokeStatus.pokeId)
+                            await handleAcceptPoke(pokeStatus.pokeId);
+                          break;
+
+                        case "accepted":
+                        case "sent":
+                          if (pokeStatus.pokeId)
+                            await handleDeletePoke(pokeStatus.pokeId);
+                          break;
+                      }
+                    }}
+                    className={`
+            px-3 sm:px-4 py-2 text-sm sm:text-base rounded-full border-2 font-bold 
             transition-all duration-200 
             hover:scale-105 
             flex items-center gap-2
@@ -274,58 +298,56 @@ const AccProfile: React.FC = () => {
                     : "bg-emerald-50 text-emerald-950 border-emerald-950 hover:bg-emerald-100"
             }
           `}
-                      >
-                        {pokeStatus.status === "none" && (
-                          <>
-                            <Send size={16} />
-                            Poke
-                          </>
-                        )}
+                  >
+                    {pokeStatus.status === "none" && (
+                      <>
+                        <Send size={16} />
+                        Poke
+                      </>
+                    )}
 
-                        {pokeStatus.status === "sent" && (
-                          <>
-                            <CheckCircle size={16} />
-                            Sent
-                          </>
-                        )}
+                    {pokeStatus.status === "sent" && (
+                      <>
+                        <CheckCircle size={16} />
+                        Sent
+                      </>
+                    )}
 
-                        {pokeStatus.status === "received" && (
-                          <>
-                            <Sparkles size={16} />
-                            Accept
-                          </>
-                        )}
+                    {pokeStatus.status === "received" && (
+                      <>
+                        <Sparkles size={16} />
+                        Accept
+                      </>
+                    )}
 
-                        {pokeStatus.status === "accepted" && (
-                          <>
-                            <UserCheck size={16} />
-                            Matched
-                          </>
-                        )}
-                      </button>
-                    </ContactInfoGuard>
-                  </Tooltip>
-                )}
+                    {pokeStatus.status === "accepted" && (
+                      <>
+                        <UserCheck size={16} />
+                        Matched
+                      </>
+                    )}
+                  </button>
+                </ContactInfoGuard>
+              </Tooltip>
+            )}
 
-                {/* ROW 3 — Contact (only when matched) */}
-                {isSubscribed && pokeStatus.status === "accepted" && user && (
-                  <button
-                    type="button"
-                    onClick={() => setOpenContactModal(true)}
-                    className="
-        px-4 py-2 rounded-full border-2 border-emerald-950 
+            {/* Contact (only when matched) */}
+            {isSubscribed && pokeStatus.status === "accepted" && user && (
+              <button
+                type="button"
+                onClick={() => setOpenContactModal(true)}
+                className="
+        px-3 sm:px-4 py-2 text-sm sm:text-base rounded-full border-2 border-emerald-950 
         bg-emerald-100 text-emerald-950 font-bold
         shadow-[0_0_10px_rgba(16,185,129,0.25)]
         hover:scale-105 transition
         flex items-center gap-2
       "
-                  >
-                    <Send size={16} />
-                    Contact @{user.username}
-                  </button>
-                )}
-              </div>
-            </div>
+              >
+                <Send size={16} />
+                Contact @{user.username}
+              </button>
+            )}
           </div>
         </div>
 
@@ -362,10 +384,10 @@ const AccProfile: React.FC = () => {
 
                 <div
                   onScroll={handleScroll}
-                  className="flex overflow-x-auto pb-2 gap-3 no-scrollbar"
+                  className="flex items-start overflow-x-auto overflow-y-hidden -mx-4 px-4 pt-2 pb-4 gap-3 no-scrollbar"
                 >
                   <div className="flex gap-3 flex-nowrap">
-                    {filmsLoading ? (
+                    {filmsLoading && !scrollerTimedOut ? (
                       <Loading />
                     ) : (
                       films.map((film) => (
@@ -375,7 +397,7 @@ const AccProfile: React.FC = () => {
                       ))
                     )}
 
-                    {isFetchingNextPage && (
+                    {isFetchingNextPage && !scrollerTimedOut && (
                       <div
                         className="flex-shrink-0 flex items-center justify-center 
                   w-46 h-90 rounded-xl"
